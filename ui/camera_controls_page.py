@@ -253,4 +253,4 @@ class CameraControlsPage(Gtk.ScrolledWindow):
     def _on_reset(self, _btn: Gtk.Button, ctrls: list[CameraControl]) -> None:
         if self._camera:
             self._manager.reset_all_controls(self._camera, ctrls)
-            self._rebuild()
+            self.set_camera(self._camera)

@@ -26,12 +26,12 @@ gio mount -u gphoto2://* 2>/dev/null
 sleep 2
 
 # Reset the USB interface of the camera before starting
-if [ -n "$USB_PORT" ]; then
-    timeout 8 gphoto2 --port "$USB_PORT" --reset 2>/dev/null
-else
-    timeout 8 gphoto2 --reset 2>/dev/null
-fi
-sleep 2
+# if [ -n "$USB_PORT" ]; then
+#     timeout 8 gphoto2 --port "$USB_PORT" --reset >/dev/null 2>&1
+# else
+#     timeout 8 gphoto2 --reset >/dev/null 2>&1
+# fi
+# sleep 2
 
 # Load v4l2loopback with 4 virtual devices if not loaded
 if ! lsmod | grep -q v4l2loopback; then
