@@ -1,0 +1,1 @@
+usr/share/biglinux/big-digicam/main.py

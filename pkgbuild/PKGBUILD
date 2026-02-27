@@ -1,10 +1,26 @@
-# Maintainer: Barnabé di Kartola <barnabedikartola@gmail.com>
+# Maintainer: Bruno Gonçalves <bigbruno@gmail.com>
 
-pkgname=biglinux-package-template
-pkgdesc="Package template for biglinux"
-# depends=('')
-# makedepends=('')
-# conflicts=('')
+pkgname=big-digicam
+pkgdesc="Universal webcam control center for BigLinux"
+depends=(
+    'python'
+    'python-gobject'
+    'gtk4'
+    'libadwaita'
+    'gstreamer'
+    'gst-plugins-base'
+    'gst-plugins-good'
+    'gst-plugin-gtk4'
+    'ffmpeg'
+    'v4l-utils'
+)
+optdepends=(
+    'gphoto2: DSLR/mirrorless camera support'
+    'libcamera: CSI/ISP camera support'
+    'pipewire: PipeWire virtual camera support'
+    'v4l2loopback-dkms: Virtual camera output'
+    'x264: Video recording (H.264)'
+)
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)
 arch=('any')
@@ -13,30 +29,24 @@ url="https://github.com/biglinux/$pkgname"
 provides=("$pkgname")
 source=("git+${url}.git")
 md5sums=('SKIP')
-if [ -e "${pkgname}.install" ];then
+if [ -e "${pkgname}.install" ]; then
     install=${pkgname}.install
-elif [ -e "pkgbuild.install" ];then
+elif [ -e "pkgbuild.install" ]; then
     install=pkgbuild.install
 fi
 
 package() {
-    # Verify default folder
     if [ -d "${srcdir}/${pkgname}/${pkgname}" ]; then
         InternalDir="${srcdir}/${pkgname}/${pkgname}"
     else
         InternalDir="${srcdir}/${pkgname}"
     fi
 
-    # Copy files
     if [ -d "${InternalDir}/usr" ]; then
         cp -r "${InternalDir}/usr" "${pkgdir}/"
     fi
 
     if [ -d "${InternalDir}/etc" ]; then
         cp -r "${InternalDir}/etc" "${pkgdir}/"
-    fi
-
-    if [ -d "${InternalDir}/opt" ]; then
-        cp -r "${InternalDir}/opt" "${pkgdir}/"
     fi
 }
