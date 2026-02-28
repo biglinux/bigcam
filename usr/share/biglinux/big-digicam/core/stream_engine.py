@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import os
+import subprocess
 from typing import Any
 
 import gi
@@ -24,6 +26,30 @@ log = logging.getLogger(__name__)
 
 # Backends that stream via UDP (MPEG-TS) need appsink
 _APPSINK_BACKENDS = {BackendType.GPHOTO2, BackendType.IP}
+
+
+def _find_device_users(device_path: str) -> list[str]:
+    """Return list of process names currently using a V4L2 device."""
+    try:
+        result = subprocess.run(
+            ["fuser", device_path],
+            capture_output=True, text=True, timeout=3,
+        )
+        pids = result.stdout.strip().split()
+        names: list[str] = []
+        for pid in pids:
+            pid = pid.strip().rstrip("m")
+            if not pid.isdigit():
+                continue
+            comm = f"/proc/{pid}/comm"
+            if os.path.exists(comm):
+                with open(comm) as f:
+                    name = f.read().strip()
+                    if name and name not in names:
+                        names.append(name)
+        return names
+    except Exception:
+        return []
 
 
 class StreamEngine(GObject.Object):
@@ -171,9 +197,9 @@ class StreamEngine(GObject.Object):
             f"{gst_source} ! "
             f"queue max-size-buffers=2 leaky=downstream silent=true ! "
             f"videoconvert n-threads=2 name=conv ! "
-            f"{flip}"
             f"tee name=t ! "
             f"queue max-size-buffers=2 leaky=downstream silent=true ! "
+            f"{flip}"
             f"gtk4paintablesink sync=false"
         )
 
@@ -190,6 +216,14 @@ class StreamEngine(GObject.Object):
 
         if self._try_start_paintable(base_pipeline):
             return True
+
+        # All pipelines failed — check if device is busy
+        if self._current_camera and self._current_camera.device_path:
+            users = _find_device_users(self._current_camera.device_path)
+            if users:
+                apps = ", ".join(users)
+                self.emit("error", _("Camera in use by: %s") % apps)
+                return False
 
         self.emit("error", _("Failed to start camera stream."))
         return False
@@ -466,6 +500,19 @@ class StreamEngine(GObject.Object):
             err, dbg = msg.parse_error()
             error_text = err.message if err else _("Unknown GStreamer error")
             log.error("GStreamer error: %s (debug: %s)", error_text, dbg)
+
+            busy = any(
+                kw in (error_text + (dbg or "")).lower()
+                for kw in ("resource busy", "busy", "ebusy", "cannot open")
+            )
+            if busy and self._current_camera and self._current_camera.device_path:
+                users = _find_device_users(self._current_camera.device_path)
+                if users:
+                    apps = ", ".join(users)
+                    error_text = _("Camera in use by: %s") % apps
+                else:
+                    error_text = _("Camera is being used by another application.")
+
             self.stop()
             self.emit("error", error_text)
         elif msg.type == Gst.MessageType.WARNING:

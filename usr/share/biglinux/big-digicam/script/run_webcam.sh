@@ -3,6 +3,11 @@ exec 2>&1
 
 USB_PORT="$1"
 UDP_PORT="${2:-5000}"
+CAM_NAME="${3:-Canon DSLR}"
+# Remove commas to prevent modprobe array parsing errors
+CAM_NAME="${CAM_NAME//,/}"
+CARD_LABELS="${CAM_NAME} (v4l2),${CAM_NAME} 2 (v4l2),${CAM_NAME} 3 (v4l2),${CAM_NAME} 4 (v4l2)"
+
 
 if [ -n "$USB_PORT" ]; then
   PORT_STR="--port $USB_PORT"
@@ -20,12 +25,17 @@ pkill -9 -f "gvfs-gphoto2-volume-monitor" 2>/dev/null
 gio mount -u gphoto2://* 2>/dev/null
 sleep 2
 
-# USB reset disabled globally for compatibility with Nikon cameras.
-# Canons will rely on the process kills to clean up the state instead.
+# Reset the USB interface of the camera before starting
+# if [ -n "$USB_PORT" ]; then
+#     timeout 8 gphoto2 --port "$USB_PORT" --reset >/dev/null 2>&1
+# else
+#     timeout 8 gphoto2 --reset >/dev/null 2>&1
+# fi
+# sleep 2
 
 # Load v4l2loopback with 4 virtual devices if not loaded
 if ! lsmod | grep -q v4l2loopback; then
-  bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 card_label="Canon DSLR Webcam,Canon DSLR Webcam 2,Canon DSLR Webcam 3,Canon DSLR Webcam 4"
+  bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 "card_label=$CARD_LABELS"
   sleep 1
 else
   # If loaded with exclusive_caps=0, reload only if no device is in use
@@ -33,7 +43,7 @@ else
     if ! fuser /dev/video* >/dev/null 2>&1; then
       bigsudo modprobe -r v4l2loopback 2>/dev/null
       sleep 1
-      bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 card_label="Canon DSLR Webcam,Canon DSLR Webcam 2,Canon DSLR Webcam 3,Canon DSLR Webcam 4"
+      bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 "card_label=$CARD_LABELS"
       sleep 1
     fi
   fi
@@ -43,16 +53,12 @@ fi
 DEVICE_VIDEO=""
 for dev in $(ls -v /dev/video* 2>/dev/null); do
   # Check if it's a v4l2loopback device via driver name
-  DRIVER=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Driver name" | awk '{print $NF}')
-  if [ "$DRIVER" = "v4l2" ] || echo "$DRIVER" | grep -qi "loopback"; then
-    # Also check card name
-    CARD=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Card type" | sed 's/.*: //')
-    if echo "$CARD" | grep -qi "v4l2loopback\|(v4l2)\|Canon DSLR\|Canon EOS"; then
-      # Check if NOT in use by another ffmpeg
-      if ! fuser "$dev" >/dev/null 2>&1; then
-        DEVICE_VIDEO="$dev"
-        break
-      fi
+  DRIVER=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Driver name" | sed 's/.*: //')
+  if echo "$DRIVER" | grep -qi "v4l2.*loopback\|loopback"; then
+    # Check if NOT in use by another ffmpeg
+    if ! fuser "$dev" >/dev/null 2>&1; then
+      DEVICE_VIDEO="$dev"
+      break
     fi
   fi
 done

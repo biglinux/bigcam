@@ -80,35 +80,42 @@ class VirtualCameraPage(Gtk.Box):
         clamp.set_child(content)
         self.append(clamp)
 
+        self._updating_ui = False
         self._refresh_status()
 
     def _refresh_status(self) -> None:
-        if not VirtualCamera.is_available():
-            self._status_row.set_subtitle(_("v4l2loopback not available"))
-            self._status_icon.set_from_icon_name("dialog-warning-symbolic")
-            self._toggle_row.set_sensitive(False)
-            return
+        self._updating_ui = True
+        try:
+            if not VirtualCamera.is_available():
+                self._status_row.set_subtitle(_("v4l2loopback not available"))
+                self._status_icon.set_from_icon_name("dialog-warning-symbolic")
+                self._toggle_row.set_sensitive(False)
+                return
 
-        device = VirtualCamera.find_loopback_device()
-        enabled = VirtualCamera.is_enabled()
+            device = VirtualCamera.find_loopback_device()
+            enabled = VirtualCamera.is_enabled()
 
-        if enabled and device:
-            self._status_row.set_subtitle(_("Active"))
-            self._status_icon.set_from_icon_name("emblem-ok-symbolic")
-            self._device_row.set_subtitle(device)
-            self._toggle_row.set_active(True)
-        elif device:
-            self._status_row.set_subtitle(_("Module loaded"))
-            self._status_icon.set_from_icon_name("emblem-default-symbolic")
-            self._device_row.set_subtitle(device)
-            self._toggle_row.set_active(False)
-        else:
-            self._status_row.set_subtitle(_("Module not loaded"))
-            self._status_icon.set_from_icon_name("dialog-information-symbolic")
-            self._device_row.set_subtitle(_("Not loaded"))
-            self._toggle_row.set_active(False)
+            if enabled and device:
+                self._status_row.set_subtitle(_("Active"))
+                self._status_icon.set_from_icon_name("emblem-ok-symbolic")
+                self._device_row.set_subtitle(device)
+                self._toggle_row.set_active(True)
+            elif device:
+                self._status_row.set_subtitle(_("Module loaded"))
+                self._status_icon.set_from_icon_name("emblem-default-symbolic")
+                self._device_row.set_subtitle(device)
+                self._toggle_row.set_active(False)
+            else:
+                self._status_row.set_subtitle(_("Module not loaded"))
+                self._status_icon.set_from_icon_name("dialog-information-symbolic")
+                self._device_row.set_subtitle(_("Not loaded"))
+                self._toggle_row.set_active(False)
+        finally:
+            self._updating_ui = False
 
     def _on_toggle(self, row: Adw.SwitchRow, _pspec) -> None:
+        if self._updating_ui:
+            return
         active = row.get_active()
         VirtualCamera.set_enabled(active)
         self.emit("virtual-camera-toggled", active)

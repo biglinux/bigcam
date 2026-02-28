@@ -340,6 +340,36 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             )
             return
 
+        from constants import BackendType
+
+        if self._active_camera.backend == BackendType.GPHOTO2:
+            dialog = Adw.AlertDialog.new(
+                _("Choose capture mode"),
+                _("You can take a screenshot from the current preview "
+                  "or capture a full-resolution photo directly from the camera."),
+            )
+            dialog.add_response("webcam", _("Preview screenshot"))
+            dialog.add_response("native", _("Camera photo (full resolution)"))
+            dialog.set_response_appearance(
+                "native", Adw.ResponseAppearance.SUGGESTED
+            )
+            dialog.set_default_response("native")
+            dialog.set_close_response("webcam")
+            dialog.connect("response", self._on_capture_mode_response)
+            dialog.present(self)
+            return
+
+        self._do_webcam_capture()
+
+    def _on_capture_mode_response(
+        self, _dialog: Adw.AlertDialog, response: str
+    ) -> None:
+        if response == "native":
+            self._do_native_capture()
+        else:
+            self._do_webcam_capture()
+
+    def _do_webcam_capture(self) -> None:
         self._preview.notification.notify_user(
             _("Capturing photo…"), "info", 1500
         )
@@ -362,6 +392,46 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._preview.notification.notify_user(
                 _("Failed to capture photo."), "error"
             )
+
+    def _do_native_capture(self) -> None:
+        camera = self._active_camera
+        if not camera:
+            return
+
+        self._preview.notification.notify_user(
+            _("Preparing camera for photo capture…"), "info", 0
+        )
+
+        def _capture_in_thread() -> str | None:
+            import time as _time
+            from utils import xdg
+
+            # Stop streaming so gphoto2 can access the camera
+            self._stream_engine.stop()
+            self._camera_manager.get_backend(camera.backend).stop_streaming()
+
+            timestamp = _time.strftime("%Y%m%d_%H%M%S")
+            output_dir = xdg.photos_dir()
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, f"bigcam_{timestamp}.jpg")
+
+            ok = self._camera_manager.capture_photo(camera, output_path)
+            return output_path if ok else None
+
+        def _on_done(result: str | None) -> None:
+            if result:
+                self._preview.notification.notify_user(
+                    _("Photo saved!"), "success"
+                )
+                self._gallery.refresh()
+            else:
+                self._preview.notification.notify_user(
+                    _("Failed to capture photo."), "error"
+                )
+            # Resume streaming
+            self._on_camera_selected(self._camera_selector, camera)
+
+        run_async(_capture_in_thread, on_success=_on_done)
 
     def _on_refresh(self, *_args) -> None:
         self._camera_manager.detect_cameras_async()
@@ -462,11 +532,41 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._on_camera_selected(self._camera_selector, cam)
 
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
+        if self._stream_engine.pipeline is not None:
+            dialog = Adw.AlertDialog.new(
+                _("Camera is active"),
+                _("The camera is currently streaming. "
+                  "If you choose to keep it running, "
+                  "the camera will remain on after closing the application."),
+            )
+            dialog.add_response("stop", _("Stop camera and close"))
+            dialog.add_response("keep", _("Keep camera on"))
+            dialog.add_response("cancel", _("Cancel"))
+            dialog.set_response_appearance("stop", Adw.ResponseAppearance.DESTRUCTIVE)
+            dialog.set_response_appearance("keep", Adw.ResponseAppearance.SUGGESTED)
+            dialog.set_default_response("cancel")
+            dialog.set_close_response("cancel")
+            dialog.connect("response", self._on_close_response)
+            dialog.present(self)
+            return True  # block close
+
+        self._cleanup_and_close()
+        return False
+
+    def _on_close_response(self, _dialog: Adw.AlertDialog, response: str) -> None:
+        if response == "cancel":
+            return
+        if response == "stop":
+            self._cleanup_and_close()
+        else:  # keep
+            self._camera_manager.stop_hotplug()
+        self.destroy()
+
+    def _cleanup_and_close(self) -> None:
         self._video_recorder.stop()
         self._stream_engine.stop()
         self._camera_manager.stop_hotplug()
         VirtualCamera.stop()
-        return False
 
     # -- theme ---------------------------------------------------------------
 

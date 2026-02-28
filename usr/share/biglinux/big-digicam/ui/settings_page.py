@@ -20,7 +20,7 @@ class SettingsPage(Gtk.ScrolledWindow):
     __gsignals__ = {
         "show-fps-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "mirror-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
-    }"
+    }
 
     def __init__(self, settings: SettingsManager) -> None:
         super().__init__(

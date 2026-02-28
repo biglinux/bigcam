@@ -30,6 +30,7 @@ class PreviewArea(Gtk.Overlay):
         self._engine = stream_engine
         self._fps_timer: int | None = None
         self._show_fps: bool = True
+        self._last_error: str = ""
 
         self.add_css_class("preview-area")
 
@@ -157,6 +158,7 @@ class PreviewArea(Gtk.Overlay):
             self._stop_fps_timer()
 
     def _on_error(self, _engine: StreamEngine, message: str) -> None:
+        self._last_error = message
         self._notification.notify_user(message, "error", 5000)
         self._show_retry()
 
@@ -219,13 +221,22 @@ class PreviewArea(Gtk.Overlay):
 
     def _show_retry(self) -> bool:
         self._cancel_retry_timer()
-        self._status.set_title(_("Connection failed"))
-        self._status.set_description(
-            _("Could not connect to the camera. Check the connection and try again.")
-        )
+        error = self._last_error
+        if error and _("Camera in use by:") in error:
+            self._status.set_title(_("Camera busy"))
+            self._status.set_description(error)
+        elif error and _("Camera is being used") in error:
+            self._status.set_title(_("Camera busy"))
+            self._status.set_description(error)
+        else:
+            self._status.set_title(_("Connection failed"))
+            self._status.set_description(
+                _("Could not connect to the camera. Check the connection and try again.")
+            )
         self._status.set_icon_name("dialog-warning-symbolic")
         self._retry_btn.set_visible(True)
         self._stack.set_visible_child_name("status")
+        self._last_error = ""
         return False
 
     def _cancel_retry_timer(self) -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fcntl
 import logging
 import os
 import re
@@ -18,6 +19,9 @@ log = logging.getLogger(__name__)
 # Unique UDP port per process instance (avoids conflicts with multi-instance)
 _UDP_PORT = 5000 + (os.getpid() % 1000)
 
+# ioctl constant for USB device reset
+_USBDEVFS_RESET = 21780
+
 
 class GPhoto2Backend(CameraBackend):
     """Backend for DSLR / mirrorless cameras via libgphoto2."""
@@ -26,6 +30,27 @@ class GPhoto2Backend(CameraBackend):
 
     def get_backend_type(self) -> BackendType:
         return BackendType.GPHOTO2
+
+    @staticmethod
+    def _usb_reset_canon() -> bool:
+        """Reset Canon camera USB to clear PTP timeout state."""
+        try:
+            result = subprocess.run(["lsusb"], capture_output=True, text=True)
+            for line in result.stdout.strip().split("\n"):
+                if "04a9" in line:  # Canon vendor ID
+                    parts = line.split()
+                    bus = parts[1]
+                    dev = parts[3].rstrip(":")
+                    path = f"/dev/bus/usb/{bus}/{dev}"
+                    fd = os.open(path, os.O_WRONLY)
+                    fcntl.ioctl(fd, _USBDEVFS_RESET, 0)
+                    os.close(fd)
+                    log.info("USB reset OK: %s", path)
+                    time.sleep(2)
+                    return True
+        except Exception as exc:
+            log.warning("USB reset failed: %s", exc)
+        return False
 
     def is_available(self) -> bool:
         try:
@@ -36,7 +61,13 @@ class GPhoto2Backend(CameraBackend):
 
     # -- detection -----------------------------------------------------------
 
+    _streaming_active = False
+
     def detect_cameras(self) -> list[CameraInfo]:
+        # Skip detection while streaming is active — gphoto2 can't share USB
+        if self._streaming_active:
+            return []
+
         cameras: list[CameraInfo] = []
         try:
             # Kill GVFS to release the camera
@@ -376,6 +407,7 @@ class GPhoto2Backend(CameraBackend):
         Uses subprocess.run() (blocking) exactly as the old app does.
         The script itself handles all cleanup (kill old processes, GVFS, etc).
         """
+        self._streaming_active = True
         port = camera.extra.get("port", camera.device_path)
         udp_port = str(camera.extra.get("udp_port", 5000))
         script = os.path.join(BASE_DIR, "script", "run_webcam_gphoto2.sh")
@@ -393,12 +425,15 @@ class GPhoto2Backend(CameraBackend):
 
         port_arg = port if port else ""
         try:
-            res = subprocess.run(
-                [script, port_arg, udp_port],
-                capture_output=True,
-                text=True,
-            )
-            output = res.stdout.strip()
+            import tempfile
+            with tempfile.TemporaryFile("w+") as f:
+                res = subprocess.run(
+                    [script, port_arg, udp_port, camera.name],
+                    stdout=f,
+                    stderr=subprocess.STDOUT,
+                )
+                f.seek(0)
+                output = f.read().strip()
             log.info("gphoto2 script output:\n%s", output)
 
             if res.returncode == 0:
@@ -412,13 +447,16 @@ class GPhoto2Backend(CameraBackend):
 
             log.error("GPhoto2 script failed (code %d): %s",
                       res.returncode, output)
+            self._streaming_active = False
             return False
         except Exception as exc:
             log.error("Failed to start gphoto2 streaming: %s", exc)
+            self._streaming_active = False
             return False
 
     def stop_streaming(self) -> None:
         """Stop ALL gphoto2/ffmpeg processes and wait for USB release."""
+        self._streaming_active = False
         try:
             subprocess.run(["pkill", "-9", "-f", "gphoto2 --"],
                            capture_output=True)
