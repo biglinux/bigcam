@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import logging
 import os
 import re
 import subprocess
@@ -10,6 +12,8 @@ from typing import Any
 from constants import BackendType, ControlCategory, ControlType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
 from utils.i18n import _
+
+log = logging.getLogger(__name__)
 
 # Human-friendly labels for V4L2 control IDs
 _CONTROL_LABELS: dict[str, str] = {
@@ -116,8 +120,8 @@ class V4L2Backend(CameraBackend):
             if len(lines) < 2:
                 continue
             header = lines[0].rstrip(":")
-            # Skip v4l2loopback virtual devices
-            if "v4l2loopback" in header.lower() or "loopback" in header.lower():
+            # Skip v4l2loopback virtual devices and the proxy ones created by the script
+            if "v4l2loopback" in header.lower() or "loopback" in header.lower() or "(v4l2)" in header.lower():
                 continue
             devs = [l.strip() for l in lines[1:] if l.strip().startswith("/dev/video")]
             if not devs:
@@ -335,14 +339,97 @@ class V4L2Backend(CameraBackend):
 
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
         device = camera.device_path
-        src = f"v4l2src device={device}"
+
+        # Try PipeWire first — allows sharing the camera with other apps
+        pw_node_id = self._find_pw_node_id(device)
+        if pw_node_id is not None:
+            return self._pw_gst_source(pw_node_id, camera, fmt)
+
+        # Fallback: direct V4L2 (exclusive access)
+        return self._v4l2_gst_source(device, camera, fmt)
+
+    def _pw_gst_source(self, node_id: int, camera: CameraInfo, fmt: VideoFormat | None) -> str:
+        """Build pipewiresrc element — PipeWire allows multi-app camera sharing."""
+        src = f"pipewiresrc target-object={node_id}"
+        if fmt is None:
+            fmt = self._pick_best_format(camera)
         if fmt:
+            if fmt.pixel_format == "MJPG":
+                caps = f"image/jpeg,width={fmt.width},height={fmt.height}"
+                if fmt.fps:
+                    best_fps = int(max(fmt.fps))
+                    caps += f",framerate={best_fps}/1"
+                return f"{src} ! {caps} ! jpegdec"
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:
                 best_fps = int(max(fmt.fps))
                 caps += f",framerate={best_fps}/1"
             return f"{src} ! {caps}"
         return src
+
+    def _v4l2_gst_source(self, device: str, camera: CameraInfo, fmt: VideoFormat | None) -> str:
+        """Build v4l2src element — exclusive device access."""
+        src = f"v4l2src device={device}"
+        if fmt is None:
+            fmt = self._pick_best_format(camera)
+        if fmt:
+            if fmt.pixel_format == "MJPG":
+                caps = f"image/jpeg,width={fmt.width},height={fmt.height}"
+                if fmt.fps:
+                    best_fps = int(max(fmt.fps))
+                    caps += f",framerate={best_fps}/1"
+                return f"{src} ! {caps} ! jpegdec"
+            caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
+            if fmt.fps:
+                best_fps = int(max(fmt.fps))
+                caps += f",framerate={best_fps}/1"
+            return f"{src} ! {caps}"
+        return src
+
+    @staticmethod
+    def _find_pw_node_id(device_path: str) -> int | None:
+        """Find PipeWire node ID for a V4L2 device path (e.g. /dev/video0).
+
+        Returns the numeric node ID or None if PipeWire is unavailable.
+        """
+        try:
+            result = subprocess.run(
+                ["pw-dump"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode != 0:
+                return None
+            data = json.loads(result.stdout)
+            for obj in data:
+                props = obj.get("info", {}).get("props", {})
+                if (
+                    props.get("media.class") == "Video/Source"
+                    and props.get("api.v4l2.path") == device_path
+                ):
+                    node_id = obj.get("id")
+                    if node_id is not None:
+                        log.info(
+                            "PipeWire node %d found for %s", node_id, device_path
+                        )
+                        return int(node_id)
+        except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError):
+            pass
+        return None
+
+    def _pick_best_format(self, camera: CameraInfo) -> VideoFormat | None:
+        """Auto-select format: prefer MJPEG at highest resolution with 30fps."""
+        if not camera.formats:
+            return None
+        mjpeg = [f for f in camera.formats if f.pixel_format == "MJPG" and f.fps and max(f.fps) >= 25]
+        raw = [f for f in camera.formats if f.pixel_format != "MJPG" and f.fps and max(f.fps) >= 25]
+        # Prefer MJPEG for higher resolutions (lower USB bandwidth)
+        candidates = mjpeg if mjpeg else raw
+        if not candidates:
+            candidates = camera.formats
+        candidates.sort(key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True)
+        return candidates[0]
 
     # -- photo ---------------------------------------------------------------
 

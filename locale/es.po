@@ -1,993 +1,658 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the bigcam package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+# Spanish translations for big-digicam package.
+# Copyright (C) 2026 THE big-digicam'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the big-digicam package.
+# Automatically generated, 2026.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: bigcam\n"
+"Project-Id-Version: big-digicam 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2026-02-28 14:30-0300\n"
+"PO-Revision-Date: 2026-02-28 13:36-0300\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: attranslate\n"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/notification.py, line: 50
-# File: bigcam/usr/share/biglinux/big-digicam/ui/notification.py, line: 50
-msgid "Dismiss"
-msgstr "Descartar"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/notification.py, line: 53
-# File: bigcam/usr/share/biglinux/big-digicam/ui/notification.py, line: 53
-msgid "Dismiss notification"
-msgstr "Descartar notificación"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 45
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 45
-msgid "No camera"
-msgstr "Sin cámara"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 46
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 46
-msgid "Connect a camera or select one from the list above."
-msgstr "Conecta una cámara o selecciona una de la lista de arriba."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 52
-# File: bigcam/ui/preview_area.py, line: 58
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 52
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 58
-msgid "Try again"
-msgstr "Inténtalo de nuevo."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 121
-# File: bigcam/ui/preview_area.py, line: 123
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 121
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 123
-msgid "Capture photo"
-msgstr "Capturar foto"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 131
-# File: bigcam/ui/preview_area.py, line: 133
-# File: bigcam/ui/preview_area.py, line: 232
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 131
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 133
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 232
-msgid "Record video"
-msgstr "Grabar video"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 210
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 210
-msgid "Connection failed"
-msgstr "Conexión fallida"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 212
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 212
-msgid "Could not connect to the camera. Check the connection and try again."
-msgstr "No se pudo conectar a la cámara. Verifique la conexión e inténtelo de nuevo."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/preview_area.py, line: 228
-# File: bigcam/usr/share/biglinux/big-digicam/ui/preview_area.py, line: 228
-msgid "Stop recording"
-msgstr "Detener grabación"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 38
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 38
-msgid "General"
-msgstr "General"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 42
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 42
-msgid "Photo directory"
-msgstr "Directorio de fotos"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 49
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 49
-msgid "Theme"
-msgstr "Tema"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 51
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 51
-msgid "System"
-msgstr "Sistema"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 51
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 51
-msgid "Light"
-msgstr "Luz"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 51
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 51
-msgid "Dark"
-msgstr "Oscuro"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 59
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 59
-msgid "Application theme"
-msgstr "Tema de la aplicación"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 67
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 67
-msgid "Preview"
-msgstr "Vista previa"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 70
-# File: bigcam/ui/settings_page.py, line: 75
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 70
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 75
-msgid "Mirror preview"
-msgstr "Vista previa del espejo"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 71
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 71
-msgid "Flip the preview horizontally like a mirror."
-msgstr "Voltea la vista previa horizontalmente como un espejo."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 81
-# File: bigcam/ui/settings_page.py, line: 85
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 81
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 85
-msgid "Show FPS counter"
-msgstr "Mostrar contador de FPS"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 93
-# File: bigcam/ui/camera_controls_page.py, line: 25
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 93
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 25
-msgid "Advanced"
-msgstr "Avanzado"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 96
-# File: bigcam/ui/settings_page.py, line: 101
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 96
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 101
-msgid "USB hotplug detection"
-msgstr "Detección de conexión en caliente de USB"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/settings_page.py, line: 97
-# File: bigcam/usr/share/biglinux/big-digicam/ui/settings_page.py, line: 97
-msgid "Automatically detect cameras when plugged or unplugged."
-msgstr "Detectar automáticamente cámaras al conectarlas o desconectarlas."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 34
-# File: bigcam/ui/window.py, line: 142
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 34
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 142
-msgid "Virtual Camera"
-msgstr "Cámara Virtual"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 37
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 37
-msgid "Status"
-msgstr "Estado"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 44
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 44
-msgid "Device"
-msgstr "Dispositivo"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 45
-# File: bigcam/ui/virtual_camera_page.py, line: 104
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 45
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 104
-msgid "Not loaded"
-msgstr "No cargado"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 52
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 52
-msgid "Actions"
-msgstr "Acciones"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 55
-# File: bigcam/ui/virtual_camera_page.py, line: 59
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 55
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 59
-msgid "Enable virtual camera"
-msgstr "Habilitar cámara virtual"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 56
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 56
-msgid "Create a virtual camera output for video calls and streaming."
-msgstr "Crea una salida de cámara virtual para videollamadas y transmisión."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 68
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 68
-msgid "Usage"
-msgstr "Uso"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 70
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 70
-msgid ""
-"When enabled, the active camera preview is sent to a virtual camera device that applications like "
-"OBS Studio, Google Meet, and Zoom can use."
-msgstr ""
-"Cuando está habilitado, la vista previa de la cámara activa se envía a un dispositivo de cámara "
-"virtual que aplicaciones como OBS Studio, Google Meet y Zoom pueden utilizar."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 83
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 83
-msgid "v4l2loopback not available"
-msgstr "v4l2loopback no disponible"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 92
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 92
-msgid "Active"
-msgstr "Activo"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 94
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 94
-msgid "Unknown"
-msgstr "Desconocido"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 97
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 97
-msgid "Module loaded"
-msgstr "Módulo cargado"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/virtual_camera_page.py, line: 102
-# File: bigcam/usr/share/biglinux/big-digicam/ui/virtual_camera_page.py, line: 102
-msgid "Module not loaded"
-msgstr "Módulo no cargado"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 36
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 36
-msgid "Captured Photos"
-msgstr "Fotos capturadas"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 41
-# File: bigcam/ui/photo_gallery.py, line: 43
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 41
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 43
-msgid "Open photos folder"
-msgstr "Abrir carpeta de fotos"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 49
-# File: bigcam/ui/window.py, line: 176
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 49
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 176
-msgid "Refresh"
-msgstr "Actualizar"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 51
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 51
-msgid "Refresh photo gallery"
-msgstr "Actualizar galería de fotos"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 74
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 74
-msgid "No photos yet"
-msgstr "No hay fotos aún"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 75
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 75
-msgid "Captured photos will appear here."
-msgstr "Las fotos capturadas aparecerán aquí."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/photo_gallery.py, line: 128
-# File: bigcam/usr/share/biglinux/big-digicam/ui/photo_gallery.py, line: 128
-#, python-format
-msgid "Open %s"
-msgstr "Abrir %s"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/about_dialog.py, line: 37
-# File: bigcam/usr/share/biglinux/big-digicam/ui/about_dialog.py, line: 37
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: usr/share/biglinux/big-digicam/ui/about_dialog.py:37
 msgid "Universal webcam control center for Linux."
-msgstr "Centro de control de webcam universal para Linux."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_selector.py, line: 43
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_selector.py, line: 43
-msgid "Select camera"
-msgstr "Seleccionar cámara"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_selector.py, line: 45
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_selector.py, line: 45
-msgid "Camera selector"
-msgstr "Selector de cámara"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 81
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 81
-msgid "Menu"
-msgstr "Menú"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 83
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 83
-msgid "Main menu"
-msgstr "Menú principal"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 90
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 90
-msgid "Refresh cameras"
-msgstr "Actualizar cámaras"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 92
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 92
-msgid "Refresh camera list"
-msgstr "Actualizar lista de cámaras"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 128
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 128
-msgid "Controls"
-msgstr "Controles"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 135
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 135
-msgid "Photos"
-msgstr "Fotos"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 149
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 149
-msgid "Settings"
-msgstr "Configuraciones"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 165
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 165
-msgid "Capture Photo"
-msgstr "Capturar foto"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 166
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 166
-msgid "Record Video"
-msgstr "Grabar video"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 170
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 170
-msgid "Save Profile"
-msgstr "Guardar perfil"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 171
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 171
-msgid "Load Profile"
-msgstr "Cargar perfil"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 172
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 172
-msgid "Profiles"
-msgstr "Perfiles"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 175
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 175
-msgid "Add IP Camera…"
-msgstr "Agregar cámara IP…"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 177
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 177
-msgid "About"
-msgstr "Acerca de"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 249
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 246
-msgid "Starting camera stream…"
-msgstr "Iniciando transmisión de cámara…"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 265
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 262
-msgid "Camera streaming started!"
-msgstr "¡Streaming de la cámara iniciado!"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 280
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 276
-msgid "Failed to start camera streaming."
-msgstr "Error al iniciar la transmisión de la cámara."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 299
-# File: bigcam/ui/window.py, line: 363
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 295
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 359
-msgid "No camera selected."
-msgstr "No se ha seleccionado ninguna cámara."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 304
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 300
-msgid "Capturing photo…"
-msgstr "Capturando foto…"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 315
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 311
-msgid "Photo saved!"
-msgstr "¡Foto guardada!"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 320
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 316
-msgid "Failed to capture photo."
-msgstr "Error al capturar la foto."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 358
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 354
-#, python-format
-msgid "Video saved: %s"
-msgstr "Video guardado: %s"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 370
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 366
-msgid "Recording…"
-msgstr "Grabando…"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 374
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 370
-msgid "Failed to start recording."
-msgstr "Error al iniciar la grabación."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 389
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 385
-msgid "Profile saved."
-msgstr "Perfil guardado."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 398
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 394
-msgid "No profiles found."
-msgstr "No se encontraron perfiles."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/window.py, line: 409
-# File: bigcam/usr/share/biglinux/big-digicam/ui/window.py, line: 405
-#, python-format
-msgid "Profile loaded: %s"
-msgstr "Perfil cargado: %s"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 24
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 24
-msgid "Add IP Camera"
-msgstr "Agregar cámara IP"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 42
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 42
-msgid "Camera Details"
-msgstr "Detalles de la cámara"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 44
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 44
-msgid "Name"
-msgstr "Nombre"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 46
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 46
-msgid "Camera name"
-msgstr "Nombre de la cámara"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 50
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 50
-msgid "URL"
-msgstr "URL"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 53
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 53
-msgid "Camera URL (RTSP or HTTP)"
-msgstr "URL de la cámara (RTSP o HTTP)"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 60
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 60
-msgid "Add Camera"
-msgstr "Agregar cámara"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/ip_camera_dialog.py, line: 65
-# File: bigcam/usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py, line: 65
-msgid "Add IP camera"
-msgstr "Agregar cámara IP"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 21
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 21
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:21
 msgid "Image"
-msgstr "Imagen"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 22
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 22
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:22
 msgid "Exposure"
-msgstr "Exposición"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 23
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 23
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:23
 msgid "Focus"
-msgstr "Enfoque"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 24
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 24
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:24
 msgid "White Balance"
-msgstr "Balance de blancos"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 65
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 65
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:25
+msgid "Capture"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:26
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:41
+msgid "Status"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:27
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:98
+msgid "Advanced"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:69
 msgid "No camera selected"
-msgstr "No se ha seleccionado ninguna cámara."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 66
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 66
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:70
 msgid "Select a camera to see its controls."
-msgstr "Selecciona una cámara para ver sus controles."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 84
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 84
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:97
 msgid "Loading controls…"
-msgstr "Cargando controles…"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 115
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 115
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:128
 msgid "No adjustable controls"
-msgstr "Sin controles ajustables"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 116
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 116
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:129
 msgid "This camera does not expose any controls."
-msgstr "Esta cámara no expone ningún control."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 245
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 245
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:283
 msgid "Reset to defaults"
-msgstr "Restablecer a los valores predeterminados"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/ui/camera_controls_page.py, line: 248
-# File: bigcam/usr/share/biglinux/big-digicam/ui/camera_controls_page.py, line: 248
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_controls_page.py:286
 #, python-format
 msgid "Reset %s controls"
-msgstr "Restablecer controles %s"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/stream_engine.py, line: 80
-# File: bigcam/core/stream_engine.py, line: 81
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_selector.py:43
+msgid "Select camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/camera_selector.py:45
+msgid "Camera selector"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:24
+msgid "Add IP Camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:42
+msgid "Camera Details"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:44
+msgid "Name"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:46
+msgid "Camera name"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:50
+msgid "URL"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:53
+msgid "Camera URL (RTSP or HTTP)"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:60
+msgid "Add Camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/ip_camera_dialog.py:65
+msgid "Add IP camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/notification.py:50
+msgid "Dismiss"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/notification.py:53
+msgid "Dismiss notification"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:36
+msgid "Captured Photos"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:41
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:43
+msgid "Open photos folder"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:49
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:54
+#: usr/share/biglinux/big-digicam/ui/window.py:191
+msgid "Refresh"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:51
+msgid "Refresh photo gallery"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:74
+msgid "No photos yet"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:75
+msgid "Captured photos will appear here."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/photo_gallery.py:132
+#, python-format
+msgid "Open %s"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:47
+msgid "No camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:48
+msgid "Connect a camera or select one from the list above."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:54
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:60
+msgid "Try again"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:123
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:125
+msgid "Capture photo"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:133
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:135
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:255
+msgid "Record video"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:225
+msgid "Camera in use by:"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:226
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:229
+msgid "Camera busy"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:228
+msgid "Camera is being used"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:232
+msgid "Connection failed"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:234
+msgid "Could not connect to the camera. Check the connection and try again."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/preview_area.py:251
+msgid "Stop recording"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:43
+msgid "General"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:47
+msgid "Photo directory"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:54
+msgid "Theme"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:56
+msgid "System"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:56
+msgid "Light"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:56
+msgid "Dark"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:64
+msgid "Application theme"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:72
+msgid "Preview"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:75
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:80
+msgid "Mirror preview"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:76
+msgid "Flip the preview horizontally like a mirror."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:86
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:90
+msgid "Show FPS counter"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:101
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:106
+msgid "USB hotplug detection"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/settings_page.py:102
+msgid "Automatically detect cameras when plugged or unplugged."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:41
+msgid "Recorded Videos"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:46
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:48
+msgid "Open videos folder"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:56
+msgid "Refresh video gallery"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:79
+msgid "No videos yet"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:80
+msgid "Recorded videos will appear here."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:171
+#: usr/share/biglinux/big-digicam/ui/video_gallery.py:188
+#, python-format
+msgid "Play %s"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:38
+#: usr/share/biglinux/big-digicam/ui/window.py:152
+msgid "Virtual Camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:48
+msgid "Device"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:49
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:111
+msgid "Not loaded"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:56
+msgid "Actions"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:59
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:63
+msgid "Enable virtual camera"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:60
+msgid "Create a virtual camera output for video calls and streaming."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:72
+msgid "Usage"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:74
+msgid ""
+"When enabled, the active camera preview is sent to a virtual camera device "
+"that applications like OBS Studio, Google Meet, and Zoom can use."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:90
+msgid "v4l2loopback not available"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:99
+msgid "Active"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:104
+msgid "Module loaded"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/virtual_camera_page.py:109
+msgid "Module not loaded"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:83
+msgid "Menu"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:85
+msgid "Main menu"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:92
+msgid "Refresh cameras"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:94
+msgid "Refresh camera list"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:131
+msgid "Controls"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:138
+msgid "Photos"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:145
+msgid "Videos"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:164
+msgid "Settings"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:180
+msgid "Capture Photo"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:181
+msgid "Record Video"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:185
+msgid "Save Profile"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:186
+msgid "Load Profile"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:187
+msgid "Profiles"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:190
+msgid "Add IP Camera…"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:192
+msgid "About"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:267
+msgid "Starting camera stream…"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:288
+msgid "Camera streaming started!"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:304
+msgid "Failed to start camera streaming."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:339
+#: usr/share/biglinux/big-digicam/ui/window.py:475
+msgid "No camera selected."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:347
+msgid "Choose capture mode"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:348
+msgid ""
+"You can take a screenshot from the current preview or capture a full-"
+"resolution photo directly from the camera."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:351
+msgid "Preview screenshot"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:352
+msgid "Camera photo (full resolution)"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:374
+msgid "Capturing photo…"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:388
+#: usr/share/biglinux/big-digicam/ui/window.py:424
+msgid "Photo saved!"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:393
+#: usr/share/biglinux/big-digicam/ui/window.py:429
+msgid "Failed to capture photo."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:402
+msgid "Preparing camera for photo capture…"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:469
+#, python-format
+msgid "Video saved: %s"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:484
+msgid "Recording…"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:488
+msgid "Failed to start recording."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:503
+msgid "Profile saved."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:512
+msgid "No profiles found."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:523
+#, python-format
+msgid "Profile loaded: %s"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:537
+msgid "Camera is active"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:538
+msgid ""
+"The camera is currently streaming. If you choose to keep it running, the "
+"camera will remain on after closing the application."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:542
+msgid "Stop camera and close"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:543
+msgid "Keep camera on"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/ui/window.py:544
+msgid "Cancel"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:173
 msgid "Failed to start camera streaming process."
-msgstr "Error al iniciar el proceso de transmisión de la cámara."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/stream_engine.py, line: 85
-# File: bigcam/core/stream_engine.py, line: 86
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:178
 msgid "Failed to obtain GStreamer source for this camera."
-msgstr "Error al obtener la fuente de GStreamer para esta cámara."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/stream_engine.py, line: 127
-# File: bigcam/core/stream_engine.py, line: 128
-msgid "GStreamer GTK4 sink plugin not found."
-msgstr "No se encontró el complemento de sumidero GStreamer GTK4."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/stream_engine.py, line: 234
-# File: bigcam/usr/share/biglinux/big-digicam/core/stream_engine.py, line: 245
-# File: bigcam/core/stream_engine.py, line: 245
-# File: bigcam/core/stream_engine.py, line: 256
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:225
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:512
+#, python-format
+msgid "Camera in use by: %s"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:228
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:406
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:417
 msgid "Failed to start camera stream."
-msgstr "Error al iniciar el flujo de la cámara."
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/stream_engine.py, line: 321
-# File: bigcam/core/stream_engine.py, line: 338
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:501
 msgid "Unknown GStreamer error"
-msgstr "Error desconocido de GStreamer"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/gphoto2_backend.py, line: 65
-# File: bigcam/core/backends/gphoto2_backend.py, line: 96
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/stream_engine.py:514
+msgid "Camera is being used by another application."
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/gphoto2_backend.py:96
 msgid "Generic Camera"
-msgstr "Cámara genérica"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 16
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py, line: 69
-# File: bigcam/core/backends/v4l2_backend.py, line: 16
-# File: bigcam/core/backends/libcamera_backend.py, line: 69
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py:69
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:20
 msgid "Brightness"
-msgstr "Brillo"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 17
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py, line: 75
-# File: bigcam/core/backends/v4l2_backend.py, line: 17
-# File: bigcam/core/backends/libcamera_backend.py, line: 75
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py:75
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:21
 msgid "Contrast"
-msgstr "Contraste"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 18
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py, line: 81
-# File: bigcam/core/backends/v4l2_backend.py, line: 18
-# File: bigcam/core/backends/libcamera_backend.py, line: 81
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py:81
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:22
 msgid "Saturation"
-msgstr "Saturación"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 19
-# File: bigcam/core/backends/v4l2_backend.py, line: 19
-msgid "Hue"
-msgstr "Tono"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 20
-# File: bigcam/core/backends/v4l2_backend.py, line: 20
-msgid "Sharpness"
-msgstr "Nitidez"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 21
-# File: bigcam/core/backends/v4l2_backend.py, line: 21
-msgid "Gamma"
-msgstr "Gamma"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 22
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py, line: 87
-# File: bigcam/core/backends/v4l2_backend.py, line: 22
-# File: bigcam/core/backends/libcamera_backend.py, line: 87
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py:87
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:26
 msgid "Auto White Balance"
-msgstr "Balance de blancos automático"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 23
-# File: bigcam/core/backends/v4l2_backend.py, line: 23
-msgid "White Balance Temperature"
-msgstr "Temperatura de Balance de Blancos"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 24
-# File: bigcam/core/backends/v4l2_backend.py, line: 24
-msgid "Gain"
-msgstr "Ganancia"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 25
-# File: bigcam/core/backends/v4l2_backend.py, line: 25
-msgid "Auto Exposure"
-msgstr "Exposición automática"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 26
-# File: bigcam/core/backends/v4l2_backend.py, line: 26
-msgid "Exposure Time"
-msgstr "Tiempo de exposición"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 27
-# File: bigcam/core/backends/v4l2_backend.py, line: 27
-msgid "Exposure Auto Priority"
-msgstr "Prioridad Automática de Exposición"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 28
-# File: bigcam/core/backends/v4l2_backend.py, line: 28
-msgid "Auto Focus"
-msgstr "Enfoque automático"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 29
-# File: bigcam/core/backends/v4l2_backend.py, line: 29
-msgid "Focus Distance"
-msgstr "Distancia de enfoque"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 30
-# File: bigcam/core/backends/v4l2_backend.py, line: 30
-msgid "Zoom"
-msgstr "Zoom"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 31
-# File: bigcam/core/backends/v4l2_backend.py, line: 31
-msgid "Pan"
-msgstr "Sartén"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 32
-# File: bigcam/core/backends/v4l2_backend.py, line: 32
-msgid "Tilt"
-msgstr "Inclinación"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 33
-# File: bigcam/core/backends/v4l2_backend.py, line: 33
-msgid "Backlight Compensation"
-msgstr "Compensación de retroiluminación"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 34
-# File: bigcam/core/backends/v4l2_backend.py, line: 34
-msgid "Power Line Frequency"
-msgstr "Frecuencia de la línea eléctrica"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 35
-# File: bigcam/core/backends/v4l2_backend.py, line: 35
-msgid "Exposure Bias"
-msgstr "Sesgo de exposición"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 36
-# File: bigcam/core/backends/v4l2_backend.py, line: 36
-msgid "WB Preset"
-msgstr "Configuración de WB"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 37
-# File: bigcam/core/backends/v4l2_backend.py, line: 37
-msgid "Image Stabilization"
-msgstr "Estabilización de imagen"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 38
-# File: bigcam/core/backends/v4l2_backend.py, line: 38
-msgid "ISO Sensitivity"
-msgstr "Sensibilidad ISO"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 39
-# File: bigcam/core/backends/v4l2_backend.py, line: 39
-msgid "Auto ISO"
-msgstr "ISO automático"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 40
-# File: bigcam/core/backends/v4l2_backend.py, line: 40
-msgid "Scene Mode"
-msgstr "Modo Escena"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 41
-# File: bigcam/core/backends/v4l2_backend.py, line: 41
-msgid "3A Lock"
-msgstr "Bloqueo 3A"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 42
-# File: bigcam/core/backends/v4l2_backend.py, line: 42
-msgid "LED Mode"
-msgstr "Modo LED"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py, line: 43
-# File: bigcam/core/backends/v4l2_backend.py, line: 43
-msgid "LED Frequency"
-msgstr "Frecuencia de LED"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py, line: 95
-# File: bigcam/core/backends/libcamera_backend.py, line: 95
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/libcamera_backend.py:95
 msgid "Exposure Mode"
-msgstr "Modo de Exposición"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:23
+msgid "Hue"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:24
+msgid "Sharpness"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:25
+msgid "Gamma"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:27
+msgid "White Balance Temperature"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:28
+msgid "Gain"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:29
+msgid "Auto Exposure"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:30
+msgid "Exposure Time"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:31
+msgid "Exposure Auto Priority"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:32
+msgid "Auto Focus"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:33
+msgid "Focus Distance"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:34
+msgid "Zoom"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:35
+msgid "Pan"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:36
+msgid "Tilt"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:37
+msgid "Backlight Compensation"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:38
+msgid "Power Line Frequency"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:39
+msgid "Exposure Bias"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:40
+msgid "WB Preset"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:41
+msgid "Image Stabilization"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:42
+msgid "ISO Sensitivity"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:43
+msgid "Auto ISO"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:44
+msgid "Scene Mode"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:45
+msgid "3A Lock"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:46
+msgid "LED Mode"
+msgstr ""
+
+#: usr/share/biglinux/big-digicam/core/backends/v4l2_backend.py:47
+msgid "LED Frequency"
+msgstr ""

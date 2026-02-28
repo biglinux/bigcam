@@ -56,7 +56,9 @@ class PipeWireBackend(CameraBackend):
             if obj_match:
                 # Flush previous
                 if current_id and self._is_video_source(current_props):
-                    cameras.append(self._make_camera(current_id, current_props))
+                    cam = self._make_camera(current_id, current_props)
+                    if "v4l2loopback" not in cam.name.lower() and "(v4l2)" not in cam.name.lower():
+                        cameras.append(cam)
                 current_id = obj_match.group(1)
                 current_props = {}
                 continue
@@ -68,7 +70,9 @@ class PipeWireBackend(CameraBackend):
 
         # Flush last
         if current_id and self._is_video_source(current_props):
-            cameras.append(self._make_camera(current_id, current_props))
+            cam = self._make_camera(current_id, current_props)
+            if "v4l2loopback" not in cam.name.lower() and "(v4l2)" not in cam.name.lower():
+                cameras.append(cam)
 
         return cameras
 
