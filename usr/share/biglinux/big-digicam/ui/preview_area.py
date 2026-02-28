@@ -29,6 +29,7 @@ class PreviewArea(Gtk.Overlay):
         super().__init__()
         self._engine = stream_engine
         self._fps_timer: int | None = None
+        self._show_fps: bool = True
 
         self.add_css_class("preview-area")
 
@@ -146,7 +147,7 @@ class PreviewArea(Gtk.Overlay):
                 self._picture.set_paintable(paintable)
             # For appsink mode, the picture gets updated via new-texture signal
             self._stack.set_visible_child_name("preview")
-            self._fps_label.set_visible(True)
+            self._fps_label.set_visible(self._show_fps)
             self._retry_btn.set_visible(False)
             self._cancel_retry_timer()
             self._start_fps_timer()
@@ -176,13 +177,24 @@ class PreviewArea(Gtk.Overlay):
             GLib.source_remove(tid)
 
     def _update_fps(self) -> bool:
-        # TODO: read actual decoded FPS from pipeline
         if self._engine.is_playing():
-            self._fps_label.set_text("⏵ Live")
+            fps = self._engine.fps
+            if fps > 0:
+                self._fps_label.set_text(f"{fps:.0f} FPS")
+            else:
+                self._fps_label.set_text("⏵ Live")
             return True
         self._fps_label.set_visible(False)
-        self._fps_timer = None  # source auto-removed when returning False
+        self._fps_timer = None
         return False
+
+    def set_show_fps(self, show: bool) -> None:
+        """Toggle FPS counter visibility."""
+        self._show_fps = show
+        if show and self._engine.is_playing():
+            self._fps_label.set_visible(True)
+        else:
+            self._fps_label.set_visible(False)
 
     # -- public helpers ------------------------------------------------------
 

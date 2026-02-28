@@ -110,6 +110,108 @@ class GPhoto2Backend(CameraBackend):
 
     # -- controls ------------------------------------------------------------
 
+    # Keyword-to-category mapping for individual config names
+    _CONTROL_CATEGORY: dict[str, ControlCategory] = {
+        # Exposure
+        "iso": ControlCategory.EXPOSURE,
+        "shutterspeed": ControlCategory.EXPOSURE,
+        "aperture": ControlCategory.EXPOSURE,
+        "f-number": ControlCategory.EXPOSURE,
+        "exposurecompensation": ControlCategory.EXPOSURE,
+        "autoexposuremode": ControlCategory.EXPOSURE,
+        "autoexposuremodedial": ControlCategory.EXPOSURE,
+        "expprogram": ControlCategory.EXPOSURE,
+        "meteringmode": ControlCategory.EXPOSURE,
+        "aeb": ControlCategory.EXPOSURE,
+        "bracketmode": ControlCategory.EXPOSURE,
+        "exposuremetermode": ControlCategory.EXPOSURE,
+        "exposureiso": ControlCategory.EXPOSURE,
+        "aebracket": ControlCategory.EXPOSURE,
+        "manualexposurecompensation": ControlCategory.EXPOSURE,
+        # Flash (under exposure)
+        "flashmode": ControlCategory.EXPOSURE,
+        "flashcompensation": ControlCategory.EXPOSURE,
+        "internalflashmode": ControlCategory.EXPOSURE,
+        "flashopen": ControlCategory.EXPOSURE,
+        "flashcharge": ControlCategory.EXPOSURE,
+        # Focus
+        "focusmode": ControlCategory.FOCUS,
+        "manualfocusdrive": ControlCategory.FOCUS,
+        "autofocusdrive": ControlCategory.FOCUS,
+        "focusarea": ControlCategory.FOCUS,
+        "focuspoints": ControlCategory.FOCUS,
+        "continuousaf": ControlCategory.FOCUS,
+        "cancelautofocus": ControlCategory.FOCUS,
+        "afbeam": ControlCategory.FOCUS,
+        "afmethod": ControlCategory.FOCUS,
+        "focuslock": ControlCategory.FOCUS,
+        "afoperation": ControlCategory.FOCUS,
+        # White balance
+        "whitebalance": ControlCategory.WHITE_BALANCE,
+        "whitebalanceadjust": ControlCategory.WHITE_BALANCE,
+        "whitebalanceadjusta": ControlCategory.WHITE_BALANCE,
+        "whitebalancexa": ControlCategory.WHITE_BALANCE,
+        "whitebalancexb": ControlCategory.WHITE_BALANCE,
+        "colortemperature": ControlCategory.WHITE_BALANCE,
+        "wb_adjust": ControlCategory.WHITE_BALANCE,
+        # Image quality / processing
+        "imageformat": ControlCategory.IMAGE,
+        "imageformatsd": ControlCategory.IMAGE,
+        "imageformatcf": ControlCategory.IMAGE,
+        "imageformatexthd": ControlCategory.IMAGE,
+        "imagesize": ControlCategory.IMAGE,
+        "imagequality": ControlCategory.IMAGE,
+        "picturestyle": ControlCategory.IMAGE,
+        "colorspace": ControlCategory.IMAGE,
+        "contrast": ControlCategory.IMAGE,
+        "saturation": ControlCategory.IMAGE,
+        "sharpness": ControlCategory.IMAGE,
+        "hue": ControlCategory.IMAGE,
+        "colormodel": ControlCategory.IMAGE,
+        "highlighttonepr": ControlCategory.IMAGE,
+        "shadowtonepr": ControlCategory.IMAGE,
+        "highisonr": ControlCategory.IMAGE,
+        "longexpnr": ControlCategory.IMAGE,
+        "aspectratio": ControlCategory.IMAGE,
+        # Capture settings
+        "drivemode": ControlCategory.CAPTURE,
+        "capturemode": ControlCategory.CAPTURE,
+        "capturetarget": ControlCategory.CAPTURE,
+        "eosremoterelease": ControlCategory.CAPTURE,
+        "viewfinder": ControlCategory.CAPTURE,
+        "reviewtime": ControlCategory.CAPTURE,
+        "eoszoomposition": ControlCategory.CAPTURE,
+        "eoszoom": ControlCategory.CAPTURE,
+        "eosvfmode": ControlCategory.CAPTURE,
+        "output": ControlCategory.CAPTURE,
+        "movieservoaf": ControlCategory.CAPTURE,
+        "liveviewsize": ControlCategory.CAPTURE,
+        "remotemode": ControlCategory.CAPTURE,
+        # Status (read-only info)
+        "batterylevel": ControlCategory.STATUS,
+        "lensname": ControlCategory.STATUS,
+        "serialnumber": ControlCategory.STATUS,
+        "cameramodel": ControlCategory.STATUS,
+        "deviceversion": ControlCategory.STATUS,
+        "availableshots": ControlCategory.STATUS,
+        "eosserialnumber": ControlCategory.STATUS,
+        "firmwareversion": ControlCategory.STATUS,
+        "model": ControlCategory.STATUS,
+        "ptpversion": ControlCategory.STATUS,
+    }
+
+    # Broader fallback: map by gPhoto2 config section
+    _SECTION_CATEGORY: dict[str, ControlCategory] = {
+        "imgsettings": ControlCategory.IMAGE,
+        "capturesettings": ControlCategory.CAPTURE,
+        "status": ControlCategory.STATUS,
+        "settings": ControlCategory.ADVANCED,
+        "actions": ControlCategory.ADVANCED,
+        "other": ControlCategory.ADVANCED,
+    }
+
+    _BATCH_SIZE = 50
+
     def get_controls(self, camera: CameraInfo) -> list[CameraControl]:
         controls: list[CameraControl] = []
         port = camera.extra.get("port", camera.device_path)
@@ -122,16 +224,36 @@ class GPhoto2Backend(CameraBackend):
             )
             if result.returncode != 0:
                 return controls
-            config_paths = [l.strip() for l in result.stdout.splitlines() if l.strip().startswith("/")]
-            for cfg_path in config_paths:
-                ctrl = self._read_config(port, cfg_path)
-                if ctrl:
-                    controls.append(ctrl)
-        except Exception:
-            pass
+            config_paths = [
+                line.strip()
+                for line in result.stdout.splitlines()
+                if line.strip().startswith("/")
+            ]
+            if not config_paths:
+                return controls
+
+            # Batch-read configs to avoid one subprocess per control
+            for start in range(0, len(config_paths), self._BATCH_SIZE):
+                batch = config_paths[start : start + self._BATCH_SIZE]
+                cmd = ["gphoto2", "--port", port]
+                for cfg in batch:
+                    cmd.extend(["--get-config", cfg])
+                res = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=30,
+                )
+                if res.returncode != 0:
+                    # Fallback: try one-by-one for this batch
+                    for cfg in batch:
+                        ctrl = self._read_single_config(port, cfg)
+                        if ctrl:
+                            controls.append(ctrl)
+                    continue
+                controls.extend(self._parse_batch_output(batch, res.stdout))
+        except Exception as exc:
+            log.warning("get_controls failed: %s", exc)
         return controls
 
-    def _read_config(self, port: str, cfg_path: str) -> CameraControl | None:
+    def _read_single_config(self, port: str, cfg_path: str) -> CameraControl | None:
         try:
             result = subprocess.run(
                 ["gphoto2", "--port", port, "--get-config", cfg_path],
@@ -145,8 +267,46 @@ class GPhoto2Backend(CameraBackend):
         except Exception:
             return None
 
-    @staticmethod
-    def _parse_config(cfg_path: str, output: str) -> CameraControl | None:
+    @classmethod
+    def _parse_batch_output(
+        cls, paths: list[str], output: str,
+    ) -> list[CameraControl]:
+        """Split combined gphoto2 output into per-config blocks and parse."""
+        controls: list[CameraControl] = []
+        blocks: list[list[str]] = []
+        current: list[str] = []
+        for line in output.splitlines():
+            if line.startswith("Label:") and current:
+                blocks.append(current)
+                current = []
+            current.append(line)
+        if current:
+            blocks.append(current)
+
+        for idx, block in enumerate(blocks):
+            if idx >= len(paths):
+                break
+            ctrl = cls._parse_config(paths[idx], "\n".join(block))
+            if ctrl:
+                controls.append(ctrl)
+        return controls
+
+    @classmethod
+    def _categorize(cls, cfg_path: str) -> ControlCategory:
+        """Map a gPhoto2 config path to a ControlCategory."""
+        parts = cfg_path.strip("/").lower().split("/")
+        # Check leaf name first (most specific)
+        leaf = parts[-1] if parts else ""
+        if leaf in cls._CONTROL_CATEGORY:
+            return cls._CONTROL_CATEGORY[leaf]
+        # Check section (e.g. /main/capturesettings/...)
+        for part in parts:
+            if part in cls._SECTION_CATEGORY:
+                return cls._SECTION_CATEGORY[part]
+        return ControlCategory.ADVANCED
+
+    @classmethod
+    def _parse_config(cls, cfg_path: str, output: str) -> CameraControl | None:
         lines = output.strip().splitlines()
         info: dict[str, str] = {}
         choices: list[str] = []
@@ -158,7 +318,6 @@ class GPhoto2Backend(CameraBackend):
             elif line.startswith("Current:"):
                 info["current"] = line.split(":", 1)[1].strip()
             elif line.startswith("Choice:"):
-                # "Choice: 0 Auto"
                 parts = line.split(" ", 2)
                 if len(parts) >= 3:
                     choices.append(parts[2].strip())
@@ -174,30 +333,22 @@ class GPhoto2Backend(CameraBackend):
         if "label" not in info:
             return None
 
-        # Determine control type
         gp_type = info.get("type", "TEXT")
-        if gp_type == "RADIO" or gp_type == "MENU":
+        if gp_type in ("RADIO", "MENU"):
             ctype = ControlType.MENU
         elif gp_type == "TOGGLE":
             ctype = ControlType.BOOLEAN
         elif gp_type == "RANGE":
             ctype = ControlType.INTEGER
+        elif gp_type == "TEXT":
+            ctype = ControlType.STRING
+        elif gp_type == "DATE":
+            ctype = ControlType.STRING
         else:
-            return None  # Skip TEXT and DATE types for UI
+            return None
 
-        # Determine category by config path
-        cat = ControlCategory.ADVANCED
-        path_lower = cfg_path.lower()
-        if "iso" in path_lower or "exposure" in path_lower or "shutterspeed" in path_lower:
-            cat = ControlCategory.EXPOSURE
-        elif "whitebalance" in path_lower or "wb" in path_lower:
-            cat = ControlCategory.WHITE_BALANCE
-        elif "focus" in path_lower:
-            cat = ControlCategory.FOCUS
-        elif "contrast" in path_lower or "saturation" in path_lower or "sharpness" in path_lower:
-            cat = ControlCategory.IMAGE
-
-        current = info.get("current", "0")
+        cat = cls._categorize(cfg_path)
+        current = info.get("current", "")
         flags = "read-only" if info.get("readonly", "0") == "1" else ""
 
         ctrl = CameraControl(

@@ -28,6 +28,8 @@ _DEFAULTS: dict[str, object] = {
     "theme": "system",
     "auto-start-preview": True,
     "hotplug_enabled": True,
+    # Virtual camera
+    "virtual-camera-enabled": False,
     # IP Cameras (list serialised as JSON array)
     "ip_cameras": [],
 }

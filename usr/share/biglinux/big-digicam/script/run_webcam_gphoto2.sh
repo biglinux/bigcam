@@ -88,7 +88,7 @@ for dev in $(ls -v /dev/video* 2>/dev/null); do
   DRIVER=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Driver name" | awk '{print $NF}')
   if [ "$DRIVER" = "v4l2" ] || echo "$DRIVER" | grep -qi "loopback"; then
     CARD=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Card type" | sed 's/.*: //')
-    if echo "$CARD" | grep -qi "v4l2loopback\|Canon DSLR"; then
+    if echo "$CARD" | grep -qi "v4l2loopback\|(v4l2)\|Canon DSLR\|Canon EOS"; then
       if ! fuser "$dev" >/dev/null 2>&1; then
         DEVICE_VIDEO="$dev"
         break

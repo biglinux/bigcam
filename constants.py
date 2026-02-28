@@ -27,6 +27,8 @@ class ControlCategory(enum.Enum):
     EXPOSURE = "exposure"
     FOCUS = "focus"
     WHITE_BALANCE = "wb"
+    CAPTURE = "capture"
+    STATUS = "status"
     ADVANCED = "advanced"
 
 
@@ -35,3 +37,4 @@ class ControlType(enum.Enum):
     BOOLEAN = "bool"
     MENU = "menu"
     BUTTON = "button"
+    STRING = "string"

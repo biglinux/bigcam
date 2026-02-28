@@ -47,7 +47,7 @@ for dev in $(ls -v /dev/video* 2>/dev/null); do
   if [ "$DRIVER" = "v4l2" ] || echo "$DRIVER" | grep -qi "loopback"; then
     # Also check card name
     CARD=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Card type" | sed 's/.*: //')
-    if echo "$CARD" | grep -qi "v4l2loopback\|Canon DSLR"; then
+    if echo "$CARD" | grep -qi "v4l2loopback\|(v4l2)\|Canon DSLR\|Canon EOS"; then
       # Check if NOT in use by another ffmpeg
       if ! fuser "$dev" >/dev/null 2>&1; then
         DEVICE_VIDEO="$dev"

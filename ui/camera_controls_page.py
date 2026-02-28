@@ -22,6 +22,8 @@ _CATEGORY_LABELS = {
     ControlCategory.EXPOSURE: _("Exposure"),
     ControlCategory.FOCUS: _("Focus"),
     ControlCategory.WHITE_BALANCE: _("White Balance"),
+    ControlCategory.CAPTURE: _("Capture"),
+    ControlCategory.STATUS: _("Status"),
     ControlCategory.ADVANCED: _("Advanced"),
 }
 
@@ -30,6 +32,8 @@ _CATEGORY_ICONS = {
     ControlCategory.EXPOSURE: "camera-photo-symbolic",
     ControlCategory.FOCUS: "find-location-symbolic",
     ControlCategory.WHITE_BALANCE: "weather-clear-symbolic",
+    ControlCategory.CAPTURE: "media-record-symbolic",
+    ControlCategory.STATUS: "dialog-information-symbolic",
     ControlCategory.ADVANCED: "emblem-system-symbolic",
 }
 
@@ -68,6 +72,15 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         self._content.append(self._empty)
 
     # -- public API ----------------------------------------------------------
+
+    def set_camera_with_controls(
+        self, camera: CameraInfo, controls: list[CameraControl],
+    ) -> None:
+        """Set camera and display pre-fetched controls (avoids USB conflict)."""
+        self._camera = camera
+        self._controls = controls
+        self._clear_content()
+        self._populate(controls)
 
     def set_camera(self, camera: CameraInfo | None) -> None:
         self._camera = camera
@@ -128,6 +141,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             ControlCategory.EXPOSURE,
             ControlCategory.FOCUS,
             ControlCategory.WHITE_BALANCE,
+            ControlCategory.CAPTURE,
+            ControlCategory.STATUS,
             ControlCategory.ADVANCED,
         ]
 
@@ -206,6 +221,26 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             row.add_suffix(scale)
             return row
 
+        if ctrl.control_type == ControlType.STRING:
+            if readonly:
+                row = Adw.ActionRow(title=ctrl.name)
+                row.add_suffix(
+                    Gtk.Label(
+                        label=str(ctrl.value or ""),
+                        selectable=True,
+                        css_classes=["dim-label"],
+                    )
+                )
+            else:
+                row = Adw.EntryRow(title=ctrl.name)
+                row.set_text(str(ctrl.value or ""))
+                row.connect("apply", self._on_entry_apply, ctrl)
+            row.update_property(
+                [Gtk.AccessibleProperty.LABEL], [ctrl.name]
+            )
+            row.set_sensitive(True)
+            return row
+
         return None
 
     # -- signal handlers -----------------------------------------------------
@@ -236,6 +271,9 @@ class CameraControlsPage(Gtk.ScrolledWindow):
     def _apply(self, ctrl: CameraControl, value: Any) -> None:
         if self._camera:
             self._manager.set_control(self._camera, ctrl.id, value)
+
+    def _on_entry_apply(self, row: Adw.EntryRow, ctrl: CameraControl) -> None:
+        self._apply(ctrl, row.get_text())
 
     # -- reset button --------------------------------------------------------
 

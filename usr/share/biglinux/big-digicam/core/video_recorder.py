@@ -1,4 +1,4 @@
-"""Video recorder – GStreamer-based video recording."""
+"""Video recorder – GStreamer-based video recording via tee from preview pipeline."""
 
 from __future__ import annotations
 
@@ -21,13 +21,21 @@ log = logging.getLogger(__name__)
 
 
 class VideoRecorder:
-    """Records video from the active camera to a file."""
+    """Records video by branching off the active preview pipeline tee."""
 
     def __init__(self, camera_manager: CameraManager) -> None:
         self._manager = camera_manager
-        self._pipeline: Gst.Pipeline | None = None
         self._recording = False
         self._output_path = ""
+        # Elements added to the preview pipeline for recording
+        self._rec_queue: Gst.Element | None = None
+        self._rec_convert: Gst.Element | None = None
+        self._rec_encoder: Gst.Element | None = None
+        self._rec_muxer: Gst.Element | None = None
+        self._rec_sink: Gst.Element | None = None
+        self._tee: Gst.Element | None = None
+        self._tee_pad: Gst.Pad | None = None
+        self._pipeline: Gst.Pipeline | None = None
 
     @property
     def is_recording(self) -> bool:
@@ -37,13 +45,23 @@ class VideoRecorder:
     def output_path(self) -> str:
         return self._output_path
 
-    def start(self, camera: CameraInfo, filename: str | None = None) -> str | None:
-        """Start recording. Returns the output path on success, None otherwise."""
+    def start(
+        self,
+        camera: CameraInfo,
+        pipeline: Gst.Pipeline | None = None,
+        filename: str | None = None,
+    ) -> str | None:
+        """Start recording by adding a branch to the preview pipeline tee."""
         if self._recording:
             return None
 
-        gst_source = self._manager.get_gst_source(camera)
-        if not gst_source:
+        if not pipeline:
+            log.error("No pipeline provided for recording")
+            return None
+
+        tee = pipeline.get_by_name("t")
+        if not tee:
+            log.error("No tee element in pipeline — cannot record")
             return None
 
         if filename is None:
@@ -54,40 +72,113 @@ class VideoRecorder:
         os.makedirs(output_dir, exist_ok=True)
         self._output_path = os.path.join(output_dir, filename)
 
-        pipeline_str = (
-            f"{gst_source} ! queue ! videoconvert ! "
-            f"x264enc tune=zerolatency speed-preset=ultrafast ! "
-            f'matroskamux ! filesink location="{self._output_path}"'
-        )
-
         try:
-            self._pipeline = Gst.parse_launch(pipeline_str)
-            bus = self._pipeline.get_bus()
-            bus.add_signal_watch()
-            bus.connect("message::error", self._on_error)
+            self._rec_queue = Gst.ElementFactory.make("queue", "rec_queue")
+            self._rec_queue.set_property("max-size-buffers", 0)
+            self._rec_queue.set_property("max-size-time", 0)
+            self._rec_queue.set_property("max-size-bytes", 0)
+            self._rec_convert = Gst.ElementFactory.make("videoconvert", "rec_convert")
+            self._rec_encoder = Gst.ElementFactory.make("x264enc", "rec_encoder")
+            self._rec_encoder.set_property("tune", 4)  # zerolatency
+            self._rec_encoder.set_property("speed-preset", 1)  # ultrafast
+            self._rec_muxer = Gst.ElementFactory.make("matroskamux", "rec_muxer")
+            self._rec_sink = Gst.ElementFactory.make("filesink", "rec_sink")
+            self._rec_sink.set_property("location", self._output_path)
 
-            ret = self._pipeline.set_state(Gst.State.PLAYING)
-            if ret == Gst.StateChangeReturn.FAILURE:
-                self._pipeline = None
-                return None
+            for elem in (self._rec_queue, self._rec_convert, self._rec_encoder, self._rec_muxer, self._rec_sink):
+                if elem is None:
+                    log.error("Failed to create recording element")
+                    return None
+                pipeline.add(elem)
+
+            self._rec_queue.link(self._rec_convert)
+            self._rec_convert.link(self._rec_encoder)
+            self._rec_encoder.link(self._rec_muxer)
+            self._rec_muxer.link(self._rec_sink)
+
+            self._rec_queue.sync_state_with_parent()
+            self._rec_convert.sync_state_with_parent()
+            self._rec_encoder.sync_state_with_parent()
+            self._rec_muxer.sync_state_with_parent()
+            self._rec_sink.sync_state_with_parent()
+
+            # Request a new src pad from tee and link to queue
+            tee_src = tee.request_pad_simple("src_%u")
+            queue_sink = self._rec_queue.get_static_pad("sink")
+            tee_src.link(queue_sink)
+
+            self._tee = tee
+            self._tee_pad = tee_src
+            self._pipeline = pipeline
             self._recording = True
+            log.info("Recording started: %s", self._output_path)
             return self._output_path
         except Exception as exc:
             log.error("Failed to start recording: %s", exc)
+            self._cleanup_elements()
             return None
 
     def stop(self) -> str | None:
-        """Stop recording. Returns the output path."""
-        if not self._recording or not self._pipeline:
+        """Stop recording by removing the branch from the pipeline."""
+        if not self._recording:
             return None
 
-        self._pipeline.send_event(Gst.Event.new_eos())
-        # Wait briefly for EOS to propagate
-        self._pipeline.get_state(Gst.CLOCK_TIME_NONE // 10)  # ~100ms
-        self._pipeline.set_state(Gst.State.NULL)
-        self._pipeline = None
         self._recording = False
-        return self._output_path
+        output = self._output_path
+
+        try:
+            if self._tee_pad and self._tee and self._rec_queue:
+                # Block the tee src pad, then detach in the callback
+                self._tee_pad.add_probe(
+                    Gst.PadProbeType.BLOCK_DOWNSTREAM,
+                    self._on_tee_pad_blocked,
+                )
+                # Wait for the probe to fire and cleanup to complete
+                time.sleep(0.5)
+            else:
+                self._cleanup_elements()
+        except Exception as exc:
+            log.warning("Error stopping recording: %s", exc)
+            self._cleanup_elements()
+
+        log.info("Recording stopped: %s", output)
+        return output
+
+    def _on_tee_pad_blocked(
+        self, pad: Gst.Pad, info: Gst.PadProbeInfo
+    ) -> Gst.PadProbeReturn:
+        """Called when the tee pad is blocked — safely detach recording branch."""
+        try:
+            # Send EOS only to the recording branch queue
+            if self._rec_queue:
+                queue_sink = self._rec_queue.get_static_pad("sink")
+                pad.unlink(queue_sink)
+
+            if self._tee:
+                self._tee.release_request_pad(pad)
+
+            # Set recording elements to NULL and remove from pipeline
+            self._cleanup_elements()
+        except Exception as exc:
+            log.warning("Error in pad blocked callback: %s", exc)
+            self._cleanup_elements()
+
+        return Gst.PadProbeReturn.REMOVE
+
+    def _cleanup_elements(self) -> None:
+        """Remove recording elements from the pipeline."""
+        for elem in (self._rec_sink, self._rec_muxer, self._rec_encoder, self._rec_convert, self._rec_queue):
+            if elem and self._pipeline:
+                elem.set_state(Gst.State.NULL)
+                self._pipeline.remove(elem)
+        self._rec_queue = None
+        self._rec_convert = None
+        self._rec_encoder = None
+        self._rec_muxer = None
+        self._rec_sink = None
+        self._tee = None
+        self._tee_pad = None
+        self._pipeline = None
 
     def _on_error(self, _bus: Gst.Bus, msg: Gst.Message) -> None:
         err, dbg = msg.parse_error()

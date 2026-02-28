@@ -7,7 +7,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib
+from gi.repository import Adw, Gtk, GLib, GObject
 
 from utils.settings_manager import SettingsManager
 from utils import xdg
@@ -16,6 +16,11 @@ from utils.i18n import _
 
 class SettingsPage(Gtk.ScrolledWindow):
     """Application-wide preferences using Adw.PreferencesGroup widgets."""
+
+    __gsignals__ = {
+        "show-fps-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "mirror-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+    }"
 
     def __init__(self, settings: SettingsManager) -> None:
         super().__init__(
@@ -123,10 +128,14 @@ class SettingsPage(Gtk.ScrolledWindow):
         style_manager.set_color_scheme(scheme_map.get(value, Adw.ColorScheme.DEFAULT))
 
     def _on_mirror(self, row: Adw.SwitchRow, _pspec) -> None:
-        self._settings.set("mirror_preview", row.get_active())
+        active = row.get_active()
+        self._settings.set("mirror_preview", active)
+        self.emit("mirror-changed", active)
 
     def _on_show_fps(self, row: Adw.SwitchRow, _pspec) -> None:
-        self._settings.set("show_fps", row.get_active())
+        active = row.get_active()
+        self._settings.set("show_fps", active)
+        self.emit("show-fps-changed", active)
 
     def _on_hotplug(self, row: Adw.SwitchRow, _pspec) -> None:
         self._settings.set("hotplug_enabled", row.get_active())

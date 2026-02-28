@@ -78,6 +78,10 @@ class PhotoGallery(Gtk.ScrolledWindow):
         vbox.append(self._empty)
 
         self.set_child(vbox)
+        self.connect("map", self._on_mapped)
+
+    def _on_mapped(self, _widget: Gtk.Widget) -> None:
+        self.refresh()
 
     def refresh(self) -> None:
         """Scan photos directory and rebuild the grid."""
@@ -131,35 +135,11 @@ class PhotoGallery(Gtk.ScrolledWindow):
         return btn
 
     def _on_open_photo(self, _btn: Gtk.Button, path: str) -> None:
-        """Open photo via xdg-desktop-portal."""
-        try:
-            bus = Gio.bus_get_sync(Gio.BusType.SESSION)
-            proxy = Gio.DBusProxy.new_sync(
-                bus, Gio.DBusProxyFlags.NONE, None,
-                "org.freedesktop.portal.Desktop",
-                "/org/freedesktop/portal/desktop",
-                "org.freedesktop.portal.OpenURI",
-                None,
-            )
-            file_uri = Gio.File.new_for_path(path).get_uri()
-            proxy.call_sync(
-                "OpenURI",
-                GLib.Variant("(ssa{sv})", ("", file_uri, {})),
-                Gio.DBusCallFlags.NONE,
-                -1,
-                None,
-            )
-        except Exception:
-            # Fallback
-            Gio.AppInfo.launch_default_for_uri(
-                Gio.File.new_for_path(path).get_uri(), None
-            )
+        """Open photo in default system viewer."""
+        uri = GLib.filename_to_uri(path)
+        Gtk.show_uri(self.get_root(), uri, Gdk.CURRENT_TIME)
 
     def _on_open_folder(self, _btn: Gtk.Button) -> None:
         os.makedirs(self._photos_dir, exist_ok=True)
-        try:
-            Gio.AppInfo.launch_default_for_uri(
-                Gio.File.new_for_path(self._photos_dir).get_uri(), None
-            )
-        except Exception:
-            pass
+        uri = GLib.filename_to_uri(self._photos_dir)
+        Gtk.show_uri(self.get_root(), uri, Gdk.CURRENT_TIME)
