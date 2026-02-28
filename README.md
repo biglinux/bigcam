@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="usr/share/biglinux/big-digicam/icons/big-digicam.svg" alt="Big DigiCam" width="128" height="128">
+  <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">📸 Big DigiCam</h1>
+<h1 align="center">📸 BigCam</h1>
 
 <p align="center">
   <b>Transforme sua câmera digital (DSLR/Mirrorless) em uma poderosa webcam profissional para Linux</b>
 </p>
 
 <p align="center">
-  O <b>Big DigiCam</b> é baseado no projeto <a href="http://www.gphoto.org/proj/libgphoto2/">libgphoto2</a>, oferecendo suporte a mais de 2.500 modelos de câmeras.
+  O <b>BigCam</b> é baseado no projeto <a href="http://www.gphoto.org/proj/libgphoto2/">libgphoto2</a>, oferecendo suporte a mais de 2.500 modelos de câmeras.
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 
 ## 🌟 O Projeto
 
-O **Big DigiCam** nasceu de uma necessidade real. O que começou como um pequeno script em shell criado por **Rafael Ruscher** e **Barnabé di Kartola** para permitir que o Ruscher usasse sua câmera Canon Rebel T3 em suas lives sobre o **BigLinux**, evoluiu para uma aplicação completa, elegante e robusta integrada ao ecossistema BigLinux.
+O **BigCam** nasceu de uma necessidade real. O que começou como um pequeno script em shell criado por **Rafael Ruscher** e **Barnabé di Kartola** para permitir que o Ruscher usasse sua câmera Canon Rebel T3 em suas lives sobre o **BigLinux**, evoluiu para uma aplicação completa, elegante e robusta integrada ao ecossistema BigLinux.
 
 Agradecemos imensamente aos pioneiros Rafael e Barnabé por iniciarem essa jornada que hoje ajuda milhares de usuários a terem qualidade de estúdio em suas videoconferências e produções de conteúdo.
 
@@ -41,7 +41,7 @@ Agradecemos imensamente aos pioneiros Rafael e Barnabé por iniciarem essa jorna
 ## 🚀 Funcionalidades Principais
 
 - **Webcam Profissional (4K/HD)**: Use a qualidade total do sensor da sua câmera em Zoom, Teams, Google Meet, OBS Studio e Skype.
-- **Detecção Automática**: Conecte via USB e o Big DigiCam detecta o modelo e as capacidades da sua câmera instantaneamente.
+- **Detecção Automática**: Conecte via USB e o BigCam detecta o modelo e as capacidades da sua câmera instantaneamente.
 - **Fotografia Remota**: Capture imagens diretamente do computador com pré-visualização em tempo real e download automático.
 - **Alta Performance**: Pipeline otimizado com FFmpeg e GStreamer para garantir o menor atraso (latency) possível.
 - **Interface Libadwaita**: Design moderno, limpo e totalmente compatível com o tema escuro/claro do sistema.
@@ -66,7 +66,7 @@ Graças ao driver `libgphoto2`, suportamos quase todas as câmeras DSLR e Mirror
 
 ## 📦 Instalação (Arch Linux / BigLinux)
 
-O Big DigiCam já inclui um instalador automatizado que configura os drivers de kernel necessários (`v4l2loopback`).
+O BigCam já inclui um instalador automatizado que configura os drivers de kernel necessários (`v4l2loopback`).
 
 ```bash
 # Clone o repositório

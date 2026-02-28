@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=BigCam
+Comment=Transforme sua câmera digital em uma webcam profissional
+Comment[pt_BR]=Transforme sua câmera digital em uma webcam profissional
+Exec=bigcam
+Icon=bigcam
+Terminal=false
+Type=Application
+Categories=AudioVideo;Video;
+Keywords=camera;webcam;dslr;gphoto2;
+StartupNotify=true
+StartupWMClass=br.com.biglinux.bigcam

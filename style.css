@@ -1,0 +1,33 @@
+/* BigCam – minimal style overrides for Adwaita */
+
+.preview-area {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+}
+
+.preview-picture {
+    border-radius: 8px;
+}
+
+.fps-label {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-variant-numeric: tabular-nums;
+}
+
+.toolbar {
+    border-radius: 12px;
+    padding: 6px 16px;
+}
+
+/* Delete button on thumbnails */
+.delete-thumb-btn {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px;
+    opacity: 0.7;
+}
+.delete-thumb-btn:hover {
+    opacity: 1;
+}
