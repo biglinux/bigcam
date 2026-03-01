@@ -20,6 +20,7 @@ _BACKEND_ICONS = {
     BackendType.LIBCAMERA: "camera-video-symbolic",
     BackendType.PIPEWIRE: "audio-card-symbolic",
     BackendType.IP: "network-server-symbolic",
+    BackendType.PHONE: "phone-symbolic",
 }
 
 
@@ -89,12 +90,20 @@ class CameraSelector(Gtk.Box):
         label.set_label(item.name)
 
     def _on_cameras_changed(self, _manager: CameraManager) -> None:
+        old_cam = self.selected_camera
         self._cameras = self._manager.cameras
         self._model.remove_all()
         for cam in self._cameras:
             self._model.append(_CameraItem(cam))
         if self._cameras:
-            self._dropdown.set_selected(0)
+            # Try to preserve current selection
+            restore_idx = 0
+            if old_cam:
+                restore_idx = next(
+                    (i for i, c in enumerate(self._cameras) if c.id == old_cam.id),
+                    0,
+                )
+            self._dropdown.set_selected(restore_idx)
 
     def _on_selected(self, *_args) -> None:
         idx = self._dropdown.get_selected()

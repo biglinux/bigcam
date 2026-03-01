@@ -12,7 +12,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gtk, Gio, GLib
 
-from constants import APP_NAME, APP_ICON
+from constants import APP_NAME, BackendType
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
 from core.stream_engine import StreamEngine
@@ -29,6 +29,8 @@ from ui.settings_page import SettingsPage
 from ui.effects_page import EffectsPage
 from ui.about_dialog import show_about
 from ui.ip_camera_dialog import IPCameraDialog
+from ui.phone_camera_dialog import PhoneCameraDialog
+from core.phone_camera import PhoneCameraServer
 from utils.settings_manager import SettingsManager
 from utils.async_worker import run_async
 from utils.i18n import _
@@ -48,9 +50,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._stream_engine.mirror = bool(self._settings.get("mirror_preview"))
         self._photo_capture = PhotoCapture(self._camera_manager)
         self._video_recorder = VideoRecorder(self._camera_manager)
+        self._stream_engine._video_recorder = self._video_recorder
 
         self._active_camera: CameraInfo | None = None
+        self._known_camera_ids: set[str] = set()
         self._streaming_lock = threading.Lock()
+        self._phone_server = PhoneCameraServer()
+        self._phone_server.connect("connected", self._on_phone_connected)
+        self._phone_server.connect("disconnected", self._on_phone_disconnected)
 
         self._build_ui()
         self._setup_actions()
@@ -73,11 +80,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._header = Adw.HeaderBar()
         self._header.set_title_widget(Adw.WindowTitle(title=APP_NAME, subtitle=""))
 
-        # App icon in header
-        app_icon = Gtk.Image.new_from_icon_name(APP_ICON)
-        app_icon.set_pixel_size(20)
-        self._header.pack_start(app_icon)
-
         # Camera selector in header
         self._camera_selector = CameraSelector(self._camera_manager)
         self._header.pack_start(self._camera_selector)
@@ -91,6 +93,33 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         menu_btn.set_menu_model(self._build_menu())
         self._header.pack_end(menu_btn)
+
+        # Phone camera button with status dot overlay
+        phone_btn = Gtk.Button.new_from_icon_name("phone-symbolic")
+        phone_btn.set_tooltip_text(_("Phone as Webcam"))
+        phone_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Phone as Webcam")]
+        )
+        phone_btn.set_action_name("win.phone-camera")
+
+        self._phone_dot = Gtk.DrawingArea()
+        self._phone_dot.set_content_width(8)
+        self._phone_dot.set_content_height(8)
+        self._phone_dot.set_halign(Gtk.Align.END)
+        self._phone_dot.set_valign(Gtk.Align.START)
+        self._phone_dot.set_margin_end(4)
+        self._phone_dot.set_margin_top(4)
+        self._phone_dot.set_can_target(False)
+        self._phone_status_color = (0.6, 0.6, 0.6)  # grey = idle
+        self._phone_dot.set_draw_func(self._draw_phone_dot)
+        self._phone_dot.set_visible(False)
+
+        phone_overlay = Gtk.Overlay()
+        phone_overlay.set_child(phone_btn)
+        phone_overlay.add_overlay(self._phone_dot)
+        self._header.pack_end(phone_overlay)
+
+        self._phone_server.connect("status-changed", self._on_phone_status_dot)
 
         # Refresh button
         refresh_btn = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
@@ -120,6 +149,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview = PreviewArea(self._stream_engine)
         self._preview.set_show_fps(self._settings.get("show_fps"))
         self._preview.set_grid_visible(self._settings.get("grid_overlay"))
+        self._preview.set_mirror(bool(self._settings.get("mirror_preview")))
         self._paned.set_start_child(self._preview)
 
         # RIGHT: sidebar with ViewStack
@@ -185,7 +215,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._paned.set_end_child(sidebar)
         root.append(self._paned)
 
-        self.set_content(root)
+        self._toast_overlay = Adw.ToastOverlay()
+        self._toast_overlay.set_child(root)
+        self.set_content(self._toast_overlay)
 
     def _build_menu(self) -> Gio.Menu:
         menu = Gio.Menu()
@@ -201,6 +233,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         section3 = Gio.Menu()
         section3.append(_("Add IP Camera…"), "win.add-ip")
+        section3.append(_("Phone as Webcam…"), "win.phone-camera")
         section3.append(_("Refresh") + " (F5)", "win.refresh")
         section3.append(_("About"), "win.about")
         menu.append_section(None, section3)
@@ -212,6 +245,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         simple_actions = {
             "refresh": self._on_refresh,
             "add-ip": self._on_add_ip,
+            "phone-camera": self._on_phone_camera,
             "about": self._on_about,
             "capture": self._on_capture_action,
             "record-toggle": self._on_record_toggle,
@@ -436,9 +470,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_mirror_changed(self, _page, mirror: bool) -> None:
         self._stream_engine.mirror = mirror
-        if self._active_camera:
-            self._stream_engine.stop()
-            self._on_camera_selected(self._camera_selector, self._active_camera)
+        self._preview.set_mirror(mirror)
 
     def _on_resolution_changed(self, _page, value: str) -> None:
         if self._active_camera:
@@ -593,6 +625,68 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         dialog.connect("camera-added", self._on_ip_camera_added)
         dialog.present(self)
 
+    def _draw_phone_dot(self, area: Gtk.DrawingArea, cr, w: int, h: int) -> None:
+        """Draw a colored status dot on the phone button."""
+        r, g, b = self._phone_status_color
+        cr.set_source_rgb(r, g, b)
+        cr.arc(w / 2, h / 2, min(w, h) / 2, 0, 2 * 3.14159265)
+        cr.fill()
+
+    def _on_phone_status_dot(self, _server, status: str) -> None:
+        """Update the phone button status dot color."""
+        colors = {
+            "listening": (1.0, 0.76, 0.03),   # yellow/amber
+            "connected": (0.16, 0.65, 0.27),   # green
+            "stopped": (0.6, 0.6, 0.6),        # grey
+        }
+        self._phone_status_color = colors.get(status, (0.6, 0.6, 0.6))
+        self._phone_dot.set_visible(status != "stopped")
+        self._phone_dot.queue_draw()
+
+    def _on_phone_camera(self, *_args) -> None:
+        dialog = PhoneCameraDialog(self._phone_server)
+        dialog.present(self)
+
+    def _on_phone_disconnected(self, _server: PhoneCameraServer) -> None:
+        """Remove phone camera after a delay (allows reconnection on rotation)."""
+        # Cancel previous pending disconnect
+        if hasattr(self, "_phone_disconnect_timer") and self._phone_disconnect_timer:
+            GLib.source_remove(self._phone_disconnect_timer)
+        self._phone_disconnect_timer = GLib.timeout_add_seconds(
+            5, self._do_phone_disconnect
+        )
+
+    def _do_phone_disconnect(self) -> bool:
+        """Actually remove the phone camera after the grace period."""
+        self._phone_disconnect_timer = None
+        # Check if phone reconnected during the delay
+        if self._phone_server and self._phone_server.is_connected:
+            return False
+        if self._active_camera and self._active_camera.backend == BackendType.PHONE:
+            self._stream_engine.stop()
+            self._active_camera = None
+        self._camera_manager.remove_phone_camera()
+        return False
+
+    def _on_phone_connected(
+        self, _server: PhoneCameraServer, width: int, height: int
+    ) -> None:
+        """Register the phone camera as a selectable source."""
+        # Cancel pending disconnect if phone reconnected quickly (rotation)
+        if hasattr(self, "_phone_disconnect_timer") and self._phone_disconnect_timer:
+            GLib.source_remove(self._phone_disconnect_timer)
+            self._phone_disconnect_timer = None
+
+        phone_cam = CameraInfo(
+            id="phone:websocket",
+            name="BigCam Phone",
+            backend=BackendType.PHONE,
+            device_path="websocket",
+            capabilities=["video"],
+            extra={"phone_server": self._phone_server},
+        )
+        self._camera_manager.add_phone_camera(phone_cam)
+
     def _on_ip_camera_added(self, _dialog: IPCameraDialog, name: str, url: str) -> None:
         ip_list = self._settings.get("ip_cameras")
         if not isinstance(ip_list, list):
@@ -629,6 +723,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 return
             path = self._video_recorder.start(
                 self._active_camera, self._stream_engine.pipeline,
+                mirror=self._stream_engine.mirror,
             )
             if path:
                 self._preview.set_recording_state(True)
@@ -679,6 +774,22 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_cameras_changed_auto_start(self, _manager: CameraManager) -> None:
         """Auto-start preview with the last used camera, or the first available."""
+        current_ids = {c.id for c in self._camera_manager.cameras}
+
+        # Show toast for newly connected cameras
+        for cam in self._camera_manager.cameras:
+            if cam.id not in self._known_camera_ids:
+                toast = Adw.Toast.new(f"📷  {cam.name}")
+                toast.set_timeout(4)
+                toast.set_button_label(_("Show"))
+                toast.connect(
+                    "button-clicked",
+                    lambda _t, c=cam: self._select_camera_by_id(c.id),
+                )
+                self._toast_overlay.add_toast(toast)
+
+        self._known_camera_ids = current_ids
+
         if self._active_camera is None and self._camera_manager.cameras:
             last_id = self._settings.get("last-camera-id")
             cam = None
@@ -690,6 +801,15 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             if cam is None:
                 cam = self._camera_manager.cameras[0]
             self._on_camera_selected(self._camera_selector, cam)
+
+    def _select_camera_by_id(self, camera_id: str) -> None:
+        """Select a camera by its ID in the dropdown and start preview."""
+        cameras = self._camera_manager.cameras
+        for i, cam in enumerate(cameras):
+            if cam.id == camera_id:
+                self._camera_selector._dropdown.set_selected(i)
+                self._on_camera_selected(self._camera_selector, cam)
+                return
 
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
         if self._stream_engine.pipeline is not None:

@@ -53,6 +53,17 @@ class BigDigicamApp(Adw.Application):
         prepend = [d for d in (img_dir, icons_dir) if os.path.isdir(d)]
         icon_theme.set_search_path(prepend + existing)
 
+        # Also add the system icon path that contains bigcam.svg
+        sys_icon_dir = os.path.join(
+            os.path.dirname(base_dir),  # up from bigcam/ to biglinux/
+            "..", "..", "icons",         # usr/share/icons
+        )
+        sys_icon_dir = os.path.realpath(sys_icon_dir)
+        if os.path.isdir(sys_icon_dir) and sys_icon_dir not in icon_theme.get_search_path():
+            icon_theme.add_search_path(sys_icon_dir)
+
+        Gtk.Window.set_default_icon_name(APP_ICON)
+
         # Load CSS
         css_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "style.css")
         if os.path.isfile(css_path):
@@ -73,6 +84,8 @@ class BigDigicamApp(Adw.Application):
 
 def main() -> int:
     signal.signal(signal.SIGINT, signal.SIG_DFL)
+    GLib.set_prgname(APP_ID)
+    GLib.set_application_name(APP_NAME)
     app = BigDigicamApp()
     return app.run(sys.argv)
 
