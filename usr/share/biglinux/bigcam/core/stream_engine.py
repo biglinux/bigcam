@@ -79,6 +79,7 @@ class StreamEngine(GObject.Object):
         self._probe_debug_count: int = 0
         self._last_probe_bgr = None
         self._overlay_rects: list[tuple] = []  # [(x,y,w,h), ...] for QR overlay
+        self._video_recorder: Any = None  # set by window to enable phone recording
 
     @property
     def effects(self) -> EffectPipeline:
@@ -141,7 +142,7 @@ class StreamEngine(GObject.Object):
         return Gst.PadProbeReturn.OK
 
     def _on_paintable_probe(self, pad: Gst.Pad, info: Gst.PadProbeInfo) -> Gst.PadProbeReturn:
-        """Buffer probe on paintable sink — applies OpenCV effects via buffer replacement."""
+        """Buffer probe on tee sink — applies OpenCV effects via buffer replacement."""
         self._frame_count += 1
         buf = info.get_buffer()
         if buf is None:
@@ -156,6 +157,7 @@ class StreamEngine(GObject.Object):
         self._probe_debug_count += 1
         if self._probe_debug_count <= 3:
             print(f"[DEBUG] paintable_probe: fmt={fmt}, {w}x{h}")
+
         ok, map_info = buf.map(Gst.MapFlags.READ)
         if not ok:
             return Gst.PadProbeReturn.OK
@@ -183,27 +185,23 @@ class StreamEngine(GObject.Object):
                 yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h, w * 2))
                 bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_YUY2)
             if bgr is not None:
-                # Store for snapshot and tools (QR, smile detection)
-                self._last_probe_bgr = bgr
                 needs_replace = self._effects.has_active_effects() or self._overlay_rects
                 if needs_replace:
                     processed = bgr.copy()
                     if self._effects.has_active_effects():
                         processed = self._effects.apply(processed)
-                    # Draw overlay rectangles (QR bounding boxes)
                     if self._overlay_rects:
                         for rect in self._overlay_rects:
                             x, y, rw, rh = rect
                             cv2.rectangle(processed, (x, y), (x + rw, y + rh),
                                           (0, 255, 0), 3)
-                        if self._probe_debug_count <= 8:
-                            self._probe_debug_count += 1
-                            print(f"[DEBUG] probe drawing {len(self._overlay_rects)} rects on {fmt} {w}x{h}")
+                    # Store for snapshot/photo (mirror applied for consistency with preview)
+                    self._last_probe_bgr = cv2.flip(processed, 1) if self._mirror else processed
                     # Convert back to original format
                     if fmt in ("BGRA", "BGRx"):
-                        frame = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 4)).copy()
-                        frame[:, :, :3] = processed
-                        result = frame.tobytes()
+                        out = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 4)).copy()
+                        out[:, :, :3] = processed
+                        result = out.tobytes()
                     elif fmt == "BGR":
                         result = processed.tobytes()
                     elif fmt == "RGB":
@@ -215,6 +213,8 @@ class StreamEngine(GObject.Object):
                     elif fmt in ("YUY2", "YUYV"):
                         if hasattr(cv2, 'COLOR_BGR2YUV_YUY2'):
                             result = cv2.cvtColor(processed, cv2.COLOR_BGR2YUV_YUY2).tobytes()
+                else:
+                    self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
         except Exception as e:
             if self._probe_debug_count <= 5:
                 print(f"[DEBUG] paintable_probe error: {e}")
@@ -285,6 +285,10 @@ class StreamEngine(GObject.Object):
         self._use_appsink = camera.backend in _APPSINK_BACKENDS
         print(f"[DEBUG] play: camera={camera.name}, backend={camera.backend}, use_appsink={self._use_appsink}, streaming_ready={streaming_ready}")
 
+        # Phone camera – frames come via WebRTC, no GStreamer pipeline needed
+        if camera.backend == BackendType.PHONE:
+            return self._start_phone_camera(camera)
+
         # Some backends need an external streaming process first
         if not streaming_ready:
             backend = self._manager.get_backend(camera.backend)
@@ -312,14 +316,13 @@ class StreamEngine(GObject.Object):
             card_label=self._current_camera.name if self._current_camera else None
         )
 
-        flip = "videoflip method=horizontal-flip ! " if self._mirror else ""
         base_pipeline = (
             f"{gst_source} ! "
             f"queue max-size-buffers=2 leaky=downstream silent=true ! "
             f"videoconvert n-threads=2 name=conv ! "
+            f"video/x-raw,format=BGRA ! "
             f"tee name=t ! "
             f"queue max-size-buffers=2 leaky=downstream silent=true ! "
-            f"{flip}"
             f"gtk4paintablesink sync=false"
         )
 
@@ -392,10 +395,15 @@ class StreamEngine(GObject.Object):
         self._pipeline = pipeline
         self._gtksink = gtksink
         self._bus_watch_id = bus_watch_id
-        # Install FPS probe on the sink pad
-        sink_pad = gtksink.get_static_pad("sink")
-        if sink_pad:
-            sink_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_paintable_probe)
+        # Install effects/FPS probe on the tee's sink pad so effects
+        # are applied to BOTH preview and virtual camera output.
+        tee = pipeline.get_by_name("t")
+        probe_pad = tee.get_static_pad("sink") if tee else None
+        if not probe_pad:
+            # Fallback: probe on the gtk4paintablesink (effects won't reach v4l2)
+            probe_pad = gtksink.get_static_pad("sink")
+        if probe_pad:
+            probe_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_paintable_probe)
         self._start_fps_counter()
         self.emit("state-changed", "playing")
         return True
@@ -443,13 +451,11 @@ class StreamEngine(GObject.Object):
         print(f"[DEBUG] _try_appsink_pipeline: attempt {self._appsink_retry_count}/{self._appsink_max_retries}")
 
         # Two pipeline variants, exactly as the old working app
-        flip = "videoflip method=horizontal-flip ! " if self._mirror else ""
         pipeline_attempts = [
             # Pipeline 1: explicit localhost bind
             (
                 f"{gst_source} ! "
                 f"video/x-raw,format=BGRA ! "
-                f"{flip}"
                 f"tee name=t ! "
                 f"queue max-size-buffers=2 leaky=downstream silent=true ! "
                 f"appsink name=sink emit-signals=True drop=True max-buffers=2 sync=False"
@@ -458,7 +464,6 @@ class StreamEngine(GObject.Object):
             (
                 f"{gst_source.replace('address=127.0.0.1 ', '')} ! "
                 f"video/x-raw,format=BGRA ! "
-                f"{flip}"
                 f"tee name=t ! "
                 f"queue max-size-buffers=2 leaky=downstream silent=true ! "
                 f"appsink name=sink emit-signals=True drop=True max-buffers=2 sync=False"
@@ -550,6 +555,16 @@ class StreamEngine(GObject.Object):
             GLib.source_remove(self._appsink_timer_id)
             self._appsink_timer_id = None
 
+        # Disconnect phone camera callback
+        if self._phone_server_ref is not None:
+            self._phone_server_ref.set_frame_callback(None)
+            self._phone_server_ref = None
+            self._phone_frame_pending = False
+            self._stop_phone_v4l2()
+            self._phone_v4l2_device = ""
+            self._current_camera = None
+            self.emit("state-changed", "stopped")
+
         if self._pipeline is not None:
             self._pipeline.set_state(Gst.State.NULL)
             bus = self._pipeline.get_bus()
@@ -598,11 +613,16 @@ class StreamEngine(GObject.Object):
             # Store BGR frame for tools (QR, smile detection)
             try:
                 import numpy as np
+                import cv2
                 bgra = np.frombuffer(data, dtype=np.uint8).reshape((h, w, 4))
-                self._last_probe_bgr = bgra[:, :, :3].copy()
+                bgr = bgra[:, :, :3].copy()
+                if self._effects.has_active_effects():
+                    bgr = self._effects.apply(bgr)
+                # Mirror for snapshot/tools (flip when mirror ON)
+                self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
             except Exception:
                 pass
-            # Apply OpenCV effects if active
+            # Apply effects to BGRA data for preview texture
             if self._effects.has_active_effects():
                 data = self._effects.apply_bgra(data, w, h)
             stride = len(data) // h
@@ -611,6 +631,161 @@ class StreamEngine(GObject.Object):
         return Gst.FlowReturn.OK
 
     def _update_texture(self, w: int, h: int, stride: int, glib_bytes: GLib.Bytes) -> bool:
+        try:
+            texture = Gdk.MemoryTexture.new(
+                w, h, Gdk.MemoryFormat.B8G8R8A8_PREMULTIPLIED, glib_bytes, stride
+            )
+            self._last_texture = texture
+            self.emit("new-texture", texture)
+        except Exception:
+            pass
+        return False
+
+    # -- phone camera --------------------------------------------------------
+
+    _phone_server_ref: Any = None
+    _phone_frame_pending: bool = False
+    _phone_v4l2_pipeline: Any = None  # GStreamer appsrc → v4l2sink for virtual cam
+    _phone_v4l2_appsrc: Any = None
+    _phone_v4l2_caps_set: bool = False
+    _phone_v4l2_device: str = ""
+    _phone_v4l2_w: int = 0
+    _phone_v4l2_h: int = 0
+
+    def _start_phone_camera(self, camera: CameraInfo) -> bool:
+        """Receive frames from the phone camera WebSocket server."""
+        server = camera.extra.get("phone_server")
+        if not server:
+            self.emit("error", _("Phone camera server not available."))
+            return False
+        self._use_appsink = True  # use texture-based rendering
+        self._phone_server_ref = server
+        server.set_frame_callback(self._on_phone_frame)
+
+        # Start v4l2loopback output if virtual camera is enabled
+        loopback_device = VirtualCamera.ensure_ready(
+            card_label=camera.name if camera else None
+        )
+        if loopback_device:
+            self._start_phone_v4l2(loopback_device)
+
+        self._start_fps_counter()
+        self.emit("state-changed", "playing")
+        log.info("Phone camera started — waiting for frames")
+        return True
+
+    def _start_phone_v4l2(self, device: str) -> None:
+        """Create appsrc → videoconvert → v4l2sink pipeline for phone → virtual camera."""
+        self._phone_v4l2_device = device
+        # Pipeline will be created on first frame when we know the resolution
+
+    def _rebuild_phone_v4l2(self, w: int, h: int) -> None:
+        """(Re)create the v4l2 pipeline with correct resolution."""
+        self._stop_phone_v4l2()
+        device = self._phone_v4l2_device
+        if not device:
+            log.warning("Cannot rebuild phone v4l2: no device set")
+            return
+        pipeline_str = (
+            "appsrc name=src emit-signals=false is-live=true format=time "
+            f"caps=video/x-raw,format=BGR,width={w},height={h},framerate=30/1 "
+            "! videoconvert n-threads=2 "
+            "! video/x-raw,format=YUY2 "
+            f"! v4l2sink device={device} sync=false"
+        )
+        log.info("Building phone v4l2 pipeline: %s", pipeline_str)
+        try:
+            self._phone_v4l2_pipeline = Gst.parse_launch(pipeline_str)
+        except GLib.Error as e:
+            log.error("Failed to create phone v4l2 pipeline: %s", e)
+            return
+        self._phone_v4l2_appsrc = self._phone_v4l2_pipeline.get_by_name("src")
+        self._phone_v4l2_w = w
+        self._phone_v4l2_h = h
+        self._phone_v4l2_caps_set = True
+        ret = self._phone_v4l2_pipeline.set_state(Gst.State.PLAYING)
+        log.info("Phone virtual camera output started on %s (%dx%d) state=%s", device, w, h, ret)
+
+    def _stop_phone_v4l2(self) -> None:
+        """Stop the phone virtual camera pipeline."""
+        if self._phone_v4l2_pipeline:
+            log.info("Stopping phone v4l2 pipeline")
+            self._phone_v4l2_pipeline.set_state(Gst.State.NULL)
+            self._phone_v4l2_pipeline = None
+            self._phone_v4l2_appsrc = None
+            self._phone_v4l2_caps_set = False
+            self._phone_v4l2_w = 0
+            self._phone_v4l2_h = 0
+
+    def _push_phone_v4l2(self, bgr, w: int, h: int) -> None:
+        """Push a BGR frame to the appsrc for virtual camera output.
+
+        When the phone rotates, the frame is resized to match the original
+        pipeline resolution to avoid recreating the v4l2sink (which causes
+        OBS to drop the device).
+        """
+        if not self._phone_v4l2_device:
+            return
+        # First frame: create pipeline with the initial resolution
+        if not self._phone_v4l2_caps_set:
+            self._rebuild_phone_v4l2(w, h)
+        appsrc = self._phone_v4l2_appsrc
+        if not appsrc:
+            return
+        # Resize if resolution changed (rotation) to keep pipeline stable
+        pw, ph = self._phone_v4l2_w, self._phone_v4l2_h
+        if w != pw or h != ph:
+            import cv2
+            log.info("Phone v4l2: resizing frame %dx%d → %dx%d", w, h, pw, ph)
+            bgr = cv2.resize(bgr, (pw, ph))
+        data = bytes(bgr.data)
+        expected = pw * ph * 3
+        if len(data) != expected:
+            log.warning("Phone v4l2: buffer size mismatch: got %d, expected %d", len(data), expected)
+            return
+        buf = Gst.Buffer.new_wrapped(data)
+        ret = appsrc.emit("push-buffer", buf)
+        if ret != Gst.FlowReturn.OK:
+            log.warning("Phone v4l2: push-buffer returned %s", ret)
+
+    def _on_phone_frame(self, bgr: Any) -> None:
+        """Handle a BGR frame from the phone WebSocket (asyncio thread)."""
+        if self._current_camera is None:
+            return
+        # Drop frame if GTK hasn't consumed the previous one
+        if self._phone_frame_pending:
+            return
+        self._phone_frame_pending = True
+
+        import cv2
+        h, w = bgr.shape[:2]
+
+        # Apply effects (mirror is handled via CSS on preview, not on data)
+        if self._effects.has_active_effects():
+            bgr = self._effects.apply(bgr)
+
+        # Store for snapshot/tools — mirror for photo/recording
+        self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
+
+        # Write to video recorder if active (with mirror for consistency with preview)
+        rec = self._video_recorder
+        if rec and rec.is_recording:
+            rec.write_frame(self._last_probe_bgr)
+
+        # Feed virtual camera via appsrc if active
+        if self._phone_v4l2_device:
+            self._push_phone_v4l2(bgr, w, h)
+
+        # BGR → BGRA using OpenCV SIMD (much faster than numpy manual copy)
+        bgra = cv2.cvtColor(bgr, cv2.COLOR_BGR2BGRA)
+        data = bgra.tobytes()
+
+        stride = w * 4
+        glib_bytes = GLib.Bytes.new(data)
+        GLib.idle_add(self._update_phone_texture, w, h, stride, glib_bytes)
+
+    def _update_phone_texture(self, w: int, h: int, stride: int, glib_bytes: GLib.Bytes) -> bool:
+        self._phone_frame_pending = False
         try:
             texture = Gdk.MemoryTexture.new(
                 w, h, Gdk.MemoryFormat.B8G8R8A8_PREMULTIPLIED, glib_bytes, stride

@@ -50,6 +50,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         self._camera: CameraInfo | None = None
         self._controls: list[CameraControl] = []
         self._debounce_sources: dict[str, int] = {}
+        self._ctrl_widgets: dict[str, tuple[str, Any]] = {}
+        self._resetting = False
 
         self._clamp = Adw.Clamp(maximum_size=600, tightening_threshold=400)
         self._content = Gtk.Box(
@@ -118,16 +120,28 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             self._content.remove(child)
             child = next_child
         self._debounce_sources.clear()
+        self._ctrl_widgets.clear()
 
     # -- build UI from controls list -----------------------------------------
 
     def _populate(self, controls: list[CameraControl]) -> None:
         if not controls:
-            empty = Adw.StatusPage(
-                icon_name="emblem-important-symbolic",
-                title=_("No adjustable controls"),
-                description=_("This camera does not expose any controls."),
-            )
+            from constants import BackendType
+            if self._camera and self._camera.backend == BackendType.PHONE:
+                empty = Adw.StatusPage(
+                    icon_name="phone-symbolic",
+                    title=_("Phone camera"),
+                    description=_(
+                        "Adjust resolution, quality, and FPS directly on the phone's browser page. "
+                        "Use the Effects tab for brightness, contrast, and other adjustments."
+                    ),
+                )
+            else:
+                empty = Adw.StatusPage(
+                    icon_name="emblem-important-symbolic",
+                    title=_("No adjustable controls"),
+                    description=_("This camera does not expose any controls."),
+                )
             self._content.append(empty)
             return
 
@@ -174,6 +188,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             )
             if not readonly:
                 row.connect("notify::active", self._on_switch, ctrl)
+            self._ctrl_widgets[ctrl.id] = ("bool", row)
             return row
 
         if ctrl.control_type == ControlType.MENU:
@@ -186,14 +201,14 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             row.update_property(
                 [Gtk.AccessibleProperty.LABEL], [ctrl.name]
             )
-            # Select current
-            try:
-                idx = (ctrl.choices or []).index(str(ctrl.value))
-                row.set_selected(idx)
-            except (ValueError, IndexError):
-                pass
+            # Select current (value is a numeric v4l2 index)
+            if isinstance(ctrl.value, int) and ctrl.choices:
+                idx = ctrl.value - (ctrl.minimum or 0)
+                if 0 <= idx < len(ctrl.choices):
+                    row.set_selected(idx)
             if not readonly:
                 row.connect("notify::selected", self._on_combo, ctrl)
+            self._ctrl_widgets[ctrl.id] = ("menu", row)
             return row
 
         if ctrl.control_type == ControlType.INTEGER:
@@ -219,6 +234,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             if not readonly:
                 adj.connect("value-changed", self._on_scale_debounced, ctrl)
             row.add_suffix(scale)
+            self._ctrl_widgets[ctrl.id] = ("int", adj)
             return row
 
         if ctrl.control_type == ControlType.STRING:
@@ -246,16 +262,22 @@ class CameraControlsPage(Gtk.ScrolledWindow):
     # -- signal handlers -----------------------------------------------------
 
     def _on_switch(self, row: Adw.SwitchRow, _pspec: Any, ctrl: CameraControl) -> None:
+        if self._resetting:
+            return
         val = 1 if row.get_active() else 0
         self._apply(ctrl, val)
 
     def _on_combo(self, row: Adw.ComboRow, _pspec: Any, ctrl: CameraControl) -> None:
+        if self._resetting:
+            return
         idx = row.get_selected()
         choices = ctrl.choices or []
         if 0 <= idx < len(choices):
-            self._apply(ctrl, choices[idx])
+            self._apply(ctrl, idx + (ctrl.minimum or 0))
 
     def _on_scale_debounced(self, adj: Gtk.Adjustment, ctrl: CameraControl) -> None:
+        if self._resetting:
+            return
         # Debounce 50 ms
         if ctrl.id in self._debounce_sources:
             GLib.source_remove(self._debounce_sources[ctrl.id])
@@ -290,5 +312,21 @@ class CameraControlsPage(Gtk.ScrolledWindow):
 
     def _on_reset(self, _btn: Gtk.Button, ctrls: list[CameraControl]) -> None:
         if self._camera:
+            self._resetting = True
             self._manager.reset_all_controls(self._camera, ctrls)
-            self.set_camera(self._camera)
+            for ctrl in ctrls:
+                ctrl.value = ctrl.default
+                entry = self._ctrl_widgets.get(ctrl.id)
+                if not entry:
+                    continue
+                kind, widget = entry
+                if kind == "bool":
+                    widget.set_active(bool(ctrl.default))
+                elif kind == "menu":
+                    if isinstance(ctrl.default, int) and ctrl.choices:
+                        idx = ctrl.default - (ctrl.minimum or 0)
+                        if 0 <= idx < len(ctrl.choices):
+                            widget.set_selected(idx)
+                elif kind == "int":
+                    widget.set_value(float(ctrl.default or 0))
+            self._resetting = False

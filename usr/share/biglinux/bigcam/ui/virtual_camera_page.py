@@ -24,7 +24,7 @@ class VirtualCameraPage(Gtk.Box):
         super().__init__(
             orientation=Gtk.Orientation.VERTICAL,
             spacing=12,
-            margin_top=12,
+            margin_top=0,
             margin_bottom=12,
             margin_start=12,
             margin_end=12,
@@ -34,22 +34,40 @@ class VirtualCameraPage(Gtk.Box):
 
         content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
 
-        # Status group
+        # Status group with ExpanderRow
         status_group = Adw.PreferencesGroup(title=_("Virtual Camera"))
 
-        self._status_row = Adw.ActionRow(
+        self._status_expander = Adw.ExpanderRow(
             title=_("Status"),
         )
-        self._status_icon = Gtk.Image.new_from_icon_name("emblem-default-symbolic")
-        self._status_row.add_prefix(self._status_icon)
-        status_group.add(self._status_row)
+        self._status_dot = Gtk.DrawingArea()
+        self._status_dot.set_content_width(12)
+        self._status_dot.set_content_height(12)
+        self._status_dot.set_valign(Gtk.Align.CENTER)
+        self._dot_color = (0.6, 0.6, 0.6)  # gray default
+        self._status_dot.set_draw_func(self._draw_dot)
+        self._status_expander.add_prefix(self._status_dot)
 
+        # Sub-rows inside expander
         self._device_row = Adw.ActionRow(
             title=_("Device"),
             subtitle=_("Not loaded"),
         )
-        status_group.add(self._device_row)
+        self._device_row.add_prefix(
+            Gtk.Image.new_from_icon_name("drive-harddisk-symbolic")
+        )
+        self._status_expander.add_row(self._device_row)
 
+        self._module_row = Adw.ActionRow(
+            title=_("Module"),
+            subtitle=_("v4l2loopback"),
+        )
+        self._module_row.add_prefix(
+            Gtk.Image.new_from_icon_name("application-x-firmware-symbolic")
+        )
+        self._status_expander.add_row(self._module_row)
+
+        status_group.add(self._status_expander)
         content.append(status_group)
 
         # Actions group
@@ -58,6 +76,9 @@ class VirtualCameraPage(Gtk.Box):
         self._toggle_row = Adw.SwitchRow(
             title=_("Enable virtual camera"),
             subtitle=_("Create a virtual camera output for video calls and streaming."),
+        )
+        self._toggle_row.add_prefix(
+            Gtk.Image.new_from_icon_name("camera-video-symbolic")
         )
         self._toggle_row.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Enable virtual camera")]
@@ -83,12 +104,26 @@ class VirtualCameraPage(Gtk.Box):
         self._updating_ui = False
         self._refresh_status()
 
+    def _draw_dot(self, area: Gtk.DrawingArea, cr, width: int, height: int) -> None:
+        r, g, b = self._dot_color
+        cr.set_source_rgb(r, g, b)
+        cx, cy = width / 2, height / 2
+        radius = min(width, height) / 2
+        cr.arc(cx, cy, radius, 0, 2 * 3.14159)
+        cr.fill()
+
+    def _set_dot_color(self, r: float, g: float, b: float) -> None:
+        self._dot_color = (r, g, b)
+        self._status_dot.queue_draw()
+
     def _refresh_status(self) -> None:
         self._updating_ui = True
         try:
             if not VirtualCamera.is_available():
-                self._status_row.set_subtitle(_("v4l2loopback not available"))
-                self._status_icon.set_from_icon_name("dialog-warning-symbolic")
+                self._status_expander.set_subtitle(_("v4l2loopback not available"))
+                self._set_dot_color(0.85, 0.2, 0.2)  # red
+                self._module_row.set_subtitle(_("Not installed"))
+                self._device_row.set_subtitle(_("—"))
                 self._toggle_row.set_sensitive(False)
                 return
 
@@ -96,19 +131,22 @@ class VirtualCameraPage(Gtk.Box):
             enabled = VirtualCamera.is_enabled()
 
             if enabled and device:
-                self._status_row.set_subtitle(_("Active"))
-                self._status_icon.set_from_icon_name("emblem-ok-symbolic")
+                self._status_expander.set_subtitle(_("Active"))
+                self._set_dot_color(0.2, 0.78, 0.35)  # green
                 self._device_row.set_subtitle(device)
+                self._module_row.set_subtitle(_("Loaded"))
                 self._toggle_row.set_active(True)
             elif device:
-                self._status_row.set_subtitle(_("Module loaded"))
-                self._status_icon.set_from_icon_name("emblem-default-symbolic")
+                self._status_expander.set_subtitle(_("Module loaded"))
+                self._set_dot_color(0.6, 0.6, 0.6)  # gray
                 self._device_row.set_subtitle(device)
+                self._module_row.set_subtitle(_("Loaded"))
                 self._toggle_row.set_active(False)
             else:
-                self._status_row.set_subtitle(_("Module not loaded"))
-                self._status_icon.set_from_icon_name("dialog-information-symbolic")
+                self._status_expander.set_subtitle(_("Module not loaded"))
+                self._set_dot_color(0.6, 0.6, 0.6)  # gray
                 self._device_row.set_subtitle(_("Not loaded"))
+                self._module_row.set_subtitle(_("Not loaded"))
                 self._toggle_row.set_active(False)
         finally:
             self._updating_ui = False

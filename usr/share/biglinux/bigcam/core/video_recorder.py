@@ -30,12 +30,17 @@ class VideoRecorder:
         # Elements added to the preview pipeline for recording
         self._rec_queue: Gst.Element | None = None
         self._rec_convert: Gst.Element | None = None
+        self._rec_flip: Gst.Element | None = None
         self._rec_encoder: Gst.Element | None = None
         self._rec_muxer: Gst.Element | None = None
         self._rec_sink: Gst.Element | None = None
         self._tee: Gst.Element | None = None
         self._tee_pad: Gst.Pad | None = None
         self._pipeline: Gst.Pipeline | None = None
+        # OpenCV fallback for phone camera
+        self._cv_writer: Any = None
+        self._cv_mode = False
+        self._cv_first_frame = True
 
     @property
     def is_recording(self) -> bool:
@@ -50,18 +55,13 @@ class VideoRecorder:
         camera: CameraInfo,
         pipeline: Gst.Pipeline | None = None,
         filename: str | None = None,
+        mirror: bool = False,
     ) -> str | None:
-        """Start recording by adding a branch to the preview pipeline tee."""
+        """Start recording by adding a branch to the preview pipeline tee.
+
+        For phone cameras (no GStreamer pipeline), falls back to OpenCV VideoWriter.
+        """
         if self._recording:
-            return None
-
-        if not pipeline:
-            log.error("No pipeline provided for recording")
-            return None
-
-        tee = pipeline.get_by_name("t")
-        if not tee:
-            log.error("No tee element in pipeline — cannot record")
             return None
 
         if filename is None:
@@ -72,12 +72,31 @@ class VideoRecorder:
         os.makedirs(output_dir, exist_ok=True)
         self._output_path = os.path.join(output_dir, filename)
 
+        # Phone camera: use OpenCV VideoWriter fallback
+        from constants import BackendType
+        if camera.backend == BackendType.PHONE:
+            return self._start_cv_recording(camera)
+
+        if not pipeline:
+            log.error("No pipeline provided for recording")
+            return None
+
+        tee = pipeline.get_by_name("t")
+        if not tee:
+            log.error("No tee element in pipeline — cannot record")
+            return None
+
         try:
             self._rec_queue = Gst.ElementFactory.make("queue", "rec_queue")
             self._rec_queue.set_property("max-size-buffers", 0)
             self._rec_queue.set_property("max-size-time", 0)
             self._rec_queue.set_property("max-size-bytes", 0)
             self._rec_convert = Gst.ElementFactory.make("videoconvert", "rec_convert")
+            self._rec_flip = None
+            if mirror:
+                self._rec_flip = Gst.ElementFactory.make("videoflip", "rec_flip")
+                if self._rec_flip:
+                    self._rec_flip.set_property("method", "horizontal-flip")
             self._rec_encoder = Gst.ElementFactory.make("x264enc", "rec_encoder")
             self._rec_encoder.set_property("tune", 4)  # zerolatency
             self._rec_encoder.set_property("speed-preset", 1)  # ultrafast
@@ -85,22 +104,27 @@ class VideoRecorder:
             self._rec_sink = Gst.ElementFactory.make("filesink", "rec_sink")
             self._rec_sink.set_property("location", self._output_path)
 
-            for elem in (self._rec_queue, self._rec_convert, self._rec_encoder, self._rec_muxer, self._rec_sink):
+            elements = [self._rec_queue, self._rec_convert, self._rec_encoder, self._rec_muxer, self._rec_sink]
+            if self._rec_flip:
+                elements.insert(1, self._rec_flip)  # after queue, before convert
+            for elem in elements:
                 if elem is None:
                     log.error("Failed to create recording element")
                     return None
                 pipeline.add(elem)
 
-            self._rec_queue.link(self._rec_convert)
+            # Link: queue → [flip →] convert → encoder → muxer → sink
+            if self._rec_flip:
+                self._rec_queue.link(self._rec_flip)
+                self._rec_flip.link(self._rec_convert)
+            else:
+                self._rec_queue.link(self._rec_convert)
             self._rec_convert.link(self._rec_encoder)
             self._rec_encoder.link(self._rec_muxer)
             self._rec_muxer.link(self._rec_sink)
 
-            self._rec_queue.sync_state_with_parent()
-            self._rec_convert.sync_state_with_parent()
-            self._rec_encoder.sync_state_with_parent()
-            self._rec_muxer.sync_state_with_parent()
-            self._rec_sink.sync_state_with_parent()
+            for elem in elements:
+                elem.sync_state_with_parent()
 
             # Request a new src pad from tee and link to queue
             tee_src = tee.request_pad_simple("src_%u")
@@ -118,6 +142,43 @@ class VideoRecorder:
             self._cleanup_elements()
             return None
 
+    # -- OpenCV fallback for phone camera ------------------------------------
+
+    def _start_cv_recording(self, camera: CameraInfo) -> str | None:
+        """Start recording using cv2.VideoWriter (for phone camera without GStreamer pipeline)."""
+        try:
+            import cv2
+        except ImportError:
+            log.error("OpenCV required for phone camera recording")
+            return None
+
+        # Use MJPG in MKV to match what we receive (JPEG frames)
+        fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+        # Default to 30fps; actual fps depends on phone capture rate
+        self._cv_writer = cv2.VideoWriter(self._output_path, fourcc, 30, (0, 0))
+        if not self._cv_writer.isOpened():
+            # Defer opening until first frame (need resolution)
+            self._cv_writer.release()
+            self._cv_writer = None
+        self._cv_mode = True
+        self._cv_first_frame = True
+        self._recording = True
+        log.info("Recording (OpenCV) started: %s", self._output_path)
+        return self._output_path
+
+    def write_frame(self, bgr) -> None:
+        """Write a BGR frame to the OpenCV video writer (phone camera recording)."""
+        if not self._recording or not self._cv_mode:
+            return
+        import cv2
+        h, w = bgr.shape[:2]
+        if self._cv_first_frame or self._cv_writer is None:
+            fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+            self._cv_writer = cv2.VideoWriter(self._output_path, fourcc, 30, (w, h))
+            self._cv_first_frame = False
+        if self._cv_writer and self._cv_writer.isOpened():
+            self._cv_writer.write(bgr)
+
     def stop(self) -> str | None:
         """Stop recording by removing the branch from the pipeline."""
         if not self._recording:
@@ -125,6 +186,14 @@ class VideoRecorder:
 
         self._recording = False
         output = self._output_path
+
+        if self._cv_mode:
+            if self._cv_writer:
+                self._cv_writer.release()
+                self._cv_writer = None
+            self._cv_mode = False
+            log.info("Recording (OpenCV) stopped: %s", output)
+            return output
 
         try:
             if self._tee_pad and self._tee and self._rec_queue:
@@ -167,12 +236,13 @@ class VideoRecorder:
 
     def _cleanup_elements(self) -> None:
         """Remove recording elements from the pipeline."""
-        for elem in (self._rec_sink, self._rec_muxer, self._rec_encoder, self._rec_convert, self._rec_queue):
+        for elem in (self._rec_sink, self._rec_muxer, self._rec_encoder, self._rec_convert, self._rec_flip, self._rec_queue):
             if elem and self._pipeline:
                 elem.set_state(Gst.State.NULL)
                 self._pipeline.remove(elem)
         self._rec_queue = None
         self._rec_convert = None
+        self._rec_flip = None
         self._rec_encoder = None
         self._rec_muxer = None
         self._rec_sink = None

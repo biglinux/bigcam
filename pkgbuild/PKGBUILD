@@ -13,13 +13,15 @@ depends=(
     'gst-plugin-gtk4'
     'ffmpeg'
     'v4l-utils'
+    'gphoto2'
+    'v4l2loopback-dkms'
+    'x264'
+    'pipewire'
 )
 optdepends=(
-    'gphoto2: DSLR/mirrorless camera support'
-    'libcamera: CSI/ISP camera support'
-    'pipewire: PipeWire virtual camera support'
-    'v4l2loopback-dkms: Virtual camera output'
-    'x264: Video recording (H.264)'
+    'libcamera: CSI/ISP camera support (Raspberry Pi, Intel IPU6)'
+    'python-aiohttp: phone camera via WebSocket'
+    'python-qrcode: QR code generation for phone camera'
 )
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)

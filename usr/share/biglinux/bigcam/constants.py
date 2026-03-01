@@ -20,6 +20,7 @@ class BackendType(enum.Enum):
     LIBCAMERA = "libcamera"
     PIPEWIRE = "pipewire"
     IP = "ip"
+    PHONE = "phone"
 
 
 class ControlCategory(enum.Enum):

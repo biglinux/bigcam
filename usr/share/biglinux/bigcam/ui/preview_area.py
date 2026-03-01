@@ -9,10 +9,43 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GLib, GObject
+from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
 
 from core.stream_engine import StreamEngine
 from utils.i18n import _
+
+
+class MirroredPicture(Gtk.Picture):
+    """Gtk.Picture that can be horizontally mirrored via GskTransform."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._mirror = False
+
+    @property
+    def mirror(self) -> bool:
+        return self._mirror
+
+    @mirror.setter
+    def mirror(self, value: bool) -> None:
+        if self._mirror != value:
+            self._mirror = value
+            self.queue_draw()
+
+    def do_snapshot(self, snapshot: Gtk.Snapshot) -> None:
+        if self._mirror:
+            w = self.get_width()
+            # Translate to right edge, scale X by -1 to mirror
+            point = Graphene.Point()
+            point.x = w
+            point.y = 0
+            snapshot.save()
+            snapshot.translate(point)
+            snapshot.scale(-1, 1)
+            Gtk.Picture.do_snapshot(self, snapshot)
+            snapshot.restore()
+        else:
+            Gtk.Picture.do_snapshot(self, snapshot)
 
 
 class PreviewArea(Gtk.Overlay):
@@ -35,7 +68,7 @@ class PreviewArea(Gtk.Overlay):
         self.add_css_class("preview-area")
 
         # -- video picture ---------------------------------------------------
-        self._picture = Gtk.Picture()
+        self._picture = MirroredPicture()
         self._picture.set_content_fit(Gtk.ContentFit.CONTAIN)
         self._picture.set_hexpand(True)
         self._picture.set_vexpand(True)
@@ -138,6 +171,10 @@ class PreviewArea(Gtk.Overlay):
         self._engine.connect("state-changed", self._on_state_changed)
         self._engine.connect("error", self._on_error)
         self._engine.connect("new-texture", self._on_new_texture)
+
+    def set_mirror(self, mirror: bool) -> None:
+        """Toggle horizontal mirror on the preview picture."""
+        self._picture.mirror = mirror
 
     # -- floating toolbar ----------------------------------------------------
 

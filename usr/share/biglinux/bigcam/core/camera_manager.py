@@ -101,6 +101,14 @@ class CameraManager(GObject.Object):
         threading.Thread(target=_worker, daemon=True).start()
 
     def _on_detection_done(self, cameras: list[CameraInfo]) -> bool:
+        # Preserve manually-added cameras (IP, phone) across hotplug scans
+        manual_backends = {BackendType.IP, BackendType.PHONE}
+        manual_cameras = [c for c in self._cameras if c.backend in manual_backends]
+        seen_ids = {c.id for c in cameras}
+        for mc in manual_cameras:
+            if mc.id not in seen_ids:
+                cameras.append(mc)
+
         old_ids = {c.id for c in self._cameras}
         new_ids = {c.id for c in cameras}
         self._cameras = cameras
@@ -119,6 +127,19 @@ class CameraManager(GObject.Object):
         self._cameras = [c for c in self._cameras if c.backend != BackendType.IP]
         self._cameras.extend(ip_cams)
         self.emit("cameras-changed")
+
+    def add_phone_camera(self, camera: CameraInfo) -> None:
+        """Register a phone camera source (WebRTC)."""
+        self._cameras = [c for c in self._cameras if c.backend != BackendType.PHONE]
+        self._cameras.append(camera)
+        self.emit("cameras-changed")
+
+    def remove_phone_camera(self) -> None:
+        """Remove phone camera from the list."""
+        had = any(c.backend == BackendType.PHONE for c in self._cameras)
+        self._cameras = [c for c in self._cameras if c.backend != BackendType.PHONE]
+        if had:
+            self.emit("cameras-changed")
 
     # -- controls proxy ------------------------------------------------------
 

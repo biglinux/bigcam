@@ -44,6 +44,8 @@ class EffectsPage(Gtk.ScrolledWindow):
         )
         self._pipeline = effect_pipeline
         self._debounce_sources: dict[str, int] = {}
+        self._effect_widgets: dict[str, dict[str, Any]] = {}
+        self._resetting = False
 
         self._clamp = Adw.Clamp(maximum_size=600, tightening_threshold=400)
         self._content = Gtk.Box(
@@ -125,6 +127,7 @@ class EffectsPage(Gtk.ScrolledWindow):
             switch.set_valign(Gtk.Align.CENTER)
             switch.connect("notify::active", self._on_switch_toggle, effect)
             expander.add_suffix(switch)
+            self._effect_widgets[effect.effect_id] = {"switch": switch, "params": {}}
             # Replace internal arrow icon
             self._replace_arrow_icon(expander, "pan-up-symbolic")
             for param in effect.params:
@@ -144,6 +147,7 @@ class EffectsPage(Gtk.ScrolledWindow):
                 [Gtk.AccessibleProperty.LABEL], [effect.name],
             )
             toggle_row.connect("notify::active", self._on_toggle, effect)
+            self._effect_widgets[effect.effect_id] = {"toggle": toggle_row, "params": {}}
             group.add(toggle_row)
 
     def _make_param_row(self, effect: EffectInfo, param: EffectParam) -> Adw.ActionRow:
@@ -178,10 +182,16 @@ class EffectsPage(Gtk.ScrolledWindow):
         adj.connect("value-changed", self._on_param_changed, effect, param)
         row.add_suffix(scale)
 
+        widgets = self._effect_widgets.get(effect.effect_id)
+        if widgets is not None:
+            widgets["params"][param.name] = adj
+
         return row
 
     def _on_toggle(self, row: Adw.SwitchRow, _pspec: Any,
                    effect: EffectInfo) -> None:
+        if self._resetting:
+            return
         enabled = row.get_active()
         effect.enabled = enabled
         self._pipeline.set_enabled(effect.effect_id, enabled)
@@ -189,6 +199,8 @@ class EffectsPage(Gtk.ScrolledWindow):
 
     def _on_switch_toggle(self, switch: Gtk.Switch, _pspec: Any,
                           effect: EffectInfo) -> None:
+        if self._resetting:
+            return
         enabled = switch.get_active()
         effect.enabled = enabled
         self._pipeline.set_enabled(effect.effect_id, enabled)
@@ -226,13 +238,27 @@ class EffectsPage(Gtk.ScrolledWindow):
 
     def _on_reset_category(self, _btn: Gtk.Button,
                            effs: list[EffectInfo]) -> None:
+        self._resetting = True
         for eff in effs:
             eff.enabled = False
             self._pipeline.set_enabled(eff.effect_id, False)
             self._pipeline.reset_effect(eff.effect_id)
             for param in eff.params:
                 param.value = param.default
-        self._rebuild()
+            widgets = self._effect_widgets.get(eff.effect_id)
+            if widgets:
+                toggle = widgets.get("toggle")
+                switch = widgets.get("switch")
+                if toggle:
+                    toggle.set_active(False)
+                if switch:
+                    switch.set_active(False)
+                for pname, adj in widgets.get("params", {}).items():
+                    for param in eff.params:
+                        if param.name == pname:
+                            adj.set_value(param.default)
+                            break
+        self._resetting = False
         self.emit("effect-changed")
 
     def _rebuild(self) -> None:
@@ -242,4 +268,5 @@ class EffectsPage(Gtk.ScrolledWindow):
             self._content.remove(child)
             child = next_c
         self._debounce_sources.clear()
+        self._effect_widgets.clear()
         self._build_ui()

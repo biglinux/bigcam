@@ -60,7 +60,7 @@ class VirtualCamera:
         Device 10: BigCam virtual camera output (for sharing)
         Device 11: Reserved for gPhoto2 streaming
         """
-        label = card_label or "BigCam Virtual"
+        label = "BigCam Virtual"
         safe_label = label.replace('"', '').replace('\\', '')
         try:
             subprocess.run(
@@ -136,14 +136,31 @@ class VirtualCamera:
         if not cls._enabled:
             return ""
         device = cls.find_loopback_device()
-        if device:
+        if device and _has_exclusive_caps():
             return device
+        # Module loaded without exclusive_caps or not loaded at all
         if cls._load_attempted or not cls.is_available():
-            return ""
+            return device  # return whatever we have
         cls._load_attempted = True
-        if cls.load_module(card_label=card_label):
-            return cls.find_loopback_device()
-        return ""
+        # Reload module with correct parameters
+        if device:
+            cls._reload_module()
+        else:
+            cls.load_module(card_label=card_label)
+        return cls.find_loopback_device()
+
+    @staticmethod
+    def _reload_module() -> bool:
+        """Unload and reload v4l2loopback with correct parameters."""
+        try:
+            subprocess.run(
+                ["pkexec", "modprobe", "-r", "v4l2loopback"],
+                capture_output=True,
+                check=True,
+            )
+        except Exception:
+            return False
+        return VirtualCamera.load_module()
 
 
 def _has_v4l2loopback() -> bool:
@@ -154,4 +171,14 @@ def _has_v4l2loopback() -> bool:
         )
         return result.returncode == 0
     except FileNotFoundError:
+        return False
+
+
+def _has_exclusive_caps() -> bool:
+    """Check if the loaded v4l2loopback module has exclusive_caps enabled."""
+    try:
+        with open("/sys/module/v4l2loopback/parameters/exclusive_caps") as f:
+            # Format: "Y,Y,..." or "N,N,..."
+            return "Y" in f.read()
+    except (FileNotFoundError, OSError):
         return False
