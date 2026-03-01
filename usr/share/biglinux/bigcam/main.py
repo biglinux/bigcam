@@ -44,11 +44,14 @@ class BigDigicamApp(Adw.Application):
 
         from gi.repository import Gtk, Gdk
 
-        # Register app icon in theme search path
-        icons_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "icons")
-        if os.path.isdir(icons_dir):
-            icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
-            icon_theme.add_search_path(icons_dir)
+        # Register local icon directories (prepend so they take priority)
+        base_dir = os.path.dirname(os.path.realpath(__file__))
+        icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        img_dir = os.path.join(base_dir, "img")
+        icons_dir = os.path.join(base_dir, "icons")
+        existing = list(icon_theme.get_search_path())
+        prepend = [d for d in (img_dir, icons_dir) if os.path.isdir(d)]
+        icon_theme.set_search_path(prepend + existing)
 
         # Load CSS
         css_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "style.css")

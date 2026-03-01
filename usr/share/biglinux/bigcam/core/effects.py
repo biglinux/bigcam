@@ -271,7 +271,7 @@ def _register_effects() -> None:
         (EffectInfo(
             effect_id="clahe",
             name="CLAHE (Adaptive Contrast)",
-            icon="image-adjust-contrast-symbolic",
+            icon="image-adjust-contrast",
             category=EffectCategory.ADJUST,
             params=[
                 EffectParam("clip_limit", "Clip Limit", 1.0, 10.0, 2.0, 0.5),
@@ -333,7 +333,7 @@ def _register_effects() -> None:
         (EffectInfo(
             effect_id="grayscale",
             name="Grayscale",
-            icon="image-missing-symbolic",
+            icon="bwtonal",
             category=EffectCategory.ARTISTIC,
         ), _apply_grayscale),
 

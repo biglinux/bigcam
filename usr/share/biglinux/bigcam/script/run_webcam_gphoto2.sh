@@ -32,7 +32,7 @@ gio mount -u gphoto2://* 2>/dev/null
 sleep 1
 
 # ── Step 3: Load v4l2loopback ──
-CARD_LABELS="${CAM_NAME} (v4l2),${CAM_NAME} 2 (v4l2),${CAM_NAME} 3 (v4l2),${CAM_NAME} 4 (v4l2)"
+CARD_LABELS="BigCam Virtual,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
 if ! lsmod | grep -q v4l2loopback; then
   bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
     "card_label=$CARD_LABELS"
