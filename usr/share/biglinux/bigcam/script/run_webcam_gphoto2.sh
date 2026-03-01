@@ -79,18 +79,12 @@ if ! timeout 10 gphoto2 --auto-detect 2>&1 | grep -q "$USB_PORT"; then
   # Try to find camera by name at a different port
   NEW_PORT=$(timeout 10 gphoto2 --auto-detect 2>/dev/null | grep -i "$CAM_NAME" | grep -oP 'usb:\S+' | head -1)
   if [ -n "$NEW_PORT" ]; then
-    echo "INFO: Camera found at new port: $NEW_PORT"
+    echo "INFO: Camera '$CAM_NAME' found at new port: $NEW_PORT"
     USB_PORT="$NEW_PORT"
   else
-    # Last resort: just pick any Canon/DSLR camera
-    NEW_PORT=$(timeout 10 gphoto2 --auto-detect 2>/dev/null | grep -v '^Model\|^---' | grep 'usb:' | grep -oP 'usb:\S+' | head -1)
-    if [ -n "$NEW_PORT" ]; then
-      echo "INFO: Using first available camera at port: $NEW_PORT"
-      USB_PORT="$NEW_PORT"
-    else
-      echo "ERROR: No camera detected at any port."
-      exit 1
-    fi
+    # Do NOT pick a random camera — that would stream the wrong one
+    echo "ERROR: Camera '$CAM_NAME' not detected at any port."
+    exit 1
   fi
 fi
 
