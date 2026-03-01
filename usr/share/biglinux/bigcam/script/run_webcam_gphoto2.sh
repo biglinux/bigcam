@@ -1,4 +1,5 @@
 #!/bin/bash
+set -uo pipefail
 exec 2>&1
 
 USB_PORT="$1"
@@ -11,52 +12,16 @@ ERR_LOG="/tmp/gphoto_err_${UDP_PORT}.log"
 > "$LOG"
 > "$ERR_LOG"
 
-# ── Helper: find the sysfs path for a Canon camera ──
-find_canon_sysfs() {
-  for d in /sys/bus/usb/devices/*; do
-    [ -f "$d/idVendor" ] || continue
-    local vendor
-    vendor=$(cat "$d/idVendor" 2>/dev/null)
-    if [ "$vendor" = "04a9" ]; then
-      echo "$d"
-      return 0
-    fi
-  done
-  return 1
-}
-
-# ── Helper: USB reset via ioctl (no sudo needed) ──
-usb_reset_camera() {
-  python3 -c "
-import fcntl, os, subprocess
-USBDEVFS_RESET = 21780
-result = subprocess.run(['lsusb'], capture_output=True, text=True)
-for line in result.stdout.strip().split('\n'):
-    if '04a9' in line:  # Canon vendor ID
-        parts = line.split()
-        bus = parts[1]
-        dev = parts[3].rstrip(':')
-        path = f'/dev/bus/usb/{bus}/{dev}'
-        try:
-            fd = os.open(path, os.O_WRONLY)
-            fcntl.ioctl(fd, USBDEVFS_RESET, 0)
-            os.close(fd)
-            print(f'USB reset OK: {path}')
-        except Exception as e:
-            print(f'USB reset error: {e}')
-        break
-" 2>&1
-  sleep 5
-}
-
-# ── Step 1: Kill previous streaming processes ──
-pkill -f "gphoto2 --" 2>/dev/null
-pkill -f "ffmpeg.*mpegts" 2>/dev/null
-pkill -f "ffmpeg.*v4l2" 2>/dev/null
+# ── Step 1: Kill ONLY this camera's previous processes ──
+if [ -n "$USB_PORT" ]; then
+  pkill -f "gphoto2.*--port ${USB_PORT}" 2>/dev/null
+  sleep 0.5
+  pkill -9 -f "gphoto2.*--port ${USB_PORT}" 2>/dev/null
+fi
+pkill -f "ffmpeg.*udp://127.0.0.1:${UDP_PORT}" 2>/dev/null
+sleep 0.5
+pkill -9 -f "ffmpeg.*udp://127.0.0.1:${UDP_PORT}" 2>/dev/null
 sleep 1
-pkill -9 -f "gphoto2 --" 2>/dev/null
-pkill -9 -f "ffmpeg.*mpegts" 2>/dev/null
-pkill -9 -f "ffmpeg.*v4l2" 2>/dev/null
 
 # ── Step 2: Kill GVFS interference ──
 systemctl --user stop gvfs-gphoto2-volume-monitor.service 2>/dev/null
@@ -64,9 +29,7 @@ systemctl --user mask gvfs-gphoto2-volume-monitor.service 2>/dev/null
 pkill -9 -f "gvfs-gphoto2-volume-monitor" 2>/dev/null
 pkill -9 -f "gvfsd-gphoto2" 2>/dev/null
 gio mount -u gphoto2://* 2>/dev/null
-
-# Wait for USB to stabilize
-sleep 3
+sleep 1
 
 # ── Step 3: Load v4l2loopback ──
 CARD_LABELS="${CAM_NAME} (v4l2),${CAM_NAME} 2 (v4l2),${CAM_NAME} 3 (v4l2),${CAM_NAME} 4 (v4l2)"
@@ -99,37 +62,52 @@ for dev in $(ls -v /dev/video* 2>/dev/null); do
 done
 [ -z "$DEVICE_VIDEO" ] && echo "ERROR: No free virtual video device found." && exit 1
 
-# ── Step 5: Detect camera port (fresh) ──
-DETECTED_PORT=$(timeout 10 gphoto2 --auto-detect 2>&1 | grep "usb:" | awk '{print $NF}')
-if [ -z "$DETECTED_PORT" ]; then
-  echo "ERROR: No camera detected."
+# ── Step 5: Validate and refresh camera port ──
+if [ -z "$USB_PORT" ]; then
+  echo "ERROR: No USB port specified."
   exit 1
 fi
-PORT_STR="--port $DETECTED_PORT"
 
-# ── Step 6: Launch gphoto2 + ffmpeg with retry and auto USB reset ──
+# Kill GVFS again right before port check (it respawns fast)
+pkill -9 -f "gvfs-gphoto2-volume-monitor" 2>/dev/null
+pkill -9 -f "gvfsd-gphoto2" 2>/dev/null
+sleep 0.5
+
+# Verify the specific camera is accessible, re-detect port if needed
+if ! timeout 10 gphoto2 --auto-detect 2>&1 | grep -q "$USB_PORT"; then
+  echo "WARN: Camera not at original port $USB_PORT, re-detecting..."
+  # Try to find camera by name at a different port
+  NEW_PORT=$(timeout 10 gphoto2 --auto-detect 2>/dev/null | grep -i "$CAM_NAME" | grep -oP 'usb:\S+' | head -1)
+  if [ -n "$NEW_PORT" ]; then
+    echo "INFO: Camera found at new port: $NEW_PORT"
+    USB_PORT="$NEW_PORT"
+  else
+    # Last resort: just pick any Canon/DSLR camera
+    NEW_PORT=$(timeout 10 gphoto2 --auto-detect 2>/dev/null | grep -v '^Model\|^---' | grep 'usb:' | grep -oP 'usb:\S+' | head -1)
+    if [ -n "$NEW_PORT" ]; then
+      echo "INFO: Using first available camera at port: $NEW_PORT"
+      USB_PORT="$NEW_PORT"
+    else
+      echo "ERROR: No camera detected at any port."
+      exit 1
+    fi
+  fi
+fi
+
+# ── Step 6: Launch gphoto2 + ffmpeg with retry ──
 MAX_ATTEMPTS=3
 for attempt in $(seq 1 $MAX_ATTEMPTS); do
   > "$ERR_LOG"
   > "$LOG"
 
-  # Wait for USB to settle (more time after USB reset)
   if [ "$attempt" -gt 1 ]; then
-    echo "Retry attempt $attempt/$MAX_ATTEMPTS after USB reset..."
-    # Kill any GVFS that may have restarted
+    echo "Retry attempt $attempt/$MAX_ATTEMPTS..."
     pkill -9 -f "gvfs-gphoto2-volume-monitor" 2>/dev/null
     pkill -9 -f "gvfsd-gphoto2" 2>/dev/null
-    # Re-detect port since USB reset changes device number
-    sleep 5
-    DETECTED_PORT=$(timeout 10 gphoto2 --auto-detect 2>&1 | grep "usb:" | awk '{print $NF}')
-    [ -z "$DETECTED_PORT" ] && continue
-    PORT_STR="--port $DETECTED_PORT"
-    sleep 2
-  else
-    sleep 2
+    sleep 3
   fi
 
-  nohup bash -c "gphoto2 --stdout --capture-movie $PORT_STR 2>\"$ERR_LOG\" | \
+  nohup bash -c "gphoto2 --stdout --capture-movie --port '$USB_PORT' 2>\"$ERR_LOG\" | \
     ffmpeg -y -hide_banner -loglevel error -stats -i - \
     -filter_complex \"[0:v]format=yuv420p,split=2[v1][v2]\" \
     -map \"[v1]\" -r 30 -f v4l2 \"$DEVICE_VIDEO\" \
@@ -138,30 +116,30 @@ for attempt in $(seq 1 $MAX_ATTEMPTS); do
   PID=$!
   disown
 
-  # Wait and check if streaming started
+  # Wait and verify streaming actually works
   sleep 6
 
   if kill -0 "$PID" 2>/dev/null; then
-    # Check if gphoto2 actually produced frames (not just waiting to timeout)
-    if grep -q "PTP Timeout" "$ERR_LOG" 2>/dev/null; then
-      # Process alive but PTP timeout — kill and retry with USB reset
+    # Check for PTP errors
+    if grep -q "PTP Timeout\|PTP Error\|Erro na captura" "$ERR_LOG" 2>/dev/null; then
       kill -9 "$PID" 2>/dev/null
-      pkill -9 -f "gphoto2 --" 2>/dev/null
-      pkill -9 -f "ffmpeg.*mpegts" 2>/dev/null
+      pkill -f "gphoto2.*--port ${USB_PORT}" 2>/dev/null
+      pkill -f "ffmpeg.*udp://127.0.0.1:${UDP_PORT}" 2>/dev/null
       sleep 1
-      usb_reset_camera
       continue
     fi
-    echo "SUCCESS: $DEVICE_VIDEO"
-    exit 0
+
+    # Verify ffmpeg is actually writing frames (check log for frame= stats)
+    if [ -s "$LOG" ] || ! grep -q "Erro\|Error" "$ERR_LOG" 2>/dev/null; then
+      echo "SUCCESS: $DEVICE_VIDEO"
+      exit 0
+    fi
   fi
 
-  # Process died — check if PTP error, do USB reset and retry
-  if grep -q "PTP Timeout\|Dispositivo ou recurso está ocupado" "$ERR_LOG" 2>/dev/null; then
-    usb_reset_camera
-    continue
-  fi
-  break
+  # Process died — retry with USB reset
+  pkill -f "gphoto2.*--port ${USB_PORT}" 2>/dev/null
+  pkill -f "ffmpeg.*udp://127.0.0.1:${UDP_PORT}" 2>/dev/null
+  sleep 1
 done
 
 echo "ERROR: Pipeline failed after $MAX_ATTEMPTS attempts."

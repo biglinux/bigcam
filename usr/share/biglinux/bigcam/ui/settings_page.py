@@ -1,6 +1,8 @@
-"""Settings page – global application preferences."""
+"""Settings page – global preferences, tools, and virtual camera."""
 
 from __future__ import annotations
+
+import os
 
 import gi
 
@@ -9,9 +11,19 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gtk, GLib, GObject
 
+from core.virtual_camera import VirtualCamera
 from utils.settings_manager import SettingsManager
 from utils import xdg
 from utils.i18n import _
+
+try:
+    import cv2
+    import numpy as np
+    _HAS_CV2 = True
+except ImportError:
+    _HAS_CV2 = False
+
+_HAARCASCADES = "/usr/share/opencv4/haarcascades"
 
 
 class SettingsPage(Gtk.ScrolledWindow):
@@ -20,14 +32,31 @@ class SettingsPage(Gtk.ScrolledWindow):
     __gsignals__ = {
         "show-fps-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "mirror-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "smile-captured": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "qr-detected": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "virtual-camera-toggled": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
     }
 
-    def __init__(self, settings: SettingsManager) -> None:
+    def __init__(self, settings: SettingsManager, stream_engine=None) -> None:
         super().__init__(
             hscrollbar_policy=Gtk.PolicyType.NEVER,
             vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
         )
         self._settings = settings
+        self._engine = stream_engine
+
+        # Tools state
+        self._qr_active = False
+        self._smile_active = False
+        self._qr_timer_id: int | None = None
+        self._smile_timer_id: int | None = None
+        self._smile_cooldown = False
+        self._last_qr_text = ""
+        self._qr_scanning = False
+        self._qr_detector = None
+        self._wechat_qr = None
+        self._face_cascade = None
+        self._smile_cascade = None
 
         clamp = Adw.Clamp(maximum_size=600, tightening_threshold=400)
         content = Gtk.Box(
@@ -39,7 +68,17 @@ class SettingsPage(Gtk.ScrolledWindow):
             margin_end=12,
         )
 
-        # -- General ---------------------------------------------------------
+        self._build_general(content)
+        self._build_preview(content)
+        if _HAS_CV2 and stream_engine is not None:
+            self._build_tools(content)
+        self._build_virtual_camera(content)
+        self._build_advanced(content)
+
+        clamp.set_child(content)
+        self.set_child(clamp)
+
+    def _build_general(self, content: Gtk.Box) -> None:
         general = Adw.PreferencesGroup(title=_("General"))
 
         # Photo directory
@@ -90,7 +129,7 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         content.append(general)
 
-        # -- Preview ---------------------------------------------------------
+    def _build_preview(self, content: Gtk.Box) -> None:
         preview = Adw.PreferencesGroup(title=_("Preview"))
 
         mirror_row = Adw.SwitchRow(
@@ -116,7 +155,7 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         content.append(preview)
 
-        # -- Advanced --------------------------------------------------------
+    def _build_advanced(self, content: Gtk.Box) -> None:
         advanced = Adw.PreferencesGroup(title=_("Advanced"))
 
         hotplug_row = Adw.SwitchRow(
@@ -132,8 +171,73 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         content.append(advanced)
 
-        clamp.set_child(content)
-        self.set_child(clamp)
+    def _build_tools(self, content: Gtk.Box) -> None:
+        import threading
+        self._threading = threading
+
+        from ui.qr_dialog import parse_qr, QrDialog
+        self._parse_qr = parse_qr
+        self._QrDialog = QrDialog
+
+        # --- QR Code Scanner ---
+        qr_group = Adw.PreferencesGroup(title=_("QR Code Scanner"))
+        self._qr_row = Adw.SwitchRow(
+            title=_("Scan QR Codes"),
+            subtitle=_("Detect QR codes in the camera feed"),
+        )
+        self._qr_row.connect("notify::active", self._on_qr_toggled)
+        qr_group.add(self._qr_row)
+        content.append(qr_group)
+
+        # --- Smile Capture ---
+        smile_group = Adw.PreferencesGroup(title=_("Smile Capture"))
+        self._smile_row = Adw.SwitchRow(
+            title=_("Capture on Smile"),
+            subtitle=_("Automatically take a photo when a smile is detected"),
+        )
+        self._smile_row.connect("notify::active", self._on_smile_toggled)
+        smile_group.add(self._smile_row)
+
+        self._sensitivity_row = Adw.ActionRow(title=_("Sensitivity"))
+        self._sensitivity_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 10, 50, 5
+        )
+        self._sensitivity_scale.set_value(25)
+        self._sensitivity_scale.set_hexpand(True)
+        self._sensitivity_scale.set_valign(Gtk.Align.CENTER)
+        self._sensitivity_row.add_suffix(self._sensitivity_scale)
+        smile_group.add(self._sensitivity_row)
+
+        self._smile_status = Gtk.Label(
+            label="", xalign=0.5, css_classes=["dim-label"],
+        )
+        self._smile_status.set_margin_top(4)
+        content.append(smile_group)
+        content.append(self._smile_status)
+
+    def _build_virtual_camera(self, content: Gtk.Box) -> None:
+        vc_group = Adw.PreferencesGroup(title=_("Virtual Camera"))
+
+        self._vc_status_row = Adw.ActionRow(title=_("Status"))
+        self._vc_status_icon = Gtk.Image.new_from_icon_name("emblem-default-symbolic")
+        self._vc_status_row.add_prefix(self._vc_status_icon)
+        vc_group.add(self._vc_status_row)
+
+        self._vc_device_row = Adw.ActionRow(
+            title=_("Device"), subtitle=_("Not loaded"),
+        )
+        vc_group.add(self._vc_device_row)
+
+        self._vc_toggle_row = Adw.SwitchRow(
+            title=_("Enable virtual camera"),
+            subtitle=_("Create a virtual camera output for video calls and streaming."),
+        )
+        self._vc_toggle_row.connect("notify::active", self._on_vc_toggle)
+        vc_group.add(self._vc_toggle_row)
+
+        content.append(vc_group)
+        self._vc_updating = False
+        self._refresh_vc_status()
 
     # -- handlers ------------------------------------------------------------
 
@@ -164,6 +268,213 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     @staticmethod
     def _open_directory(path: str) -> None:
-        import subprocess, os
+        import subprocess
         os.makedirs(path, exist_ok=True)
         subprocess.Popen(["xdg-open", path])
+
+    # -- QR Code handlers ----------------------------------------------------
+
+    def _on_qr_toggled(self, row: Adw.SwitchRow, _pspec) -> None:
+        self._qr_active = row.get_active()
+        if self._qr_active:
+            self._init_qr_detector()
+            self._qr_timer_id = GLib.timeout_add(300, self._scan_qr)
+        else:
+            if self._qr_timer_id:
+                GLib.source_remove(self._qr_timer_id)
+                self._qr_timer_id = None
+            self._last_qr_text = ""
+            self._engine.set_overlay_rects([])
+
+    def _init_qr_detector(self) -> None:
+        if self._wechat_qr is not None or self._qr_detector is not None:
+            return
+        try:
+            self._wechat_qr = cv2.wechat_qrcode.WeChatQRCode()
+        except Exception:
+            self._qr_detector = cv2.QRCodeDetector()
+
+    def _try_detect_qr(self, img):
+        if self._wechat_qr is not None:
+            results, pts_list = self._wechat_qr.detectAndDecode(img)
+            if results and results[0]:
+                pts = pts_list[0] if pts_list and len(pts_list) > 0 else None
+                return results[0], pts
+        elif self._qr_detector is not None:
+            data, pts, _ = self._qr_detector.detectAndDecode(img)
+            if data:
+                p = pts[0] if pts is not None and pts.ndim == 3 else pts
+                return data, p
+        return "", None
+
+    def _scan_qr(self) -> bool:
+        if not self._qr_active:
+            return False
+        if self._qr_scanning:
+            return True
+        frame = self._engine.last_frame_bgr
+        if frame is None:
+            return True
+        self._qr_scanning = True
+        import threading
+        threading.Thread(target=self._scan_qr_worker, args=(frame.copy(),), daemon=True).start()
+        return True
+
+    def _scan_qr_worker(self, frame) -> None:
+        try:
+            data, points = self._try_detect_qr(frame)
+            if not data:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                eq = cv2.equalizeHist(gray)
+                data, points = self._try_detect_qr(eq)
+            if not data:
+                sharp_k = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+                data, points = self._try_detect_qr(cv2.filter2D(frame, -1, sharp_k))
+            if not data:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                thresh = cv2.adaptiveThreshold(
+                    gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                    cv2.THRESH_BINARY, 51, 10,
+                )
+                data, points = self._try_detect_qr(thresh)
+
+            rects = []
+            if points is not None and len(points) >= 4:
+                pts_int = np.int32(points)
+                x_min = int(pts_int[:, 0].min())
+                y_min = int(pts_int[:, 1].min())
+                x_max = int(pts_int[:, 0].max())
+                y_max = int(pts_int[:, 1].max())
+                rects.append((x_min, y_min, x_max - x_min, y_max - y_min))
+            GLib.idle_add(self._scan_qr_done, data, rects)
+        except Exception:
+            GLib.idle_add(self._scan_qr_done, "", [])
+
+    def _scan_qr_done(self, data: str, rects: list) -> bool:
+        self._qr_scanning = False
+        self._engine.set_overlay_rects(rects)
+        if data and data != self._last_qr_text:
+            self._last_qr_text = data
+            self.emit("qr-detected", data)
+            qr_result = self._parse_qr(data)
+            dialog = self._QrDialog(qr_result)
+            root = self.get_root()
+            if root:
+                dialog.set_transient_for(root)
+            dialog.present()
+        return False
+
+    # -- Smile handlers ------------------------------------------------------
+
+    def _on_smile_toggled(self, row: Adw.SwitchRow, _pspec) -> None:
+        self._smile_active = row.get_active()
+        if self._smile_active:
+            if self._face_cascade is None:
+                self._face_cascade = cv2.CascadeClassifier(
+                    os.path.join(_HAARCASCADES, "haarcascade_frontalface_default.xml")
+                )
+            if self._smile_cascade is None:
+                self._smile_cascade = cv2.CascadeClassifier(
+                    os.path.join(_HAARCASCADES, "haarcascade_smile.xml")
+                )
+            self._smile_cooldown = False
+            self._smile_status.set_text(_("Watching for smiles..."))
+            self._smile_timer_id = GLib.timeout_add(300, self._detect_smile)
+        else:
+            if self._smile_timer_id:
+                GLib.source_remove(self._smile_timer_id)
+                self._smile_timer_id = None
+            self._smile_status.set_text("")
+
+    def _detect_smile(self) -> bool:
+        if not self._smile_active:
+            return False
+        if self._smile_cooldown:
+            return True
+        frame = self._engine.last_frame_bgr
+        if frame is None:
+            return True
+        try:
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = self._face_cascade.detectMultiScale(
+                gray, scaleFactor=1.3, minNeighbors=5, minSize=(80, 80)
+            )
+            if len(faces) == 0:
+                return True
+            sensitivity = int(self._sensitivity_scale.get_value())
+            for (x, y, fw, fh) in faces:
+                roi_gray = gray[y:y + fh, x:x + fw]
+                lower_half = roi_gray[fh // 2:, :]
+                smiles = self._smile_cascade.detectMultiScale(
+                    lower_half, scaleFactor=1.7, minNeighbors=sensitivity,
+                    minSize=(25, 15)
+                )
+                if len(smiles) > 0:
+                    GLib.idle_add(self._trigger_smile_capture)
+                    return True
+        except Exception:
+            pass
+        return True
+
+    def _trigger_smile_capture(self) -> bool:
+        if self._smile_cooldown:
+            return False
+        self._smile_cooldown = True
+        import time as _time
+        ts = _time.strftime("%Y%m%d_%H%M%S")
+        path = os.path.join(xdg.photos_dir(), f"smile_{ts}.jpg")
+        os.makedirs(xdg.photos_dir(), exist_ok=True)
+        frame = self._engine.last_frame_bgr
+        if frame is not None:
+            cv2.imwrite(path, frame)
+            self.emit("smile-captured", path)
+        GLib.timeout_add(3000, self._reset_smile_cooldown)
+        return False
+
+    def _reset_smile_cooldown(self) -> bool:
+        self._smile_cooldown = False
+        return False
+
+    # -- Virtual Camera handlers ---------------------------------------------
+
+    def _refresh_vc_status(self) -> None:
+        self._vc_updating = True
+        try:
+            if not VirtualCamera.is_available():
+                self._vc_status_row.set_subtitle(_("v4l2loopback not available"))
+                self._vc_status_icon.set_from_icon_name("dialog-warning-symbolic")
+                self._vc_toggle_row.set_sensitive(False)
+                return
+            device = VirtualCamera.find_loopback_device()
+            enabled = VirtualCamera.is_enabled()
+            if enabled and device:
+                self._vc_status_row.set_subtitle(_("Active"))
+                self._vc_status_icon.set_from_icon_name("emblem-ok-symbolic")
+                self._vc_device_row.set_subtitle(device)
+                self._vc_toggle_row.set_active(True)
+            elif device:
+                self._vc_status_row.set_subtitle(_("Module loaded"))
+                self._vc_status_icon.set_from_icon_name("emblem-default-symbolic")
+                self._vc_device_row.set_subtitle(device)
+                self._vc_toggle_row.set_active(False)
+            else:
+                self._vc_status_row.set_subtitle(_("Module not loaded"))
+                self._vc_status_icon.set_from_icon_name("dialog-information-symbolic")
+                self._vc_device_row.set_subtitle(_("Not loaded"))
+                self._vc_toggle_row.set_active(False)
+        finally:
+            self._vc_updating = False
+
+    def _on_vc_toggle(self, row: Adw.SwitchRow, _pspec) -> None:
+        if self._vc_updating:
+            return
+        active = row.get_active()
+        VirtualCamera.set_enabled(active)
+        self.emit("virtual-camera-toggled", active)
+        GLib.timeout_add(500, lambda: (self._refresh_vc_status(), False)[-1])
+
+    def set_vc_toggle_active(self, active: bool) -> None:
+        self._vc_updating = True
+        self._vc_toggle_row.set_active(active)
+        self._vc_updating = False
+        self._refresh_vc_status()

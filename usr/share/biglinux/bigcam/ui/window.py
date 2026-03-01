@@ -25,8 +25,8 @@ from ui.camera_controls_page import CameraControlsPage
 from ui.camera_selector import CameraSelector
 from ui.photo_gallery import PhotoGallery
 from ui.video_gallery import VideoGallery
-from ui.virtual_camera_page import VirtualCameraPage
 from ui.settings_page import SettingsPage
+from ui.effects_page import EffectsPage
 from ui.about_dialog import show_about
 from ui.ip_camera_dialog import IPCameraDialog
 from utils.settings_manager import SettingsManager
@@ -136,6 +136,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             _("Controls"), "emblem-system-symbolic",
         )
 
+        # Effects page
+        self._effects_page = EffectsPage(self._stream_engine.effects)
+        self._view_stack.add_titled_with_icon(
+            self._effects_page, "effects",
+            _("Effects"), "color-select-symbolic",
+        )
+
         # Photo gallery page
         self._gallery = PhotoGallery()
         self._view_stack.add_titled_with_icon(
@@ -150,20 +157,17 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             _("Videos"), "video-x-generic-symbolic",
         )
 
-        # Virtual camera page
-        self._virtual_page = VirtualCameraPage()
-        self._view_stack.add_titled_with_icon(
-            self._virtual_page, "virtual",
-            _("Virtual Camera"), "camera-video-symbolic",
-        )
+        # Settings page (includes Tools and Virtual Camera)
+        self._settings_page = SettingsPage(self._settings, self._stream_engine)
+        self._settings_page.connect("smile-captured", self._on_smile_captured)
+        self._settings_page.connect("qr-detected", self._on_qr_detected)
+        self._settings_page.connect("virtual-camera-toggled", self._on_virtual_camera_toggled)
 
         # Restore virtual camera enabled state from settings
         if self._settings.get("virtual-camera-enabled"):
             VirtualCamera.set_enabled(True)
-            self._virtual_page.set_toggle_active(True)
+            self._settings_page.set_vc_toggle_active(True)
 
-        # Settings page
-        self._settings_page = SettingsPage(self._settings)
         self._view_stack.add_titled_with_icon(
             self._settings_page, "settings",
             _("Settings"), "preferences-system-symbolic",
@@ -238,12 +242,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.connect("retry-requested", self._on_retry)
         self._camera_manager.connect("camera-error", self._on_camera_error)
         self._camera_manager.connect("cameras-changed", self._on_cameras_changed_auto_start)
-        self._virtual_page.connect("virtual-camera-toggled", self._on_virtual_camera_toggled)
         self._settings_page.connect("show-fps-changed", self._on_show_fps_changed)
         self._settings_page.connect("mirror-changed", self._on_mirror_changed)
         self.connect("close-request", self._on_close)
 
     # -- signal handlers -----------------------------------------------------
+
+    # Cache controls per camera to avoid PTP re-access
+    _controls_cache: dict[str, list] = {}
 
     def _on_camera_selected(self, _selector: CameraSelector, camera: CameraInfo) -> None:
         self._active_camera = camera
@@ -267,7 +273,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             # Stop hotplug polling to prevent gphoto2 --auto-detect racing with streaming
             self._camera_manager.stop_hotplug()
 
-            self._stream_engine.stop()
+            # Check if this camera already has a streaming session alive
+            already_streaming = (hasattr(backend, "is_camera_streaming")
+                                 and backend.is_camera_streaming(camera))
+            cached_controls = self._controls_cache.get(camera.id)
+
+            if already_streaming and cached_controls is not None:
+                # Hot-swap: camera already streaming, just switch the GStreamer pipeline
+                print(f"[DEBUG] Hot-swap to {camera.name} (already streaming)")
+                self._stream_engine.stop(stop_backend=False)
+                self._controls_page.set_camera_with_controls(camera, cached_controls)
+                self._stream_engine.play(camera, streaming_ready=True)
+                return
+
+            # Stop only the GStreamer pipeline, keep other cameras' backend alive
+            self._stream_engine.stop(stop_backend=False)
             self._preview.notification.notify_user(
                 _("Starting camera stream…"), "info", 0
             )
@@ -278,10 +298,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                     print("[DEBUG] Lock already held, aborting")
                     return False, []
                 try:
-                    # Fetch controls while camera USB is free
-                    print("[DEBUG] Fetching gPhoto2 controls before streaming...")
-                    controls = self._camera_manager.get_controls(camera)
-                    print(f"[DEBUG] Got {len(controls)} controls")
+                    controls = cached_controls
+                    if controls is None:
+                        # Fetch controls while camera USB is free
+                        print("[DEBUG] Fetching gPhoto2 controls before streaming...")
+                        controls = self._camera_manager.get_controls(camera)
+                        print(f"[DEBUG] Got {len(controls)} controls")
+
+                    if already_streaming:
+                        print("[DEBUG] Camera already streaming, skipping start")
+                        return True, controls
 
                     # Now start streaming (takes over USB)
                     print("[DEBUG] Starting streaming...")
@@ -302,6 +328,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 print(f"[DEBUG] on_done: success={success}, controls={len(controls)}")
                 self._preview.notification.dismiss()
                 if success:
+                    self._controls_cache[camera.id] = controls
                     self._controls_page.set_camera_with_controls(camera, controls)
                     self._stream_engine.play(camera, streaming_ready=True)
                 else:
@@ -320,12 +347,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         """Re-attempt camera connection when user clicks Try Again."""
         if self._active_camera:
             self._stream_engine.stop()
-            # For gPhoto2, do USB reset before retrying
-            backend = self._camera_manager.get_backend(self._active_camera.backend)
-            if backend and hasattr(backend, "needs_streaming_setup") and backend.needs_streaming_setup():
-                import subprocess as _sp
-                _sp.run(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True)
-                _sp.run(["pkill", "-9", "-f", "ffmpeg.*mpegts"], capture_output=True)
             self._on_camera_selected(self._camera_selector, self._active_camera)
 
     def _on_virtual_camera_toggled(self, _page, _enabled: bool) -> None:
@@ -343,6 +364,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if self._active_camera:
             self._stream_engine.stop()
             self._on_camera_selected(self._camera_selector, self._active_camera)
+
+    # -- Tools signals -------------------------------------------------------
+
+    def _on_smile_captured(self, _page: Any, path: str) -> None:
+        self._preview.notification.notify_user(
+            _("Smile captured! Photo saved."), "success", 3000
+        )
+        self._gallery.refresh()
+
+    def _on_qr_detected(self, _page: Any, text: str) -> None:
+        self._preview.notification.notify_user(
+            _("QR Code detected!"), "info", 2000
+        )
+
+    # -- Capture -------------------------------------------------------------
 
     def _on_capture(self, _preview: PreviewArea) -> None:
         if not self._active_camera:

@@ -226,17 +226,34 @@ class PreviewArea(Gtk.Overlay):
         self._banner.set_title(message)
         self._banner.set_revealed(True)
 
+        # Show spinner on status page for persistent info messages (loading)
+        if timeout_ms == 0 and level == "info":
+            self._show_loading(message)
+
         if timeout_ms > 0:
             self._banner_timeout = GLib.timeout_add(
                 timeout_ms, self._auto_dismiss_banner
             )
 
+    def _show_loading(self, message: str) -> None:
+        self._status.set_title(message)
+        self._status.set_description("")
+        self._status.set_icon_name("")
+        spinner = Gtk.Spinner(spinning=True, width_request=48, height_request=48)
+        spinner.set_halign(Gtk.Align.CENTER)
+        self._status.set_child(spinner)
+        self._retry_btn.set_visible(False)
+        self._stack.set_visible_child_name("status")
+
     def dismiss(self) -> None:
-        """Hide the banner."""
+        """Hide the banner and restore status page."""
         if self._banner_timeout is not None:
             GLib.source_remove(self._banner_timeout)
             self._banner_timeout = None
         self._banner.set_revealed(False)
+        # Restore status page defaults after loading
+        self._status.set_icon_name("camera-web-symbolic")
+        self._status.set_child(self._retry_btn)
 
     def _auto_dismiss_banner(self) -> bool:
         self._banner_timeout = None
