@@ -278,6 +278,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                                  and backend.is_camera_streaming(camera))
             cached_controls = self._controls_cache.get(camera.id)
 
+            print(f"[DEBUG] already_streaming={already_streaming}, cached_controls={cached_controls is not None}, camera.id={camera.id}")
+            if hasattr(backend, "_active_streams"):
+                print(f"[DEBUG] _active_streams={dict(backend._active_streams)}")
+
             if already_streaming and cached_controls is not None:
                 # Hot-swap: camera already streaming, just switch the GStreamer pipeline
                 print(f"[DEBUG] Hot-swap to {camera.name} (already streaming)")
@@ -340,8 +344,20 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             run_async(do_controls_then_stream, on_success=on_done)
         else:
             # V4L2, libcamera, PipeWire: load controls async + start stream
+            # Stop only GStreamer pipeline on UI thread (instant)
+            old_camera = self._stream_engine._current_camera
+            old_backend_obj = None
+            if old_camera and old_camera.backend != camera.backend:
+                old_backend_obj = self._camera_manager.get_backend(old_camera.backend)
+            self._stream_engine.stop(stop_backend=False)
+
+            # Start the V4L2 camera immediately
             self._controls_page.set_camera(camera)
             self._stream_engine.play(camera)
+
+            # Stop old backend (gphoto2) in background — has time.sleep() calls
+            if old_backend_obj and hasattr(old_backend_obj, "stop_streaming"):
+                run_async(lambda: old_backend_obj.stop_streaming(old_camera))
 
     def _on_retry(self, _preview: PreviewArea) -> None:
         """Re-attempt camera connection when user clicks Try Again."""

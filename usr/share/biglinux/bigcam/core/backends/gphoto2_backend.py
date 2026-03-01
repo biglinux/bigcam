@@ -25,7 +25,8 @@ class GPhoto2Backend(CameraBackend):
 
     _streaming_process: subprocess.Popen | None = None
     # Track active streaming sessions per camera port
-    _active_streams: dict[str, str] = {}  # port -> udp_port
+    # port -> {"udp_port": str, "launch_port": str}
+    _active_streams: dict[str, dict[str, str]] = {}
 
     def get_backend_type(self) -> BackendType:
         return BackendType.GPHOTO2
@@ -85,7 +86,7 @@ class GPhoto2Backend(CameraBackend):
                 except (ProcessLookupError, FileNotFoundError, PermissionError):
                     pass
             if pids:
-                time.sleep(1)
+                time.sleep(3)
         except Exception:
             pass
 
@@ -241,6 +242,11 @@ class GPhoto2Backend(CameraBackend):
                 if name and name in camera.name:
                     if port != old_port:
                         print(f"[DEBUG] Port changed: {old_port} -> {port}")
+                        # Update _active_streams key if camera was streaming
+                        if old_port in cls._active_streams:
+                            stream_info = cls._active_streams.pop(old_port)
+                            cls._active_streams[port] = stream_info
+                            print(f"[DEBUG] Updated _active_streams: {old_port} -> {port}")
                         camera.extra["port"] = port
                         camera.device_path = port
                         camera.id = f"gphoto2:{port}"
@@ -353,8 +359,20 @@ class GPhoto2Backend(CameraBackend):
 
     def get_controls(self, camera: CameraInfo) -> list[CameraControl]:
         controls: list[CameraControl] = []
-        port = camera.extra.get("port", camera.device_path)
+
+        # Refresh USB port first (device number changes after GVFS kill)
+        port = self._refresh_port(camera)
         print(f"[DEBUG] get_controls: port={port}")
+
+        # Check if the USB device actually exists
+        try:
+            bus, dev = port.replace("usb:", "").split(",")
+            usb_path = f"/dev/bus/usb/{bus}/{dev}"
+            if not os.path.exists(usb_path):
+                print(f"[DEBUG] get_controls: {usb_path} does not exist, camera disconnected?")
+                return controls
+        except (ValueError, OSError):
+            pass
 
         # Ensure GVFS is dead and USB device is free
         self._kill_gvfs()
@@ -630,10 +648,10 @@ class GPhoto2Backend(CameraBackend):
                     if line.startswith("SUCCESS:"):
                         dev = line.split("SUCCESS:")[1].strip()
                         log.info("GPhoto2 streaming started on %s", dev)
-                        self._active_streams[port] = udp_port
+                        self._active_streams[port] = {"udp_port": udp_port, "launch_port": port}
                         return True
                 log.info("GPhoto2 script exited 0 (no explicit SUCCESS)")
-                self._active_streams[port] = udp_port
+                self._active_streams[port] = {"udp_port": udp_port, "launch_port": port}
                 return True
 
             log.error("GPhoto2 script failed (code %d): %s",
@@ -652,13 +670,21 @@ class GPhoto2Backend(CameraBackend):
             if camera:
                 port = camera.extra.get("port", camera.device_path)
                 udp_port = str(camera.extra.get("udp_port", 5000))
-                self._active_streams.pop(port, None)
+                stream_info = self._active_streams.pop(port, None)
+                # Use the port the process was actually launched with
+                launch_port = stream_info["launch_port"] if stream_info else port
 
                 # Graceful SIGTERM first — gives gphoto2 time to close PTP session
                 subprocess.run(
-                    ["pkill", "-f", f"gphoto2.*--port {port}"],
+                    ["pkill", "-f", f"gphoto2.*--port {launch_port}"],
                     capture_output=True,
                 )
+                # Also try current port if different
+                if launch_port != port:
+                    subprocess.run(
+                        ["pkill", "-f", f"gphoto2.*--port {port}"],
+                        capture_output=True,
+                    )
                 subprocess.run(
                     ["pkill", "-f", f"ffmpeg.*udp://127.0.0.1:{udp_port}"],
                     capture_output=True,
@@ -666,9 +692,14 @@ class GPhoto2Backend(CameraBackend):
                 time.sleep(2)
                 # Force-kill any survivors
                 subprocess.run(
-                    ["pkill", "-9", "-f", f"gphoto2.*--port {port}"],
+                    ["pkill", "-9", "-f", f"gphoto2.*--port {launch_port}"],
                     capture_output=True,
                 )
+                if launch_port != port:
+                    subprocess.run(
+                        ["pkill", "-9", "-f", f"gphoto2.*--port {port}"],
+                        capture_output=True,
+                    )
                 subprocess.run(
                     ["pkill", "-9", "-f", f"ffmpeg.*udp://127.0.0.1:{udp_port}"],
                     capture_output=True,
@@ -701,13 +732,22 @@ class GPhoto2Backend(CameraBackend):
         port = camera.extra.get("port", camera.device_path)
         if port not in self._active_streams:
             return False
-        # Verify the process is actually alive
-        udp_port = self._active_streams[port]
+        # Verify the process is actually alive using the launch port
+        stream_info = self._active_streams[port]
+        launch_port = stream_info.get("launch_port", port)
         result = subprocess.run(
-            ["pgrep", "-f", f"gphoto2.*--port {port}"],
+            ["pgrep", "-f", f"gphoto2.*--port {launch_port}"],
             capture_output=True,
         )
         if result.returncode != 0:
+            # Also try current port (in case it matches)
+            if launch_port != port:
+                result = subprocess.run(
+                    ["pgrep", "-f", f"gphoto2.*--port {port}"],
+                    capture_output=True,
+                )
+                if result.returncode == 0:
+                    return True
             # Process died — clean up
             self._active_streams.pop(port, None)
             return False
