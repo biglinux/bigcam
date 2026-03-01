@@ -18,6 +18,7 @@ from gi.repository import Gst, GstVideo, Gdk, GLib, GObject
 from constants import BackendType
 from core.camera_backend import CameraInfo, VideoFormat
 from core.camera_manager import CameraManager
+from core.effects import EffectPipeline
 from core.virtual_camera import VirtualCamera
 from utils.i18n import _
 
@@ -70,11 +71,27 @@ class StreamEngine(GObject.Object):
         self._gtksink: Any = None
         self._use_appsink = False
         self._last_texture: Gdk.Texture | None = None
-        self._last_texture: Gdk.Texture | None = None
         self._frame_count: int = 0
         self._current_fps: float = 0.0
         self._fps_timer_id: int | None = None
         self._mirror: bool = False
+        self._effects = EffectPipeline()
+        self._probe_debug_count: int = 0
+        self._last_probe_bgr = None
+        self._overlay_rects: list[tuple] = []  # [(x,y,w,h), ...] for QR overlay
+
+    @property
+    def effects(self) -> EffectPipeline:
+        return self._effects
+
+    @property
+    def last_frame_bgr(self):
+        """Return the last BGR frame (numpy array) from the probe, or None."""
+        return self._last_probe_bgr
+
+    def set_overlay_rects(self, rects: list[tuple]) -> None:
+        """Set rectangles to draw on the video feed (e.g. QR bounding boxes)."""
+        self._overlay_rects = rects
 
     # -- public API ----------------------------------------------------------
 
@@ -123,6 +140,95 @@ class StreamEngine(GObject.Object):
         self._frame_count += 1
         return Gst.PadProbeReturn.OK
 
+    def _on_paintable_probe(self, pad: Gst.Pad, info: Gst.PadProbeInfo) -> Gst.PadProbeReturn:
+        """Buffer probe on paintable sink — applies OpenCV effects via buffer replacement."""
+        self._frame_count += 1
+        buf = info.get_buffer()
+        if buf is None:
+            return Gst.PadProbeReturn.OK
+        caps = pad.get_current_caps()
+        if caps is None:
+            return Gst.PadProbeReturn.OK
+        s = caps.get_structure(0)
+        w = s.get_value("width")
+        h = s.get_value("height")
+        fmt = s.get_string("format")
+        self._probe_debug_count += 1
+        if self._probe_debug_count <= 3:
+            print(f"[DEBUG] paintable_probe: fmt={fmt}, {w}x{h}")
+        ok, map_info = buf.map(Gst.MapFlags.READ)
+        if not ok:
+            return Gst.PadProbeReturn.OK
+        bgr = None
+        result = None
+        try:
+            import numpy as np
+            import cv2
+            raw = bytes(map_info.data)
+            if fmt in ("BGRA", "BGRx"):
+                frame = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 4))
+                bgr = frame[:, :, :3].copy()
+            elif fmt == "BGR":
+                bgr = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 3)).copy()
+            elif fmt == "RGB":
+                rgb = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 3)).copy()
+                bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            elif fmt == "I420":
+                yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h * 3 // 2, w))
+                bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
+            elif fmt == "NV12":
+                yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h * 3 // 2, w))
+                bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_NV12)
+            elif fmt in ("YUY2", "YUYV"):
+                yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h, w * 2))
+                bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_YUY2)
+            if bgr is not None:
+                # Store for snapshot and tools (QR, smile detection)
+                self._last_probe_bgr = bgr
+                needs_replace = self._effects.has_active_effects() or self._overlay_rects
+                if needs_replace:
+                    processed = bgr.copy()
+                    if self._effects.has_active_effects():
+                        processed = self._effects.apply(processed)
+                    # Draw overlay rectangles (QR bounding boxes)
+                    if self._overlay_rects:
+                        for rect in self._overlay_rects:
+                            x, y, rw, rh = rect
+                            cv2.rectangle(processed, (x, y), (x + rw, y + rh),
+                                          (0, 255, 0), 3)
+                        if self._probe_debug_count <= 8:
+                            self._probe_debug_count += 1
+                            print(f"[DEBUG] probe drawing {len(self._overlay_rects)} rects on {fmt} {w}x{h}")
+                    # Convert back to original format
+                    if fmt in ("BGRA", "BGRx"):
+                        frame = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 4)).copy()
+                        frame[:, :, :3] = processed
+                        result = frame.tobytes()
+                    elif fmt == "BGR":
+                        result = processed.tobytes()
+                    elif fmt == "RGB":
+                        result = cv2.cvtColor(processed, cv2.COLOR_BGR2RGB).tobytes()
+                    elif fmt == "I420":
+                        result = cv2.cvtColor(processed, cv2.COLOR_BGR2YUV_I420).tobytes()
+                    elif fmt == "NV12":
+                        result = cv2.cvtColor(processed, cv2.COLOR_BGR2YUV_I420).tobytes()
+                    elif fmt in ("YUY2", "YUYV"):
+                        if hasattr(cv2, 'COLOR_BGR2YUV_YUY2'):
+                            result = cv2.cvtColor(processed, cv2.COLOR_BGR2YUV_YUY2).tobytes()
+        except Exception as e:
+            if self._probe_debug_count <= 5:
+                print(f"[DEBUG] paintable_probe error: {e}")
+        finally:
+            buf.unmap(map_info)
+        if result is not None:
+            new_buf = Gst.Buffer.new_wrapped(result)
+            new_buf.pts = buf.pts
+            new_buf.dts = buf.dts
+            new_buf.duration = buf.duration
+            new_buf.offset = buf.offset
+            info.set_buffer(new_buf)
+        return Gst.PadProbeReturn.OK
+
     @property
     def mirror(self) -> bool:
         return self._mirror
@@ -136,21 +242,35 @@ class StreamEngine(GObject.Object):
 
         Works for both paintable and appsink pipelines.
         """
-        texture = None
-        if self._use_appsink:
-            texture = self._last_texture
-        elif self._gtksink:
+        # Appsink pipeline stores last texture directly
+        if self._use_appsink and self._last_texture:
+            try:
+                self._last_texture.save_to_png(output_path)
+                return True
+            except Exception as exc:
+                log.error("Failed to save appsink snapshot: %s", exc)
+                return False
+
+        # Paintable pipeline — capture from probe's last frame
+        if self._last_probe_bgr is not None:
+            try:
+                import cv2
+                cv2.imwrite(output_path, self._last_probe_bgr)
+                return True
+            except Exception as exc:
+                log.error("Failed to save probe snapshot: %s", exc)
+                return False
+
+        # Fallback — try paintable directly
+        if self._gtksink:
             paintable = self._gtksink.get_property("paintable")
-            if paintable and hasattr(paintable, "get_current_image"):
-                texture = paintable.get_current_image()
-        if texture is None:
-            return False
-        try:
-            texture.save_to_png(output_path)
-            return True
-        except Exception as exc:
-            log.error("Failed to save snapshot: %s", exc)
-            return False
+            if paintable and hasattr(paintable, "save_to_png"):
+                try:
+                    paintable.save_to_png(output_path)
+                    return True
+                except Exception:
+                    pass
+        return False
 
     def play(self, camera: CameraInfo, fmt: VideoFormat | None = None,
              streaming_ready: bool = False) -> bool:
@@ -275,7 +395,7 @@ class StreamEngine(GObject.Object):
         # Install FPS probe on the sink pad
         sink_pad = gtksink.get_static_pad("sink")
         if sink_pad:
-            sink_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_frame_probe)
+            sink_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_paintable_probe)
         self._start_fps_counter()
         self.emit("state-changed", "playing")
         return True
@@ -421,7 +541,7 @@ class StreamEngine(GObject.Object):
         self.emit("state-changed", "playing")
         return True
 
-    def stop(self) -> None:
+    def stop(self, stop_backend: bool = True) -> None:
         camera = self._current_camera
         self._stop_fps_counter()
 
@@ -442,10 +562,10 @@ class StreamEngine(GObject.Object):
             self._current_camera = None
             self.emit("state-changed", "stopped")
 
-        if camera:
+        if camera and stop_backend:
             backend = self._manager.get_backend(camera.backend)
             if backend and hasattr(backend, "stop_streaming"):
-                backend.stop_streaming()
+                backend.stop_streaming(camera)
 
     def is_playing(self) -> bool:
         if self._pipeline is None:
@@ -473,9 +593,20 @@ class StreamEngine(GObject.Object):
             self._appsink_sample_count += 1
             if self._appsink_sample_count <= 3 or self._appsink_sample_count % 30 == 0:
                 print(f"[DEBUG] appsink sample #{self._appsink_sample_count}: {w}x{h}")
-            stride = map_info.size // h
-            glib_bytes = GLib.Bytes.new(map_info.data)
+            data = bytes(map_info.data)
             buf.unmap(map_info)
+            # Store BGR frame for tools (QR, smile detection)
+            try:
+                import numpy as np
+                bgra = np.frombuffer(data, dtype=np.uint8).reshape((h, w, 4))
+                self._last_probe_bgr = bgra[:, :, :3].copy()
+            except Exception:
+                pass
+            # Apply OpenCV effects if active
+            if self._effects.has_active_effects():
+                data = self._effects.apply_bgra(data, w, h)
+            stride = len(data) // h
+            glib_bytes = GLib.Bytes.new(data)
             GLib.idle_add(self._update_texture, w, h, stride, glib_bytes)
         return Gst.FlowReturn.OK
 
