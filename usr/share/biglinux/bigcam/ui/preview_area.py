@@ -30,6 +30,7 @@ class PreviewArea(Gtk.Overlay):
         self._fps_timer: int | None = None
         self._show_fps: bool = True
         self._last_error: str = ""
+        self._progress_pulse_id: int | None = None
 
         self.add_css_class("preview-area")
 
@@ -80,8 +81,16 @@ class PreviewArea(Gtk.Overlay):
         self._banner.set_revealed(False)
         self._banner_timeout: int | None = None
 
-        # Pack banner + toast_overlay vertically
+        # -- progress bar (top, thin, loading indicator) ---------------------
+        self._top_progress = Gtk.ProgressBar()
+        self._top_progress.add_css_class("osd")
+        self._top_progress.set_halign(Gtk.Align.FILL)
+        self._top_progress.set_hexpand(True)
+        self._top_progress.set_visible(False)
+
+        # Pack progress + banner + toast_overlay vertically
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        content_box.append(self._top_progress)
         content_box.append(self._banner)
         content_box.append(self._toast_overlay)
         self._toast_overlay.set_vexpand(True)
@@ -104,6 +113,26 @@ class PreviewArea(Gtk.Overlay):
         self._toolbar.set_valign(Gtk.Align.END)
         self._toolbar.set_margin_bottom(16)
         self.add_overlay(self._toolbar)
+
+        # -- countdown label (big centered number) --------------------------
+        self._countdown_label = Gtk.Label(label="")
+        self._countdown_label.add_css_class("countdown-overlay")
+        self._countdown_label.set_halign(Gtk.Align.CENTER)
+        self._countdown_label.set_valign(Gtk.Align.CENTER)
+        self._countdown_label.set_visible(False)
+        self.add_overlay(self._countdown_label)
+        self._countdown_timer_id: int | None = None
+
+        # -- grid overlay (rule-of-thirds) ----------------------------------
+        self._grid_drawing = Gtk.DrawingArea()
+        self._grid_drawing.set_draw_func(self._draw_grid)
+        self._grid_drawing.set_halign(Gtk.Align.FILL)
+        self._grid_drawing.set_valign(Gtk.Align.FILL)
+        self._grid_drawing.set_hexpand(True)
+        self._grid_drawing.set_vexpand(True)
+        self._grid_drawing.set_can_target(False)
+        self._grid_drawing.set_visible(False)
+        self.add_overlay(self._grid_drawing)
 
         # -- engine signals --------------------------------------------------
         self._engine.connect("state-changed", self._on_state_changed)
@@ -151,6 +180,7 @@ class PreviewArea(Gtk.Overlay):
 
     def _on_state_changed(self, _engine: StreamEngine, state: str) -> None:
         if state == "playing":
+            self._stop_progress_pulse()
             paintable = self._engine.paintable
             if paintable:
                 self._picture.set_paintable(paintable)
@@ -214,10 +244,12 @@ class PreviewArea(Gtk.Overlay):
         ``preview.notification.notify_user(...)`` keeps working."""
         return self
 
-    def notify_user(self, message: str, level: str = "info", timeout_ms: int = 3000) -> None:
+    def notify_user(self, message: str, level: str = "info", timeout_ms: int = 3000,
+                    progress: bool = False) -> None:
         """Show a banner at the top of the preview area.
 
         If *timeout_ms* is 0, the banner stays until ``dismiss()`` is called.
+        If *progress* is True, show the pulsing progress bar at top.
         """
         if self._banner_timeout is not None:
             GLib.source_remove(self._banner_timeout)
@@ -226,9 +258,12 @@ class PreviewArea(Gtk.Overlay):
         self._banner.set_title(message)
         self._banner.set_revealed(True)
 
-        # Show spinner on status page for persistent info messages (loading)
-        if timeout_ms == 0 and level == "info":
-            self._show_loading(message)
+        if progress:
+            self._stop_progress_pulse()
+            self._top_progress.set_visible(True)
+            self._progress_pulse_id = GLib.timeout_add(80, self._pulse_progress)
+        else:
+            self._stop_progress_pulse()
 
         if timeout_ms > 0:
             self._banner_timeout = GLib.timeout_add(
@@ -236,14 +271,31 @@ class PreviewArea(Gtk.Overlay):
             )
 
     def _show_loading(self, message: str) -> None:
-        self._status.set_title(message)
-        self._status.set_description("")
-        self._status.set_icon_name("")
-        spinner = Gtk.Spinner(spinning=True, width_request=48, height_request=48)
-        spinner.set_halign(Gtk.Align.CENTER)
-        self._status.set_child(spinner)
+        self._status.set_icon_name("camera-web-symbolic")
+        self._status.set_title(_("Please wait…"))
+        self._status.set_description(message)
+        self._status.set_child(None)
         self._retry_btn.set_visible(False)
         self._stack.set_visible_child_name("status")
+
+        # Show pulsing progress bar at the top
+        self._stop_progress_pulse()
+        self._top_progress.set_visible(True)
+        self._progress_pulse_id = GLib.timeout_add(80, self._pulse_progress)
+
+    def _pulse_progress(self) -> bool:
+        if self._top_progress.get_visible():
+            self._top_progress.pulse()
+            return True
+        self._progress_pulse_id = None
+        return False
+
+    def _stop_progress_pulse(self) -> None:
+        tid = self._progress_pulse_id
+        self._progress_pulse_id = None
+        if tid is not None:
+            GLib.source_remove(tid)
+        self._top_progress.set_visible(False)
 
     def dismiss(self) -> None:
         """Hide the banner and restore status page."""
@@ -251,6 +303,7 @@ class PreviewArea(Gtk.Overlay):
             GLib.source_remove(self._banner_timeout)
             self._banner_timeout = None
         self._banner.set_revealed(False)
+        self._stop_progress_pulse()
         # Restore status page defaults after loading
         self._status.set_icon_name("camera-web-symbolic")
         self._status.set_child(self._retry_btn)
@@ -261,7 +314,12 @@ class PreviewArea(Gtk.Overlay):
         return GLib.SOURCE_REMOVE
 
     def show_status(self, title: str, description: str = "",
-                    icon: str = "camera-web-symbolic") -> None:
+                    icon: str = "camera-web-symbolic",
+                    loading: bool = False) -> None:
+        if loading:
+            self._show_loading(description)
+            return
+        self._stop_progress_pulse()
         self._status.set_title(title)
         self._status.set_description(description)
         self._status.set_icon_name(icon)
@@ -309,3 +367,54 @@ class PreviewArea(Gtk.Overlay):
             self._record_btn.set_icon_name("media-record-symbolic")
             self._record_btn.remove_css_class("destructive-action")
             self._record_btn.set_tooltip_text(_("Record video"))
+
+    # -- grid overlay --------------------------------------------------------
+
+    def set_grid_visible(self, visible: bool) -> None:
+        self._grid_drawing.set_visible(visible)
+
+    def _draw_grid(self, area: Gtk.DrawingArea, cr, width: int, height: int) -> None:
+        """Draw rule-of-thirds grid lines."""
+        cr.set_source_rgba(1.0, 1.0, 1.0, 0.4)
+        cr.set_line_width(1.0)
+        # Vertical lines at 1/3 and 2/3
+        for i in (1, 2):
+            x = width * i / 3
+            cr.move_to(x, 0)
+            cr.line_to(x, height)
+        # Horizontal lines at 1/3 and 2/3
+        for i in (1, 2):
+            y = height * i / 3
+            cr.move_to(0, y)
+            cr.line_to(width, y)
+        cr.stroke()
+
+    # -- countdown timer -----------------------------------------------------
+
+    def start_countdown(self, seconds: int, callback) -> None:
+        """Show a countdown overlay, then call *callback* when it reaches 0."""
+        self._cancel_countdown()
+        self._countdown_remaining = seconds
+        self._countdown_callback = callback
+        self._countdown_label.set_label(str(seconds))
+        self._countdown_label.set_visible(True)
+        self._countdown_timer_id = GLib.timeout_add(1000, self._tick_countdown)
+
+    def _tick_countdown(self) -> bool:
+        self._countdown_remaining -= 1
+        if self._countdown_remaining > 0:
+            self._countdown_label.set_label(str(self._countdown_remaining))
+            return True
+        self._countdown_label.set_visible(False)
+        self._countdown_timer_id = None
+        if self._countdown_callback:
+            self._countdown_callback()
+            self._countdown_callback = None
+        return False
+
+    def _cancel_countdown(self) -> None:
+        if self._countdown_timer_id is not None:
+            GLib.source_remove(self._countdown_timer_id)
+            self._countdown_timer_id = None
+        self._countdown_label.set_visible(False)
+        self._countdown_callback = None

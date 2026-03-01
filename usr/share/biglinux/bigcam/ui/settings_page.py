@@ -35,6 +35,12 @@ class SettingsPage(Gtk.ScrolledWindow):
         "smile-captured": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "qr-detected": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "virtual-camera-toggled": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+        "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+        "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
     }
 
     def __init__(self, settings: SettingsManager, stream_engine=None) -> None:
@@ -153,7 +159,68 @@ class SettingsPage(Gtk.ScrolledWindow):
         show_fps_row.connect("notify::active", self._on_show_fps)
         preview.add(show_fps_row)
 
+        grid_row = Adw.SwitchRow(
+            title=_("Grid overlay"),
+            subtitle=_("Show a rule-of-thirds grid over the preview."),
+        )
+        grid_row.set_active(self._settings.get("grid_overlay"))
+        grid_row.connect("notify::active", self._on_grid_overlay)
+        preview.add(grid_row)
+
         content.append(preview)
+
+        # -- Camera group (resolution, FPS, timer) ---------------------------
+        camera_group = Adw.PreferencesGroup(title=_("Camera"))
+
+        # Resolution
+        self._res_combo = Adw.ComboRow(title=_("Resolution"))
+        res_model = Gtk.StringList()
+        for label in (_("Auto"), "640×480", "1280×720", "1920×1080", "3840×2160"):
+            res_model.append(label)
+        self._res_combo.set_model(res_model)
+        _RES_VALUES = ["", "480", "720", "1080", "2160"]
+        current_res = self._settings.get("preferred-resolution")
+        try:
+            self._res_combo.set_selected(_RES_VALUES.index(current_res))
+        except ValueError:
+            self._res_combo.set_selected(0)
+        self._res_combo.connect("notify::selected", self._on_resolution)
+        camera_group.add(self._res_combo)
+
+        # FPS limit
+        self._fps_combo = Adw.ComboRow(title=_("FPS limit"))
+        fps_model = Gtk.StringList()
+        for label in (_("Auto"), "15", "24", "30", "60"):
+            fps_model.append(label)
+        self._fps_combo.set_model(fps_model)
+        _FPS_VALUES = [0, 15, 24, 30, 60]
+        current_fps = self._settings.get("fps-limit")
+        try:
+            self._fps_combo.set_selected(_FPS_VALUES.index(current_fps))
+        except ValueError:
+            self._fps_combo.set_selected(0)
+        self._fps_combo.connect("notify::selected", self._on_fps_limit)
+        camera_group.add(self._fps_combo)
+
+        # Capture timer
+        timer_row = Adw.ComboRow(
+            title=_("Capture timer"),
+            subtitle=_("Countdown before taking a photo."),
+        )
+        timer_model = Gtk.StringList()
+        for label in (_("Off"), "3s", "5s", "10s"):
+            timer_model.append(label)
+        timer_row.set_model(timer_model)
+        _TIMER_VALUES = [0, 3, 5, 10]
+        current_timer = self._settings.get("capture-timer")
+        try:
+            timer_row.set_selected(_TIMER_VALUES.index(current_timer))
+        except ValueError:
+            timer_row.set_selected(0)
+        timer_row.connect("notify::selected", self._on_capture_timer)
+        camera_group.add(timer_row)
+
+        content.append(camera_group)
 
     def _build_advanced(self, content: Gtk.Box) -> None:
         advanced = Adw.PreferencesGroup(title=_("Advanced"))
@@ -265,6 +332,31 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _on_hotplug(self, row: Adw.SwitchRow, _pspec) -> None:
         self._settings.set("hotplug_enabled", row.get_active())
+
+    def _on_resolution(self, row: Adw.ComboRow, _pspec) -> None:
+        _RES_VALUES = ["", "480", "720", "1080", "2160"]
+        idx = row.get_selected()
+        value = _RES_VALUES[idx] if idx < len(_RES_VALUES) else ""
+        self._settings.set("preferred-resolution", value)
+        self.emit("resolution-changed", value)
+
+    def _on_fps_limit(self, row: Adw.ComboRow, _pspec) -> None:
+        _FPS_VALUES = [0, 15, 24, 30, 60]
+        idx = row.get_selected()
+        value = _FPS_VALUES[idx] if idx < len(_FPS_VALUES) else 0
+        self._settings.set("fps-limit", value)
+        self.emit("fps-limit-changed", value)
+
+    def _on_capture_timer(self, row: Adw.ComboRow, _pspec) -> None:
+        _TIMER_VALUES = [0, 3, 5, 10]
+        idx = row.get_selected()
+        value = _TIMER_VALUES[idx] if idx < len(_TIMER_VALUES) else 0
+        self._settings.set("capture-timer", value)
+
+    def _on_grid_overlay(self, row: Adw.SwitchRow, _pspec) -> None:
+        active = row.get_active()
+        self._settings.set("grid_overlay", active)
+        self.emit("grid-overlay-changed", active)
 
     @staticmethod
     def _open_directory(path: str) -> None:

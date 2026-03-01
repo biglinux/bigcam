@@ -14,8 +14,10 @@ _DEFAULTS: dict[str, object] = {
     "sidebar-position": 420,
     # Preview
     "preferred-resolution": "",
-    "fps-limit": 30,
+    "fps-limit": 0,
     "mirror_preview": False,
+    "capture-timer": 0,
+    "grid_overlay": False,
     # Photo
     "photo-directory": "",
     "photo-format": "jpg",
@@ -28,6 +30,7 @@ _DEFAULTS: dict[str, object] = {
     "theme": "system",
     "auto-start-preview": True,
     "hotplug_enabled": True,
+    "last-camera-id": "",
     # Virtual camera
     "virtual-camera-enabled": False,
     # IP Cameras (list serialised as JSON array)

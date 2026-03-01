@@ -119,6 +119,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # LEFT: preview
         self._preview = PreviewArea(self._stream_engine)
         self._preview.set_show_fps(self._settings.get("show_fps"))
+        self._preview.set_grid_visible(self._settings.get("grid_overlay"))
         self._paned.set_start_child(self._preview)
 
         # RIGHT: sidebar with ViewStack
@@ -133,28 +134,28 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._controls_page = CameraControlsPage(self._camera_manager)
         self._view_stack.add_titled_with_icon(
             self._controls_page, "controls",
-            _("Controls"), "emblem-system-symbolic",
+            _("Controls"), "adjustlevels",
         )
 
         # Effects page
         self._effects_page = EffectsPage(self._stream_engine.effects)
         self._view_stack.add_titled_with_icon(
             self._effects_page, "effects",
-            _("Effects"), "color-select-symbolic",
+            _("Effects"), "draw-watercolor",
         )
 
         # Photo gallery page
         self._gallery = PhotoGallery()
         self._view_stack.add_titled_with_icon(
             self._gallery, "gallery",
-            _("Photos"), "image-x-generic-symbolic",
+            _("Photos"), "view-list-images",
         )
 
         # Video gallery page
         self._video_gallery = VideoGallery()
         self._view_stack.add_titled_with_icon(
             self._video_gallery, "videos",
-            _("Videos"), "video-x-generic-symbolic",
+            _("Videos"), "view-list-video",
         )
 
         # Settings page (includes Tools and Virtual Camera)
@@ -162,6 +163,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._settings_page.connect("smile-captured", self._on_smile_captured)
         self._settings_page.connect("qr-detected", self._on_qr_detected)
         self._settings_page.connect("virtual-camera-toggled", self._on_virtual_camera_toggled)
+        self._settings_page.connect("resolution-changed", self._on_resolution_changed)
+        self._settings_page.connect("fps-limit-changed", self._on_fps_limit_changed)
+        self._settings_page.connect("grid-overlay-changed", self._on_grid_overlay_changed)
 
         # Restore virtual camera enabled state from settings
         if self._settings.get("virtual-camera-enabled"):
@@ -170,7 +174,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         self._view_stack.add_titled_with_icon(
             self._settings_page, "settings",
-            _("Settings"), "preferences-system-symbolic",
+            _("Settings"), "configure",
         )
 
         switcher = Adw.ViewSwitcherBar(stack=self._view_stack, reveal=True)
@@ -251,8 +255,60 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     # Cache controls per camera to avoid PTP re-access
     _controls_cache: dict[str, list] = {}
 
+    def _pick_preferred_format(self, camera: CameraInfo):
+        """Return a VideoFormat matching user resolution/FPS preferences, or None."""
+        from core.camera_backend import VideoFormat
+
+        res_pref = self._settings.get("preferred-resolution")  # "" / "480" / "720" / "1080" / "2160"
+        fps_pref = self._settings.get("fps-limit")             # 0=auto / 15 / 24 / 30 / 60
+
+        if not res_pref and not fps_pref:
+            return None  # auto
+
+        if not camera.formats:
+            return None
+
+        _RES_MAP = {"480": 480, "720": 720, "1080": 1080, "2160": 2160}
+        target_h = _RES_MAP.get(res_pref, 0)
+
+        candidates = camera.formats
+        if target_h:
+            # Find formats matching the target height
+            exact = [f for f in candidates if f.height == target_h]
+            if exact:
+                candidates = exact
+            else:
+                # Pick closest height
+                candidates = sorted(candidates, key=lambda f: abs(f.height - target_h))
+                closest_h = candidates[0].height
+                candidates = [f for f in candidates if f.height == closest_h]
+
+        if fps_pref and fps_pref > 0:
+            # Filter formats that support the desired FPS (or closest)
+            best = None
+            for fmt in candidates:
+                if fps_pref in fmt.fps or any(f >= fps_pref for f in fmt.fps):
+                    best = fmt
+                    break
+            if best is None and candidates:
+                best = candidates[0]
+            if best is not None:
+                # Create a copy with fps capped to the preference
+                capped_fps = [f for f in best.fps if f <= fps_pref]
+                if not capped_fps:
+                    capped_fps = best.fps
+                return VideoFormat(
+                    width=best.width, height=best.height,
+                    fps=capped_fps, pixel_format=best.pixel_format,
+                    description=best.description,
+                )
+            return None
+
+        return candidates[0] if candidates else None
+
     def _on_camera_selected(self, _selector: CameraSelector, camera: CameraInfo) -> None:
         self._active_camera = camera
+        self._settings.set("last-camera-id", camera.id)
         title_widget = self._header.get_title_widget()
         if isinstance(title_widget, Adw.WindowTitle):
             title_widget.set_subtitle(camera.name)
@@ -292,8 +348,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
             # Stop only the GStreamer pipeline, keep other cameras' backend alive
             self._stream_engine.stop(stop_backend=False)
-            self._preview.notification.notify_user(
-                _("Starting camera stream…"), "info", 0
+            self._preview.show_status(
+                _("Please wait…"),
+                _("Starting camera stream…"),
+                loading=True,
             )
 
             def do_controls_then_stream() -> tuple[bool, list]:
@@ -353,7 +411,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
             # Start the V4L2 camera immediately
             self._controls_page.set_camera(camera)
-            self._stream_engine.play(camera)
+            preferred_fmt = self._pick_preferred_format(camera)
+            self._stream_engine.play(camera, fmt=preferred_fmt)
 
             # Stop old backend (gphoto2) in background — has time.sleep() calls
             if old_backend_obj and hasattr(old_backend_obj, "stop_streaming"):
@@ -381,6 +440,19 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._stream_engine.stop()
             self._on_camera_selected(self._camera_selector, self._active_camera)
 
+    def _on_resolution_changed(self, _page, value: str) -> None:
+        if self._active_camera:
+            self._stream_engine.stop()
+            self._on_camera_selected(self._camera_selector, self._active_camera)
+
+    def _on_fps_limit_changed(self, _page, value: int) -> None:
+        if self._active_camera:
+            self._stream_engine.stop()
+            self._on_camera_selected(self._camera_selector, self._active_camera)
+
+    def _on_grid_overlay_changed(self, _page, visible: bool) -> None:
+        self._preview.set_grid_visible(visible)
+
     # -- Tools signals -------------------------------------------------------
 
     def _on_smile_captured(self, _page: Any, path: str) -> None:
@@ -403,9 +475,17 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             )
             return
 
+        timer = self._settings.get("capture-timer")
+        if timer and timer > 0:
+            self._preview.start_countdown(timer, self._do_capture_after_timer)
+            return
+
+        self._do_capture_after_timer()
+
+    def _do_capture_after_timer(self) -> None:
         from constants import BackendType
 
-        if self._active_camera.backend == BackendType.GPHOTO2:
+        if self._active_camera and self._active_camera.backend == BackendType.GPHOTO2:
             dialog = Adw.AlertDialog.new(
                 _("Choose capture mode"),
                 _("You can take a screenshot from the current preview "
@@ -467,6 +547,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             _("Please wait…"),
             _("Switching to photography mode."),
             "camera-photo-symbolic",
+            loading=True,
         )
 
         def _capture_in_thread() -> str | None:
@@ -498,6 +579,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 _("Please wait…"),
                 _("Resuming camera streaming…"),
                 "camera-web-symbolic",
+                loading=True,
             )
             self._on_camera_selected(self._camera_selector, camera)
 
@@ -551,7 +633,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             if path:
                 self._preview.set_recording_state(True)
                 self._preview.notification.notify_user(
-                    _("Recording…"), "info", 0
+                    _("Recording…"), "info", 0, progress=True
                 )
             else:
                 self._preview.notification.notify_user(
@@ -596,9 +678,17 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     # -- auto-start preview --------------------------------------------------
 
     def _on_cameras_changed_auto_start(self, _manager: CameraManager) -> None:
-        """Auto-start preview with the first camera if none is active."""
+        """Auto-start preview with the last used camera, or the first available."""
         if self._active_camera is None and self._camera_manager.cameras:
-            cam = self._camera_manager.cameras[0]
+            last_id = self._settings.get("last-camera-id")
+            cam = None
+            if last_id:
+                cam = next(
+                    (c for c in self._camera_manager.cameras if c.id == last_id),
+                    None,
+                )
+            if cam is None:
+                cam = self._camera_manager.cameras[0]
             self._on_camera_selected(self._camera_selector, cam)
 
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:

@@ -108,25 +108,43 @@ class EffectsPage(Gtk.ScrolledWindow):
 
     def _add_effect_rows(self, group: Adw.PreferencesGroup,
                          effect: EffectInfo) -> None:
-        # Toggle row for the effect
-        toggle_row = Adw.SwitchRow(
-            title=effect.name,
-            subtitle=effect.description if hasattr(effect, "description") else "",
-        )
-        if effect.icon:
-            toggle_row.set_icon_name(effect.icon)
-        toggle_row.set_active(effect.enabled)
-        toggle_row.update_property(
-            [Gtk.AccessibleProperty.LABEL], [effect.name],
-        )
-        toggle_row.connect("notify::active", self._on_toggle, effect)
-        group.add(toggle_row)
-
-        # Parameter rows (always visible)
         if effect.params:
+            # ExpanderRow with independent switch as suffix
+            expander = Adw.ExpanderRow(
+                title=effect.name,
+                subtitle=effect.description if hasattr(effect, "description") else "",
+            )
+            if effect.icon:
+                expander.set_icon_name(effect.icon)
+            expander.update_property(
+                [Gtk.AccessibleProperty.LABEL], [effect.name],
+            )
+            # Add switch as suffix (independent of expansion)
+            switch = Gtk.Switch()
+            switch.set_active(effect.enabled)
+            switch.set_valign(Gtk.Align.CENTER)
+            switch.connect("notify::active", self._on_switch_toggle, effect)
+            expander.add_suffix(switch)
+            # Replace internal arrow icon
+            self._replace_arrow_icon(expander, "pan-up-symbolic")
             for param in effect.params:
                 param_row = self._make_param_row(effect, param)
-                group.add(param_row)
+                expander.add_row(param_row)
+            group.add(expander)
+        else:
+            # Simple toggle for effects without parameters
+            toggle_row = Adw.SwitchRow(
+                title=effect.name,
+                subtitle=effect.description if hasattr(effect, "description") else "",
+            )
+            if effect.icon:
+                toggle_row.set_icon_name(effect.icon)
+            toggle_row.set_active(effect.enabled)
+            toggle_row.update_property(
+                [Gtk.AccessibleProperty.LABEL], [effect.name],
+            )
+            toggle_row.connect("notify::active", self._on_toggle, effect)
+            group.add(toggle_row)
 
     def _make_param_row(self, effect: EffectInfo, param: EffectParam) -> Adw.ActionRow:
         row = Adw.ActionRow(title=param.label)
@@ -168,6 +186,25 @@ class EffectsPage(Gtk.ScrolledWindow):
         effect.enabled = enabled
         self._pipeline.set_enabled(effect.effect_id, enabled)
         self.emit("effect-changed")
+
+    def _on_switch_toggle(self, switch: Gtk.Switch, _pspec: Any,
+                          effect: EffectInfo) -> None:
+        enabled = switch.get_active()
+        effect.enabled = enabled
+        self._pipeline.set_enabled(effect.effect_id, enabled)
+        self.emit("effect-changed")
+
+    @staticmethod
+    def _replace_arrow_icon(widget: Gtk.Widget, icon_name: str) -> None:
+        """Walk the ExpanderRow widget tree and replace the arrow icon."""
+        child = widget.get_first_child()
+        while child:
+            if isinstance(child, Gtk.Image):
+                if "expander-row-arrow" in (child.get_css_classes() or []):
+                    child.set_from_icon_name(icon_name)
+                    return
+            EffectsPage._replace_arrow_icon(child, icon_name)
+            child = child.get_next_sibling()
 
     def _on_param_changed(self, adj: Gtk.Adjustment, effect: EffectInfo,
                           param: EffectParam) -> None:

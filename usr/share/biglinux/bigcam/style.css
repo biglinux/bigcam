@@ -31,3 +31,16 @@
 .delete-thumb-btn:hover {
     opacity: 1;
 }
+
+/* Countdown overlay (big centered number) */
+.countdown-overlay {
+    font-size: 96px;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+}
+
+/* ExpanderRow arrow indicator */
+row.expander image.expander-row-arrow {
+    -gtk-icon-source: -gtk-icontheme("pan-up-symbolic");
+}

@@ -6,7 +6,7 @@ UDP_PORT="${2:-5000}"
 CAM_NAME="${3:-Canon DSLR}"
 # Remove commas to prevent modprobe array parsing errors
 CAM_NAME="${CAM_NAME//,/}"
-CARD_LABELS="${CAM_NAME} (v4l2),${CAM_NAME} 2 (v4l2),${CAM_NAME} 3 (v4l2),${CAM_NAME} 4 (v4l2)"
+CARD_LABELS="BigCam Virtual,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
 
 
 if [ -n "$USB_PORT" ]; then

@@ -60,7 +60,7 @@ class VirtualCamera:
         Device 10: BigCam virtual camera output (for sharing)
         Device 11: Reserved for gPhoto2 streaming
         """
-        label = card_label or "Big Digicam Virtual Camera"
+        label = card_label or "BigCam Virtual"
         safe_label = label.replace('"', '').replace('\\', '')
         try:
             subprocess.run(
