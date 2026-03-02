@@ -7,10 +7,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, GObject
 
-from core.virtual_camera import VirtualCamera  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from core.virtual_camera import VirtualCamera
+from utils.i18n import _
 
 
 class VirtualCameraPage(Gtk.Box):

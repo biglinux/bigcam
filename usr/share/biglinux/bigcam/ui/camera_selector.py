@@ -7,12 +7,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Gio, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, Gio, GObject, GLib
 
-from constants import BackendType  # noqa: E402
-from core.camera_backend import CameraInfo  # noqa: E402
-from core.camera_manager import CameraManager  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from constants import BackendType
+from core.camera_backend import CameraInfo
+from core.camera_manager import CameraManager
+from utils.i18n import _
 
 _BACKEND_ICONS = {
     BackendType.V4L2: "camera-web-symbolic",
@@ -53,9 +53,8 @@ class CameraSelector(Gtk.Box):
         factory.connect("setup", self._on_factory_setup)
         factory.connect("bind", self._on_factory_bind)
 
-        self._dropdown = Gtk.DropDown(
-            model=self._model, factory=factory, enable_search=True
-        )
+        self._dropdown = Gtk.DropDown(model=self._model, factory=factory,
+                                       enable_search=True)
         self._dropdown.set_tooltip_text(_("Select camera"))
         self._dropdown.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Camera selector")]
@@ -71,9 +70,8 @@ class CameraSelector(Gtk.Box):
         self._manager.connect("cameras-changed", self._on_cameras_changed)
 
     @staticmethod
-    def _on_factory_setup(
-        _factory: Gtk.SignalListItemFactory, list_item: Gtk.ListItem
-    ) -> None:
+    def _on_factory_setup(_factory: Gtk.SignalListItemFactory,
+                          list_item: Gtk.ListItem) -> None:
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         icon = Gtk.Image()
         label = Gtk.Label(xalign=0)
@@ -82,9 +80,8 @@ class CameraSelector(Gtk.Box):
         list_item.set_child(box)
 
     @staticmethod
-    def _on_factory_bind(
-        _factory: Gtk.SignalListItemFactory, list_item: Gtk.ListItem
-    ) -> None:
+    def _on_factory_bind(_factory: Gtk.SignalListItemFactory,
+                         list_item: Gtk.ListItem) -> None:
         item: _CameraItem = list_item.get_item()
         box: Gtk.Box = list_item.get_child()
         icon: Gtk.Image = box.get_first_child()

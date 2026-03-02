@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime
+import time
 
+from constants import BackendType
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
 from utils import xdg
+from utils.i18n import _
 
 
 class PhotoCapture:
@@ -22,7 +24,7 @@ class PhotoCapture:
             return None
 
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            timestamp = time.strftime("%Y%m%d_%H%M%S")
             ext = "jpg"
             filename = f"bigcam_{timestamp}.{ext}"
 

@@ -7,9 +7,9 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, GLib
 
-from utils.i18n import _  # noqa: E402
+from utils.i18n import _
 
 # CSS classes matching Adwaita semantic colours
 _STYLE_MAP = {
@@ -69,9 +69,7 @@ class InlineNotification(Gtk.Revealer):
 
     # -- public API ----------------------------------------------------------
 
-    def notify_user(
-        self, message: str, level: str = "info", timeout_ms: int = 3000
-    ) -> None:
+    def notify_user(self, message: str, level: str = "info", timeout_ms: int = 3000) -> None:
         """Show *message* with the given *level* (info/success/warning/error)."""
         # Remove prior CSS classes
         for css_cls in _STYLE_MAP.values():
@@ -86,13 +84,13 @@ class InlineNotification(Gtk.Revealer):
             "warning": "dialog-warning-symbolic",
             "error": "dialog-error-symbolic",
         }
-        self._icon.set_from_icon_name(
-            icon_map.get(level, "dialog-information-symbolic")
-        )
+        self._icon.set_from_icon_name(icon_map.get(level, "dialog-information-symbolic"))
         self._label.set_text(message)
 
         # Accessibility announcement
-        self.update_property([Gtk.AccessibleProperty.LABEL], [message])
+        self.update_property(
+            [Gtk.AccessibleProperty.LABEL], [message]
+        )
 
         self.set_reveal_child(True)
 

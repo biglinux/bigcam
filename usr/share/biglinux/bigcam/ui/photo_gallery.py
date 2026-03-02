@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import os
+import subprocess
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
 
-from utils import xdg  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from utils import xdg
+from utils.i18n import _
 
 
 class PhotoGallery(Gtk.ScrolledWindow):
@@ -27,14 +28,8 @@ class PhotoGallery(Gtk.ScrolledWindow):
         )
         self._photos_dir = xdg.photos_dir()
 
-        vbox = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=8,
-            margin_top=12,
-            margin_bottom=12,
-            margin_start=12,
-            margin_end=12,
-        )
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8,
+                       margin_top=12, margin_bottom=12, margin_start=12, margin_end=12)
 
         # Header toolbar
         header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
@@ -109,12 +104,8 @@ class PhotoGallery(Gtk.ScrolledWindow):
         if not os.path.isdir(self._photos_dir):
             return []
         files: list[str] = []
-        for entry in sorted(
-            os.scandir(self._photos_dir), key=lambda e: e.stat().st_mtime, reverse=True
-        ):
-            if entry.is_file() and entry.name.lower().endswith(
-                (".jpg", ".jpeg", ".png", ".webp")
-            ):
+        for entry in sorted(os.scandir(self._photos_dir), key=lambda e: e.stat().st_mtime, reverse=True):
+            if entry.is_file() and entry.name.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
                 files.append(entry.path)
         return files
 
@@ -188,9 +179,7 @@ class PhotoGallery(Gtk.ScrolledWindow):
         dialog.connect("response", self._on_delete_response, path)
         dialog.present(self.get_root())
 
-    def _on_delete_response(
-        self, _dialog: Adw.AlertDialog, response: str, path: str
-    ) -> None:
+    def _on_delete_response(self, _dialog: Adw.AlertDialog, response: str, path: str) -> None:
         if response != "delete":
             return
         try:

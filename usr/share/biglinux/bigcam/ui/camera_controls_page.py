@@ -10,12 +10,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, GObject
 
-from constants import ControlCategory, ControlType  # noqa: E402
-from core.camera_backend import CameraControl, CameraInfo  # noqa: E402
-from core.camera_manager import CameraManager  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from constants import ControlCategory, ControlType
+from core.camera_backend import CameraControl, CameraInfo
+from core.camera_manager import CameraManager
+from utils.i18n import _
 
 _CATEGORY_LABELS = {
     ControlCategory.IMAGE: _("Image"),
@@ -76,9 +76,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
     # -- public API ----------------------------------------------------------
 
     def set_camera_with_controls(
-        self,
-        camera: CameraInfo,
-        controls: list[CameraControl],
+        self, camera: CameraInfo, controls: list[CameraControl],
     ) -> None:
         """Set camera and display pre-fetched controls (avoids USB conflict)."""
         self._camera = camera
@@ -93,13 +91,9 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             self._content.append(self._empty)
             return
         # Show loading spinner while fetching controls in background
-        spinner_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=12,
-            halign=Gtk.Align.CENTER,
-            valign=Gtk.Align.CENTER,
-            vexpand=True,
-        )
+        spinner_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12,
+                              halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER,
+                              vexpand=True)
         spinner = Gtk.Spinner(spinning=True, width_request=32, height_request=32)
         spinner_box.append(spinner)
         spinner_box.append(Gtk.Label(label=_("Loading controls…")))
@@ -116,9 +110,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             self._clear_content()
             self._populate(controls)
 
-        threading.Thread(
-            target=lambda: GLib.idle_add(on_controls, fetch_controls()), daemon=True
-        ).start()
+        threading.Thread(target=lambda: GLib.idle_add(on_controls, fetch_controls()),
+                         daemon=True).start()
 
     def _clear_content(self) -> None:
         child = self._content.get_first_child()
@@ -134,7 +127,6 @@ class CameraControlsPage(Gtk.ScrolledWindow):
     def _populate(self, controls: list[CameraControl]) -> None:
         if not controls:
             from constants import BackendType
-
             if self._camera and self._camera.backend == BackendType.PHONE:
                 empty = Adw.StatusPage(
                     icon_name="phone-symbolic",
@@ -191,7 +183,9 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             row = Adw.SwitchRow(title=ctrl.name)
             row.set_active(bool(ctrl.value))
             row.set_sensitive(not readonly)
-            row.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
+            row.update_property(
+                [Gtk.AccessibleProperty.LABEL], [ctrl.name]
+            )
             if not readonly:
                 row.connect("notify::active", self._on_switch, ctrl)
             self._ctrl_widgets[ctrl.id] = ("bool", row)
@@ -200,11 +194,13 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         if ctrl.control_type == ControlType.MENU:
             row = Adw.ComboRow(title=ctrl.name)
             model = Gtk.StringList()
-            for ch in ctrl.choices or []:
+            for ch in (ctrl.choices or []):
                 model.append(ch)
             row.set_model(model)
             row.set_sensitive(not readonly)
-            row.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
+            row.update_property(
+                [Gtk.AccessibleProperty.LABEL], [ctrl.name]
+            )
             # Select current (value is a numeric v4l2 index)
             if isinstance(ctrl.value, int) and ctrl.choices:
                 idx = ctrl.value - (ctrl.minimum or 0)
@@ -217,7 +213,9 @@ class CameraControlsPage(Gtk.ScrolledWindow):
 
         if ctrl.control_type == ControlType.INTEGER:
             row = Adw.ActionRow(title=ctrl.name)
-            row.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
+            row.update_property(
+                [Gtk.AccessibleProperty.LABEL], [ctrl.name]
+            )
             adj = Gtk.Adjustment(
                 value=float(ctrl.value or 0),
                 lower=float(ctrl.minimum or 0),
@@ -231,7 +229,6 @@ class CameraControlsPage(Gtk.ScrolledWindow):
                 draw_value=True,
                 value_pos=Gtk.PositionType.LEFT,
             )
-            scale.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
             scale.set_size_request(180, -1)
             scale.set_sensitive(not readonly)
             if not readonly:
@@ -254,7 +251,9 @@ class CameraControlsPage(Gtk.ScrolledWindow):
                 row = Adw.EntryRow(title=ctrl.name)
                 row.set_text(str(ctrl.value or ""))
                 row.connect("apply", self._on_entry_apply, ctrl)
-            row.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
+            row.update_property(
+                [Gtk.AccessibleProperty.LABEL], [ctrl.name]
+            )
             row.set_sensitive(True)
             return row
 
@@ -300,9 +299,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
 
     # -- reset button --------------------------------------------------------
 
-    def _make_reset_button(
-        self, cat: ControlCategory, ctrls: list[CameraControl]
-    ) -> Gtk.Button:
+    def _make_reset_button(self, cat: ControlCategory, ctrls: list[CameraControl]) -> Gtk.Button:
         btn = Gtk.Button.new_from_icon_name("edit-undo-symbolic")
         btn.add_css_class("flat")
         btn.set_tooltip_text(_("Reset to defaults"))

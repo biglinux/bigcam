@@ -22,7 +22,6 @@ def _kmod_loaded(name: str) -> bool:
             ["lsmod"],
             capture_output=True,
             text=True,
-            timeout=5,
         )
         return name in result.stdout
     except Exception:

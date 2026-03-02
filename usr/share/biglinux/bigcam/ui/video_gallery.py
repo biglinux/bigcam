@@ -11,10 +11,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
 
-from utils import xdg  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from utils import xdg
+from utils.i18n import _
 
 log = logging.getLogger(__name__)
 
@@ -32,12 +32,8 @@ class VideoGallery(Gtk.ScrolledWindow):
         self._videos_dir = xdg.videos_dir()
 
         vbox = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL,
-            spacing=8,
-            margin_top=12,
-            margin_bottom=12,
-            margin_start=12,
-            margin_end=12,
+            orientation=Gtk.Orientation.VERTICAL, spacing=8,
+            margin_top=12, margin_bottom=12, margin_start=12, margin_end=12,
         )
 
         # Header toolbar
@@ -229,27 +225,16 @@ class VideoGallery(Gtk.ScrolledWindow):
         except Exception:
             return None
 
-    def _generate_thumb(
-        self, video_path: str, thumb_path: str | None
-    ) -> GdkPixbuf.Pixbuf | None:
+    def _generate_thumb(self, video_path: str, thumb_path: str | None) -> GdkPixbuf.Pixbuf | None:
         if not thumb_path:
             return None
         try:
             subprocess.run(
                 [
-                    "ffmpeg",
-                    "-y",
-                    "-i",
-                    video_path,
-                    "-ss",
-                    "00:00:01",
-                    "-frames:v",
-                    "1",
-                    "-vf",
-                    f"scale={self.THUMB_SIZE}:-1",
-                    "-q:v",
-                    "5",
-                    thumb_path,
+                    "ffmpeg", "-y", "-i", video_path,
+                    "-ss", "00:00:01", "-frames:v", "1",
+                    "-vf", f"scale={self.THUMB_SIZE}:-1",
+                    "-q:v", "5", thumb_path,
                 ],
                 capture_output=True,
                 timeout=10,
@@ -257,20 +242,16 @@ class VideoGallery(Gtk.ScrolledWindow):
             if os.path.isfile(thumb_path):
                 return self._load_pixbuf(thumb_path)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return None
 
     def _get_duration(self, path: str) -> str | None:
         try:
             result = subprocess.run(
                 [
-                    "ffprobe",
-                    "-v",
-                    "error",
-                    "-show_entries",
-                    "format=duration",
-                    "-of",
-                    "default=noprint_wrappers=1:nokey=1",
+                    "ffprobe", "-v", "error",
+                    "-show_entries", "format=duration",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
                     path,
                 ],
                 capture_output=True,
@@ -307,9 +288,7 @@ class VideoGallery(Gtk.ScrolledWindow):
         dialog.connect("response", self._on_delete_response, path)
         dialog.present(self.get_root())
 
-    def _on_delete_response(
-        self, _dialog: Adw.AlertDialog, response: str, path: str
-    ) -> None:
+    def _on_delete_response(self, _dialog: Adw.AlertDialog, response: str, path: str) -> None:
         if response != "delete":
             return
         try:

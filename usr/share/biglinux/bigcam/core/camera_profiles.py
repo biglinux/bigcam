@@ -3,19 +3,15 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 
 from core.camera_backend import CameraControl, CameraInfo
 from utils import xdg
 
-log = logging.getLogger(__name__)
-
 
 def _safe_filename(name: str) -> str:
-    sanitized = re.sub(r"[^\w\-.]", "_", name)
-    return os.path.basename(sanitized)
+    return re.sub(r"[^\w\-.]", "_", name)
 
 
 def _profile_path(camera: CameraInfo, profile_name: str) -> str:
@@ -36,9 +32,7 @@ def list_profiles(camera: CameraInfo) -> list[str]:
     return names
 
 
-def save_profile(
-    camera: CameraInfo, profile_name: str, controls: list[CameraControl]
-) -> str:
+def save_profile(camera: CameraInfo, profile_name: str, controls: list[CameraControl]) -> str:
     """Persist current control values. Returns the file path."""
     path = _profile_path(camera, profile_name)
     data = {c.id: c.value for c in controls}
@@ -52,12 +46,8 @@ def load_profile(camera: CameraInfo, profile_name: str) -> dict[str, object]:
     path = _profile_path(camera, profile_name)
     if not os.path.isfile(path):
         return {}
-    try:
-        with open(path, "r") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, ValueError):
-        log.warning("Corrupted profile %s, ignoring", path)
-        return {}
+    with open(path, "r") as f:
+        return json.load(f)
 
 
 def delete_profile(camera: CameraInfo, profile_name: str) -> bool:
