@@ -9,10 +9,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, GObject
 
-from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam
+from utils.i18n import _
 
 
 _CATEGORY_LABELS = {
@@ -126,10 +126,6 @@ class EffectsPage(Gtk.ScrolledWindow):
             switch = Gtk.Switch()
             switch.set_active(effect.enabled)
             switch.set_valign(Gtk.Align.CENTER)
-            switch.update_property(
-                [Gtk.AccessibleProperty.LABEL],
-                [effect.name],
-            )
             switch.connect("notify::active", self._on_switch_toggle, effect)
             expander.add_suffix(switch)
             self._effect_widgets[effect.effect_id] = {"switch": switch, "params": {}}
@@ -178,10 +174,6 @@ class EffectsPage(Gtk.ScrolledWindow):
             hexpand=True,
             draw_value=True,
             value_pos=Gtk.PositionType.LEFT,
-        )
-        scale.update_property(
-            [Gtk.AccessibleProperty.LABEL],
-            [param.label],
         )
         scale.set_size_request(180, -1)
 

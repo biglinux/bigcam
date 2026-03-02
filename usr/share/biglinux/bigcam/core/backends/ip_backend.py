@@ -2,28 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+import os
 import subprocess
 from typing import Any
-from urllib.parse import urlparse
 
 from constants import BackendType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
 
-
-_ALLOWED_SCHEMES = {"rtsp", "rtsps", "http", "https"}
-
-
-def _validate_url(url: str) -> str:
-    """Validate and return url. Raises ValueError on invalid input."""
-    parsed = urlparse(url)
-    if parsed.scheme not in _ALLOWED_SCHEMES:
-        raise ValueError(f"Unsupported scheme: {parsed.scheme!r}")
-    return url
-
-
-def _escape_gst_string(value: str) -> str:
-    """Escape a value for safe interpolation into a GStreamer pipeline string."""
-    return value.replace("\\", "\\\\").replace('"', '\\"')
+log = logging.getLogger(__name__)
 
 
 class IPBackend(CameraBackend):
@@ -73,8 +60,8 @@ class IPBackend(CameraBackend):
     # -- gstreamer -----------------------------------------------------------
 
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
-        url = _escape_gst_string(camera.extra.get("url", camera.device_path))
-        if camera.device_path.startswith("rtsp"):
+        url = camera.extra.get("url", camera.device_path)
+        if url.startswith("rtsp://"):
             return f'rtspsrc location="{url}" latency=300 ! decodebin ! videoconvert'
         # HTTP / MJPEG stream
         return f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
@@ -87,17 +74,16 @@ class IPBackend(CameraBackend):
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
         """Snapshot via GStreamer one-frame pipeline."""
         url = camera.extra.get("url", camera.device_path)
-        safe_url = _escape_gst_string(url)
-        if url.startswith("rtsp"):
-            src = f'rtspsrc location="{safe_url}" latency=300 ! decodebin'
+        if url.startswith("rtsp://"):
+            src_args = ["rtspsrc", f"location={url}", "latency=300", "!", "decodebin"]
         else:
-            src = f'souphttpsrc location="{safe_url}" ! decodebin'
+            src_args = ["souphttpsrc", f"location={url}", "!", "decodebin"]
         try:
             subprocess.run(
                 [
                     "gst-launch-1.0",
                     "-e",
-                    *src.split(),
+                    *src_args,
                     "!",
                     "videoconvert",
                     "!",
@@ -110,8 +96,6 @@ class IPBackend(CameraBackend):
                 check=True,
                 timeout=15,
             )
-            import os
-
             return os.path.isfile(output_path)
         except Exception:
             return False

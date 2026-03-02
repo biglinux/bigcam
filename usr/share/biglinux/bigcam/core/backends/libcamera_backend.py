@@ -143,15 +143,6 @@ class LibcameraBackend(CameraBackend):
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
         cam_name = camera.device_path
         src = f"libcamerasrc camera-name={cam_name}"
-        # Apply stored controls as extra-controls
-        ctrl_pairs = []
-        for k, v in camera.extra.items():
-            if k.startswith("ctrl_"):
-                ctrl_id = k[5:]
-                ctrl_pairs.append(f"{ctrl_id}={v}")
-        if ctrl_pairs:
-            controls = ",".join(ctrl_pairs)
-            src += f' extra-controls="controls={{{controls}}}"'
         if fmt:
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:

@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import logging
 import re
 import subprocess
 from typing import Any
 
 from constants import BackendType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
-
-log = logging.getLogger(__name__)
 
 
 class PipeWireBackend(CameraBackend):
@@ -47,7 +44,7 @@ class PipeWireBackend(CameraBackend):
             # Parse pw-cli output for Video/Source nodes
             cameras = self._parse_pw_objects(result.stdout)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return cameras
 
     def _parse_pw_objects(self, output: str) -> list[CameraInfo]:

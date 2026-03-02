@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-from urllib.parse import urlparse
-
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, GObject
 
-from utils.i18n import _  # noqa: E402
-
-_ALLOWED_SCHEMES = {"rtsp", "rtsps", "http", "https"}
+from utils.i18n import _
 
 
 class IPCameraDialog(Adw.Dialog):
@@ -78,11 +74,6 @@ class IPCameraDialog(Adw.Dialog):
         url = self._url_row.get_text().strip()
         if not url:
             return
-        parsed = urlparse(url)
-        if parsed.scheme.lower() not in _ALLOWED_SCHEMES:
-            self._url_row.add_css_class("error")
-            return
-        self._url_row.remove_css_class("error")
         if not name:
             name = url
         self.emit("camera-added", name, url)

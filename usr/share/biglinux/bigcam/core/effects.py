@@ -61,24 +61,43 @@ def _clamp(v: float, lo: float, hi: float) -> float:
 
 # ── Individual effect implementations ──────────────────────────────────────
 
+# Per-parameter caches — avoid per-frame allocations
+_gamma_lut_cache: dict[float, np.ndarray] = {}
+_clahe_cache: dict[tuple, Any] = {}
+_vignette_cache: dict[tuple, np.ndarray] = {}
+_wb_processor = cv2.xphoto.createSimpleWB() if _HAS_CV2 else None
+_SEPIA_KERNEL = (
+    np.array(
+        [[0.272, 0.534, 0.131], [0.349, 0.686, 0.168], [0.393, 0.769, 0.189]],
+        dtype=np.float32,
+    )
+    if _HAS_CV2
+    else None
+)
+
 
 def _apply_gamma(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     gamma = _clamp(params.get("gamma", 1.0), 0.1, 5.0)
     if abs(gamma - 1.0) < 0.01:
         return frame
     inv = 1.0 / gamma
-    table = np.array(
-        [(i / 255.0) ** inv * 255 for i in range(256)],
-        dtype=np.uint8,
-    )
-    return cv2.LUT(frame, table)
+    key = round(inv, 4)
+    if key not in _gamma_lut_cache:
+        _gamma_lut_cache[key] = np.array(
+            [(i / 255.0) ** inv * 255 for i in range(256)],
+            dtype=np.uint8,
+        )
+    return cv2.LUT(frame, _gamma_lut_cache[key])
 
 
 def _apply_clahe(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     clip = _clamp(params.get("clip_limit", 2.0), 1.0, 10.0)
     grid = int(_clamp(params.get("grid_size", 8), 2, 16))
+    key = (round(clip, 2), grid)
+    if key not in _clahe_cache:
+        _clahe_cache[key] = cv2.createCLAHE(clipLimit=clip, tileGridSize=(grid, grid))
+    clahe = _clahe_cache[key]
     lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
-    clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(grid, grid))
     lab[:, :, 0] = clahe.apply(lab[:, :, 0])
     return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
@@ -119,8 +138,7 @@ def _apply_denoise(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 
 def _apply_white_balance(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    wb = cv2.xphoto.createSimpleWB()
-    return wb.balanceWhite(frame)
+    return _wb_processor.balanceWhite(frame)
 
 
 # ── Artistic effects ──
@@ -128,15 +146,11 @@ def _apply_white_balance(frame: np.ndarray, params: dict[str, float]) -> np.ndar
 
 def _apply_grayscale(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    return cv2.merge([gray, gray, gray])
 
 
 def _apply_sepia(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    kernel = np.array(
-        [[0.272, 0.534, 0.131], [0.349, 0.686, 0.168], [0.393, 0.769, 0.189]],
-        dtype=np.float32,
-    )
-    return cv2.transform(frame, kernel)
+    return cv2.transform(frame, _SEPIA_KERNEL)
 
 
 def _apply_negative(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
@@ -193,13 +207,16 @@ def _apply_vignette(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     if strength < 0.01:
         return frame
     h, w = frame.shape[:2]
-    x = np.arange(w, dtype=np.float32) - w / 2
-    y = np.arange(h, dtype=np.float32) - h / 2
-    xx, yy = np.meshgrid(x, y)
-    radius = np.sqrt(xx**2 + yy**2)
-    max_r = np.sqrt((w / 2) ** 2 + (h / 2) ** 2)
-    mask = 1.0 - strength * (radius / max_r) ** 2
-    mask = np.clip(mask, 0, 1)
+    key = (w, h, round(strength, 2))
+    if key not in _vignette_cache:
+        x = np.arange(w, dtype=np.float32) - w / 2
+        y = np.arange(h, dtype=np.float32) - h / 2
+        xx, yy = np.meshgrid(x, y)
+        radius = np.sqrt(xx**2 + yy**2)
+        max_r = np.sqrt((w / 2) ** 2 + (h / 2) ** 2)
+        mask = 1.0 - strength * (radius / max_r) ** 2
+        _vignette_cache[key] = np.clip(mask, 0, 1)
+    mask = _vignette_cache[key]
     return (frame * mask[:, :, np.newaxis]).astype(np.uint8)
 
 
@@ -221,6 +238,8 @@ def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     if strength % 2 == 0:
         strength += 1
 
+    blurred = cv2.GaussianBlur(frame, (strength, strength), 0)
+
     detector = _get_face_detector()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     eq = cv2.equalizeHist(gray)
@@ -232,10 +251,8 @@ def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     )
 
     if len(faces) == 0:
-        # No face detected — blur entire frame lightly as feedback
-        return cv2.GaussianBlur(frame, (strength, strength), 0)
+        return blurred
 
-    blurred = cv2.GaussianBlur(frame, (strength, strength), 0)
     mask = np.zeros(frame.shape[:2], dtype=np.uint8)
 
     for fx, fy, fw, fh in faces:
@@ -246,12 +263,11 @@ def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
         cv2.ellipse(mask, (cx, cy), axes, 0, 0, 360, 255, -1)
 
     mask_blur = cv2.GaussianBlur(mask, (31, 31), 0)
-    mask_f = mask_blur.astype(np.float32) / 255.0
-    mask_3 = mask_f[:, :, np.newaxis]
-    result = frame.astype(np.float32) * mask_3 + blurred.astype(np.float32) * (
-        1.0 - mask_3
-    )
-    return result.astype(np.uint8)
+    inv_mask = cv2.bitwise_not(mask_blur)
+    # Blend using uint8 arithmetic — avoids 3 float array allocations
+    fg = cv2.multiply(frame, cv2.merge([mask_blur, mask_blur, mask_blur]), scale=1.0 / 255)
+    bg = cv2.multiply(blurred, cv2.merge([inv_mask, inv_mask, inv_mask]), scale=1.0 / 255)
+    return cv2.add(fg, bg)
 
 
 # ── Effect registry ────────────────────────────────────────────────────────
@@ -542,7 +558,7 @@ class EffectPipeline:
             try:
                 frame = func(frame, params)
             except Exception:
-                log.warning("Effect %s failed", info.name, exc_info=True)
+                log.debug("Effect %s failed", info.name, exc_info=True)
         return frame
 
     def apply_bgra(self, data: bytes, width: int, height: int) -> bytes:
@@ -551,11 +567,8 @@ class EffectPipeline:
             return data
         try:
             arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width, 4))
-            bgr = arr[:, :, :3].copy()
-            alpha = arr[:, :, 3].copy()
-            bgr = self.apply(bgr)
-            result = np.dstack((bgr, alpha))
+            bgr = self.apply(arr[:, :, :3].copy())
+            result = cv2.merge([bgr[:, :, 0], bgr[:, :, 1], bgr[:, :, 2], arr[:, :, 3]])
             return result.tobytes()
         except Exception:
-            log.warning("apply_bgra failed", exc_info=True)
             return data

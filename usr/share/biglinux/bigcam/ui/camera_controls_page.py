@@ -10,12 +10,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, GLib
 
-from constants import ControlCategory, ControlType  # noqa: E402
-from core.camera_backend import CameraControl, CameraInfo  # noqa: E402
-from core.camera_manager import CameraManager  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from constants import ControlCategory, ControlType
+from core.camera_backend import CameraControl, CameraInfo
+from core.camera_manager import CameraManager
+from utils.i18n import _
 
 _CATEGORY_LABELS = {
     ControlCategory.IMAGE: _("Image"),
@@ -231,8 +231,21 @@ class CameraControlsPage(Gtk.ScrolledWindow):
                 draw_value=True,
                 value_pos=Gtk.PositionType.LEFT,
             )
-            scale.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
             scale.set_size_request(180, -1)
+            scale.update_property(
+                [
+                    Gtk.AccessibleProperty.LABEL,
+                    Gtk.AccessibleProperty.VALUE_NOW,
+                    Gtk.AccessibleProperty.VALUE_MIN,
+                    Gtk.AccessibleProperty.VALUE_MAX,
+                ],
+                [
+                    ctrl.name,
+                    str(int(adj.get_value())),
+                    str(int(adj.get_lower())),
+                    str(int(adj.get_upper())),
+                ],
+            )
             scale.set_sensitive(not readonly)
             if not readonly:
                 adj.connect("value-changed", self._on_scale_debounced, ctrl)

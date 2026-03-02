@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import signal
 import subprocess
 import time
@@ -36,27 +37,22 @@ class GPhoto2Backend(CameraBackend):
         subprocess.run(
             ["systemctl", "--user", "stop", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
-            timeout=5,
         )
         subprocess.run(
             ["systemctl", "--user", "mask", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
-            timeout=5,
         )
         subprocess.run(
             ["pkill", "-9", "-f", "gvfs-gphoto2-volume-monitor"],
             capture_output=True,
-            timeout=5,
         )
         subprocess.run(
             ["pkill", "-9", "-f", "gvfsd-gphoto2"],
             capture_output=True,
-            timeout=5,
         )
         subprocess.run(
             ["gio", "mount", "-u", "gphoto2://"],
             capture_output=True,
-            timeout=5,
         )
 
     @staticmethod
@@ -86,15 +82,15 @@ class GPhoto2Backend(CameraBackend):
                     cmdline_path = f"/proc/{pid}/cmdline"
                     with open(cmdline_path) as f:
                         cmdline = f.read()
-                    log.debug("PID %s holding %s: %s", pid, usb_path, cmdline[:120])
+                    log.debug(f"PID {pid} holding {usb_path}: {cmdline[:120]}")
                     os.kill(pid, signal.SIGKILL)
-                    log.debug("Killed PID %s", pid)
+                    log.debug(f"Killed PID {pid}")
                 except (ProcessLookupError, FileNotFoundError, PermissionError):
                     pass
             if pids:
                 time.sleep(3)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
 
     @staticmethod
     def _diagnose_usb(port: str) -> None:
@@ -105,13 +101,13 @@ class GPhoto2Backend(CameraBackend):
 
             # Check device existence and permissions
             exists = os.path.exists(usb_path)
-            log.debug("USB diag: %s exists=%s", usb_path, exists)
+            log.debug(f"USB diag: {usb_path} exists={exists}")
             if not exists:
                 # Show what devices ARE on this bus
                 bus_dir = f"/dev/bus/usb/{bus}"
                 if os.path.isdir(bus_dir):
                     devs = sorted(os.listdir(bus_dir))
-                    log.debug("USB diag: devices on bus %s: %s", bus, devs)
+                    log.debug(f"USB diag: devices on bus {bus}: {devs}")
                 return
 
             # Check file permissions
@@ -120,12 +116,9 @@ class GPhoto2Backend(CameraBackend):
             st = os.stat(usb_path)
             mode = stat.filemode(st.st_mode)
             log.debug(
-                "USB diag: %s mode=%s uid=%s gid=%s",
-                usb_path,
-                mode,
-                st.st_uid,
-                st.st_gid,
+                f"USB diag: {usb_path} mode={mode} uid={st.st_uid} gid={st.st_gid}"
             )
+
             # Check lsusb for this specific device
             result = subprocess.run(
                 ["lsusb", "-s", f"{bus}:{dev}"],
@@ -133,7 +126,8 @@ class GPhoto2Backend(CameraBackend):
                 text=True,
                 timeout=5,
             )
-            log.debug("USB diag lsusb: %s", result.stdout.strip())
+            log.debug(f"USB diag lsusb: {result.stdout.strip()}")
+
             # Check fuser
             result = subprocess.run(
                 ["fuser", usb_path],
@@ -142,7 +136,8 @@ class GPhoto2Backend(CameraBackend):
                 timeout=5,
             )
             holders = result.stdout.strip()
-            log.debug("USB diag fuser: '%s", holders)
+            log.debug(f"USB diag fuser: '{holders}'")
+
             # Check gphoto2 --auto-detect
             result = subprocess.run(
                 ["gphoto2", "--auto-detect"],
@@ -151,11 +146,12 @@ class GPhoto2Backend(CameraBackend):
                 timeout=10,
             )
             lines = [
-                line.strip()
-                for line in result.stdout.strip().splitlines()[2:]
-                if line.strip()
+                ln.strip()
+                for ln in result.stdout.strip().splitlines()[2:]
+                if ln.strip()
             ]
-            log.debug("USB diag auto-detect: %s", lines)
+            log.debug(f"USB diag auto-detect: {lines}")
+
             # Check dmesg for recent USB errors on this bus
             result = subprocess.run(
                 ["dmesg", "--time-format=reltime"],
@@ -164,22 +160,20 @@ class GPhoto2Backend(CameraBackend):
                 timeout=5,
             )
             usb_errors = [
-                line
-                for line in result.stdout.splitlines()[-50:]
-                if f"usb {bus.lstrip('0') or '0'}-" in line.lower()
-                or "error" in line.lower()
-                and "usb" in line.lower()
+                ln
+                for ln in result.stdout.splitlines()[-50:]
+                if f"usb {bus.lstrip('0') or '0'}-" in ln.lower()
+                or "error" in ln.lower()
+                and "usb" in ln.lower()
             ]
             if usb_errors:
-                log.debug("USB diag dmesg errors: %s", usb_errors[-5:])
+                log.debug(f"USB diag dmesg errors: {usb_errors[-5:]}")
         except Exception as exc:
-            log.debug("USB diag error: %s", exc)
+            log.debug(f"USB diag error: {exc}")
 
     def is_available(self) -> bool:
         try:
-            subprocess.run(
-                ["gphoto2", "--version"], capture_output=True, check=True, timeout=5
-            )
+            subprocess.run(["gphoto2", "--version"], capture_output=True, check=True)
             return True
         except (FileNotFoundError, subprocess.CalledProcessError):
             return False
@@ -200,7 +194,6 @@ class GPhoto2Backend(CameraBackend):
             subprocess.run(
                 ["pkill", "-f", "gvfs-gphoto2-volume-monitor"],
                 capture_output=True,
-                timeout=5,
             )
             time.sleep(1)
 
@@ -238,7 +231,7 @@ class GPhoto2Backend(CameraBackend):
                     break
                 time.sleep(1)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         if cameras:
             self._last_detected = cameras
         return cameras
@@ -271,20 +264,18 @@ class GPhoto2Backend(CameraBackend):
                 # Match by camera model name
                 if name and name in camera.name:
                     if port != old_port:
-                        log.debug("Port changed: %s -> %s", old_port, port)
+                        log.debug(f"Port changed: {old_port} -> {port}")
                         # Update _active_streams key if camera was streaming
                         if old_port in cls._active_streams:
                             stream_info = cls._active_streams.pop(old_port)
                             cls._active_streams[port] = stream_info
-                            log.debug(
-                                "Updated _active_streams: %s -> %s", old_port, port
-                            )
+                            log.debug(f"Updated _active_streams: {old_port} -> {port}")
                         camera.extra["port"] = port
                         camera.device_path = port
                         camera.id = f"gphoto2:{port}"
                     return port
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return old_port
 
     # Keyword-to-category mapping for individual config names
@@ -394,14 +385,15 @@ class GPhoto2Backend(CameraBackend):
 
         # Refresh USB port first (device number changes after GVFS kill)
         port = self._refresh_port(camera)
-        log.debug("get_controls: port=%s", port)
+        log.debug(f"get_controls: port={port}")
+
         # Check if the USB device actually exists
         try:
             bus, dev = port.replace("usb:", "").split(",")
             usb_path = f"/dev/bus/usb/{bus}/{dev}"
             if not os.path.exists(usb_path):
                 log.debug(
-                    "get_controls: %s does not exist, camera disconnected?", usb_path
+                    f"get_controls: {usb_path} does not exist, camera disconnected?"
                 )
                 return controls
         except (ValueError, OSError):
@@ -418,14 +410,14 @@ class GPhoto2Backend(CameraBackend):
         try:
             for attempt, delay in enumerate(delays, 1):
                 if delay:
-                    log.debug("get_controls: waiting %ss before retry...", delay)
+                    log.debug(f"get_controls: waiting {delay}s before retry...")
                     time.sleep(delay)
                     self._kill_gvfs()
                     self._release_usb_device(port)
                     # Re-diagnose after wait
                     self._diagnose_usb(port)
 
-                log.debug("get_controls attempt %s/%s", attempt, len(delays))
+                log.debug(f"get_controls attempt {attempt}/{len(delays)}")
                 result = subprocess.run(
                     ["gphoto2", "--port", port, "--list-all-config"],
                     capture_output=True,
@@ -434,19 +426,18 @@ class GPhoto2Backend(CameraBackend):
                 )
                 stdout_preview = result.stdout[:300] if result.returncode != 0 else ""
                 log.debug(
-                    "--list-all-config rc=%s, stdout_lines=%s, stderr=%s",
-                    result.returncode,
-                    len(result.stdout.splitlines()),
-                    result.stderr.strip()[:200],
+                    f"--list-all-config rc={result.returncode}, "
+                    f"stdout_lines={len(result.stdout.splitlines())}, "
+                    f"stderr={result.stderr.strip()[:200]}"
                 )
                 if result.returncode != 0 and stdout_preview:
-                    log.debug("stdout preview: %s", stdout_preview)
+                    log.debug(f"stdout preview: {stdout_preview}")
                 if result.returncode == 0 and result.stdout.strip():
                     break
             else:
                 # Last resort: re-detect port and try once more
                 port = self._refresh_port(camera)
-                log.debug("get_controls fallback port=%s", port)
+                log.debug(f"get_controls fallback port={port}")
                 self._release_usb_device(port)
                 self._diagnose_usb(port)
                 result = subprocess.run(
@@ -652,7 +643,7 @@ class GPhoto2Backend(CameraBackend):
 
         # If this camera is already streaming, just return success
         if port in self._active_streams:
-            log.debug("Camera %s already streaming on port %s", camera.name, port)
+            log.debug(f"Camera {camera.name} already streaming on port {port}")
             return True
 
         # Kill GVFS and release USB device before streaming
@@ -681,7 +672,6 @@ class GPhoto2Backend(CameraBackend):
                     [script, port_arg, udp_port, camera.name],
                     stdout=f,
                     stderr=subprocess.STDOUT,
-                    timeout=30,
                 )
                 f.seek(0)
                 raw = f.read()
@@ -718,66 +708,54 @@ class GPhoto2Backend(CameraBackend):
                 port = camera.extra.get("port", camera.device_path)
                 udp_port = str(camera.extra.get("udp_port", 5000))
                 stream_info = self._active_streams.pop(port, None)
-                # Use the port the process was actually launched with
                 launch_port = stream_info["launch_port"] if stream_info else port
 
-                # Graceful SIGTERM first — gives gphoto2 time to close PTP session
+                safe_lp = re.escape(launch_port)
+                safe_port = re.escape(port)
+                safe_udp = re.escape(udp_port)
+
+                # Graceful SIGTERM first
                 subprocess.run(
-                    ["pkill", "-f", f"gphoto2.*--port {launch_port}"],
+                    ["pkill", "-f", f"gphoto2.*--port {safe_lp}"],
                     capture_output=True,
-                    timeout=5,
                 )
-                # Also try current port if different
                 if launch_port != port:
                     subprocess.run(
-                        ["pkill", "-f", f"gphoto2.*--port {port}"],
+                        ["pkill", "-f", f"gphoto2.*--port {safe_port}"],
                         capture_output=True,
-                        timeout=5,
                     )
                 subprocess.run(
-                    ["pkill", "-f", f"ffmpeg.*udp://127.0.0.1:{udp_port}"],
+                    ["pkill", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
                     capture_output=True,
-                    timeout=5,
                 )
                 time.sleep(2)
-                # Force-kill any survivors
+                # Force-kill survivors
                 subprocess.run(
-                    ["pkill", "-9", "-f", f"gphoto2.*--port {launch_port}"],
+                    ["pkill", "-9", "-f", f"gphoto2.*--port {safe_lp}"],
                     capture_output=True,
-                    timeout=5,
                 )
                 if launch_port != port:
                     subprocess.run(
-                        ["pkill", "-9", "-f", f"gphoto2.*--port {port}"],
+                        ["pkill", "-9", "-f", f"gphoto2.*--port {safe_port}"],
                         capture_output=True,
-                        timeout=5,
                     )
                 subprocess.run(
-                    ["pkill", "-9", "-f", f"ffmpeg.*udp://127.0.0.1:{udp_port}"],
+                    ["pkill", "-9", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
                     capture_output=True,
-                    timeout=5,
                 )
             else:
                 self._active_streams.clear()
-                subprocess.run(
-                    ["pkill", "-f", "gphoto2 --"], capture_output=True, timeout=5
-                )
+                subprocess.run(["pkill", "-f", "gphoto2 --"], capture_output=True)
                 time.sleep(1)
+                subprocess.run(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True)
                 subprocess.run(
-                    ["pkill", "-9", "-f", "gphoto2 --"], capture_output=True, timeout=5
+                    ["pkill", "-9", "-f", "ffmpeg.*mpegts"], capture_output=True
                 )
                 subprocess.run(
-                    ["pkill", "-9", "-f", "ffmpeg.*mpegts"],
-                    capture_output=True,
-                    timeout=5,
-                )
-                subprocess.run(
-                    ["pkill", "-9", "-f", "ffmpeg.*v4l2"],
-                    capture_output=True,
-                    timeout=5,
+                    ["pkill", "-9", "-f", "ffmpeg.*v4l2"], capture_output=True
                 )
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            log.warning("stop_streaming cleanup error", exc_info=True)
         self._streaming_process = None
 
         # Kill GVFS immediately after stopping — prevents it from re-grabbing cameras
@@ -799,7 +777,6 @@ class GPhoto2Backend(CameraBackend):
         result = subprocess.run(
             ["pgrep", "-f", f"gphoto2.*--port {launch_port}"],
             capture_output=True,
-            timeout=5,
         )
         if result.returncode != 0:
             # Also try current port (in case it matches)
@@ -807,7 +784,6 @@ class GPhoto2Backend(CameraBackend):
                 result = subprocess.run(
                     ["pgrep", "-f", f"gphoto2.*--port {port}"],
                     capture_output=True,
-                    timeout=5,
                 )
                 if result.returncode == 0:
                     return True

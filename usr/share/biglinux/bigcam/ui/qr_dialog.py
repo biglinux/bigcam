@@ -14,9 +14,9 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, Gdk, Gio  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, Gdk, Gio
 
-from utils.i18n import _  # noqa: E402
+from utils.i18n import _
 
 
 class QrType(Enum):
@@ -415,26 +415,8 @@ class QrDialog(Adw.Window):
 
         for key, value in qr.details.items():
             label = field_labels.get(key, key.capitalize())
-            # Mask sensitive fields by default
-            is_secret = key in ("password", "secret")
-            display_value = "••••••••" if is_secret else value
-            row = Adw.ActionRow(title=label, subtitle=display_value)
+            row = Adw.ActionRow(title=label, subtitle=value)
             row.set_subtitle_selectable(True)
-            if is_secret:
-                reveal_btn = Gtk.ToggleButton(icon_name="view-reveal-symbolic")
-                reveal_btn.add_css_class("flat")
-                reveal_btn.set_valign(Gtk.Align.CENTER)
-                reveal_btn.set_tooltip_text(_("Show"))
-                reveal_btn.update_property(
-                    [Gtk.AccessibleProperty.LABEL], [_("Show password")]
-                )
-                reveal_btn.connect(
-                    "toggled",
-                    lambda btn, r=row, v=value: r.set_subtitle(
-                        v if btn.get_active() else "••••••••"
-                    ),
-                )
-                row.add_suffix(reveal_btn)
             # Copy button for each field
             copy_btn = Gtk.Button(icon_name="edit-copy-symbolic")
             copy_btn.add_css_class("flat")

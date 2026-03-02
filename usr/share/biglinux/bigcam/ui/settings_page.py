@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import os
 
 import gi
@@ -10,14 +9,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, GObject
 
-from core.virtual_camera import VirtualCamera  # noqa: E402
-from utils.settings_manager import SettingsManager  # noqa: E402
-from utils import xdg  # noqa: E402
-from utils.i18n import _  # noqa: E402
-
-log = logging.getLogger(__name__)
+from core.virtual_camera import VirtualCamera
+from utils.settings_manager import SettingsManager
+from utils import xdg
+from utils.i18n import _
 
 try:
     import cv2
@@ -523,7 +520,7 @@ class SettingsPage(Gtk.ScrolledWindow):
                     GLib.idle_add(self._trigger_smile_capture)
                     return True
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return True
 
     def _trigger_smile_capture(self) -> bool:

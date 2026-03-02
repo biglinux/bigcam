@@ -90,7 +90,6 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "--version"],
                 capture_output=True,
                 check=True,
-                timeout=5,
             )
             return True
         except (FileNotFoundError, subprocess.CalledProcessError):
@@ -105,13 +104,12 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "--list-devices"],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
             if result.returncode != 0:
                 return cameras
             cameras = self._parse_devices(result.stdout)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return cameras
 
     def _parse_devices(self, output: str) -> list[CameraInfo]:
@@ -158,45 +156,21 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "-d", device, "--info"],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
             return "Video Capture" in result.stdout
         except Exception:
             return False
 
     def _get_formats(self, device: str) -> list[VideoFormat]:
-        formats: list[VideoFormat] = []
         try:
             result = subprocess.run(
                 ["v4l2-ctl", "-d", device, "--list-formats-ext"],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
-            current_fmt = ""
-            for line in result.stdout.splitlines():
-                fmt_match = re.match(r"\s+\[\d+\]:\s+'(\w+)'\s+\((.+)\)", line)
-                if fmt_match:
-                    current_fmt = fmt_match.group(1)
-                    continue
-                size_match = re.match(r"\s+Size:\s+\w+\s+(\d+)x(\d+)", line)
-                if size_match and current_fmt:
-                    _w, _h = int(size_match.group(1)), int(size_match.group(2))
-                    fps_list: list[float] = []
-                    continue
-                fps_match = re.match(r"\s+Interval:.*\((\d+\.?\d*)\s+fps\)", line)
-                if fps_match:
-                    fps_list.append(float(fps_match.group(1)))
-                    # We'll append when the next size/format line appears
-                    # For now, accumulate
-                elif line.strip() == "" or re.match(r"\s+(Size|\[\d)", line):
-                    pass
-
-            # Re-parse more robustly
-            formats = self._parse_formats_ext(result.stdout)
+            return self._parse_formats_ext(result.stdout)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
-        return formats
+            return []
 
     def _parse_formats_ext(self, output: str) -> list[VideoFormat]:
         formats: list[VideoFormat] = []
@@ -270,11 +244,10 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "-d", camera.device_path, "--list-ctrls-menus"],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
             controls = self._parse_controls(result.stdout)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return controls
 
     def _parse_controls(self, output: str) -> list[CameraControl]:
@@ -359,7 +332,6 @@ class V4L2Backend(CameraBackend):
                 ],
                 capture_output=True,
                 check=True,
-                timeout=5,
             )
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):

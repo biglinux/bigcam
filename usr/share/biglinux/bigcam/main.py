@@ -16,10 +16,10 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 gi.require_version("Gst", "1.0")
 
-from gi.repository import Adw, Gio, GLib, Gst  # noqa: E402
+from gi.repository import Adw, Gio, GLib, Gst
 
-from constants import APP_ID, APP_NAME, APP_ICON  # noqa: E402
-from ui.window import BigDigicamWindow  # noqa: E402
+from constants import APP_ID, APP_NAME, APP_ICON
+from ui.window import BigDigicamWindow
 
 Gst.init(None)
 
@@ -34,9 +34,18 @@ class BigDigicamApp(Adw.Application):
         )
 
     def do_activate(self) -> None:
+        # Reuse existing window (may be hidden after "Keep camera on")
         win = self.get_active_window()
         if win is None:
-            win = BigDigicamWindow(self)
+            windows = self.get_windows()
+            if windows:
+                win = windows[0]
+            else:
+                win = BigDigicamWindow(self)
+        if getattr(win, "_background_mode", False):
+            win._background_mode = False
+            win.set_visible(True)
+            self.release()
         win.present()
 
     def do_startup(self) -> None:

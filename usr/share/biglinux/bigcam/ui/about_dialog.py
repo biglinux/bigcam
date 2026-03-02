@@ -7,9 +7,9 @@ import gi
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Adw, Gtk  # noqa: E402
+from gi.repository import Adw, Gtk
 
-from constants import (  # noqa: E402
+from constants import (
     APP_NAME,
     APP_VERSION,
     APP_ICON,
@@ -17,7 +17,7 @@ from constants import (  # noqa: E402
     APP_ISSUE_URL,
     APP_COPYRIGHT,
 )
-from utils.i18n import _  # noqa: E402
+from utils.i18n import _
 
 
 def show_about(parent: Gtk.Window) -> None:

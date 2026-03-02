@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import logging
 import os
-import shlex
 import subprocess
+
 
 log = logging.getLogger(__name__)
 
@@ -30,19 +30,17 @@ class VirtualCamera:
                 ["v4l2-ctl", "-d", "/dev/video10", "--info"],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
             if result.returncode == 0 and "v4l2 loopback" in result.stdout.lower():
                 return "/dev/video10"
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            log.debug("v4l2-ctl check for /dev/video10 failed", exc_info=True)
         # Fallback: scan all devices
         try:
             result = subprocess.run(
                 ["v4l2-ctl", "--list-devices"],
                 capture_output=True,
                 text=True,
-                timeout=5,
             )
             for line in result.stdout.splitlines():
                 if "v4l2loopback" in line.lower() or "virtual" in line.lower():
@@ -53,7 +51,7 @@ class VirtualCamera:
                             return dev
                         idx += 1
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            log.debug("v4l2loopback device scan failed", exc_info=True)
         return ""
 
     @classmethod
@@ -78,7 +76,6 @@ class VirtualCamera:
                 ],
                 capture_output=True,
                 check=True,
-                timeout=30,
             )
             return True
         except Exception:
@@ -100,7 +97,7 @@ class VirtualCamera:
             cls._process = subprocess.Popen(
                 [
                     "gst-launch-1.0",
-                    *shlex.split(gst_pipeline),
+                    *gst_pipeline.split(),
                     "!",
                     "v4l2sink",
                     f"device={device}",
@@ -166,7 +163,6 @@ class VirtualCamera:
                 ["pkexec", "modprobe", "-r", "v4l2loopback"],
                 capture_output=True,
                 check=True,
-                timeout=30,
             )
         except Exception:
             return False
@@ -178,7 +174,6 @@ def _has_v4l2loopback() -> bool:
         result = subprocess.run(
             ["modinfo", "v4l2loopback"],
             capture_output=True,
-            timeout=5,
         )
         return result.returncode == 0
     except FileNotFoundError:

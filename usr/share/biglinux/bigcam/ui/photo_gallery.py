@@ -9,10 +9,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib
 
-from utils import xdg  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from utils import xdg
+from utils.i18n import _
 
 
 class PhotoGallery(Gtk.ScrolledWindow):

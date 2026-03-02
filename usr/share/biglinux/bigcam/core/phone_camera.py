@@ -16,7 +16,7 @@ import gi
 
 gi.require_version("GLib", "2.0")
 
-from gi.repository import GLib, GObject  # noqa: E402
+from gi.repository import GLib, GObject
 
 log = logging.getLogger(__name__)
 
@@ -331,7 +331,7 @@ class PhoneCameraServer(GObject.Object):
             try:
                 fut.result(timeout=5)
             except Exception:
-                log.debug("Ignored exception", exc_info=True)
+                log.debug("Phone camera shutdown timed out", exc_info=True)
             self._loop.call_soon_threadsafe(self._loop.stop)
 
         if self._thread:
@@ -355,7 +355,6 @@ class PhoneCameraServer(GObject.Object):
         app.router.add_post("/frame", self._handle_frame_post)
 
         ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ssl_ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ssl_ctx.load_cert_chain(_CERT_FILE, _KEY_FILE)
 
         self._runner = web.AppRunner(app)
@@ -458,19 +457,11 @@ class PhoneCameraServer(GObject.Object):
 
 
 def _get_local_ip() -> str:
-    """Best-effort local LAN IP address (no external network contact)."""
-    try:
-        hostname = socket.gethostname()
-        ip = socket.gethostbyname(hostname)
-        if ip and not ip.startswith("127."):
-            return ip
-    except Exception:
-        log.debug("Ignored exception", exc_info=True)
-    # Fallback: UDP connect to a non-routable address (no packets sent)
+    """Best-effort local LAN IP address."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(0)
-        s.connect(("10.255.255.255", 1))
+        s.settimeout(0.5)
+        s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
         s.close()
         return ip
@@ -502,7 +493,6 @@ def _ensure_cert() -> None:
         ],
         check=True,
         capture_output=True,
-        timeout=10,
     )
     os.chmod(_KEY_FILE, 0o600)
     log.info("Generated self-signed certificate at %s", _CERT_FILE)

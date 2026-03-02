@@ -6,6 +6,7 @@
 }
 
 .preview-picture {
+    background-color: #1a1a1a;
     border-radius: 8px;
 }
 
@@ -36,7 +37,7 @@
 .countdown-overlay {
     font-size: 96px;
     font-weight: 800;
-    color: white;
+    color: @light_1;
     text-shadow: 0 2px 12px rgba(0,0,0,0.7);
 }
 

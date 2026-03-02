@@ -7,10 +7,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, GObject
 
-from core.virtual_camera import VirtualCamera  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from core.virtual_camera import VirtualCamera
+from utils.i18n import _
 
 
 class VirtualCameraPage(Gtk.Box):
@@ -46,6 +46,10 @@ class VirtualCameraPage(Gtk.Box):
         self._status_dot.set_valign(Gtk.Align.CENTER)
         self._dot_color = (0.6, 0.6, 0.6)  # gray default
         self._status_dot.set_draw_func(self._draw_dot)
+        self._status_dot.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Virtual camera status")],
+        )
         self._status_expander.add_prefix(self._status_dot)
 
         # Sub-rows inside expander

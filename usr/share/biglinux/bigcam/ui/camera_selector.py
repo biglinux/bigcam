@@ -7,12 +7,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Gio, GObject  # noqa: E402
+from gi.repository import Gtk, Gio, GObject
 
-from constants import BackendType  # noqa: E402
-from core.camera_backend import CameraInfo  # noqa: E402
-from core.camera_manager import CameraManager  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from constants import BackendType
+from core.camera_backend import CameraInfo
+from core.camera_manager import CameraManager
+from utils.i18n import _
 
 _BACKEND_ICONS = {
     BackendType.V4L2: "camera-web-symbolic",

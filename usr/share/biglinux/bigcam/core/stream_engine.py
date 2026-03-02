@@ -13,14 +13,23 @@ gi.require_version("Gst", "1.0")
 gi.require_version("GstVideo", "1.0")
 gi.require_version("Gdk", "4.0")
 
-from gi.repository import Gst, Gdk, GLib, GObject  # noqa: E402
+from gi.repository import Gst, Gdk, GLib, GObject
 
-from constants import BackendType  # noqa: E402
-from core.camera_backend import CameraInfo, VideoFormat  # noqa: E402
-from core.camera_manager import CameraManager  # noqa: E402
-from core.effects import EffectPipeline  # noqa: E402
-from core.virtual_camera import VirtualCamera  # noqa: E402
-from utils.i18n import _  # noqa: E402
+import numpy as np
+
+try:
+    import cv2
+
+    _HAS_CV2 = True
+except ImportError:
+    _HAS_CV2 = False
+
+from constants import BackendType
+from core.camera_backend import CameraInfo, VideoFormat
+from core.camera_manager import CameraManager
+from core.effects import EffectPipeline
+from core.virtual_camera import VirtualCamera
+from utils.i18n import _
 
 Gst.init(None)
 log = logging.getLogger(__name__)
@@ -162,39 +171,39 @@ class StreamEngine(GObject.Object):
         fmt = s.get_string("format")
         self._probe_debug_count += 1
         if self._probe_debug_count <= 3:
-            log.debug("paintable_probe: fmt=%s, %sx%s", fmt, w, h)
+            log.debug(f"paintable_probe: fmt={fmt}, {w}x{h}")
+
         ok, map_info = buf.map(Gst.MapFlags.READ)
         if not ok:
             return Gst.PadProbeReturn.OK
         bgr = None
         result = None
         try:
-            import numpy as np
-            import cv2
-
-            raw = bytes(map_info.data)
+            # Use numpy view directly on mapped buffer — no bytes() copy
+            raw_arr = np.frombuffer(map_info.data, dtype=np.uint8)
             if fmt in ("BGRA", "BGRx"):
-                frame = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 4))
-                bgr = frame[:, :, :3].copy()
+                frame = raw_arr.reshape((h, w, 4))
+                bgr = frame[:, :, :3]  # View, no copy yet
             elif fmt == "BGR":
-                bgr = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 3)).copy()
+                bgr = raw_arr.reshape((h, w, 3))  # View
             elif fmt == "RGB":
-                rgb = np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 3)).copy()
+                rgb = raw_arr.reshape((h, w, 3))
                 bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
             elif fmt == "I420":
-                yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h * 3 // 2, w))
+                yuv = raw_arr.reshape((h * 3 // 2, w))
                 bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
             elif fmt == "NV12":
-                yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h * 3 // 2, w))
+                yuv = raw_arr.reshape((h * 3 // 2, w))
                 bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_NV12)
             elif fmt in ("YUY2", "YUYV"):
-                yuv = np.frombuffer(raw, dtype=np.uint8).reshape((h, w * 2))
+                yuv = raw_arr.reshape((h, w * 2))
                 bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_YUY2)
             if bgr is not None:
                 needs_replace = (
                     self._effects.has_active_effects() or self._overlay_rects
                 )
                 if needs_replace:
+                    # Single copy for processing; views become owned arrays
                     processed = bgr.copy()
                     if self._effects.has_active_effects():
                         processed = self._effects.apply(processed)
@@ -210,10 +219,9 @@ class StreamEngine(GObject.Object):
                     )
                     # Convert back to original format
                     if fmt in ("BGRA", "BGRx"):
-                        out = (
-                            np.frombuffer(raw, dtype=np.uint8).reshape((h, w, 4)).copy()
-                        )
+                        out = np.empty((h, w, 4), dtype=np.uint8)
                         out[:, :, :3] = processed
+                        out[:, :, 3] = frame[:, :, 3]  # Keep original alpha
                         result = out.tobytes()
                     elif fmt == "BGR":
                         result = processed.tobytes()
@@ -224,19 +232,30 @@ class StreamEngine(GObject.Object):
                             processed, cv2.COLOR_BGR2YUV_I420
                         ).tobytes()
                     elif fmt == "NV12":
-                        result = cv2.cvtColor(
-                            processed, cv2.COLOR_BGR2YUV_I420
-                        ).tobytes()
+                        # OpenCV has no BGR→NV12; convert to I420 then rearrange
+                        i420 = cv2.cvtColor(processed, cv2.COLOR_BGR2YUV_I420)
+                        flat = i420.ravel()
+                        y_sz = h * w
+                        uv_sz = y_sz // 4
+                        nv12 = np.empty(y_sz + uv_sz * 2, dtype=np.uint8)
+                        nv12[:y_sz] = flat[:y_sz]
+                        nv12[y_sz::2] = flat[y_sz : y_sz + uv_sz]
+                        nv12[y_sz + 1 :: 2] = flat[y_sz + uv_sz :]
+                        result = nv12.tobytes()
                     elif fmt in ("YUY2", "YUYV"):
                         if hasattr(cv2, "COLOR_BGR2YUV_YUY2"):
                             result = cv2.cvtColor(
                                 processed, cv2.COLOR_BGR2YUV_YUY2
                             ).tobytes()
                 else:
-                    self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
+                    # No effects: store copy for photos (view invalidated on unmap)
+                    if self._mirror:
+                        self._last_probe_bgr = cv2.flip(bgr, 1)
+                    else:
+                        self._last_probe_bgr = bgr.copy()
         except Exception as e:
             if self._probe_debug_count <= 5:
-                log.debug("paintable_probe error: %s", e)
+                log.debug(f"paintable_probe error: {e}")
         finally:
             buf.unmap(map_info)
         if result is not None:
@@ -273,8 +292,6 @@ class StreamEngine(GObject.Object):
         # Paintable pipeline — capture from probe's last frame
         if self._last_probe_bgr is not None:
             try:
-                import cv2
-
                 cv2.imwrite(output_path, self._last_probe_bgr)
                 return True
             except Exception as exc:
@@ -289,7 +306,7 @@ class StreamEngine(GObject.Object):
                     paintable.save_to_png(output_path)
                     return True
                 except Exception:
-                    log.debug("Ignored exception", exc_info=True)
+                    pass
         return False
 
     def play(
@@ -308,12 +325,9 @@ class StreamEngine(GObject.Object):
         self._current_camera = camera
         self._use_appsink = camera.backend in _APPSINK_BACKENDS
         log.debug(
-            "play: camera=%s, backend=%s, use_appsink=%s, streaming_ready=%s",
-            camera.name,
-            camera.backend,
-            self._use_appsink,
-            streaming_ready,
+            f"play: camera={camera.name}, backend={camera.backend}, use_appsink={self._use_appsink}, streaming_ready={streaming_ready}"
         )
+
         # Phone camera – frames come via WebRTC, no GStreamer pipeline needed
         if camera.backend == BackendType.PHONE:
             return self._start_phone_camera(camera)
@@ -446,7 +460,7 @@ class StreamEngine(GObject.Object):
 
         Starts with a delay to let ffmpeg produce frames, then retries if needed.
         """
-        log.debug("_build_appsink_pipeline: source=%s", gst_source)
+        log.debug(f"_build_appsink_pipeline: source={gst_source}")
         self._appsink_source = gst_source
         self._appsink_retry_count = 0
         self._appsink_max_retries = 30  # 30 * 500ms = 15s max wait (like old app)
@@ -482,10 +496,9 @@ class StreamEngine(GObject.Object):
         self._appsink_retry_count += 1
         gst_source = self._appsink_source
         log.debug(
-            "_try_appsink_pipeline: attempt %s/%s",
-            self._appsink_retry_count,
-            self._appsink_max_retries,
+            f"_try_appsink_pipeline: attempt {self._appsink_retry_count}/{self._appsink_max_retries}"
         )
+
         # Two pipeline variants, exactly as the old working app
         pipeline_attempts = [
             # Pipeline 1: explicit localhost bind
@@ -507,11 +520,11 @@ class StreamEngine(GObject.Object):
         ]
 
         for i, pipeline_str in enumerate(pipeline_attempts):
-            log.debug("Trying pipeline %s: %s...", i + 1, pipeline_str[:80])
+            log.debug(f"Trying pipeline {i + 1}: {pipeline_str[:80]}...")
             try:
                 pipeline = Gst.parse_launch(pipeline_str)
             except GLib.Error as e:
-                log.debug("Pipeline %s parse error: %s", i + 1, e)
+                log.debug(f"Pipeline {i + 1} parse error: {e}")
                 continue
 
             if not isinstance(pipeline, Gst.Pipeline):
@@ -521,7 +534,7 @@ class StreamEngine(GObject.Object):
 
             appsink = pipeline.get_by_name("sink")
             if appsink is None:
-                log.debug("Pipeline %s: no appsink found", i + 1)
+                log.debug(f"Pipeline {i + 1}: no appsink found")
                 pipeline.set_state(Gst.State.NULL)
                 continue
             appsink.connect("new-sample", self._on_appsink_sample)
@@ -531,13 +544,13 @@ class StreamEngine(GObject.Object):
 
             ret = pipeline.set_state(Gst.State.PLAYING)
             if ret == Gst.StateChangeReturn.FAILURE:
-                log.debug("Pipeline %s: PLAYING failed immediately", i + 1)
+                log.debug(f"Pipeline {i + 1}: PLAYING failed immediately")
                 pipeline.set_state(Gst.State.NULL)
                 continue
 
             # Wait briefly to check state (max 2s)
             ret, state, _ = pipeline.get_state(2 * Gst.SECOND)
-            log.debug("Pipeline %s: ret=%s, state=%s", i + 1, ret, state)
+            log.debug(f"Pipeline {i + 1}: ret={ret}, state={state}")
             if ret == Gst.StateChangeReturn.FAILURE:
                 pipeline.set_state(Gst.State.NULL)
                 continue
@@ -547,7 +560,7 @@ class StreamEngine(GObject.Object):
                 Gst.StateChangeReturn.ASYNC,
             ):
                 # Pipeline connected!
-                log.debug("Pipeline %s: SUCCESS! Connected.", i + 1)
+                log.debug(f"Pipeline {i + 1}: SUCCESS! Connected.")
                 self._pipeline = pipeline
                 self._bus_watch_id = bus.connect("message", self._on_bus_message)
                 # Install FPS probe on appsink
@@ -643,14 +656,11 @@ class StreamEngine(GObject.Object):
         if result:
             self._appsink_sample_count += 1
             if self._appsink_sample_count <= 3 or self._appsink_sample_count % 30 == 0:
-                log.debug("appsink sample #%s: %sx%s", self._appsink_sample_count, w, h)
+                log.debug(f"appsink sample #{self._appsink_sample_count}: {w}x{h}")
             data = bytes(map_info.data)
             buf.unmap(map_info)
             # Store BGR frame for tools (QR, smile detection)
             try:
-                import numpy as np
-                import cv2
-
                 bgra = np.frombuffer(data, dtype=np.uint8).reshape((h, w, 4))
                 bgr = bgra[:, :, :3].copy()
                 if self._effects.has_active_effects():
@@ -658,7 +668,7 @@ class StreamEngine(GObject.Object):
                 # Mirror for snapshot/tools (flip when mirror ON)
                 self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
             except Exception:
-                log.debug("Ignored exception", exc_info=True)
+                pass
             # Apply effects to BGRA data for preview texture
             if self._effects.has_active_effects():
                 data = self._effects.apply_bgra(data, w, h)
@@ -677,7 +687,7 @@ class StreamEngine(GObject.Object):
             self._last_texture = texture
             self.emit("new-texture", texture)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return False
 
     # -- phone camera --------------------------------------------------------
@@ -780,8 +790,6 @@ class StreamEngine(GObject.Object):
         # Resize if resolution changed (rotation) to keep pipeline stable
         pw, ph = self._phone_v4l2_w, self._phone_v4l2_h
         if w != pw or h != ph:
-            import cv2
-
             log.info("Phone v4l2: resizing frame %dx%d → %dx%d", w, h, pw, ph)
             bgr = cv2.resize(bgr, (pw, ph))
         data = bytes(bgr.data)
@@ -806,8 +814,6 @@ class StreamEngine(GObject.Object):
         if self._phone_frame_pending:
             return
         self._phone_frame_pending = True
-
-        import cv2
 
         h, w = bgr.shape[:2]
 
@@ -846,7 +852,7 @@ class StreamEngine(GObject.Object):
             self._last_texture = texture
             self.emit("new-texture", texture)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            pass
         return False
 
     # -- bus handling --------------------------------------------------------

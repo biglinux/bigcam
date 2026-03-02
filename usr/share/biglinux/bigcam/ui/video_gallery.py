@@ -11,10 +11,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib  # noqa: E402
+from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib
 
-from utils import xdg  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from utils import xdg
+from utils.i18n import _
 
 log = logging.getLogger(__name__)
 
@@ -257,7 +257,7 @@ class VideoGallery(Gtk.ScrolledWindow):
             if os.path.isfile(thumb_path):
                 return self._load_pixbuf(thumb_path)
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            log.debug("Thumbnail generation failed", exc_info=True)
         return None
 
     def _get_duration(self, path: str) -> str | None:

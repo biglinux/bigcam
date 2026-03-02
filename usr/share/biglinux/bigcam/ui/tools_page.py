@@ -8,17 +8,17 @@ import time as _time
 import threading
 from typing import Any
 
+log = logging.getLogger(__name__)
+
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, GLib, GObject
 
-log = logging.getLogger(__name__)
-
-from utils.i18n import _  # noqa: E402
-from ui.qr_dialog import parse_qr, QrDialog  # noqa: E402
+from utils.i18n import _
+from ui.qr_dialog import parse_qr, QrDialog
 
 try:
     import cv2
@@ -111,9 +111,6 @@ class ToolsPage(Gtk.ScrolledWindow):
         self._sensitivity_scale.set_value(25)
         self._sensitivity_scale.set_hexpand(True)
         self._sensitivity_scale.set_valign(Gtk.Align.CENTER)
-        self._sensitivity_scale.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Sensitivity")]
-        )
         self._sensitivity_row.add_suffix(self._sensitivity_scale)
         smile_group.add(self._sensitivity_row)
 
@@ -130,7 +127,7 @@ class ToolsPage(Gtk.ScrolledWindow):
 
     def _on_qr_toggled(self, row: Adw.SwitchRow, _pspec: Any) -> None:
         self._qr_active = row.get_active()
-        log.debug("QR toggle: active=%s", self._qr_active)
+        log.debug(f"QR toggle: active={self._qr_active}")
         if self._qr_active:
             self._init_qr_detector()
             self._qr_timer_id = GLib.timeout_add(300, self._scan_qr)
@@ -176,7 +173,7 @@ class ToolsPage(Gtk.ScrolledWindow):
             return True
         self._qr_scanning = True
         frame_copy = frame.copy()
-        log.debug("QR scan starting, frame shape: %s", frame_copy.shape)
+        log.debug(f"QR scan starting, frame shape: {frame_copy.shape}")
         threading.Thread(
             target=self._scan_qr_worker, args=(frame_copy,), daemon=True
         ).start()
@@ -187,7 +184,8 @@ class ToolsPage(Gtk.ScrolledWindow):
         try:
             # Try original frame first
             data, points = self._try_detect_qr(frame)
-            log.debug("QR worker: original result='%s", data[:30] if data else "")
+            log.debug(f"QR worker: original result='{data[:30] if data else ''}'")
+
             # If not found, try enhanced variants for low-quality cameras
             if not data:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -230,7 +228,7 @@ class ToolsPage(Gtk.ScrolledWindow):
         self._qr_scanning = False
         self._engine.set_overlay_rects(rects)
         if rects:
-            log.debug("QR overlay rects: %s", rects)
+            log.debug(f"QR overlay rects: {rects}")
         if data and data != self._last_qr_text:
             self._last_qr_text = data
             self.emit("qr-detected", data)
@@ -299,7 +297,7 @@ class ToolsPage(Gtk.ScrolledWindow):
                     GLib.idle_add(self._trigger_smile_capture)
                     return True
         except Exception:
-            log.debug("Ignored exception", exc_info=True)
+            log.debug("Smile detection error", exc_info=True)
         return True
 
     def _trigger_smile_capture(self) -> bool:

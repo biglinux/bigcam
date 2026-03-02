@@ -7,9 +7,9 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, GLib  # noqa: E402
+from gi.repository import Gtk, GLib
 
-from utils.i18n import _  # noqa: E402
+from utils.i18n import _
 
 # CSS classes matching Adwaita semantic colours
 _STYLE_MAP = {

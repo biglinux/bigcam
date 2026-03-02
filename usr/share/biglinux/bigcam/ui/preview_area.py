@@ -8,10 +8,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Graphene, GLib, GObject  # noqa: E402
+from gi.repository import Adw, Gtk, Graphene, GLib, GObject
 
-from core.stream_engine import StreamEngine  # noqa: E402
-from utils.i18n import _  # noqa: E402
+from core.stream_engine import StreamEngine
+from utils.i18n import _
 
 
 class MirroredPicture(Gtk.Picture):
@@ -104,10 +104,9 @@ class PreviewArea(Gtk.Overlay):
         self._stack.add_named(self._picture, "preview")
         self._stack.set_visible_child_name("status")
 
-        # -- notification bar (replaces AdwToastOverlay for Orca) -----------
-        from ui.notification import InlineNotification
-
-        self._notification = InlineNotification()
+        # -- toast overlay wraps the stack (quick feedback at bottom) --------
+        self._toast_overlay = Adw.ToastOverlay()
+        self._toast_overlay.set_child(self._stack)
 
         # -- banner at the top (persistent process messages) -----------------
         self._banner = Adw.Banner()
@@ -121,13 +120,12 @@ class PreviewArea(Gtk.Overlay):
         self._top_progress.set_hexpand(True)
         self._top_progress.set_visible(False)
 
-        # Pack progress + banner + notification + stack vertically
+        # Pack progress + banner + toast_overlay vertically
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         content_box.append(self._top_progress)
         content_box.append(self._banner)
-        content_box.append(self._notification)
-        content_box.append(self._stack)
-        self._stack.set_vexpand(True)
+        content_box.append(self._toast_overlay)
+        self._toast_overlay.set_vexpand(True)
         self.set_child(content_box)
 
         # -- FPS label (top-right overlay) -----------------------------------
@@ -156,7 +154,6 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_label.set_visible(False)
         self.add_overlay(self._countdown_label)
         self._countdown_timer_id: int | None = None
-        self._countdown_remaining: int = 0
 
         # -- grid overlay (rule-of-thirds) ----------------------------------
         self._grid_drawing = Gtk.DrawingArea()
@@ -447,6 +444,10 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_remaining = seconds
         self._countdown_callback = callback
         self._countdown_label.set_label(str(seconds))
+        self._countdown_label.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("{n} seconds remaining").format(n=seconds)],
+        )
         self._countdown_label.set_visible(True)
         self._countdown_timer_id = GLib.timeout_add(1000, self._tick_countdown)
 
@@ -454,6 +455,10 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_remaining -= 1
         if self._countdown_remaining > 0:
             self._countdown_label.set_label(str(self._countdown_remaining))
+            self._countdown_label.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [_("{n} seconds remaining").format(n=self._countdown_remaining)],
+            )
             return True
         self._countdown_label.set_visible(False)
         self._countdown_timer_id = None

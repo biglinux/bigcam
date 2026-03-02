@@ -5,8 +5,6 @@ usr/share/biglinux/bigcam/core/stream_engine.py
     M 437:4 StreamEngine._try_appsink_pipeline - C (12)
     M 549:4 StreamEngine.stop - C (11)
     M 595:4 StreamEngine._on_appsink_sample - C (11)
-usr/share/biglinux/bigcam/core/video_recorder.py
-    M 53:4 VideoRecorder.start - C (14)
 usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py
     M 360:4 GPhoto2Backend.get_controls - D (23)
     M 508:4 GPhoto2Backend._parse_config - D (23)
@@ -23,9 +21,9 @@ usr/share/biglinux/bigcam/core/backends/v4l2_backend.py
 usr/share/biglinux/bigcam/ui/camera_controls_page.py
     M 179:4 CameraControlsPage._make_row - D (22)
     M 313:4 CameraControlsPage._on_reset - C (12)
-usr/share/biglinux/bigcam/ui/window.py
-    M 292:4 BigDigicamWindow._pick_preferred_format - D (23)
-    M 343:4 BigDigicamWindow._on_camera_selected - C (14)
 usr/share/biglinux/bigcam/ui/qr_dialog.py
     F 60:0 parse_qr - F (76)
     M 403:4 QrDialog._build_actions - C (17)
+usr/share/biglinux/bigcam/ui/window.py
+    M 293:4 BigDigicamWindow._pick_preferred_format - D (23)
+    M 344:4 BigDigicamWindow._on_camera_selected - C (14)
