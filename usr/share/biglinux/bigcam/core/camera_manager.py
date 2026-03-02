@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-import json
+import logging
 import subprocess
 import threading
-from typing import Any, Callable
+from typing import Any
+
+log = logging.getLogger(__name__)
 
 from gi.repository import GLib, GObject
 
@@ -16,7 +18,6 @@ from core.backends.gphoto2_backend import GPhoto2Backend
 from core.backends.libcamera_backend import LibcameraBackend
 from core.backends.pipewire_backend import PipeWireBackend
 from core.backends.ip_backend import IPBackend
-from utils.i18n import _
 
 
 class CameraManager(GObject.Object):
@@ -53,7 +54,7 @@ class CameraManager(GObject.Object):
                 if b.is_available():
                     self._backends.append(b)
             except Exception:
-                pass
+                log.debug("Backend %s check failed", type(b).__name__, exc_info=True)
 
     @property
     def cameras(self) -> list[CameraInfo]:
@@ -85,10 +86,17 @@ class CameraManager(GObject.Object):
                     continue  # IP cameras are added manually
                 try:
                     found = b.detect_cameras()
-                    if not found and hasattr(b, '_streaming_active') and b._streaming_active:
+                    if (
+                        not found
+                        and hasattr(b, "_streaming_active")
+                        and b._streaming_active
+                    ):
                         # Keep existing cameras for this backend during streaming
-                        found = [c for c in self._cameras
-                                 if c.backend == b.get_backend_type()]
+                        found = [
+                            c
+                            for c in self._cameras
+                            if c.backend == b.get_backend_type()
+                        ]
                     for cam in found:
                         if cam.id not in seen_ids:
                             seen_ids.add(cam.id)
@@ -155,7 +163,9 @@ class CameraManager(GObject.Object):
             return backend.set_control(camera, control_id, value)
         return False
 
-    def reset_all_controls(self, camera: CameraInfo, controls: list[CameraControl]) -> None:
+    def reset_all_controls(
+        self, camera: CameraInfo, controls: list[CameraControl]
+    ) -> None:
         backend = self.get_backend(camera.backend)
         if backend:
             backend.reset_all_controls(camera, controls)
@@ -201,7 +211,7 @@ class CameraManager(GObject.Object):
                     self._last_lsusb = current
                     GLib.idle_add(self.detect_cameras_async)
             except Exception:
-                pass
+                log.debug("USB hotplug check failed", exc_info=True)
 
         threading.Thread(target=_check_usb, daemon=True).start()
         return True

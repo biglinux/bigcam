@@ -1,0 +1,4 @@
+[lint]
+# E402: Module level import not at top of file — required for GTK apps
+# (gi.require_version must precede gi.repository imports)
+ignore = ["E402"]

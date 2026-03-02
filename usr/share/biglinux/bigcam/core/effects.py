@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
 import numpy as np
 
+log = logging.getLogger(__name__)
+
 try:
     import cv2
+
     _HAS_CV2 = True
 except ImportError:
     _HAS_CV2 = False
@@ -25,6 +29,7 @@ class EffectCategory(Enum):
 @dataclass
 class EffectParam:
     """Describes one adjustable parameter of an effect."""
+
     name: str
     label: str
     min_val: float
@@ -41,6 +46,7 @@ class EffectParam:
 @dataclass
 class EffectInfo:
     """Metadata for a single effect."""
+
     effect_id: str
     name: str
     icon: str
@@ -55,22 +61,43 @@ def _clamp(v: float, lo: float, hi: float) -> float:
 
 # ── Individual effect implementations ──────────────────────────────────────
 
+# Per-parameter caches — avoid per-frame allocations
+_gamma_lut_cache: dict[float, np.ndarray] = {}
+_clahe_cache: dict[tuple, Any] = {}
+_vignette_cache: dict[tuple, np.ndarray] = {}
+_wb_processor = cv2.xphoto.createSimpleWB() if _HAS_CV2 else None
+_SEPIA_KERNEL = (
+    np.array(
+        [[0.272, 0.534, 0.131], [0.349, 0.686, 0.168], [0.393, 0.769, 0.189]],
+        dtype=np.float32,
+    )
+    if _HAS_CV2
+    else None
+)
+
+
 def _apply_gamma(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     gamma = _clamp(params.get("gamma", 1.0), 0.1, 5.0)
     if abs(gamma - 1.0) < 0.01:
         return frame
     inv = 1.0 / gamma
-    table = np.array(
-        [(i / 255.0) ** inv * 255 for i in range(256)], dtype=np.uint8,
-    )
-    return cv2.LUT(frame, table)
+    key = round(inv, 4)
+    if key not in _gamma_lut_cache:
+        _gamma_lut_cache[key] = np.array(
+            [(i / 255.0) ** inv * 255 for i in range(256)],
+            dtype=np.uint8,
+        )
+    return cv2.LUT(frame, _gamma_lut_cache[key])
 
 
 def _apply_clahe(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     clip = _clamp(params.get("clip_limit", 2.0), 1.0, 10.0)
     grid = int(_clamp(params.get("grid_size", 8), 2, 16))
+    key = (round(clip, 2), grid)
+    if key not in _clahe_cache:
+        _clahe_cache[key] = cv2.createCLAHE(clipLimit=clip, tileGridSize=(grid, grid))
+    clahe = _clahe_cache[key]
     lab = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
-    clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(grid, grid))
     lab[:, :, 0] = clahe.apply(lab[:, :, 0])
     return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
@@ -111,25 +138,19 @@ def _apply_denoise(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 
 def _apply_white_balance(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    wb = cv2.xphoto.createSimpleWB()
-    return wb.balanceWhite(frame)
+    return _wb_processor.balanceWhite(frame)
 
 
 # ── Artistic effects ──
 
+
 def _apply_grayscale(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    return cv2.merge([gray, gray, gray])
 
 
 def _apply_sepia(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    kernel = np.array(
-        [[0.272, 0.534, 0.131],
-         [0.349, 0.686, 0.168],
-         [0.393, 0.769, 0.189]],
-        dtype=np.float32,
-    )
-    return cv2.transform(frame, kernel)
+    return cv2.transform(frame, _SEPIA_KERNEL)
 
 
 def _apply_negative(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
@@ -140,8 +161,9 @@ def _apply_pencil_sketch(frame: np.ndarray, params: dict[str, float]) -> np.ndar
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.07), 0.0, 1.0)
     shade = _clamp(params.get("shade_factor", 0.05), 0.0, 0.1)
-    gray, color = cv2.pencilSketch(frame, sigma_s=sigma_s, sigma_r=sigma_r,
-                                   shade_factor=shade)
+    gray, color = cv2.pencilSketch(
+        frame, sigma_s=sigma_s, sigma_r=sigma_r, shade_factor=shade
+    )
     return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
 
@@ -155,7 +177,12 @@ def _apply_cartoon(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.medianBlur(gray, 5)
     edges = cv2.adaptiveThreshold(
-        gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9,
+        gray,
+        255,
+        cv2.ADAPTIVE_THRESH_MEAN_C,
+        cv2.THRESH_BINARY,
+        9,
+        9,
     )
     color = cv2.bilateralFilter(frame, 9, 300, 300)
     return cv2.bitwise_and(color, color, mask=edges)
@@ -180,13 +207,16 @@ def _apply_vignette(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     if strength < 0.01:
         return frame
     h, w = frame.shape[:2]
-    x = np.arange(w, dtype=np.float32) - w / 2
-    y = np.arange(h, dtype=np.float32) - h / 2
-    xx, yy = np.meshgrid(x, y)
-    radius = np.sqrt(xx**2 + yy**2)
-    max_r = np.sqrt((w / 2) ** 2 + (h / 2) ** 2)
-    mask = 1.0 - strength * (radius / max_r) ** 2
-    mask = np.clip(mask, 0, 1)
+    key = (w, h, round(strength, 2))
+    if key not in _vignette_cache:
+        x = np.arange(w, dtype=np.float32) - w / 2
+        y = np.arange(h, dtype=np.float32) - h / 2
+        xx, yy = np.meshgrid(x, y)
+        radius = np.sqrt(xx**2 + yy**2)
+        max_r = np.sqrt((w / 2) ** 2 + (h / 2) ** 2)
+        mask = 1.0 - strength * (radius / max_r) ** 2
+        _vignette_cache[key] = np.clip(mask, 0, 1)
+    mask = _vignette_cache[key]
     return (frame * mask[:, :, np.newaxis]).astype(np.uint8)
 
 
@@ -208,21 +238,24 @@ def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     if strength % 2 == 0:
         strength += 1
 
+    blurred = cv2.GaussianBlur(frame, (strength, strength), 0)
+
     detector = _get_face_detector()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     eq = cv2.equalizeHist(gray)
     faces = detector.detectMultiScale(
-        eq, scaleFactor=1.1, minNeighbors=4, minSize=(50, 50),
+        eq,
+        scaleFactor=1.1,
+        minNeighbors=4,
+        minSize=(50, 50),
     )
 
     if len(faces) == 0:
-        # No face detected — blur entire frame lightly as feedback
-        return cv2.GaussianBlur(frame, (strength, strength), 0)
+        return blurred
 
-    blurred = cv2.GaussianBlur(frame, (strength, strength), 0)
     mask = np.zeros(frame.shape[:2], dtype=np.uint8)
 
-    for (fx, fy, fw, fh) in faces:
+    for fx, fy, fw, fh in faces:
         margin_x = int(fw * 0.5)
         margin_y = int(fh * 0.8)
         cx, cy = fx + fw // 2, fy + fh // 2
@@ -230,11 +263,11 @@ def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
         cv2.ellipse(mask, (cx, cy), axes, 0, 0, 360, 255, -1)
 
     mask_blur = cv2.GaussianBlur(mask, (31, 31), 0)
-    mask_f = mask_blur.astype(np.float32) / 255.0
-    mask_3 = mask_f[:, :, np.newaxis]
-    result = (frame.astype(np.float32) * mask_3 +
-              blurred.astype(np.float32) * (1.0 - mask_3))
-    return result.astype(np.uint8)
+    inv_mask = cv2.bitwise_not(mask_blur)
+    # Blend using uint8 arithmetic — avoids 3 float array allocations
+    fg = cv2.multiply(frame, cv2.merge([mask_blur, mask_blur, mask_blur]), scale=1.0 / 255)
+    bg = cv2.multiply(blurred, cv2.merge([inv_mask, inv_mask, inv_mask]), scale=1.0 / 255)
+    return cv2.add(fg, bg)
 
 
 # ── Effect registry ────────────────────────────────────────────────────────
@@ -247,181 +280,218 @@ def _register_effects() -> None:
 
     _EFFECTS_REGISTRY = [
         # ── Adjust ──
-        (EffectInfo(
-            effect_id="brightness",
-            name="Brightness / Contrast",
-            icon="display-brightness-symbolic",
-            category=EffectCategory.ADJUST,
-            params=[
-                EffectParam("brightness", "Brightness", -100, 100, 0, 1),
-                EffectParam("contrast", "Contrast", -100, 100, 0, 1),
-            ],
-        ), _apply_brightness),
-
-        (EffectInfo(
-            effect_id="gamma",
-            name="Gamma Correction",
-            icon="preferences-color-symbolic",
-            category=EffectCategory.ADJUST,
-            params=[
-                EffectParam("gamma", "Gamma", 0.1, 5.0, 1.0, 0.1),
-            ],
-        ), _apply_gamma),
-
-        (EffectInfo(
-            effect_id="clahe",
-            name="CLAHE (Adaptive Contrast)",
-            icon="image-adjust-contrast",
-            category=EffectCategory.ADJUST,
-            params=[
-                EffectParam("clip_limit", "Clip Limit", 1.0, 10.0, 2.0, 0.5),
-                EffectParam("grid_size", "Grid Size", 2, 16, 8, 1),
-            ],
-        ), _apply_clahe),
-
-        (EffectInfo(
-            effect_id="white_balance",
-            name="Auto White Balance",
-            icon="weather-clear-symbolic",
-            category=EffectCategory.ADJUST,
-        ), _apply_white_balance),
-
+        (
+            EffectInfo(
+                effect_id="brightness",
+                name="Brightness / Contrast",
+                icon="display-brightness-symbolic",
+                category=EffectCategory.ADJUST,
+                params=[
+                    EffectParam("brightness", "Brightness", -100, 100, 0, 1),
+                    EffectParam("contrast", "Contrast", -100, 100, 0, 1),
+                ],
+            ),
+            _apply_brightness,
+        ),
+        (
+            EffectInfo(
+                effect_id="gamma",
+                name="Gamma Correction",
+                icon="preferences-color-symbolic",
+                category=EffectCategory.ADJUST,
+                params=[
+                    EffectParam("gamma", "Gamma", 0.1, 5.0, 1.0, 0.1),
+                ],
+            ),
+            _apply_gamma,
+        ),
+        (
+            EffectInfo(
+                effect_id="clahe",
+                name="CLAHE (Adaptive Contrast)",
+                icon="image-adjust-contrast",
+                category=EffectCategory.ADJUST,
+                params=[
+                    EffectParam("clip_limit", "Clip Limit", 1.0, 10.0, 2.0, 0.5),
+                    EffectParam("grid_size", "Grid Size", 2, 16, 8, 1),
+                ],
+            ),
+            _apply_clahe,
+        ),
+        (
+            EffectInfo(
+                effect_id="white_balance",
+                name="Auto White Balance",
+                icon="weather-clear-symbolic",
+                category=EffectCategory.ADJUST,
+            ),
+            _apply_white_balance,
+        ),
         # ── Filter ──
-        (EffectInfo(
-            effect_id="detail_enhance",
-            name="Detail Enhance",
-            icon="find-location-symbolic",
-            category=EffectCategory.FILTER,
-            params=[
-                EffectParam("sigma_s", "Smoothing", 1, 200, 10, 5),
-                EffectParam("sigma_r", "Detail", 0.0, 1.0, 0.15, 0.05),
-            ],
-        ), _apply_detail_enhance),
-
-        (EffectInfo(
-            effect_id="beauty",
-            name="Beauty / Soft Skin",
-            icon="face-smile-symbolic",
-            category=EffectCategory.FILTER,
-            params=[
-                EffectParam("sigma_s", "Smoothing", 1, 200, 60, 10),
-                EffectParam("sigma_r", "Intensity", 0.0, 1.0, 0.4, 0.05),
-            ],
-        ), _apply_beauty),
-
-        (EffectInfo(
-            effect_id="sharpen",
-            name="Sharpen",
-            icon="image-sharpen-symbolic",
-            category=EffectCategory.FILTER,
-            params=[
-                EffectParam("strength", "Strength", 0.0, 3.0, 0.5, 0.1),
-            ],
-        ), _apply_sharpen),
-
-        (EffectInfo(
-            effect_id="denoise",
-            name="Denoise",
-            icon="audio-volume-muted-symbolic",
-            category=EffectCategory.FILTER,
-            params=[
-                EffectParam("strength", "Strength", 1, 30, 10, 1),
-            ],
-        ), _apply_denoise),
-
+        (
+            EffectInfo(
+                effect_id="detail_enhance",
+                name="Detail Enhance",
+                icon="find-location-symbolic",
+                category=EffectCategory.FILTER,
+                params=[
+                    EffectParam("sigma_s", "Smoothing", 1, 200, 10, 5),
+                    EffectParam("sigma_r", "Detail", 0.0, 1.0, 0.15, 0.05),
+                ],
+            ),
+            _apply_detail_enhance,
+        ),
+        (
+            EffectInfo(
+                effect_id="beauty",
+                name="Beauty / Soft Skin",
+                icon="face-smile-symbolic",
+                category=EffectCategory.FILTER,
+                params=[
+                    EffectParam("sigma_s", "Smoothing", 1, 200, 60, 10),
+                    EffectParam("sigma_r", "Intensity", 0.0, 1.0, 0.4, 0.05),
+                ],
+            ),
+            _apply_beauty,
+        ),
+        (
+            EffectInfo(
+                effect_id="sharpen",
+                name="Sharpen",
+                icon="image-sharpen-symbolic",
+                category=EffectCategory.FILTER,
+                params=[
+                    EffectParam("strength", "Strength", 0.0, 3.0, 0.5, 0.1),
+                ],
+            ),
+            _apply_sharpen,
+        ),
+        (
+            EffectInfo(
+                effect_id="denoise",
+                name="Denoise",
+                icon="audio-volume-muted-symbolic",
+                category=EffectCategory.FILTER,
+                params=[
+                    EffectParam("strength", "Strength", 1, 30, 10, 1),
+                ],
+            ),
+            _apply_denoise,
+        ),
         # ── Artistic ──
-        (EffectInfo(
-            effect_id="grayscale",
-            name="Grayscale",
-            icon="bwtonal",
-            category=EffectCategory.ARTISTIC,
-        ), _apply_grayscale),
-
-        (EffectInfo(
-            effect_id="sepia",
-            name="Sepia",
-            icon="accessories-text-editor-symbolic",
-            category=EffectCategory.ARTISTIC,
-        ), _apply_sepia),
-
-        (EffectInfo(
-            effect_id="negative",
-            name="Negative",
-            icon="view-refresh-symbolic",
-            category=EffectCategory.ARTISTIC,
-        ), _apply_negative),
-
-        (EffectInfo(
-            effect_id="pencil_sketch",
-            name="Pencil Sketch",
-            icon="edit-select-symbolic",
-            category=EffectCategory.ARTISTIC,
-            params=[
-                EffectParam("sigma_s", "Smoothing", 1, 200, 60, 10),
-                EffectParam("sigma_r", "Detail", 0.0, 1.0, 0.07, 0.01),
-                EffectParam("shade_factor", "Shade", 0.0, 0.1, 0.05, 0.01),
-            ],
-        ), _apply_pencil_sketch),
-
-        (EffectInfo(
-            effect_id="stylization",
-            name="Painting",
-            icon="applications-graphics-symbolic",
-            category=EffectCategory.ARTISTIC,
-            params=[
-                EffectParam("sigma_s", "Smoothing", 1, 200, 60, 10),
-                EffectParam("sigma_r", "Detail", 0.0, 1.0, 0.45, 0.05),
-            ],
-        ), _apply_stylization),
-
-        (EffectInfo(
-            effect_id="cartoon",
-            name="Cartoon",
-            icon="face-laugh-symbolic",
-            category=EffectCategory.ARTISTIC,
-        ), _apply_cartoon),
-
-        (EffectInfo(
-            effect_id="edge_detect",
-            name="Edge Detection",
-            icon="emblem-photos-symbolic",
-            category=EffectCategory.ARTISTIC,
-            params=[
-                EffectParam("threshold1", "Threshold 1", 0, 500, 100, 10),
-                EffectParam("threshold2", "Threshold 2", 0, 500, 200, 10),
-            ],
-        ), _apply_edge_detect),
-
-        (EffectInfo(
-            effect_id="colormap",
-            name="Color Map",
-            icon="preferences-color-symbolic",
-            category=EffectCategory.ARTISTIC,
-            params=[
-                EffectParam("style", "Style", 0, 21, 0, 1),
-            ],
-        ), _apply_colormap),
-
-        (EffectInfo(
-            effect_id="vignette",
-            name="Vignette",
-            icon="camera-photo-symbolic",
-            category=EffectCategory.ARTISTIC,
-            params=[
-                EffectParam("strength", "Strength", 0.0, 1.0, 0.5, 0.05),
-            ],
-        ), _apply_vignette),
-
+        (
+            EffectInfo(
+                effect_id="grayscale",
+                name="Grayscale",
+                icon="bwtonal",
+                category=EffectCategory.ARTISTIC,
+            ),
+            _apply_grayscale,
+        ),
+        (
+            EffectInfo(
+                effect_id="sepia",
+                name="Sepia",
+                icon="accessories-text-editor-symbolic",
+                category=EffectCategory.ARTISTIC,
+            ),
+            _apply_sepia,
+        ),
+        (
+            EffectInfo(
+                effect_id="negative",
+                name="Negative",
+                icon="view-refresh-symbolic",
+                category=EffectCategory.ARTISTIC,
+            ),
+            _apply_negative,
+        ),
+        (
+            EffectInfo(
+                effect_id="pencil_sketch",
+                name="Pencil Sketch",
+                icon="edit-select-symbolic",
+                category=EffectCategory.ARTISTIC,
+                params=[
+                    EffectParam("sigma_s", "Smoothing", 1, 200, 60, 10),
+                    EffectParam("sigma_r", "Detail", 0.0, 1.0, 0.07, 0.01),
+                    EffectParam("shade_factor", "Shade", 0.0, 0.1, 0.05, 0.01),
+                ],
+            ),
+            _apply_pencil_sketch,
+        ),
+        (
+            EffectInfo(
+                effect_id="stylization",
+                name="Painting",
+                icon="applications-graphics-symbolic",
+                category=EffectCategory.ARTISTIC,
+                params=[
+                    EffectParam("sigma_s", "Smoothing", 1, 200, 60, 10),
+                    EffectParam("sigma_r", "Detail", 0.0, 1.0, 0.45, 0.05),
+                ],
+            ),
+            _apply_stylization,
+        ),
+        (
+            EffectInfo(
+                effect_id="cartoon",
+                name="Cartoon",
+                icon="face-laugh-symbolic",
+                category=EffectCategory.ARTISTIC,
+            ),
+            _apply_cartoon,
+        ),
+        (
+            EffectInfo(
+                effect_id="edge_detect",
+                name="Edge Detection",
+                icon="emblem-photos-symbolic",
+                category=EffectCategory.ARTISTIC,
+                params=[
+                    EffectParam("threshold1", "Threshold 1", 0, 500, 100, 10),
+                    EffectParam("threshold2", "Threshold 2", 0, 500, 200, 10),
+                ],
+            ),
+            _apply_edge_detect,
+        ),
+        (
+            EffectInfo(
+                effect_id="colormap",
+                name="Color Map",
+                icon="preferences-color-symbolic",
+                category=EffectCategory.ARTISTIC,
+                params=[
+                    EffectParam("style", "Style", 0, 21, 0, 1),
+                ],
+            ),
+            _apply_colormap,
+        ),
+        (
+            EffectInfo(
+                effect_id="vignette",
+                name="Vignette",
+                icon="camera-photo-symbolic",
+                category=EffectCategory.ARTISTIC,
+                params=[
+                    EffectParam("strength", "Strength", 0.0, 1.0, 0.5, 0.05),
+                ],
+            ),
+            _apply_vignette,
+        ),
         # ── Advanced ──
-        (EffectInfo(
-            effect_id="bg_blur",
-            name="Background Blur",
-            icon="camera-web-symbolic",
-            category=EffectCategory.ADVANCED,
-            params=[
-                EffectParam("strength", "Blur Strength", 1, 51, 21, 2),
-            ],
-        ), _apply_bg_blur),
+        (
+            EffectInfo(
+                effect_id="bg_blur",
+                name="Background Blur",
+                icon="camera-web-symbolic",
+                category=EffectCategory.ADVANCED,
+                params=[
+                    EffectParam("strength", "Blur Strength", 1, 51, 21, 2),
+                ],
+            ),
+            _apply_bg_blur,
+        ),
     ]
 
 
@@ -488,7 +558,7 @@ class EffectPipeline:
             try:
                 frame = func(frame, params)
             except Exception:
-                pass
+                log.debug("Effect %s failed", info.name, exc_info=True)
         return frame
 
     def apply_bgra(self, data: bytes, width: int, height: int) -> bytes:
@@ -497,10 +567,8 @@ class EffectPipeline:
             return data
         try:
             arr = np.frombuffer(data, dtype=np.uint8).reshape((height, width, 4))
-            bgr = arr[:, :, :3].copy()
-            alpha = arr[:, :, 3].copy()
-            bgr = self.apply(bgr)
-            result = np.dstack((bgr, alpha))
+            bgr = self.apply(arr[:, :, :3].copy())
+            result = cv2.merge([bgr[:, :, 0], bgr[:, :, 1], bgr[:, :, 2], arr[:, :, 3]])
             return result.tobytes()
         except Exception:
             return data

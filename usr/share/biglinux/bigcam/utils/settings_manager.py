@@ -1,10 +1,14 @@
 """JSON-based settings persistence for BigCam."""
 
 import json
+import logging
 import os
+import tempfile
+import threading
 
 from utils import xdg
 
+log = logging.getLogger(__name__)
 
 _DEFAULTS: dict[str, object] = {
     # Window
@@ -37,6 +41,9 @@ _DEFAULTS: dict[str, object] = {
     "ip_cameras": [],
 }
 
+_BOOL_TRUE = {"true", "1", "yes"}
+_BOOL_FALSE = {"false", "0", "no", ""}
+
 
 class SettingsManager:
     """Thread-safe JSON settings backed by ~/.config/bigcam/settings.json."""
@@ -44,6 +51,7 @@ class SettingsManager:
     def __init__(self) -> None:
         self._path = os.path.join(xdg.config_dir(), "settings.json")
         self._data: dict[str, object] = {}
+        self._lock = threading.Lock()
         self._load()
 
     # -- public API ----------------------------------------------------------
@@ -53,6 +61,14 @@ class SettingsManager:
         value = self._data.get(key, fallback)
         # coerce to the same type as the fallback
         if isinstance(fallback, bool):
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, str):
+                low = value.lower()
+                if low in _BOOL_TRUE:
+                    return True
+                if low in _BOOL_FALSE:
+                    return False
             return bool(value)
         if isinstance(fallback, int):
             try:
@@ -67,8 +83,9 @@ class SettingsManager:
         return str(value) if value is not None else ""
 
     def set(self, key: str, value: object) -> None:
-        self._data[key] = value
-        self._save()
+        with self._lock:
+            self._data[key] = value
+            self._save()
 
     # -- persistence ---------------------------------------------------------
 
@@ -80,11 +97,19 @@ class SettingsManager:
             with open(self._path, "r", encoding="utf-8") as fh:
                 self._data = json.load(fh)
         except Exception:
+            log.warning("Failed to load settings from %s", self._path, exc_info=True)
             self._data = {}
 
     def _save(self) -> None:
         try:
-            with open(self._path, "w", encoding="utf-8") as fh:
-                json.dump(self._data, fh, indent=2, ensure_ascii=False)
+            dir_path = os.path.dirname(self._path)
+            fd, tmp = tempfile.mkstemp(dir=dir_path, suffix=".tmp")
+            try:
+                with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                    json.dump(self._data, fh, indent=2, ensure_ascii=False)
+                os.replace(tmp, self._path)
+            except BaseException:
+                os.unlink(tmp)
+                raise
         except Exception as exc:
-            print(f"[SettingsManager] save error: {exc}")
+            log.error("Settings save error: %s", exc)

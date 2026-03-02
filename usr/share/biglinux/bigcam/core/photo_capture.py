@@ -5,11 +5,9 @@ from __future__ import annotations
 import os
 import time
 
-from constants import BackendType
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
 from utils import xdg
-from utils.i18n import _
 
 
 class PhotoCapture:

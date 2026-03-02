@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
+from gi.repository import Adw, Gtk, Graphene, GLib, GObject
 
 from core.stream_engine import StreamEngine
 from utils.i18n import _
@@ -281,8 +280,13 @@ class PreviewArea(Gtk.Overlay):
         ``preview.notification.notify_user(...)`` keeps working."""
         return self
 
-    def notify_user(self, message: str, level: str = "info", timeout_ms: int = 3000,
-                    progress: bool = False) -> None:
+    def notify_user(
+        self,
+        message: str,
+        level: str = "info",
+        timeout_ms: int = 3000,
+        progress: bool = False,
+    ) -> None:
         """Show a banner at the top of the preview area.
 
         If *timeout_ms* is 0, the banner stays until ``dismiss()`` is called.
@@ -350,9 +354,13 @@ class PreviewArea(Gtk.Overlay):
         self._banner.set_revealed(False)
         return GLib.SOURCE_REMOVE
 
-    def show_status(self, title: str, description: str = "",
-                    icon: str = "camera-web-symbolic",
-                    loading: bool = False) -> None:
+    def show_status(
+        self,
+        title: str,
+        description: str = "",
+        icon: str = "camera-web-symbolic",
+        loading: bool = False,
+    ) -> None:
         if loading:
             self._show_loading(description)
             return
@@ -382,7 +390,9 @@ class PreviewArea(Gtk.Overlay):
         else:
             self._status.set_title(_("Connection failed"))
             self._status.set_description(
-                _("Could not connect to the camera. Check the connection and try again.")
+                _(
+                    "Could not connect to the camera. Check the connection and try again."
+                )
             )
         self._status.set_icon_name("dialog-warning-symbolic")
         self._retry_btn.set_visible(True)
@@ -434,6 +444,10 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_remaining = seconds
         self._countdown_callback = callback
         self._countdown_label.set_label(str(seconds))
+        self._countdown_label.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("{n} seconds remaining").format(n=seconds)],
+        )
         self._countdown_label.set_visible(True)
         self._countdown_timer_id = GLib.timeout_add(1000, self._tick_countdown)
 
@@ -441,6 +455,10 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_remaining -= 1
         if self._countdown_remaining > 0:
             self._countdown_label.set_label(str(self._countdown_remaining))
+            self._countdown_label.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [_("{n} seconds remaining").format(n=self._countdown_remaining)],
+            )
             return True
         self._countdown_label.set_visible(False)
         self._countdown_timer_id = None

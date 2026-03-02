@@ -11,7 +11,7 @@ _share_dir = os.path.dirname(os.path.dirname(_app_dir))
 localedir = os.path.join(_share_dir, "locale")
 
 try:
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_ALL, "")
 except locale.Error:
     pass
 
@@ -20,5 +20,6 @@ if os.path.isdir(localedir):
     gettext.textdomain(APP_NAME)
     _ = gettext.gettext
 else:
+
     def _(msg):
         return msg

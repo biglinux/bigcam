@@ -19,6 +19,7 @@ from utils.i18n import _
 try:
     import cv2
     import numpy as np
+
     _HAS_CV2 = True
 except ImportError:
     _HAS_CV2 = False
@@ -35,9 +36,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         "smile-captured": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "qr-detected": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "virtual-camera-toggled": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
-        "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
-        "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
-        "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
@@ -96,8 +94,9 @@ class SettingsPage(Gtk.ScrolledWindow):
         photo_open_btn.set_valign(Gtk.Align.CENTER)
         photo_open_btn.set_tooltip_text(_("Open photos folder"))
         photo_open_btn.add_css_class("flat")
-        photo_open_btn.connect("clicked",
-                               lambda _b: self._open_directory(xdg.photos_dir()))
+        photo_open_btn.connect(
+            "clicked", lambda _b: self._open_directory(xdg.photos_dir())
+        )
         photo_row.add_suffix(photo_open_btn)
         photo_row.set_activatable(False)
         general.add(photo_row)
@@ -111,8 +110,9 @@ class SettingsPage(Gtk.ScrolledWindow):
         video_open_btn.set_valign(Gtk.Align.CENTER)
         video_open_btn.set_tooltip_text(_("Open videos folder"))
         video_open_btn.add_css_class("flat")
-        video_open_btn.connect("clicked",
-                               lambda _b: self._open_directory(xdg.videos_dir()))
+        video_open_btn.connect(
+            "clicked", lambda _b: self._open_directory(xdg.videos_dir())
+        )
         video_row.add_suffix(video_open_btn)
         video_row.set_activatable(False)
         general.add(video_row)
@@ -240,9 +240,11 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _build_tools(self, content: Gtk.Box) -> None:
         import threading
+
         self._threading = threading
 
         from ui.qr_dialog import parse_qr, QrDialog
+
         self._parse_qr = parse_qr
         self._QrDialog = QrDialog
 
@@ -276,7 +278,9 @@ class SettingsPage(Gtk.ScrolledWindow):
         smile_group.add(self._sensitivity_row)
 
         self._smile_status = Gtk.Label(
-            label="", xalign=0.5, css_classes=["dim-label"],
+            label="",
+            xalign=0.5,
+            css_classes=["dim-label"],
         )
         self._smile_status.set_margin_top(4)
         content.append(smile_group)
@@ -291,7 +295,8 @@ class SettingsPage(Gtk.ScrolledWindow):
         vc_group.add(self._vc_status_row)
 
         self._vc_device_row = Adw.ActionRow(
-            title=_("Device"), subtitle=_("Not loaded"),
+            title=_("Device"),
+            subtitle=_("Not loaded"),
         )
         vc_group.add(self._vc_device_row)
 
@@ -361,6 +366,7 @@ class SettingsPage(Gtk.ScrolledWindow):
     @staticmethod
     def _open_directory(path: str) -> None:
         import subprocess
+
         os.makedirs(path, exist_ok=True)
         subprocess.Popen(["xdg-open", path])
 
@@ -409,7 +415,10 @@ class SettingsPage(Gtk.ScrolledWindow):
             return True
         self._qr_scanning = True
         import threading
-        threading.Thread(target=self._scan_qr_worker, args=(frame.copy(),), daemon=True).start()
+
+        threading.Thread(
+            target=self._scan_qr_worker, args=(frame.copy(),), daemon=True
+        ).start()
         return True
 
     def _scan_qr_worker(self, frame) -> None:
@@ -425,8 +434,12 @@ class SettingsPage(Gtk.ScrolledWindow):
             if not data:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 thresh = cv2.adaptiveThreshold(
-                    gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                    cv2.THRESH_BINARY, 51, 10,
+                    gray,
+                    255,
+                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                    cv2.THRESH_BINARY,
+                    51,
+                    10,
                 )
                 data, points = self._try_detect_qr(thresh)
 
@@ -494,12 +507,14 @@ class SettingsPage(Gtk.ScrolledWindow):
             if len(faces) == 0:
                 return True
             sensitivity = int(self._sensitivity_scale.get_value())
-            for (x, y, fw, fh) in faces:
-                roi_gray = gray[y:y + fh, x:x + fw]
-                lower_half = roi_gray[fh // 2:, :]
+            for x, y, fw, fh in faces:
+                roi_gray = gray[y : y + fh, x : x + fw]
+                lower_half = roi_gray[fh // 2 :, :]
                 smiles = self._smile_cascade.detectMultiScale(
-                    lower_half, scaleFactor=1.7, minNeighbors=sensitivity,
-                    minSize=(25, 15)
+                    lower_half,
+                    scaleFactor=1.7,
+                    minNeighbors=sensitivity,
+                    minSize=(25, 15),
                 )
                 if len(smiles) > 0:
                     GLib.idle_add(self._trigger_smile_capture)
@@ -513,6 +528,7 @@ class SettingsPage(Gtk.ScrolledWindow):
             return False
         self._smile_cooldown = True
         import time as _time
+
         ts = _time.strftime("%Y%m%d_%H%M%S")
         path = os.path.join(xdg.photos_dir(), f"smile_{ts}.jpg")
         os.makedirs(xdg.photos_dir(), exist_ok=True)

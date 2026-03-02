@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
-import re
 import subprocess
 
-from utils.i18n import _
+
+log = logging.getLogger(__name__)
 
 
 class VirtualCamera:
@@ -33,7 +34,7 @@ class VirtualCamera:
             if result.returncode == 0 and "v4l2 loopback" in result.stdout.lower():
                 return "/dev/video10"
         except Exception:
-            pass
+            log.debug("v4l2-ctl check for /dev/video10 failed", exc_info=True)
         # Fallback: scan all devices
         try:
             result = subprocess.run(
@@ -50,7 +51,7 @@ class VirtualCamera:
                             return dev
                         idx += 1
         except Exception:
-            pass
+            log.debug("v4l2loopback device scan failed", exc_info=True)
         return ""
 
     @classmethod
@@ -61,12 +62,15 @@ class VirtualCamera:
         Device 11: Reserved for gPhoto2 streaming
         """
         label = "BigCam Virtual"
-        safe_label = label.replace('"', '').replace('\\', '')
+        safe_label = label.replace('"', "").replace("\\", "")
         try:
             subprocess.run(
                 [
-                    "pkexec", "modprobe", "v4l2loopback",
-                    "devices=2", "exclusive_caps=1",
+                    "pkexec",
+                    "modprobe",
+                    "v4l2loopback",
+                    "devices=2",
+                    "exclusive_caps=1",
                     "video_nr=10,11",
                     f'card_label="{safe_label}","{safe_label} (v4l2)"',
                 ],
@@ -94,7 +98,9 @@ class VirtualCamera:
                 [
                     "gst-launch-1.0",
                     *gst_pipeline.split(),
-                    "!", "v4l2sink", f"device={device}",
+                    "!",
+                    "v4l2sink",
+                    f"device={device}",
                 ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,

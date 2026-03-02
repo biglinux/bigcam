@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 from typing import Any
 
-from constants import BackendType, ControlCategory, ControlType
+from constants import BackendType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
-from utils.i18n import _
 
 
 class PipeWireBackend(CameraBackend):
@@ -22,7 +20,11 @@ class PipeWireBackend(CameraBackend):
         try:
             subprocess.run(["pw-cli", "info", "0"], capture_output=True, timeout=5)
             return True
-        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        except (
+            FileNotFoundError,
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+        ):
             return False
 
     # -- detection -----------------------------------------------------------
@@ -52,12 +54,17 @@ class PipeWireBackend(CameraBackend):
 
         for line in output.splitlines():
             # New object: "id 42, type PipeWire:Interface:Node/3"
-            obj_match = re.match(r"\s*id\s+(\d+),\s+type\s+PipeWire:Interface:Node", line)
+            obj_match = re.match(
+                r"\s*id\s+(\d+),\s+type\s+PipeWire:Interface:Node", line
+            )
             if obj_match:
                 # Flush previous
                 if current_id and self._is_video_source(current_props):
                     cam = self._make_camera(current_id, current_props)
-                    if "v4l2loopback" not in cam.name.lower() and "(v4l2)" not in cam.name.lower():
+                    if (
+                        "v4l2loopback" not in cam.name.lower()
+                        and "(v4l2)" not in cam.name.lower()
+                    ):
                         cameras.append(cam)
                 current_id = obj_match.group(1)
                 current_props = {}
@@ -71,7 +78,10 @@ class PipeWireBackend(CameraBackend):
         # Flush last
         if current_id and self._is_video_source(current_props):
             cam = self._make_camera(current_id, current_props)
-            if "v4l2loopback" not in cam.name.lower() and "(v4l2)" not in cam.name.lower():
+            if (
+                "v4l2loopback" not in cam.name.lower()
+                and "(v4l2)" not in cam.name.lower()
+            ):
                 cameras.append(cam)
 
         return cameras
@@ -82,9 +92,10 @@ class PipeWireBackend(CameraBackend):
 
     @staticmethod
     def _make_camera(node_id: str, props: dict[str, str]) -> CameraInfo:
-        name = props.get("node.description",
-               props.get("node.nick",
-               props.get("node.name", f"PipeWire Node {node_id}")))
+        name = props.get(
+            "node.description",
+            props.get("node.nick", props.get("node.name", f"PipeWire Node {node_id}")),
+        )
         return CameraInfo(
             id=f"pipewire:{node_id}",
             name=name,
@@ -120,17 +131,25 @@ class PipeWireBackend(CameraBackend):
         try:
             subprocess.run(
                 [
-                    "gst-launch-1.0", "-e",
-                    "pipewiresrc", f"path={node_id}", "num-buffers=1", "!",
-                    "videoconvert", "!",
-                    "jpegenc", "!",
-                    "filesink", f"location={output_path}",
+                    "gst-launch-1.0",
+                    "-e",
+                    "pipewiresrc",
+                    f"path={node_id}",
+                    "num-buffers=1",
+                    "!",
+                    "videoconvert",
+                    "!",
+                    "jpegenc",
+                    "!",
+                    "filesink",
+                    f"location={output_path}",
                 ],
                 capture_output=True,
                 check=True,
                 timeout=10,
             )
             import os
+
             return os.path.isfile(output_path)
         except Exception:
             return False

@@ -64,7 +64,9 @@ class CameraBackend(ABC):
     def set_control(self, camera: CameraInfo, control_id: str, value: Any) -> bool: ...
 
     @abstractmethod
-    def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str: ...
+    def get_gst_source(
+        self, camera: CameraInfo, fmt: VideoFormat | None = None
+    ) -> str: ...
 
     @abstractmethod
     def can_capture_photo(self) -> bool: ...
@@ -72,14 +74,18 @@ class CameraBackend(ABC):
     @abstractmethod
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool: ...
 
-    def reset_control(self, camera: CameraInfo, control_id: str, controls: list[CameraControl]) -> bool:
+    def reset_control(
+        self, camera: CameraInfo, control_id: str, controls: list[CameraControl]
+    ) -> bool:
         """Reset a single control to its default value."""
         for ctrl in controls:
             if ctrl.id == control_id:
                 return self.set_control(camera, control_id, ctrl.default)
         return False
 
-    def reset_all_controls(self, camera: CameraInfo, controls: list[CameraControl]) -> None:
+    def reset_all_controls(
+        self, camera: CameraInfo, controls: list[CameraControl]
+    ) -> None:
         """Reset every control to its default value."""
         for ctrl in controls:
             if ctrl.flags not in ("inactive", "read-only"):

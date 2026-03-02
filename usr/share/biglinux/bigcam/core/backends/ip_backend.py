@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+import os
 import subprocess
 from typing import Any
 
-from constants import BackendType, ControlCategory, ControlType
+from constants import BackendType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
-from utils.i18n import _
+
+log = logging.getLogger(__name__)
 
 
 class IPBackend(CameraBackend):
@@ -34,14 +37,16 @@ class IPBackend(CameraBackend):
             name = entry.get("name", url)
             if not url:
                 continue
-            cameras.append(CameraInfo(
-                id=f"ip:{url}",
-                name=name,
-                backend=BackendType.IP,
-                device_path=url,
-                capabilities=["video"],
-                extra={"url": url},
-            ))
+            cameras.append(
+                CameraInfo(
+                    id=f"ip:{url}",
+                    name=name,
+                    backend=BackendType.IP,
+                    device_path=url,
+                    capabilities=["video"],
+                    extra={"url": url},
+                )
+            )
         return cameras
 
     # -- controls (none for basic IP) ----------------------------------------
@@ -57,15 +62,9 @@ class IPBackend(CameraBackend):
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
         url = camera.extra.get("url", camera.device_path)
         if url.startswith("rtsp://"):
-            return (
-                f'rtspsrc location="{url}" latency=300 ! '
-                "decodebin ! videoconvert"
-            )
+            return f'rtspsrc location="{url}" latency=300 ! decodebin ! videoconvert'
         # HTTP / MJPEG stream
-        return (
-            f'souphttpsrc location="{url}" ! '
-            "decodebin ! videoconvert"
-        )
+        return f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
 
     # -- photo ---------------------------------------------------------------
 
@@ -76,23 +75,27 @@ class IPBackend(CameraBackend):
         """Snapshot via GStreamer one-frame pipeline."""
         url = camera.extra.get("url", camera.device_path)
         if url.startswith("rtsp://"):
-            src = f'rtspsrc location="{url}" latency=300 ! decodebin'
+            src_args = ["rtspsrc", f"location={url}", "latency=300", "!", "decodebin"]
         else:
-            src = f'souphttpsrc location="{url}" ! decodebin'
+            src_args = ["souphttpsrc", f"location={url}", "!", "decodebin"]
         try:
             subprocess.run(
                 [
-                    "gst-launch-1.0", "-e",
-                    *src.split(),
-                    "!", "videoconvert",
-                    "!", "jpegenc",
-                    "!", "filesink", f"location={output_path}",
+                    "gst-launch-1.0",
+                    "-e",
+                    *src_args,
+                    "!",
+                    "videoconvert",
+                    "!",
+                    "jpegenc",
+                    "!",
+                    "filesink",
+                    f"location={output_path}",
                 ],
                 capture_output=True,
                 check=True,
                 timeout=15,
             )
-            import os
             return os.path.isfile(output_path)
         except Exception:
             return False

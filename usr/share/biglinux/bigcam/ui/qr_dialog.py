@@ -37,15 +37,30 @@ class QrType(Enum):
 
 
 _SOCIAL_DOMAINS = (
-    "facebook.com", "instagram.com", "twitter.com", "x.com",
-    "linkedin.com", "tiktok.com", "youtube.com", "github.com",
-    "t.me", "telegram.me", "wa.me", "whatsapp.com",
-    "threads.net", "mastodon.social", "bsky.app",
+    "facebook.com",
+    "instagram.com",
+    "twitter.com",
+    "x.com",
+    "linkedin.com",
+    "tiktok.com",
+    "youtube.com",
+    "github.com",
+    "t.me",
+    "telegram.me",
+    "wa.me",
+    "whatsapp.com",
+    "threads.net",
+    "mastodon.social",
+    "bsky.app",
 )
 
 _APP_STORE_DOMAINS = (
-    "play.google.com", "apps.apple.com", "itunes.apple.com",
-    "f-droid.org", "flathub.org", "snapcraft.io",
+    "play.google.com",
+    "apps.apple.com",
+    "itunes.apple.com",
+    "f-droid.org",
+    "flathub.org",
+    "snapcraft.io",
 )
 
 
@@ -216,16 +231,21 @@ def parse_qr(data: str) -> QrResult:
 
     # PIX / EMV payment
     if lower.startswith("000201") or lower.startswith("pix:"):
-        return QrResult(QrType.PAYMENT_PIX, stripped, _("Payment (PIX)"),
-                        {"payload": stripped})
+        return QrResult(
+            QrType.PAYMENT_PIX, stripped, _("Payment (PIX)"), {"payload": stripped}
+        )
 
     # Crypto
     for prefix in ("bitcoin:", "ethereum:", "litecoin:", "dogecoin:"):
         if lower.startswith(prefix):
             addr = stripped.split(":", 1)[1].split("?")[0]
             coin = prefix.rstrip(":")
-            return QrResult(QrType.CRYPTO, stripped, coin.capitalize(),
-                            {"address": addr, "coin": coin})
+            return QrResult(
+                QrType.CRYPTO,
+                stripped,
+                coin.capitalize(),
+                {"address": addr, "coin": coin},
+            )
 
     # TOTP / OTP auth
     if lower.startswith("otpauth://"):
@@ -244,18 +264,23 @@ def parse_qr(data: str) -> QrResult:
     # URL-based types
     if lower.startswith("http://") or lower.startswith("https://"):
         from urllib.parse import urlparse
+
         parsed = urlparse(stripped)
         host = parsed.hostname or ""
 
         # App store
         for domain in _APP_STORE_DOMAINS:
             if host.endswith(domain):
-                return QrResult(QrType.APP_STORE, stripped, _("App Store"), {"url": stripped})
+                return QrResult(
+                    QrType.APP_STORE, stripped, _("App Store"), {"url": stripped}
+                )
 
         # Social network
         for domain in _SOCIAL_DOMAINS:
             if host.endswith(domain):
-                return QrResult(QrType.SOCIAL, stripped, _("Social Network"), {"url": stripped})
+                return QrResult(
+                    QrType.SOCIAL, stripped, _("Social Network"), {"url": stripped}
+                )
 
         # Generic URL
         return QrResult(QrType.URL, stripped, _("URL"), {"url": stripped})
@@ -343,7 +368,8 @@ class QrDialog(Adw.Window):
 
         # Status feedback label
         self._status_label = Gtk.Label(
-            label="", xalign=0.5,
+            label="",
+            xalign=0.5,
             css_classes=["dim-label"],
         )
         self._status_label.set_margin_top(4)
@@ -405,72 +431,140 @@ class QrDialog(Adw.Window):
         t = qr.qr_type
 
         if t == QrType.URL or t == QrType.SOCIAL or t == QrType.APP_STORE:
-            self._add_btn(flow, _("Open in Browser"), "web-browser-symbolic",
-                          self._open_url, "suggested-action")
+            self._add_btn(
+                flow,
+                _("Open in Browser"),
+                "web-browser-symbolic",
+                self._open_url,
+                "suggested-action",
+            )
 
         elif t == QrType.PHONE:
-            self._add_btn(flow, _("Copy Number"), "edit-copy-symbolic",
-                          lambda _b: self._copy(qr.details.get("number", "")))
+            self._add_btn(
+                flow,
+                _("Copy Number"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("number", "")),
+            )
 
         elif t == QrType.SMS:
-            self._add_btn(flow, _("Copy Number"), "edit-copy-symbolic",
-                          lambda _b: self._copy(qr.details.get("number", "")))
+            self._add_btn(
+                flow,
+                _("Copy Number"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("number", "")),
+            )
             if qr.details.get("message"):
-                self._add_btn(flow, _("Copy Message"), "edit-copy-symbolic",
-                              lambda _b: self._copy(qr.details.get("message", "")))
-            self._add_btn(flow, _("WhatsApp"), "send-to-symbolic",
-                          self._open_whatsapp)
+                self._add_btn(
+                    flow,
+                    _("Copy Message"),
+                    "edit-copy-symbolic",
+                    lambda _b: self._copy(qr.details.get("message", "")),
+                )
+            self._add_btn(flow, _("WhatsApp"), "send-to-symbolic", self._open_whatsapp)
 
         elif t == QrType.EMAIL:
-            self._add_btn(flow, _("Open E-mail Client"), "mail-send-symbolic",
-                          self._open_url, "suggested-action")
+            self._add_btn(
+                flow,
+                _("Open E-mail Client"),
+                "mail-send-symbolic",
+                self._open_url,
+                "suggested-action",
+            )
 
         elif t == QrType.WIFI:
             if qr.details.get("password"):
-                self._add_btn(flow, _("Copy Password"), "edit-copy-symbolic",
-                              lambda _b: self._copy(qr.details.get("password", "")),
-                              "suggested-action")
+                self._add_btn(
+                    flow,
+                    _("Copy Password"),
+                    "edit-copy-symbolic",
+                    lambda _b: self._copy(qr.details.get("password", "")),
+                    "suggested-action",
+                )
             if qr.details.get("ssid"):
-                self._add_btn(flow, _("Copy SSID"), "edit-copy-symbolic",
-                              lambda _b: self._copy(qr.details.get("ssid", "")))
+                self._add_btn(
+                    flow,
+                    _("Copy SSID"),
+                    "edit-copy-symbolic",
+                    lambda _b: self._copy(qr.details.get("ssid", "")),
+                )
 
         elif t == QrType.GEO:
-            self._add_btn(flow, _("Open in Maps"), "find-location-symbolic",
-                          self._open_geo, "suggested-action")
+            self._add_btn(
+                flow,
+                _("Open in Maps"),
+                "find-location-symbolic",
+                self._open_geo,
+                "suggested-action",
+            )
 
         elif t == QrType.CALENDAR:
-            self._add_btn(flow, _("Save .ics File"), "document-save-symbolic",
-                          self._save_calendar, "suggested-action")
+            self._add_btn(
+                flow,
+                _("Save .ics File"),
+                "document-save-symbolic",
+                self._save_calendar,
+                "suggested-action",
+            )
 
         elif t == QrType.VCARD:
-            self._add_btn(flow, _("Save Contact"), "contact-new-symbolic",
-                          self._save_vcard, "suggested-action")
+            self._add_btn(
+                flow,
+                _("Save Contact"),
+                "contact-new-symbolic",
+                self._save_vcard,
+                "suggested-action",
+            )
 
         elif t == QrType.PAYMENT_PIX:
-            self._add_btn(flow, _("Copy PIX"), "edit-copy-symbolic",
-                          lambda _b: self._copy(qr.details.get("payload", "")),
-                          "suggested-action")
+            self._add_btn(
+                flow,
+                _("Copy PIX"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("payload", "")),
+                "suggested-action",
+            )
 
         elif t == QrType.CRYPTO:
-            self._add_btn(flow, _("Copy Address"), "edit-copy-symbolic",
-                          lambda _b: self._copy(qr.details.get("address", "")),
-                          "suggested-action")
+            self._add_btn(
+                flow,
+                _("Copy Address"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("address", "")),
+                "suggested-action",
+            )
 
         elif t == QrType.TOTP:
-            self._add_btn(flow, _("Copy Secret"), "edit-copy-symbolic",
-                          lambda _b: self._copy(qr.details.get("secret", "")),
-                          "suggested-action")
-            self._add_btn(flow, _("Copy URI"), "edit-copy-symbolic",
-                          lambda _b: self._copy(qr.details.get("uri", "")))
+            self._add_btn(
+                flow,
+                _("Copy Secret"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("secret", "")),
+                "suggested-action",
+            )
+            self._add_btn(
+                flow,
+                _("Copy URI"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("uri", "")),
+            )
 
         # Always add "Copy Raw" and "Save" at the end
-        self._add_btn(flow, _("Copy Raw"), "edit-copy-symbolic",
-                      lambda _b: self._copy(qr.raw))
-        self._add_btn(flow, _("Save to File"), "document-save-symbolic",
-                      self._save_to_file)
+        self._add_btn(
+            flow, _("Copy Raw"), "edit-copy-symbolic", lambda _b: self._copy(qr.raw)
+        )
+        self._add_btn(
+            flow, _("Save to File"), "document-save-symbolic", self._save_to_file
+        )
 
-    def _add_btn(self, flow: Gtk.FlowBox, label: str, icon: str,
-                 callback: Any, css: str | None = None) -> None:
+    def _add_btn(
+        self,
+        flow: Gtk.FlowBox,
+        label: str,
+        icon: str,
+        callback: Any,
+        css: str | None = None,
+    ) -> None:
         btn = Gtk.Button()
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         btn_box.set_halign(Gtk.Align.CENTER)
@@ -487,6 +581,7 @@ class QrDialog(Adw.Window):
     def _make_copy_handler(self, text: str) -> Any:
         def handler(_btn: Gtk.Button) -> None:
             self._copy(text)
+
         return handler
 
     def _copy(self, text: str) -> None:
@@ -510,7 +605,13 @@ class QrDialog(Adw.Window):
 
     def _open_whatsapp(self, _btn: Gtk.Button) -> None:
         from urllib.parse import quote
-        number = self._result.details.get("number", "").lstrip("+").replace("-", "").replace(" ", "")
+
+        number = (
+            self._result.details.get("number", "")
+            .lstrip("+")
+            .replace("-", "")
+            .replace(" ", "")
+        )
         msg = self._result.details.get("message", "")
         url = f"https://wa.me/{number}"
         if msg:
@@ -526,7 +627,7 @@ class QrDialog(Adw.Window):
 
     def _save_vcard(self, _btn: Gtk.Button) -> None:
         name = self._result.details.get("name", "contact")
-        safe_name = re.sub(r'[^\w\-]', '_', name)
+        safe_name = re.sub(r"[^\w\-]", "_", name)
         raw = self._result.raw
         # Convert MECARD to vCard format if needed
         if raw.strip().upper().startswith("MECARD:"):
@@ -552,11 +653,13 @@ class QrDialog(Adw.Window):
 
     def _save_to_file(self, _btn: Gtk.Button) -> None:
         ts = _time.strftime("%Y%m%d_%H%M%S")
-        self._save_with_dialog(f"qrcode_{ts}.txt", self._result.raw,
-                              _("Text Files"), "*.txt")
+        self._save_with_dialog(
+            f"qrcode_{ts}.txt", self._result.raw, _("Text Files"), "*.txt"
+        )
 
-    def _save_with_dialog(self, default_name: str, content: str,
-                          filter_name: str, filter_pattern: str) -> None:
+    def _save_with_dialog(
+        self, default_name: str, content: str, filter_name: str, filter_pattern: str
+    ) -> None:
         dialog = Gtk.FileDialog()
         dialog.set_initial_name(default_name)
 
@@ -574,8 +677,9 @@ class QrDialog(Adw.Window):
 
         dialog.save(self, None, self._on_save_response, content)
 
-    def _on_save_response(self, dialog: Gtk.FileDialog,
-                          result: Gio.AsyncResult, content: str) -> None:
+    def _on_save_response(
+        self, dialog: Gtk.FileDialog, result: Gio.AsyncResult, content: str
+    ) -> None:
         try:
             gfile = dialog.save_finish(result)
             path = gfile.get_path()

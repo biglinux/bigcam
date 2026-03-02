@@ -10,7 +10,6 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gtk
 
 from constants import (
-    APP_ID,
     APP_NAME,
     APP_VERSION,
     APP_ICON,
@@ -33,7 +32,5 @@ def show_about(parent: Gtk.Window) -> None:
     dialog.set_copyright(APP_COPYRIGHT)
     dialog.set_license_type(Gtk.License.GPL_3_0)
     dialog.set_developers(["BigLinux Team"])
-    dialog.set_comments(
-        _("Universal webcam control center for Linux.")
-    )
+    dialog.set_comments(_("Universal webcam control center for Linux."))
     dialog.present(parent)

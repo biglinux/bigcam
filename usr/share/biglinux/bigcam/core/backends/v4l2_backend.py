@@ -121,9 +121,15 @@ class V4L2Backend(CameraBackend):
                 continue
             header = lines[0].rstrip(":")
             # Skip v4l2loopback virtual devices and the proxy ones created by the script
-            if "v4l2loopback" in header.lower() or "loopback" in header.lower() or "(v4l2)" in header.lower():
+            if (
+                "v4l2loopback" in header.lower()
+                or "loopback" in header.lower()
+                or "(v4l2)" in header.lower()
+            ):
                 continue
-            devs = [l.strip() for l in lines[1:] if l.strip().startswith("/dev/video")]
+            devs = [
+                ln.strip() for ln in lines[1:] if ln.strip().startswith("/dev/video")
+            ]
             if not devs:
                 continue
             # Use the first /dev/videoX as primary
@@ -156,39 +162,15 @@ class V4L2Backend(CameraBackend):
             return False
 
     def _get_formats(self, device: str) -> list[VideoFormat]:
-        formats: list[VideoFormat] = []
         try:
             result = subprocess.run(
                 ["v4l2-ctl", "-d", device, "--list-formats-ext"],
                 capture_output=True,
                 text=True,
             )
-            current_fmt = ""
-            current_desc = ""
-            for line in result.stdout.splitlines():
-                fmt_match = re.match(r"\s+\[\d+\]:\s+'(\w+)'\s+\((.+)\)", line)
-                if fmt_match:
-                    current_fmt = fmt_match.group(1)
-                    current_desc = fmt_match.group(2).strip()
-                    continue
-                size_match = re.match(r"\s+Size:\s+\w+\s+(\d+)x(\d+)", line)
-                if size_match and current_fmt:
-                    w, h = int(size_match.group(1)), int(size_match.group(2))
-                    fps_list: list[float] = []
-                    continue
-                fps_match = re.match(r"\s+Interval:.*\((\d+\.?\d*)\s+fps\)", line)
-                if fps_match:
-                    fps_list.append(float(fps_match.group(1)))
-                    # We'll append when the next size/format line appears
-                    # For now, accumulate
-                elif line.strip() == "" or re.match(r"\s+(Size|\[\d)", line):
-                    pass
-
-            # Re-parse more robustly
-            formats = self._parse_formats_ext(result.stdout)
+            return self._parse_formats_ext(result.stdout)
         except Exception:
-            pass
-        return formats
+            return []
 
     def _parse_formats_ext(self, output: str) -> list[VideoFormat]:
         formats: list[VideoFormat] = []
@@ -203,11 +185,15 @@ class V4L2Backend(CameraBackend):
             if fmt_match:
                 # Save previous if pending
                 if current_fmt and current_w and fps_list:
-                    formats.append(VideoFormat(
-                        width=current_w, height=current_h,
-                        fps=list(fps_list), pixel_format=current_fmt,
-                        description=current_desc,
-                    ))
+                    formats.append(
+                        VideoFormat(
+                            width=current_w,
+                            height=current_h,
+                            fps=list(fps_list),
+                            pixel_format=current_fmt,
+                            description=current_desc,
+                        )
+                    )
                 current_fmt = fmt_match.group(1)
                 current_desc = fmt_match.group(2).strip()
                 current_w = current_h = 0
@@ -218,11 +204,15 @@ class V4L2Backend(CameraBackend):
             if size_match:
                 # Save previous size if pending
                 if current_fmt and current_w and fps_list:
-                    formats.append(VideoFormat(
-                        width=current_w, height=current_h,
-                        fps=list(fps_list), pixel_format=current_fmt,
-                        description=current_desc,
-                    ))
+                    formats.append(
+                        VideoFormat(
+                            width=current_w,
+                            height=current_h,
+                            fps=list(fps_list),
+                            pixel_format=current_fmt,
+                            description=current_desc,
+                        )
+                    )
                 current_w = int(size_match.group(1))
                 current_h = int(size_match.group(2))
                 fps_list = []
@@ -234,11 +224,15 @@ class V4L2Backend(CameraBackend):
 
         # Flush last
         if current_fmt and current_w and fps_list:
-            formats.append(VideoFormat(
-                width=current_w, height=current_h,
-                fps=list(fps_list), pixel_format=current_fmt,
-                description=current_desc,
-            ))
+            formats.append(
+                VideoFormat(
+                    width=current_w,
+                    height=current_h,
+                    fps=list(fps_list),
+                    pixel_format=current_fmt,
+                    description=current_desc,
+                )
+            )
         return formats
 
     # -- controls ------------------------------------------------------------
@@ -305,7 +299,9 @@ class V4L2Backend(CameraBackend):
             # Menu entry:  "                1: Manual Mode"
             menu_match = re.match(r"\s+(\d+):\s+(.+)", line)
             if menu_match and last_ctrl_id:
-                menu_items.setdefault(last_ctrl_id, []).append(menu_match.group(2).strip())
+                menu_items.setdefault(last_ctrl_id, []).append(
+                    menu_match.group(2).strip()
+                )
 
         # Attach menu choices
         for ctrl in controls:
@@ -327,7 +323,13 @@ class V4L2Backend(CameraBackend):
     def set_control(self, camera: CameraInfo, control_id: str, value: Any) -> bool:
         try:
             subprocess.run(
-                ["v4l2-ctl", "-d", camera.device_path, "--set-ctrl", f"{control_id}={value}"],
+                [
+                    "v4l2-ctl",
+                    "-d",
+                    camera.device_path,
+                    "--set-ctrl",
+                    f"{control_id}={value}",
+                ],
                 capture_output=True,
                 check=True,
             )
@@ -348,7 +350,9 @@ class V4L2Backend(CameraBackend):
         # Fallback: direct V4L2 (exclusive access)
         return self._v4l2_gst_source(device, camera, fmt)
 
-    def _pw_gst_source(self, node_id: int, camera: CameraInfo, fmt: VideoFormat | None) -> str:
+    def _pw_gst_source(
+        self, node_id: int, camera: CameraInfo, fmt: VideoFormat | None
+    ) -> str:
         """Build pipewiresrc element — PipeWire allows multi-app camera sharing."""
         src = f"pipewiresrc target-object={node_id}"
         if fmt is None:
@@ -367,7 +371,9 @@ class V4L2Backend(CameraBackend):
             return f"{src} ! {caps}"
         return src
 
-    def _v4l2_gst_source(self, device: str, camera: CameraInfo, fmt: VideoFormat | None) -> str:
+    def _v4l2_gst_source(
+        self, device: str, camera: CameraInfo, fmt: VideoFormat | None
+    ) -> str:
         """Build v4l2src element — exclusive device access."""
         src = f"v4l2src device={device}"
         if fmt is None:
@@ -410,9 +416,7 @@ class V4L2Backend(CameraBackend):
                 ):
                     node_id = obj.get("id")
                     if node_id is not None:
-                        log.info(
-                            "PipeWire node %d found for %s", node_id, device_path
-                        )
+                        log.info("PipeWire node %d found for %s", node_id, device_path)
                         return int(node_id)
         except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError):
             pass
@@ -422,13 +426,23 @@ class V4L2Backend(CameraBackend):
         """Auto-select format: prefer MJPEG at highest resolution with 30fps."""
         if not camera.formats:
             return None
-        mjpeg = [f for f in camera.formats if f.pixel_format == "MJPG" and f.fps and max(f.fps) >= 25]
-        raw = [f for f in camera.formats if f.pixel_format != "MJPG" and f.fps and max(f.fps) >= 25]
+        mjpeg = [
+            f
+            for f in camera.formats
+            if f.pixel_format == "MJPG" and f.fps and max(f.fps) >= 25
+        ]
+        raw = [
+            f
+            for f in camera.formats
+            if f.pixel_format != "MJPG" and f.fps and max(f.fps) >= 25
+        ]
         # Prefer MJPEG for higher resolutions (lower USB bandwidth)
         candidates = mjpeg if mjpeg else raw
         if not candidates:
             candidates = camera.formats
-        candidates.sort(key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True)
+        candidates.sort(
+            key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
+        )
         return candidates[0]
 
     # -- photo ---------------------------------------------------------------
@@ -441,10 +455,16 @@ class V4L2Backend(CameraBackend):
         try:
             subprocess.run(
                 [
-                    "ffmpeg", "-y", "-f", "v4l2",
-                    "-i", camera.device_path,
-                    "-frames:v", "1",
-                    "-q:v", "2",
+                    "ffmpeg",
+                    "-y",
+                    "-f",
+                    "v4l2",
+                    "-i",
+                    camera.device_path,
+                    "-frames:v",
+                    "1",
+                    "-q:v",
+                    "2",
                     output_path,
                 ],
                 capture_output=True,

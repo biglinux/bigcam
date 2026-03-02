@@ -61,9 +61,7 @@ class IPCameraDialog(Adw.Dialog):
         add_btn.add_css_class("suggested-action")
         add_btn.add_css_class("pill")
         add_btn.set_halign(Gtk.Align.CENTER)
-        add_btn.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Add IP camera")]
-        )
+        add_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Add IP camera")])
         add_btn.connect("clicked", self._on_add)
         content.append(add_btn)
 

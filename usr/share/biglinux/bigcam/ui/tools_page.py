@@ -2,17 +2,20 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import time as _time
 import threading
-from typing import Any, Callable
+from typing import Any
+
+log = logging.getLogger(__name__)
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, Gdk, GObject
+from gi.repository import Adw, Gtk, GLib, GObject
 
 from utils.i18n import _
 from ui.qr_dialog import parse_qr, QrDialog
@@ -20,6 +23,7 @@ from ui.qr_dialog import parse_qr, QrDialog
 try:
     import cv2
     import numpy as np
+
     _HAS_CV2 = True
 except ImportError:
     _HAS_CV2 = False
@@ -112,7 +116,8 @@ class ToolsPage(Gtk.ScrolledWindow):
 
         # Status label
         self._smile_status = Gtk.Label(
-            label="", xalign=0.5,
+            label="",
+            xalign=0.5,
             css_classes=["dim-label"],
         )
         self._smile_status.set_margin_top(4)
@@ -122,7 +127,7 @@ class ToolsPage(Gtk.ScrolledWindow):
 
     def _on_qr_toggled(self, row: Adw.SwitchRow, _pspec: Any) -> None:
         self._qr_active = row.get_active()
-        print(f"[DEBUG] QR toggle: active={self._qr_active}")
+        log.debug(f"QR toggle: active={self._qr_active}")
         if self._qr_active:
             self._init_qr_detector()
             self._qr_timer_id = GLib.timeout_add(300, self._scan_qr)
@@ -139,10 +144,10 @@ class ToolsPage(Gtk.ScrolledWindow):
             return
         try:
             self._wechat_qr = cv2.wechat_qrcode.WeChatQRCode()
-            print("[DEBUG] Using WeChatQRCode detector")
+            log.debug("Using WeChatQRCode detector")
         except Exception:
             self._qr_detector = cv2.QRCodeDetector()
-            print("[DEBUG] Using basic QRCodeDetector")
+            log.debug("Using basic QRCodeDetector")
 
     def _try_detect_qr(self, img):
         """Try QR detection on a single image, return (data, points) or ("", None)."""
@@ -168,8 +173,10 @@ class ToolsPage(Gtk.ScrolledWindow):
             return True
         self._qr_scanning = True
         frame_copy = frame.copy()
-        print(f"[DEBUG] QR scan starting, frame shape: {frame_copy.shape}")
-        threading.Thread(target=self._scan_qr_worker, args=(frame_copy,), daemon=True).start()
+        log.debug(f"QR scan starting, frame shape: {frame_copy.shape}")
+        threading.Thread(
+            target=self._scan_qr_worker, args=(frame_copy,), daemon=True
+        ).start()
         return True
 
     def _scan_qr_worker(self, frame) -> None:
@@ -177,7 +184,7 @@ class ToolsPage(Gtk.ScrolledWindow):
         try:
             # Try original frame first
             data, points = self._try_detect_qr(frame)
-            print(f"[DEBUG] QR worker: original result='{data[:30] if data else ''}'")
+            log.debug(f"QR worker: original result='{data[:30] if data else ''}'")
 
             # If not found, try enhanced variants for low-quality cameras
             if not data:
@@ -193,8 +200,12 @@ class ToolsPage(Gtk.ScrolledWindow):
             if not data:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 thresh = cv2.adaptiveThreshold(
-                    gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                    cv2.THRESH_BINARY, 51, 10,
+                    gray,
+                    255,
+                    cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                    cv2.THRESH_BINARY,
+                    51,
+                    10,
                 )
                 data, points = self._try_detect_qr(thresh)
 
@@ -217,7 +228,7 @@ class ToolsPage(Gtk.ScrolledWindow):
         self._qr_scanning = False
         self._engine.set_overlay_rects(rects)
         if rects:
-            print(f"[DEBUG] QR overlay rects: {rects}")
+            log.debug(f"QR overlay rects: {rects}")
         if data and data != self._last_qr_text:
             self._last_qr_text = data
             self.emit("qr-detected", data)
@@ -272,19 +283,21 @@ class ToolsPage(Gtk.ScrolledWindow):
             if len(faces) == 0:
                 return True
             sensitivity = int(self._sensitivity_scale.get_value())
-            for (x, y, fw, fh) in faces:
-                roi_gray = gray[y:y + fh, x:x + fw]
+            for x, y, fw, fh in faces:
+                roi_gray = gray[y : y + fh, x : x + fw]
                 # Look for smiles in the lower half of the face
-                lower_half = roi_gray[fh // 2:, :]
+                lower_half = roi_gray[fh // 2 :, :]
                 smiles = self._smile_cascade.detectMultiScale(
-                    lower_half, scaleFactor=1.7, minNeighbors=sensitivity,
-                    minSize=(25, 15)
+                    lower_half,
+                    scaleFactor=1.7,
+                    minNeighbors=sensitivity,
+                    minSize=(25, 15),
                 )
                 if len(smiles) > 0:
                     GLib.idle_add(self._trigger_smile_capture)
                     return True
         except Exception:
-            pass
+            log.debug("Smile detection error", exc_info=True)
         return True
 
     def _trigger_smile_capture(self) -> bool:
@@ -295,6 +308,7 @@ class ToolsPage(Gtk.ScrolledWindow):
 
         # Capture photo
         from utils import xdg
+
         timestamp = _time.strftime("%Y%m%d_%H%M%S")
         output_dir = xdg.photos_dir()
         os.makedirs(output_dir, exist_ok=True)

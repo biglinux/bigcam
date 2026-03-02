@@ -319,6 +319,7 @@ class PhoneCameraServer(GObject.Object):
         self._running = False
 
         if self._loop and self._loop.is_running():
+
             async def _shutdown() -> None:
                 for ws in list(self._ws_clients):
                     await ws.close()
@@ -330,7 +331,7 @@ class PhoneCameraServer(GObject.Object):
             try:
                 fut.result(timeout=5)
             except Exception:
-                pass
+                log.debug("Phone camera shutdown timed out", exc_info=True)
             self._loop.call_soon_threadsafe(self._loop.stop)
 
         if self._thread:
@@ -358,9 +359,7 @@ class PhoneCameraServer(GObject.Object):
 
         self._runner = web.AppRunner(app)
         await self._runner.setup()
-        site = web.TCPSite(
-            self._runner, "0.0.0.0", self._port, ssl_context=ssl_ctx
-        )
+        site = web.TCPSite(self._runner, "0.0.0.0", self._port, ssl_context=ssl_ctx)
         await site.start()
         log.info("Phone camera server listening on port %d", self._port)
 
@@ -429,9 +428,7 @@ class PhoneCameraServer(GObject.Object):
                     if first_frame or (w != self._width or h != self._height):
                         self._width, self._height = w, h
                         GLib.idle_add(self.emit, "connected", w, h)
-                        GLib.idle_add(
-                            self.emit, "status-changed", "connected"
-                        )
+                        GLib.idle_add(self.emit, "status-changed", "connected")
                         first_frame = False
 
                     cb = self._frame_callback
@@ -479,10 +476,20 @@ def _ensure_cert() -> None:
     os.makedirs(_CERT_DIR, exist_ok=True)
     subprocess.run(
         [
-            "openssl", "req", "-x509", "-newkey", "rsa:2048",
-            "-keyout", _KEY_FILE, "-out", _CERT_FILE,
-            "-days", "365", "-nodes",
-            "-subj", "/CN=BigCam Phone Camera",
+            "openssl",
+            "req",
+            "-x509",
+            "-newkey",
+            "rsa:2048",
+            "-keyout",
+            _KEY_FILE,
+            "-out",
+            _CERT_FILE,
+            "-days",
+            "365",
+            "-nodes",
+            "-subj",
+            "/CN=BigCam Phone Camera",
         ],
         check=True,
         capture_output=True,

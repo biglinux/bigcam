@@ -46,6 +46,10 @@ class VirtualCameraPage(Gtk.Box):
         self._status_dot.set_valign(Gtk.Align.CENTER)
         self._dot_color = (0.6, 0.6, 0.6)  # gray default
         self._status_dot.set_draw_func(self._draw_dot)
+        self._status_dot.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Virtual camera status")],
+        )
         self._status_expander.add_prefix(self._status_dot)
 
         # Sub-rows inside expander

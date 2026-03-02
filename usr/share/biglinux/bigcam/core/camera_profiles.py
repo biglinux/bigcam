@@ -32,7 +32,9 @@ def list_profiles(camera: CameraInfo) -> list[str]:
     return names
 
 
-def save_profile(camera: CameraInfo, profile_name: str, controls: list[CameraControl]) -> str:
+def save_profile(
+    camera: CameraInfo, profile_name: str, controls: list[CameraControl]
+) -> str:
     """Persist current control values. Returns the file path."""
     path = _profile_path(camera, profile_name)
     data = {c.id: c.value for c in controls}

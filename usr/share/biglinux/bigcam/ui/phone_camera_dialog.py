@@ -11,7 +11,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject, GdkPixbuf
+from gi.repository import Adw, Gtk, GObject, GdkPixbuf
 
 from core.phone_camera import PhoneCameraServer
 from utils.i18n import _
@@ -64,6 +64,10 @@ class PhoneCameraDialog(Adw.Dialog):
         self._qr_picture.set_size_request(220, 220)
         self._qr_picture.set_halign(Gtk.Align.CENTER)
         self._qr_picture.set_content_fit(Gtk.ContentFit.CONTAIN)
+        self._qr_picture.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("QR Code for phone camera connection")],
+        )
         self._qr_frame.set_child(self._qr_picture)
         content.append(self._qr_frame)
 
@@ -87,6 +91,10 @@ class PhoneCameraDialog(Adw.Dialog):
         self._status_dot.set_valign(Gtk.Align.CENTER)
         self._dot_color = (0.6, 0.6, 0.6)  # gray = idle
         self._status_dot.set_draw_func(self._draw_dot)
+        self._status_dot.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Phone camera status: Idle")],
+        )
         self._status_row.add_prefix(self._status_dot)
         self._status_row.set_subtitle(_("Idle"))
         status_group.add(self._status_row)
@@ -143,9 +151,7 @@ class PhoneCameraDialog(Adw.Dialog):
         self.set_child(page)
 
         # Connect server signals
-        self._sig_ids.append(
-            self._server.connect("connected", self._on_connected)
-        )
+        self._sig_ids.append(self._server.connect("connected", self._on_connected))
         self._sig_ids.append(
             self._server.connect("disconnected", self._on_disconnected)
         )
@@ -161,9 +167,7 @@ class PhoneCameraDialog(Adw.Dialog):
 
     # -- drawing -------------------------------------------------------------
 
-    def _draw_dot(
-        self, _area: Gtk.DrawingArea, cr: Any, w: int, h: int
-    ) -> None:
+    def _draw_dot(self, _area: Gtk.DrawingArea, cr: Any, w: int, h: int) -> None:
         r, g, b = self._dot_color
         cr.set_source_rgb(r, g, b)
         cr.arc(w / 2, h / 2, min(w, h) / 2, 0, 6.2832)
@@ -205,12 +209,24 @@ class PhoneCameraDialog(Adw.Dialog):
         if status == "listening":
             self._set_dot_color(1.0, 0.76, 0.03)  # yellow
             self._status_row.set_subtitle(_("Waiting for connection..."))
+            self._status_dot.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [_("Phone camera status: Waiting for connection")],
+            )
         elif status == "connected":
             self._set_dot_color(0.2, 0.78, 0.35)
             self._status_row.set_subtitle(_("Connected"))
+            self._status_dot.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [_("Phone camera status: Connected")],
+            )
         elif status in ("disconnected", "stopped"):
             self._set_dot_color(0.6, 0.6, 0.6)
             self._status_row.set_subtitle(_("Idle"))
+            self._status_dot.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [_("Phone camera status: Idle")],
+            )
 
     def _on_dialog_closed(self, _dialog: Adw.Dialog) -> None:
         for sid in self._sig_ids:
@@ -231,7 +247,9 @@ class PhoneCameraDialog(Adw.Dialog):
     def _generate_qr(self, url: str) -> None:
         if not _HAS_QR:
             log.warning("python-qrcode not installed, cannot generate QR code")
-            self._url_label.set_label(url + "\n" + _("(install python-qrcode for QR code)"))
+            self._url_label.set_label(
+                url + "\n" + _("(install python-qrcode for QR code)")
+            )
             return
 
         qr_img = qrcode.make(url, border=2)
