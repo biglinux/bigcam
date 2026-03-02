@@ -1,0 +1,1395 @@
+F401 [*] `re` imported but unused
+ --> usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:7:8
+  |
+5 | import logging
+6 | import os
+7 | import re
+  |        ^^
+8 | import signal
+9 | import subprocess
+  |
+help: Remove unused import: `re`
+
+E741 Ambiguous variable name: `l`
+   --> usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:137:36
+    |
+135 |                 capture_output=True, text=True, timeout=10,
+136 |             )
+137 |             lines = [l.strip() for l in result.stdout.strip().splitlines()[2:] if l.strip()]
+    |                                    ^
+138 |             print(f"[DEBUG] USB diag auto-detect: {lines}")
+    |
+
+E741 Ambiguous variable name: `l`
+   --> usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:145:33
+    |
+143 |                 capture_output=True, text=True, timeout=5,
+144 |             )
+145 |             usb_errors = [l for l in result.stdout.splitlines()[-50:]
+    |                                 ^
+146 |                          if f"usb {bus.lstrip('0') or '0'}-" in l.lower()
+147 |                          or "error" in l.lower() and "usb" in l.lower()]
+    |
+
+F401 [*] `constants.ControlCategory` imported but unused
+  --> usr/share/biglinux/bigcam/core/backends/ip_backend.py:8:36
+   |
+ 6 | from typing import Any
+ 7 |
+ 8 | from constants import BackendType, ControlCategory, ControlType
+   |                                    ^^^^^^^^^^^^^^^
+ 9 | from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+10 | from utils.i18n import _
+   |
+help: Remove unused import
+
+F401 [*] `constants.ControlType` imported but unused
+  --> usr/share/biglinux/bigcam/core/backends/ip_backend.py:8:53
+   |
+ 6 | from typing import Any
+ 7 |
+ 8 | from constants import BackendType, ControlCategory, ControlType
+   |                                                     ^^^^^^^^^^^
+ 9 | from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+10 | from utils.i18n import _
+   |
+help: Remove unused import
+
+F401 [*] `utils.i18n._` imported but unused
+  --> usr/share/biglinux/bigcam/core/backends/ip_backend.py:10:24
+   |
+ 8 | from constants import BackendType, ControlCategory, ControlType
+ 9 | from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+10 | from utils.i18n import _
+   |                        ^
+   |
+help: Remove unused import: `utils.i18n._`
+
+F401 [*] `json` imported but unused
+ --> usr/share/biglinux/bigcam/core/backends/pipewire_backend.py:5:8
+  |
+3 | from __future__ import annotations
+4 |
+5 | import json
+  |        ^^^^
+6 | import re
+7 | import subprocess
+  |
+help: Remove unused import: `json`
+
+F401 [*] `constants.ControlCategory` imported but unused
+  --> usr/share/biglinux/bigcam/core/backends/pipewire_backend.py:10:36
+   |
+ 8 | from typing import Any
+ 9 |
+10 | from constants import BackendType, ControlCategory, ControlType
+   |                                    ^^^^^^^^^^^^^^^
+11 | from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+12 | from utils.i18n import _
+   |
+help: Remove unused import
+
+F401 [*] `constants.ControlType` imported but unused
+  --> usr/share/biglinux/bigcam/core/backends/pipewire_backend.py:10:53
+   |
+ 8 | from typing import Any
+ 9 |
+10 | from constants import BackendType, ControlCategory, ControlType
+   |                                                     ^^^^^^^^^^^
+11 | from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+12 | from utils.i18n import _
+   |
+help: Remove unused import
+
+F401 [*] `utils.i18n._` imported but unused
+  --> usr/share/biglinux/bigcam/core/backends/pipewire_backend.py:12:24
+   |
+10 | from constants import BackendType, ControlCategory, ControlType
+11 | from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+12 | from utils.i18n import _
+   |                        ^
+   |
+help: Remove unused import: `utils.i18n._`
+
+E741 Ambiguous variable name: `l`
+   --> usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:126:35
+    |
+124 |             if "v4l2loopback" in header.lower() or "loopback" in header.lower() or "(v4l2)" in header.lower():
+125 |                 continue
+126 |             devs = [l.strip() for l in lines[1:] if l.strip().startswith("/dev/video")]
+    |                                   ^
+127 |             if not devs:
+128 |                 continue
+    |
+
+F841 Local variable `current_desc` is assigned to but never used
+   --> usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:172:21
+    |
+170 |                 if fmt_match:
+171 |                     current_fmt = fmt_match.group(1)
+172 |                     current_desc = fmt_match.group(2).strip()
+    |                     ^^^^^^^^^^^^
+173 |                     continue
+174 |                 size_match = re.match(r"\s+Size:\s+\w+\s+(\d+)x(\d+)", line)
+    |
+help: Remove assignment to unused variable `current_desc`
+
+F841 Local variable `w` is assigned to but never used
+   --> usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:176:21
+    |
+174 |                 size_match = re.match(r"\s+Size:\s+\w+\s+(\d+)x(\d+)", line)
+175 |                 if size_match and current_fmt:
+176 |                     w, h = int(size_match.group(1)), int(size_match.group(2))
+    |                     ^
+177 |                     fps_list: list[float] = []
+178 |                     continue
+    |
+help: Remove assignment to unused variable `w`
+
+F841 Local variable `h` is assigned to but never used
+   --> usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:176:24
+    |
+174 |                 size_match = re.match(r"\s+Size:\s+\w+\s+(\d+)x(\d+)", line)
+175 |                 if size_match and current_fmt:
+176 |                     w, h = int(size_match.group(1)), int(size_match.group(2))
+    |                        ^
+177 |                     fps_list: list[float] = []
+178 |                     continue
+    |
+help: Remove assignment to unused variable `h`
+
+F401 [*] `json` imported but unused
+ --> usr/share/biglinux/bigcam/core/camera_manager.py:5:8
+  |
+3 | from __future__ import annotations
+4 |
+5 | import json
+  |        ^^^^
+6 | import subprocess
+7 | import threading
+  |
+help: Remove unused import: `json`
+
+F401 [*] `typing.Callable` imported but unused
+  --> usr/share/biglinux/bigcam/core/camera_manager.py:8:25
+   |
+ 6 | import subprocess
+ 7 | import threading
+ 8 | from typing import Any, Callable
+   |                         ^^^^^^^^
+ 9 |
+10 | from gi.repository import GLib, GObject
+   |
+help: Remove unused import: `typing.Callable`
+
+F401 [*] `utils.i18n._` imported but unused
+  --> usr/share/biglinux/bigcam/core/camera_manager.py:19:24
+   |
+17 | from core.backends.pipewire_backend import PipeWireBackend
+18 | from core.backends.ip_backend import IPBackend
+19 | from utils.i18n import _
+   |                        ^
+   |
+help: Remove unused import: `utils.i18n._`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/phone_camera.py:19:1
+   |
+17 | gi.require_version("GLib", "2.0")
+18 |
+19 | from gi.repository import GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |
+21 | log = logging.getLogger(__name__)
+   |
+
+F401 [*] `constants.BackendType` imported but unused
+  --> usr/share/biglinux/bigcam/core/photo_capture.py:8:23
+   |
+ 6 | import time
+ 7 |
+ 8 | from constants import BackendType
+   |                       ^^^^^^^^^^^
+ 9 | from core.camera_backend import CameraInfo
+10 | from core.camera_manager import CameraManager
+   |
+help: Remove unused import: `constants.BackendType`
+
+F401 [*] `utils.i18n._` imported but unused
+  --> usr/share/biglinux/bigcam/core/photo_capture.py:12:24
+   |
+10 | from core.camera_manager import CameraManager
+11 | from utils import xdg
+12 | from utils.i18n import _
+   |                        ^
+   |
+help: Remove unused import: `utils.i18n._`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:16:1
+   |
+14 | gi.require_version("Gdk", "4.0")
+15 |
+16 | from gi.repository import Gst, GstVideo, Gdk, GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 |
+18 | from constants import BackendType
+   |
+
+F401 [*] `gi.repository.GstVideo` imported but unused
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:16:32
+   |
+14 | gi.require_version("Gdk", "4.0")
+15 |
+16 | from gi.repository import Gst, GstVideo, Gdk, GLib, GObject
+   |                                ^^^^^^^^
+17 |
+18 | from constants import BackendType
+   |
+help: Remove unused import: `gi.repository.GstVideo`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:18:1
+   |
+16 | from gi.repository import Gst, GstVideo, Gdk, GLib, GObject
+17 |
+18 | from constants import BackendType
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 | from core.camera_backend import CameraInfo, VideoFormat
+20 | from core.camera_manager import CameraManager
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:19:1
+   |
+18 | from constants import BackendType
+19 | from core.camera_backend import CameraInfo, VideoFormat
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 | from core.camera_manager import CameraManager
+21 | from core.effects import EffectPipeline
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:20:1
+   |
+18 | from constants import BackendType
+19 | from core.camera_backend import CameraInfo, VideoFormat
+20 | from core.camera_manager import CameraManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+21 | from core.effects import EffectPipeline
+22 | from core.virtual_camera import VirtualCamera
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:21:1
+   |
+19 | from core.camera_backend import CameraInfo, VideoFormat
+20 | from core.camera_manager import CameraManager
+21 | from core.effects import EffectPipeline
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 | from core.virtual_camera import VirtualCamera
+23 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:22:1
+   |
+20 | from core.camera_manager import CameraManager
+21 | from core.effects import EffectPipeline
+22 | from core.virtual_camera import VirtualCamera
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+23 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/stream_engine.py:23:1
+   |
+21 | from core.effects import EffectPipeline
+22 | from core.virtual_camera import VirtualCamera
+23 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+24 |
+25 | Gst.init(None)
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:13:1
+   |
+11 | gi.require_version("Gst", "1.0")
+12 |
+13 | from gi.repository import Gst, GLib
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |
+15 | from core.camera_backend import CameraInfo
+   |
+
+F401 [*] `gi.repository.GLib` imported but unused
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:13:32
+   |
+11 | gi.require_version("Gst", "1.0")
+12 |
+13 | from gi.repository import Gst, GLib
+   |                                ^^^^
+14 |
+15 | from core.camera_backend import CameraInfo
+   |
+help: Remove unused import: `gi.repository.GLib`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:15:1
+   |
+13 | from gi.repository import Gst, GLib
+14 |
+15 | from core.camera_backend import CameraInfo
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 | from core.camera_manager import CameraManager
+17 | from utils import xdg
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:16:1
+   |
+15 | from core.camera_backend import CameraInfo
+16 | from core.camera_manager import CameraManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 | from utils import xdg
+18 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:17:1
+   |
+15 | from core.camera_backend import CameraInfo
+16 | from core.camera_manager import CameraManager
+17 | from utils import xdg
+   | ^^^^^^^^^^^^^^^^^^^^^
+18 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:18:1
+   |
+16 | from core.camera_manager import CameraManager
+17 | from utils import xdg
+18 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+19 |
+20 | log = logging.getLogger(__name__)
+   |
+
+F401 [*] `utils.i18n._` imported but unused
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:18:24
+   |
+16 | from core.camera_manager import CameraManager
+17 | from utils import xdg
+18 | from utils.i18n import _
+   |                        ^
+19 |
+20 | log = logging.getLogger(__name__)
+   |
+help: Remove unused import: `utils.i18n._`
+
+F821 Undefined name `Any`
+  --> usr/share/biglinux/bigcam/core/video_recorder.py:41:26
+   |
+39 |         self._pipeline: Gst.Pipeline | None = None
+40 |         # OpenCV fallback for phone camera
+41 |         self._cv_writer: Any = None
+   |                          ^^^
+42 |         self._cv_mode = False
+43 |         self._cv_first_frame = True
+   |
+
+F401 [*] `re` imported but unused
+ --> usr/share/biglinux/bigcam/core/virtual_camera.py:6:8
+  |
+5 | import os
+6 | import re
+  |        ^^
+7 | import subprocess
+  |
+help: Remove unused import: `re`
+
+F401 [*] `utils.i18n._` imported but unused
+ --> usr/share/biglinux/bigcam/core/virtual_camera.py:9:24
+  |
+7 | import subprocess
+8 |
+9 | from utils.i18n import _
+  |                        ^
+  |
+help: Remove unused import: `utils.i18n._`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/main.py:19:1
+   |
+17 | gi.require_version("Gst", "1.0")
+18 |
+19 | from gi.repository import Adw, Gio, GLib, Gst
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 |
+21 | from constants import APP_ID, APP_NAME, APP_ICON
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/main.py:21:1
+   |
+19 | from gi.repository import Adw, Gio, GLib, Gst
+20 |
+21 | from constants import APP_ID, APP_NAME, APP_ICON
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 | from ui.window import BigDigicamWindow
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/main.py:22:1
+   |
+21 | from constants import APP_ID, APP_NAME, APP_ICON
+22 | from ui.window import BigDigicamWindow
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+23 |
+24 | Gst.init(None)
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/about_dialog.py:10:1
+   |
+ 8 | gi.require_version("Gtk", "4.0")
+ 9 |
+10 | from gi.repository import Adw, Gtk
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |
+12 | from constants import (
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/about_dialog.py:12:1
+   |
+10 |   from gi.repository import Adw, Gtk
+11 |
+12 | / from constants import (
+13 | |     APP_ID,
+14 | |     APP_NAME,
+15 | |     APP_VERSION,
+16 | |     APP_ICON,
+17 | |     APP_WEBSITE,
+18 | |     APP_ISSUE_URL,
+19 | |     APP_COPYRIGHT,
+20 | | )
+   | |_^
+21 |   from utils.i18n import _
+   |
+
+F401 [*] `constants.APP_ID` imported but unused
+  --> usr/share/biglinux/bigcam/ui/about_dialog.py:13:5
+   |
+12 | from constants import (
+13 |     APP_ID,
+   |     ^^^^^^
+14 |     APP_NAME,
+15 |     APP_VERSION,
+   |
+help: Remove unused import: `constants.APP_ID`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/about_dialog.py:21:1
+   |
+19 |     APP_COPYRIGHT,
+20 | )
+21 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_controls_page.py:13:1
+   |
+11 | gi.require_version("Adw", "1")
+12 |
+13 | from gi.repository import Adw, Gtk, GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |
+15 | from constants import ControlCategory, ControlType
+   |
+
+F401 [*] `gi.repository.GObject` imported but unused
+  --> usr/share/biglinux/bigcam/ui/camera_controls_page.py:13:43
+   |
+11 | gi.require_version("Adw", "1")
+12 |
+13 | from gi.repository import Adw, Gtk, GLib, GObject
+   |                                           ^^^^^^^
+14 |
+15 | from constants import ControlCategory, ControlType
+   |
+help: Remove unused import: `gi.repository.GObject`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_controls_page.py:15:1
+   |
+13 | from gi.repository import Adw, Gtk, GLib, GObject
+14 |
+15 | from constants import ControlCategory, ControlType
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 | from core.camera_backend import CameraControl, CameraInfo
+17 | from core.camera_manager import CameraManager
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_controls_page.py:16:1
+   |
+15 | from constants import ControlCategory, ControlType
+16 | from core.camera_backend import CameraControl, CameraInfo
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 | from core.camera_manager import CameraManager
+18 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_controls_page.py:17:1
+   |
+15 | from constants import ControlCategory, ControlType
+16 | from core.camera_backend import CameraControl, CameraInfo
+17 | from core.camera_manager import CameraManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_controls_page.py:18:1
+   |
+16 | from core.camera_backend import CameraControl, CameraInfo
+17 | from core.camera_manager import CameraManager
+18 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+19 |
+20 | _CATEGORY_LABELS = {
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:10:1
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, Gio, GObject, GLib
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |
+12 | from constants import BackendType
+   |
+
+F401 [*] `gi.repository.Adw` imported but unused
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:10:27
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, Gio, GObject, GLib
+   |                           ^^^
+11 |
+12 | from constants import BackendType
+   |
+help: Remove unused import
+
+F401 [*] `gi.repository.GLib` imported but unused
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:10:51
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, Gio, GObject, GLib
+   |                                                   ^^^^
+11 |
+12 | from constants import BackendType
+   |
+help: Remove unused import
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:12:1
+   |
+10 | from gi.repository import Adw, Gtk, Gio, GObject, GLib
+11 |
+12 | from constants import BackendType
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 | from core.camera_backend import CameraInfo
+14 | from core.camera_manager import CameraManager
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:13:1
+   |
+12 | from constants import BackendType
+13 | from core.camera_backend import CameraInfo
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 | from core.camera_manager import CameraManager
+15 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:14:1
+   |
+12 | from constants import BackendType
+13 | from core.camera_backend import CameraInfo
+14 | from core.camera_manager import CameraManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/camera_selector.py:15:1
+   |
+13 | from core.camera_backend import CameraInfo
+14 | from core.camera_manager import CameraManager
+15 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+16 |
+17 | _BACKEND_ICONS = {
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/effects_page.py:12:1
+   |
+10 | gi.require_version("Adw", "1")
+11 |
+12 | from gi.repository import Adw, Gtk, GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |
+14 | from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/effects_page.py:14:1
+   |
+12 | from gi.repository import Adw, Gtk, GLib, GObject
+13 |
+14 | from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/effects_page.py:15:1
+   |
+14 | from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam
+15 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:10:1
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |
+12 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:12:1
+   |
+10 | from gi.repository import Adw, Gtk, GObject
+11 |
+12 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/notification.py:10:1
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, GLib
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |
+12 | from utils.i18n import _
+   |
+
+F401 [*] `gi.repository.Adw` imported but unused
+  --> usr/share/biglinux/bigcam/ui/notification.py:10:27
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, GLib
+   |                           ^^^
+11 |
+12 | from utils.i18n import _
+   |
+help: Remove unused import: `gi.repository.Adw`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/notification.py:12:1
+   |
+10 | from gi.repository import Adw, Gtk, GLib
+11 |
+12 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+13 |
+14 | # CSS classes matching Adwaita semantic colours
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:14:1
+   |
+12 | gi.require_version("Adw", "1")
+13 |
+14 | from gi.repository import Adw, Gtk, GLib, GObject, GdkPixbuf
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 |
+16 | from core.phone_camera import PhoneCameraServer
+   |
+
+F401 [*] `gi.repository.GLib` imported but unused
+  --> usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:14:37
+   |
+12 | gi.require_version("Adw", "1")
+13 |
+14 | from gi.repository import Adw, Gtk, GLib, GObject, GdkPixbuf
+   |                                     ^^^^
+15 |
+16 | from core.phone_camera import PhoneCameraServer
+   |
+help: Remove unused import: `gi.repository.GLib`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:16:1
+   |
+14 | from gi.repository import Adw, Gtk, GLib, GObject, GdkPixbuf
+15 |
+16 | from core.phone_camera import PhoneCameraServer
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:17:1
+   |
+16 | from core.phone_camera import PhoneCameraServer
+17 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+18 |
+19 | log = logging.getLogger(__name__)
+   |
+
+F401 [*] `subprocess` imported but unused
+ --> usr/share/biglinux/bigcam/ui/photo_gallery.py:6:8
+  |
+5 | import os
+6 | import subprocess
+  |        ^^^^^^^^^^
+7 |
+8 | import gi
+  |
+help: Remove unused import: `subprocess`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/photo_gallery.py:13:1
+   |
+11 | gi.require_version("Adw", "1")
+12 |
+13 | from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |
+15 | from utils import xdg
+   |
+
+F401 [*] `gi.repository.Gio` imported but unused
+  --> usr/share/biglinux/bigcam/ui/photo_gallery.py:13:42
+   |
+11 | gi.require_version("Adw", "1")
+12 |
+13 | from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
+   |                                          ^^^
+14 |
+15 | from utils import xdg
+   |
+help: Remove unused import: `gi.repository.Gio`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/photo_gallery.py:15:1
+   |
+13 | from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
+14 |
+15 | from utils import xdg
+   | ^^^^^^^^^^^^^^^^^^^^^
+16 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/photo_gallery.py:16:1
+   |
+15 | from utils import xdg
+16 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+F401 [*] `typing.Any` imported but unused
+ --> usr/share/biglinux/bigcam/ui/preview_area.py:5:20
+  |
+3 | from __future__ import annotations
+4 |
+5 | from typing import Any
+  |                    ^^^
+6 |
+7 | import gi
+  |
+help: Remove unused import: `typing.Any`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/preview_area.py:12:1
+   |
+10 | gi.require_version("Adw", "1")
+11 |
+12 | from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |
+14 | from core.stream_engine import StreamEngine
+   |
+
+F401 [*] `gi.repository.Gdk` imported but unused
+  --> usr/share/biglinux/bigcam/ui/preview_area.py:12:37
+   |
+10 | gi.require_version("Adw", "1")
+11 |
+12 | from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
+   |                                     ^^^
+13 |
+14 | from core.stream_engine import StreamEngine
+   |
+help: Remove unused import
+
+F401 [*] `gi.repository.Gsk` imported but unused
+  --> usr/share/biglinux/bigcam/ui/preview_area.py:12:42
+   |
+10 | gi.require_version("Adw", "1")
+11 |
+12 | from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
+   |                                          ^^^
+13 |
+14 | from core.stream_engine import StreamEngine
+   |
+help: Remove unused import
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/preview_area.py:14:1
+   |
+12 | from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
+13 |
+14 | from core.stream_engine import StreamEngine
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/preview_area.py:15:1
+   |
+14 | from core.stream_engine import StreamEngine
+15 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/qr_dialog.py:17:1
+   |
+15 | gi.require_version("Adw", "1")
+16 |
+17 | from gi.repository import Adw, Gtk, GLib, Gdk, Gio
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 |
+19 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/qr_dialog.py:19:1
+   |
+17 | from gi.repository import Adw, Gtk, GLib, Gdk, Gio
+18 |
+19 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:12:1
+   |
+10 | gi.require_version("Adw", "1")
+11 |
+12 | from gi.repository import Adw, Gtk, GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |
+14 | from core.virtual_camera import VirtualCamera
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:14:1
+   |
+12 | from gi.repository import Adw, Gtk, GLib, GObject
+13 |
+14 | from core.virtual_camera import VirtualCamera
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 | from utils.settings_manager import SettingsManager
+16 | from utils import xdg
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:15:1
+   |
+14 | from core.virtual_camera import VirtualCamera
+15 | from utils.settings_manager import SettingsManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 | from utils import xdg
+17 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:16:1
+   |
+14 | from core.virtual_camera import VirtualCamera
+15 | from utils.settings_manager import SettingsManager
+16 | from utils import xdg
+   | ^^^^^^^^^^^^^^^^^^^^^
+17 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:17:1
+   |
+15 | from utils.settings_manager import SettingsManager
+16 | from utils import xdg
+17 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+18 |
+19 | try:
+   |
+
+F601 Dictionary key literal `"resolution-changed"` repeated
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:41:9
+   |
+39 |         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+40 |         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+41 |         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+   |         ^^^^^^^^^^^^^^^^^^^^
+42 |         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+43 |         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+   |
+help: Remove repeated key literal `"resolution-changed"`
+
+F601 Dictionary key literal `"fps-limit-changed"` repeated
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:42:9
+   |
+40 |         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+41 |         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+42 |         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+   |         ^^^^^^^^^^^^^^^^^^^
+43 |         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+44 |     }
+   |
+help: Remove repeated key literal `"fps-limit-changed"`
+
+F601 Dictionary key literal `"grid-overlay-changed"` repeated
+  --> usr/share/biglinux/bigcam/ui/settings_page.py:43:9
+   |
+41 |         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+42 |         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+43 |         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+44 |     }
+   |
+help: Remove repeated key literal `"grid-overlay-changed"`
+
+F401 [*] `typing.Callable` imported but unused
+  --> usr/share/biglinux/bigcam/ui/tools_page.py:8:25
+   |
+ 6 | import time as _time
+ 7 | import threading
+ 8 | from typing import Any, Callable
+   |                         ^^^^^^^^
+ 9 |
+10 | import gi
+   |
+help: Remove unused import: `typing.Callable`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/tools_page.py:15:1
+   |
+13 | gi.require_version("Adw", "1")
+14 |
+15 | from gi.repository import Adw, Gtk, GLib, Gdk, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 |
+17 | from utils.i18n import _
+   |
+
+F401 [*] `gi.repository.Gdk` imported but unused
+  --> usr/share/biglinux/bigcam/ui/tools_page.py:15:43
+   |
+13 | gi.require_version("Adw", "1")
+14 |
+15 | from gi.repository import Adw, Gtk, GLib, Gdk, GObject
+   |                                           ^^^
+16 |
+17 | from utils.i18n import _
+   |
+help: Remove unused import: `gi.repository.Gdk`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/tools_page.py:17:1
+   |
+15 | from gi.repository import Adw, Gtk, GLib, Gdk, GObject
+16 |
+17 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+18 | from ui.qr_dialog import parse_qr, QrDialog
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/tools_page.py:18:1
+   |
+17 | from utils.i18n import _
+18 | from ui.qr_dialog import parse_qr, QrDialog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 |
+20 | try:
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/video_gallery.py:14:1
+   |
+12 | gi.require_version("Adw", "1")
+13 |
+14 | from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 |
+16 | from utils import xdg
+   |
+
+F401 [*] `gi.repository.Gio` imported but unused
+  --> usr/share/biglinux/bigcam/ui/video_gallery.py:14:42
+   |
+12 | gi.require_version("Adw", "1")
+13 |
+14 | from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
+   |                                          ^^^
+15 |
+16 | from utils import xdg
+   |
+help: Remove unused import: `gi.repository.Gio`
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/video_gallery.py:16:1
+   |
+14 | from gi.repository import Adw, Gtk, Gdk, Gio, GdkPixbuf, GLib
+15 |
+16 | from utils import xdg
+   | ^^^^^^^^^^^^^^^^^^^^^
+17 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/video_gallery.py:17:1
+   |
+16 | from utils import xdg
+17 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+18 |
+19 | log = logging.getLogger(__name__)
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/virtual_camera_page.py:10:1
+   |
+ 8 | gi.require_version("Adw", "1")
+ 9 |
+10 | from gi.repository import Adw, Gtk, GLib, GObject
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+11 |
+12 | from core.virtual_camera import VirtualCamera
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/virtual_camera_page.py:12:1
+   |
+10 | from gi.repository import Adw, Gtk, GLib, GObject
+11 |
+12 | from core.virtual_camera import VirtualCamera
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/virtual_camera_page.py:13:1
+   |
+12 | from core.virtual_camera import VirtualCamera
+13 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:13:1
+   |
+11 | gi.require_version("Adw", "1")
+12 |
+13 | from gi.repository import Adw, Gtk, Gio, GLib
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |
+15 | from constants import APP_NAME, BackendType
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:15:1
+   |
+13 | from gi.repository import Adw, Gtk, Gio, GLib
+14 |
+15 | from constants import APP_NAME, BackendType
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 | from core.camera_backend import CameraInfo
+17 | from core.camera_manager import CameraManager
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:16:1
+   |
+15 | from constants import APP_NAME, BackendType
+16 | from core.camera_backend import CameraInfo
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+17 | from core.camera_manager import CameraManager
+18 | from core.stream_engine import StreamEngine
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:17:1
+   |
+15 | from constants import APP_NAME, BackendType
+16 | from core.camera_backend import CameraInfo
+17 | from core.camera_manager import CameraManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+18 | from core.stream_engine import StreamEngine
+19 | from core.photo_capture import PhotoCapture
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:18:1
+   |
+16 | from core.camera_backend import CameraInfo
+17 | from core.camera_manager import CameraManager
+18 | from core.stream_engine import StreamEngine
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+19 | from core.photo_capture import PhotoCapture
+20 | from core.video_recorder import VideoRecorder
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:19:1
+   |
+17 | from core.camera_manager import CameraManager
+18 | from core.stream_engine import StreamEngine
+19 | from core.photo_capture import PhotoCapture
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+20 | from core.video_recorder import VideoRecorder
+21 | from core.virtual_camera import VirtualCamera
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:20:1
+   |
+18 | from core.stream_engine import StreamEngine
+19 | from core.photo_capture import PhotoCapture
+20 | from core.video_recorder import VideoRecorder
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+21 | from core.virtual_camera import VirtualCamera
+22 | from core import camera_profiles
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:21:1
+   |
+19 | from core.photo_capture import PhotoCapture
+20 | from core.video_recorder import VideoRecorder
+21 | from core.virtual_camera import VirtualCamera
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+22 | from core import camera_profiles
+23 | from ui.preview_area import PreviewArea
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:22:1
+   |
+20 | from core.video_recorder import VideoRecorder
+21 | from core.virtual_camera import VirtualCamera
+22 | from core import camera_profiles
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+23 | from ui.preview_area import PreviewArea
+24 | from ui.camera_controls_page import CameraControlsPage
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:23:1
+   |
+21 | from core.virtual_camera import VirtualCamera
+22 | from core import camera_profiles
+23 | from ui.preview_area import PreviewArea
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+24 | from ui.camera_controls_page import CameraControlsPage
+25 | from ui.camera_selector import CameraSelector
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:24:1
+   |
+22 | from core import camera_profiles
+23 | from ui.preview_area import PreviewArea
+24 | from ui.camera_controls_page import CameraControlsPage
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+25 | from ui.camera_selector import CameraSelector
+26 | from ui.photo_gallery import PhotoGallery
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:25:1
+   |
+23 | from ui.preview_area import PreviewArea
+24 | from ui.camera_controls_page import CameraControlsPage
+25 | from ui.camera_selector import CameraSelector
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+26 | from ui.photo_gallery import PhotoGallery
+27 | from ui.video_gallery import VideoGallery
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:26:1
+   |
+24 | from ui.camera_controls_page import CameraControlsPage
+25 | from ui.camera_selector import CameraSelector
+26 | from ui.photo_gallery import PhotoGallery
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+27 | from ui.video_gallery import VideoGallery
+28 | from ui.settings_page import SettingsPage
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:27:1
+   |
+25 | from ui.camera_selector import CameraSelector
+26 | from ui.photo_gallery import PhotoGallery
+27 | from ui.video_gallery import VideoGallery
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+28 | from ui.settings_page import SettingsPage
+29 | from ui.effects_page import EffectsPage
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:28:1
+   |
+26 | from ui.photo_gallery import PhotoGallery
+27 | from ui.video_gallery import VideoGallery
+28 | from ui.settings_page import SettingsPage
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+29 | from ui.effects_page import EffectsPage
+30 | from ui.about_dialog import show_about
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:29:1
+   |
+27 | from ui.video_gallery import VideoGallery
+28 | from ui.settings_page import SettingsPage
+29 | from ui.effects_page import EffectsPage
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+30 | from ui.about_dialog import show_about
+31 | from ui.ip_camera_dialog import IPCameraDialog
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:30:1
+   |
+28 | from ui.settings_page import SettingsPage
+29 | from ui.effects_page import EffectsPage
+30 | from ui.about_dialog import show_about
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+31 | from ui.ip_camera_dialog import IPCameraDialog
+32 | from ui.phone_camera_dialog import PhoneCameraDialog
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:31:1
+   |
+29 | from ui.effects_page import EffectsPage
+30 | from ui.about_dialog import show_about
+31 | from ui.ip_camera_dialog import IPCameraDialog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+32 | from ui.phone_camera_dialog import PhoneCameraDialog
+33 | from core.phone_camera import PhoneCameraServer
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:32:1
+   |
+30 | from ui.about_dialog import show_about
+31 | from ui.ip_camera_dialog import IPCameraDialog
+32 | from ui.phone_camera_dialog import PhoneCameraDialog
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+33 | from core.phone_camera import PhoneCameraServer
+34 | from utils.settings_manager import SettingsManager
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:33:1
+   |
+31 | from ui.ip_camera_dialog import IPCameraDialog
+32 | from ui.phone_camera_dialog import PhoneCameraDialog
+33 | from core.phone_camera import PhoneCameraServer
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+34 | from utils.settings_manager import SettingsManager
+35 | from utils.async_worker import run_async
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:34:1
+   |
+32 | from ui.phone_camera_dialog import PhoneCameraDialog
+33 | from core.phone_camera import PhoneCameraServer
+34 | from utils.settings_manager import SettingsManager
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+35 | from utils.async_worker import run_async
+36 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:35:1
+   |
+33 | from core.phone_camera import PhoneCameraServer
+34 | from utils.settings_manager import SettingsManager
+35 | from utils.async_worker import run_async
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+36 | from utils.i18n import _
+   |
+
+E402 Module level import not at top of file
+  --> usr/share/biglinux/bigcam/ui/window.py:36:1
+   |
+34 | from utils.settings_manager import SettingsManager
+35 | from utils.async_worker import run_async
+36 | from utils.i18n import _
+   | ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+F821 Undefined name `Any`
+   --> usr/share/biglinux/bigcam/ui/window.py:490:41
+    |
+488 |     # -- Tools signals -------------------------------------------------------
+489 |
+490 |     def _on_smile_captured(self, _page: Any, path: str) -> None:
+    |                                         ^^^
+491 |         self._preview.notification.notify_user(
+492 |             _("Smile captured! Photo saved."), "success", 3000
+    |
+
+F821 Undefined name `Any`
+   --> usr/share/biglinux/bigcam/ui/window.py:496:38
+    |
+494 |         self._gallery.refresh()
+495 |
+496 |     def _on_qr_detected(self, _page: Any, text: str) -> None:
+    |                                      ^^^
+497 |         self._preview.notification.notify_user(
+498 |             _("QR Code detected!"), "info", 2000
+    |
+
+Found 128 errors.
+[*] 32 fixable with the `--fix` option (6 hidden fixes can be enabled with the `--unsafe-fixes` option).

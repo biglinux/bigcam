@@ -9,10 +9,10 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, GLib, GObject
+from gi.repository import Adw, Gtk, GLib, GObject  # noqa: E402
 
-from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam
-from utils.i18n import _
+from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam  # noqa: E402
+from utils.i18n import _  # noqa: E402
 
 
 _CATEGORY_LABELS = {
@@ -95,8 +95,9 @@ class EffectsPage(Gtk.ScrolledWindow):
                 self._add_effect_rows(group, eff)
             self._content.append(group)
 
-    def _make_reset_button(self, cat: EffectCategory,
-                           effs: list[EffectInfo]) -> Gtk.Button:
+    def _make_reset_button(
+        self, cat: EffectCategory, effs: list[EffectInfo]
+    ) -> Gtk.Button:
         btn = Gtk.Button.new_from_icon_name("edit-undo-symbolic")
         btn.add_css_class("flat")
         btn.set_tooltip_text(_("Reset to defaults"))
@@ -108,8 +109,7 @@ class EffectsPage(Gtk.ScrolledWindow):
         btn.connect("clicked", self._on_reset_category, effs)
         return btn
 
-    def _add_effect_rows(self, group: Adw.PreferencesGroup,
-                         effect: EffectInfo) -> None:
+    def _add_effect_rows(self, group: Adw.PreferencesGroup, effect: EffectInfo) -> None:
         if effect.params:
             # ExpanderRow with independent switch as suffix
             expander = Adw.ExpanderRow(
@@ -119,12 +119,17 @@ class EffectsPage(Gtk.ScrolledWindow):
             if effect.icon:
                 expander.set_icon_name(effect.icon)
             expander.update_property(
-                [Gtk.AccessibleProperty.LABEL], [effect.name],
+                [Gtk.AccessibleProperty.LABEL],
+                [effect.name],
             )
             # Add switch as suffix (independent of expansion)
             switch = Gtk.Switch()
             switch.set_active(effect.enabled)
             switch.set_valign(Gtk.Align.CENTER)
+            switch.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [effect.name],
+            )
             switch.connect("notify::active", self._on_switch_toggle, effect)
             expander.add_suffix(switch)
             self._effect_widgets[effect.effect_id] = {"switch": switch, "params": {}}
@@ -144,16 +149,21 @@ class EffectsPage(Gtk.ScrolledWindow):
                 toggle_row.set_icon_name(effect.icon)
             toggle_row.set_active(effect.enabled)
             toggle_row.update_property(
-                [Gtk.AccessibleProperty.LABEL], [effect.name],
+                [Gtk.AccessibleProperty.LABEL],
+                [effect.name],
             )
             toggle_row.connect("notify::active", self._on_toggle, effect)
-            self._effect_widgets[effect.effect_id] = {"toggle": toggle_row, "params": {}}
+            self._effect_widgets[effect.effect_id] = {
+                "toggle": toggle_row,
+                "params": {},
+            }
             group.add(toggle_row)
 
     def _make_param_row(self, effect: EffectInfo, param: EffectParam) -> Adw.ActionRow:
         row = Adw.ActionRow(title=param.label)
         row.update_property(
-            [Gtk.AccessibleProperty.LABEL], [param.label],
+            [Gtk.AccessibleProperty.LABEL],
+            [param.label],
         )
 
         adj = Gtk.Adjustment(
@@ -168,6 +178,10 @@ class EffectsPage(Gtk.ScrolledWindow):
             hexpand=True,
             draw_value=True,
             value_pos=Gtk.PositionType.LEFT,
+        )
+        scale.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [param.label],
         )
         scale.set_size_request(180, -1)
 
@@ -188,8 +202,7 @@ class EffectsPage(Gtk.ScrolledWindow):
 
         return row
 
-    def _on_toggle(self, row: Adw.SwitchRow, _pspec: Any,
-                   effect: EffectInfo) -> None:
+    def _on_toggle(self, row: Adw.SwitchRow, _pspec: Any, effect: EffectInfo) -> None:
         if self._resetting:
             return
         enabled = row.get_active()
@@ -197,8 +210,9 @@ class EffectsPage(Gtk.ScrolledWindow):
         self._pipeline.set_enabled(effect.effect_id, enabled)
         self.emit("effect-changed")
 
-    def _on_switch_toggle(self, switch: Gtk.Switch, _pspec: Any,
-                          effect: EffectInfo) -> None:
+    def _on_switch_toggle(
+        self, switch: Gtk.Switch, _pspec: Any, effect: EffectInfo
+    ) -> None:
         if self._resetting:
             return
         enabled = switch.get_active()
@@ -218,17 +232,24 @@ class EffectsPage(Gtk.ScrolledWindow):
             EffectsPage._replace_arrow_icon(child, icon_name)
             child = child.get_next_sibling()
 
-    def _on_param_changed(self, adj: Gtk.Adjustment, effect: EffectInfo,
-                          param: EffectParam) -> None:
+    def _on_param_changed(
+        self, adj: Gtk.Adjustment, effect: EffectInfo, param: EffectParam
+    ) -> None:
         key = f"{effect.effect_id}_{param.name}"
         if key in self._debounce_sources:
             GLib.source_remove(self._debounce_sources[key])
         self._debounce_sources[key] = GLib.timeout_add(
-            50, self._apply_param, adj, effect, param, key,
+            50,
+            self._apply_param,
+            adj,
+            effect,
+            param,
+            key,
         )
 
-    def _apply_param(self, adj: Gtk.Adjustment, effect: EffectInfo,
-                     param: EffectParam, key: str) -> bool:
+    def _apply_param(
+        self, adj: Gtk.Adjustment, effect: EffectInfo, param: EffectParam, key: str
+    ) -> bool:
         self._debounce_sources.pop(key, None)
         value = adj.get_value()
         param.value = value
@@ -236,8 +257,7 @@ class EffectsPage(Gtk.ScrolledWindow):
         self.emit("effect-changed")
         return False
 
-    def _on_reset_category(self, _btn: Gtk.Button,
-                           effs: list[EffectInfo]) -> None:
+    def _on_reset_category(self, _btn: Gtk.Button, effs: list[EffectInfo]) -> None:
         self._resetting = True
         for eff in effs:
             eff.enabled = False

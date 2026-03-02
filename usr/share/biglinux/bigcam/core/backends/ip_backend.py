@@ -4,10 +4,26 @@ from __future__ import annotations
 
 import subprocess
 from typing import Any
+from urllib.parse import urlparse
 
-from constants import BackendType, ControlCategory, ControlType
+from constants import BackendType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
-from utils.i18n import _
+
+
+_ALLOWED_SCHEMES = {"rtsp", "rtsps", "http", "https"}
+
+
+def _validate_url(url: str) -> str:
+    """Validate and return url. Raises ValueError on invalid input."""
+    parsed = urlparse(url)
+    if parsed.scheme not in _ALLOWED_SCHEMES:
+        raise ValueError(f"Unsupported scheme: {parsed.scheme!r}")
+    return url
+
+
+def _escape_gst_string(value: str) -> str:
+    """Escape a value for safe interpolation into a GStreamer pipeline string."""
+    return value.replace("\\", "\\\\").replace('"', '\\"')
 
 
 class IPBackend(CameraBackend):
@@ -34,14 +50,16 @@ class IPBackend(CameraBackend):
             name = entry.get("name", url)
             if not url:
                 continue
-            cameras.append(CameraInfo(
-                id=f"ip:{url}",
-                name=name,
-                backend=BackendType.IP,
-                device_path=url,
-                capabilities=["video"],
-                extra={"url": url},
-            ))
+            cameras.append(
+                CameraInfo(
+                    id=f"ip:{url}",
+                    name=name,
+                    backend=BackendType.IP,
+                    device_path=url,
+                    capabilities=["video"],
+                    extra={"url": url},
+                )
+            )
         return cameras
 
     # -- controls (none for basic IP) ----------------------------------------
@@ -55,17 +73,11 @@ class IPBackend(CameraBackend):
     # -- gstreamer -----------------------------------------------------------
 
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
-        url = camera.extra.get("url", camera.device_path)
-        if url.startswith("rtsp://"):
-            return (
-                f'rtspsrc location="{url}" latency=300 ! '
-                "decodebin ! videoconvert"
-            )
+        url = _escape_gst_string(camera.extra.get("url", camera.device_path))
+        if camera.device_path.startswith("rtsp"):
+            return f'rtspsrc location="{url}" latency=300 ! decodebin ! videoconvert'
         # HTTP / MJPEG stream
-        return (
-            f'souphttpsrc location="{url}" ! '
-            "decodebin ! videoconvert"
-        )
+        return f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
 
     # -- photo ---------------------------------------------------------------
 
@@ -75,24 +87,31 @@ class IPBackend(CameraBackend):
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
         """Snapshot via GStreamer one-frame pipeline."""
         url = camera.extra.get("url", camera.device_path)
-        if url.startswith("rtsp://"):
-            src = f'rtspsrc location="{url}" latency=300 ! decodebin'
+        safe_url = _escape_gst_string(url)
+        if url.startswith("rtsp"):
+            src = f'rtspsrc location="{safe_url}" latency=300 ! decodebin'
         else:
-            src = f'souphttpsrc location="{url}" ! decodebin'
+            src = f'souphttpsrc location="{safe_url}" ! decodebin'
         try:
             subprocess.run(
                 [
-                    "gst-launch-1.0", "-e",
+                    "gst-launch-1.0",
+                    "-e",
                     *src.split(),
-                    "!", "videoconvert",
-                    "!", "jpegenc",
-                    "!", "filesink", f"location={output_path}",
+                    "!",
+                    "videoconvert",
+                    "!",
+                    "jpegenc",
+                    "!",
+                    "filesink",
+                    f"location={output_path}",
                 ],
                 capture_output=True,
                 check=True,
                 timeout=15,
             )
             import os
+
             return os.path.isfile(output_path)
         except Exception:
             return False

@@ -1,9 +1,12 @@
 """JSON-based settings persistence for BigCam."""
 
 import json
+import logging
 import os
 
 from utils import xdg
+
+log = logging.getLogger(__name__)
 
 
 _DEFAULTS: dict[str, object] = {
@@ -87,4 +90,4 @@ class SettingsManager:
             with open(self._path, "w", encoding="utf-8") as fh:
                 json.dump(self._data, fh, indent=2, ensure_ascii=False)
         except Exception as exc:
-            print(f"[SettingsManager] save error: {exc}")
+            log.warning("save error: %s", exc)

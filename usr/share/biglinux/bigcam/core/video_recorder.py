@@ -5,17 +5,17 @@ from __future__ import annotations
 import os
 import time
 import logging
+from typing import Any
 
 import gi
 
 gi.require_version("Gst", "1.0")
 
-from gi.repository import Gst, GLib
+from gi.repository import Gst  # noqa: E402
 
-from core.camera_backend import CameraInfo
-from core.camera_manager import CameraManager
-from utils import xdg
-from utils.i18n import _
+from core.camera_backend import CameraInfo  # noqa: E402
+from core.camera_manager import CameraManager  # noqa: E402
+from utils import xdg  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +74,7 @@ class VideoRecorder:
 
         # Phone camera: use OpenCV VideoWriter fallback
         from constants import BackendType
+
         if camera.backend == BackendType.PHONE:
             return self._start_cv_recording(camera)
 
@@ -104,7 +105,13 @@ class VideoRecorder:
             self._rec_sink = Gst.ElementFactory.make("filesink", "rec_sink")
             self._rec_sink.set_property("location", self._output_path)
 
-            elements = [self._rec_queue, self._rec_convert, self._rec_encoder, self._rec_muxer, self._rec_sink]
+            elements = [
+                self._rec_queue,
+                self._rec_convert,
+                self._rec_encoder,
+                self._rec_muxer,
+                self._rec_sink,
+            ]
             if self._rec_flip:
                 elements.insert(1, self._rec_flip)  # after queue, before convert
             for elem in elements:
@@ -171,6 +178,7 @@ class VideoRecorder:
         if not self._recording or not self._cv_mode:
             return
         import cv2
+
         h, w = bgr.shape[:2]
         if self._cv_first_frame or self._cv_writer is None:
             fourcc = cv2.VideoWriter_fourcc(*"MJPG")
@@ -236,7 +244,20 @@ class VideoRecorder:
 
     def _cleanup_elements(self) -> None:
         """Remove recording elements from the pipeline."""
-        for elem in (self._rec_sink, self._rec_muxer, self._rec_encoder, self._rec_convert, self._rec_flip, self._rec_queue):
+        # Release the tee request pad to prevent leaks
+        if self._tee_pad and self._tee:
+            try:
+                self._tee.release_request_pad(self._tee_pad)
+            except Exception:
+                log.debug("Ignored exception", exc_info=True)
+        for elem in (
+            self._rec_sink,
+            self._rec_muxer,
+            self._rec_encoder,
+            self._rec_convert,
+            self._rec_flip,
+            self._rec_queue,
+        ):
             if elem and self._pipeline:
                 elem.set_state(Gst.State.NULL)
                 self._pipeline.remove(elem)
@@ -249,8 +270,3 @@ class VideoRecorder:
         self._tee = None
         self._tee_pad = None
         self._pipeline = None
-
-    def _on_error(self, _bus: Gst.Bus, msg: Gst.Message) -> None:
-        err, dbg = msg.parse_error()
-        log.error("Recording error: %s (debug: %s)", err.message, dbg)
-        self.stop()
