@@ -2,17 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Any
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, Gsk, Graphene, GLib, GObject
+from gi.repository import Adw, Gtk, Graphene, GLib, GObject  # noqa: E402
 
-from core.stream_engine import StreamEngine
-from utils.i18n import _
+from core.stream_engine import StreamEngine  # noqa: E402
+from utils.i18n import _  # noqa: E402
 
 
 class MirroredPicture(Gtk.Picture):
@@ -105,9 +104,10 @@ class PreviewArea(Gtk.Overlay):
         self._stack.add_named(self._picture, "preview")
         self._stack.set_visible_child_name("status")
 
-        # -- toast overlay wraps the stack (quick feedback at bottom) --------
-        self._toast_overlay = Adw.ToastOverlay()
-        self._toast_overlay.set_child(self._stack)
+        # -- notification bar (replaces AdwToastOverlay for Orca) -----------
+        from ui.notification import InlineNotification
+
+        self._notification = InlineNotification()
 
         # -- banner at the top (persistent process messages) -----------------
         self._banner = Adw.Banner()
@@ -121,12 +121,13 @@ class PreviewArea(Gtk.Overlay):
         self._top_progress.set_hexpand(True)
         self._top_progress.set_visible(False)
 
-        # Pack progress + banner + toast_overlay vertically
+        # Pack progress + banner + notification + stack vertically
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         content_box.append(self._top_progress)
         content_box.append(self._banner)
-        content_box.append(self._toast_overlay)
-        self._toast_overlay.set_vexpand(True)
+        content_box.append(self._notification)
+        content_box.append(self._stack)
+        self._stack.set_vexpand(True)
         self.set_child(content_box)
 
         # -- FPS label (top-right overlay) -----------------------------------
@@ -155,6 +156,7 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_label.set_visible(False)
         self.add_overlay(self._countdown_label)
         self._countdown_timer_id: int | None = None
+        self._countdown_remaining: int = 0
 
         # -- grid overlay (rule-of-thirds) ----------------------------------
         self._grid_drawing = Gtk.DrawingArea()
@@ -281,8 +283,13 @@ class PreviewArea(Gtk.Overlay):
         ``preview.notification.notify_user(...)`` keeps working."""
         return self
 
-    def notify_user(self, message: str, level: str = "info", timeout_ms: int = 3000,
-                    progress: bool = False) -> None:
+    def notify_user(
+        self,
+        message: str,
+        level: str = "info",
+        timeout_ms: int = 3000,
+        progress: bool = False,
+    ) -> None:
         """Show a banner at the top of the preview area.
 
         If *timeout_ms* is 0, the banner stays until ``dismiss()`` is called.
@@ -350,9 +357,13 @@ class PreviewArea(Gtk.Overlay):
         self._banner.set_revealed(False)
         return GLib.SOURCE_REMOVE
 
-    def show_status(self, title: str, description: str = "",
-                    icon: str = "camera-web-symbolic",
-                    loading: bool = False) -> None:
+    def show_status(
+        self,
+        title: str,
+        description: str = "",
+        icon: str = "camera-web-symbolic",
+        loading: bool = False,
+    ) -> None:
         if loading:
             self._show_loading(description)
             return
@@ -382,7 +393,9 @@ class PreviewArea(Gtk.Overlay):
         else:
             self._status.set_title(_("Connection failed"))
             self._status.set_description(
-                _("Could not connect to the camera. Check the connection and try again.")
+                _(
+                    "Could not connect to the camera. Check the connection and try again."
+                )
             )
         self._status.set_icon_name("dialog-warning-symbolic")
         self._retry_btn.set_visible(True)

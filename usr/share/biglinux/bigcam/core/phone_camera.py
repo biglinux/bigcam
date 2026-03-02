@@ -16,7 +16,7 @@ import gi
 
 gi.require_version("GLib", "2.0")
 
-from gi.repository import GLib, GObject
+from gi.repository import GLib, GObject  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -319,6 +319,7 @@ class PhoneCameraServer(GObject.Object):
         self._running = False
 
         if self._loop and self._loop.is_running():
+
             async def _shutdown() -> None:
                 for ws in list(self._ws_clients):
                     await ws.close()
@@ -330,7 +331,7 @@ class PhoneCameraServer(GObject.Object):
             try:
                 fut.result(timeout=5)
             except Exception:
-                pass
+                log.debug("Ignored exception", exc_info=True)
             self._loop.call_soon_threadsafe(self._loop.stop)
 
         if self._thread:
@@ -354,13 +355,12 @@ class PhoneCameraServer(GObject.Object):
         app.router.add_post("/frame", self._handle_frame_post)
 
         ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_ctx.minimum_version = ssl.TLSVersion.TLSv1_2
         ssl_ctx.load_cert_chain(_CERT_FILE, _KEY_FILE)
 
         self._runner = web.AppRunner(app)
         await self._runner.setup()
-        site = web.TCPSite(
-            self._runner, "0.0.0.0", self._port, ssl_context=ssl_ctx
-        )
+        site = web.TCPSite(self._runner, "0.0.0.0", self._port, ssl_context=ssl_ctx)
         await site.start()
         log.info("Phone camera server listening on port %d", self._port)
 
@@ -429,9 +429,7 @@ class PhoneCameraServer(GObject.Object):
                     if first_frame or (w != self._width or h != self._height):
                         self._width, self._height = w, h
                         GLib.idle_add(self.emit, "connected", w, h)
-                        GLib.idle_add(
-                            self.emit, "status-changed", "connected"
-                        )
+                        GLib.idle_add(self.emit, "status-changed", "connected")
                         first_frame = False
 
                     cb = self._frame_callback
@@ -460,11 +458,19 @@ class PhoneCameraServer(GObject.Object):
 
 
 def _get_local_ip() -> str:
-    """Best-effort local LAN IP address."""
+    """Best-effort local LAN IP address (no external network contact)."""
+    try:
+        hostname = socket.gethostname()
+        ip = socket.gethostbyname(hostname)
+        if ip and not ip.startswith("127."):
+            return ip
+    except Exception:
+        log.debug("Ignored exception", exc_info=True)
+    # Fallback: UDP connect to a non-routable address (no packets sent)
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(0.5)
-        s.connect(("8.8.8.8", 80))
+        s.settimeout(0)
+        s.connect(("10.255.255.255", 1))
         ip = s.getsockname()[0]
         s.close()
         return ip
@@ -479,13 +485,24 @@ def _ensure_cert() -> None:
     os.makedirs(_CERT_DIR, exist_ok=True)
     subprocess.run(
         [
-            "openssl", "req", "-x509", "-newkey", "rsa:2048",
-            "-keyout", _KEY_FILE, "-out", _CERT_FILE,
-            "-days", "365", "-nodes",
-            "-subj", "/CN=BigCam Phone Camera",
+            "openssl",
+            "req",
+            "-x509",
+            "-newkey",
+            "rsa:2048",
+            "-keyout",
+            _KEY_FILE,
+            "-out",
+            _CERT_FILE,
+            "-days",
+            "365",
+            "-nodes",
+            "-subj",
+            "/CN=BigCam Phone Camera",
         ],
         check=True,
         capture_output=True,
+        timeout=10,
     )
     os.chmod(_KEY_FILE, 0o600)
     log.info("Generated self-signed certificate at %s", _CERT_FILE)

@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import os
-import re
+import shlex
 import subprocess
 
-from utils.i18n import _
+log = logging.getLogger(__name__)
 
 
 class VirtualCamera:
@@ -29,17 +30,19 @@ class VirtualCamera:
                 ["v4l2-ctl", "-d", "/dev/video10", "--info"],
                 capture_output=True,
                 text=True,
+                timeout=5,
             )
             if result.returncode == 0 and "v4l2 loopback" in result.stdout.lower():
                 return "/dev/video10"
         except Exception:
-            pass
+            log.debug("Ignored exception", exc_info=True)
         # Fallback: scan all devices
         try:
             result = subprocess.run(
                 ["v4l2-ctl", "--list-devices"],
                 capture_output=True,
                 text=True,
+                timeout=5,
             )
             for line in result.stdout.splitlines():
                 if "v4l2loopback" in line.lower() or "virtual" in line.lower():
@@ -50,7 +53,7 @@ class VirtualCamera:
                             return dev
                         idx += 1
         except Exception:
-            pass
+            log.debug("Ignored exception", exc_info=True)
         return ""
 
     @classmethod
@@ -61,17 +64,21 @@ class VirtualCamera:
         Device 11: Reserved for gPhoto2 streaming
         """
         label = "BigCam Virtual"
-        safe_label = label.replace('"', '').replace('\\', '')
+        safe_label = label.replace('"', "").replace("\\", "")
         try:
             subprocess.run(
                 [
-                    "pkexec", "modprobe", "v4l2loopback",
-                    "devices=2", "exclusive_caps=1",
+                    "pkexec",
+                    "modprobe",
+                    "v4l2loopback",
+                    "devices=2",
+                    "exclusive_caps=1",
                     "video_nr=10,11",
                     f'card_label="{safe_label}","{safe_label} (v4l2)"',
                 ],
                 capture_output=True,
                 check=True,
+                timeout=30,
             )
             return True
         except Exception:
@@ -93,8 +100,10 @@ class VirtualCamera:
             cls._process = subprocess.Popen(
                 [
                     "gst-launch-1.0",
-                    *gst_pipeline.split(),
-                    "!", "v4l2sink", f"device={device}",
+                    *shlex.split(gst_pipeline),
+                    "!",
+                    "v4l2sink",
+                    f"device={device}",
                 ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -157,6 +166,7 @@ class VirtualCamera:
                 ["pkexec", "modprobe", "-r", "v4l2loopback"],
                 capture_output=True,
                 check=True,
+                timeout=30,
             )
         except Exception:
             return False
@@ -168,6 +178,7 @@ def _has_v4l2loopback() -> bool:
         result = subprocess.run(
             ["modinfo", "v4l2loopback"],
             capture_output=True,
+            timeout=5,
         )
         return result.returncode == 0
     except FileNotFoundError:

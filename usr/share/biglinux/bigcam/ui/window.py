@@ -2,38 +2,42 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import threading
+from typing import Any
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gio, GLib  # noqa: E402
 
-from constants import APP_NAME, BackendType
-from core.camera_backend import CameraInfo
-from core.camera_manager import CameraManager
-from core.stream_engine import StreamEngine
-from core.photo_capture import PhotoCapture
-from core.video_recorder import VideoRecorder
-from core.virtual_camera import VirtualCamera
-from core import camera_profiles
-from ui.preview_area import PreviewArea
-from ui.camera_controls_page import CameraControlsPage
-from ui.camera_selector import CameraSelector
-from ui.photo_gallery import PhotoGallery
-from ui.video_gallery import VideoGallery
-from ui.settings_page import SettingsPage
-from ui.effects_page import EffectsPage
-from ui.about_dialog import show_about
-from ui.ip_camera_dialog import IPCameraDialog
-from ui.phone_camera_dialog import PhoneCameraDialog
-from core.phone_camera import PhoneCameraServer
-from utils.settings_manager import SettingsManager
-from utils.async_worker import run_async
-from utils.i18n import _
+log = logging.getLogger(__name__)
+
+from constants import APP_NAME, BackendType  # noqa: E402
+from core.camera_backend import CameraInfo  # noqa: E402
+from core.camera_manager import CameraManager  # noqa: E402
+from core.stream_engine import StreamEngine  # noqa: E402
+from core.photo_capture import PhotoCapture  # noqa: E402
+from core.video_recorder import VideoRecorder  # noqa: E402
+from core.virtual_camera import VirtualCamera  # noqa: E402
+from core import camera_profiles  # noqa: E402
+from ui.preview_area import PreviewArea  # noqa: E402
+from ui.camera_controls_page import CameraControlsPage  # noqa: E402
+from ui.camera_selector import CameraSelector  # noqa: E402
+from ui.photo_gallery import PhotoGallery  # noqa: E402
+from ui.video_gallery import VideoGallery  # noqa: E402
+from ui.settings_page import SettingsPage  # noqa: E402
+from ui.effects_page import EffectsPage  # noqa: E402
+from ui.about_dialog import show_about  # noqa: E402
+from ui.ip_camera_dialog import IPCameraDialog  # noqa: E402
+from ui.phone_camera_dialog import PhoneCameraDialog  # noqa: E402
+from core.phone_camera import PhoneCameraServer  # noqa: E402
+from utils.settings_manager import SettingsManager  # noqa: E402
+from utils.async_worker import run_async  # noqa: E402
+from utils.i18n import _  # noqa: E402
 
 
 class BigDigicamWindow(Adw.ApplicationWindow):
@@ -54,6 +58,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         self._active_camera: CameraInfo | None = None
         self._known_camera_ids: set[str] = set()
+        self._controls_cache: dict[str, list] = {}
         self._streaming_lock = threading.Lock()
         self._phone_server = PhoneCameraServer()
         self._phone_server.connect("connected", self._on_phone_connected)
@@ -88,9 +93,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         menu_btn = Gtk.MenuButton()
         menu_btn.set_icon_name("open-menu-symbolic")
         menu_btn.set_tooltip_text(_("Menu"))
-        menu_btn.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Main menu")]
-        )
+        menu_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Main menu")])
         menu_btn.set_menu_model(self._build_menu())
         self._header.pack_end(menu_btn)
 
@@ -163,39 +166,51 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Controls page
         self._controls_page = CameraControlsPage(self._camera_manager)
         self._view_stack.add_titled_with_icon(
-            self._controls_page, "controls",
-            _("Controls"), "adjustlevels",
+            self._controls_page,
+            "controls",
+            _("Controls"),
+            "adjustlevels",
         )
 
         # Effects page
         self._effects_page = EffectsPage(self._stream_engine.effects)
         self._view_stack.add_titled_with_icon(
-            self._effects_page, "effects",
-            _("Effects"), "draw-watercolor",
+            self._effects_page,
+            "effects",
+            _("Effects"),
+            "draw-watercolor",
         )
 
         # Photo gallery page
         self._gallery = PhotoGallery()
         self._view_stack.add_titled_with_icon(
-            self._gallery, "gallery",
-            _("Photos"), "view-list-images",
+            self._gallery,
+            "gallery",
+            _("Photos"),
+            "view-list-images",
         )
 
         # Video gallery page
         self._video_gallery = VideoGallery()
         self._view_stack.add_titled_with_icon(
-            self._video_gallery, "videos",
-            _("Videos"), "view-list-video",
+            self._video_gallery,
+            "videos",
+            _("Videos"),
+            "view-list-video",
         )
 
         # Settings page (includes Tools and Virtual Camera)
         self._settings_page = SettingsPage(self._settings, self._stream_engine)
         self._settings_page.connect("smile-captured", self._on_smile_captured)
         self._settings_page.connect("qr-detected", self._on_qr_detected)
-        self._settings_page.connect("virtual-camera-toggled", self._on_virtual_camera_toggled)
+        self._settings_page.connect(
+            "virtual-camera-toggled", self._on_virtual_camera_toggled
+        )
         self._settings_page.connect("resolution-changed", self._on_resolution_changed)
         self._settings_page.connect("fps-limit-changed", self._on_fps_limit_changed)
-        self._settings_page.connect("grid-overlay-changed", self._on_grid_overlay_changed)
+        self._settings_page.connect(
+            "grid-overlay-changed", self._on_grid_overlay_changed
+        )
 
         # Restore virtual camera enabled state from settings
         if self._settings.get("virtual-camera-enabled"):
@@ -203,8 +218,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._settings_page.set_vc_toggle_active(True)
 
         self._view_stack.add_titled_with_icon(
-            self._settings_page, "settings",
-            _("Settings"), "configure",
+            self._settings_page,
+            "settings",
+            _("Settings"),
+            "configure",
         )
 
         switcher = Adw.ViewSwitcherBar(stack=self._view_stack, reveal=True)
@@ -215,9 +232,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._paned.set_end_child(sidebar)
         root.append(self._paned)
 
-        self._toast_overlay = Adw.ToastOverlay()
-        self._toast_overlay.set_child(root)
-        self.set_content(self._toast_overlay)
+        from ui.notification import InlineNotification
+
+        self._notification = InlineNotification()
+
+        # Wrap root in a vertical box with notification at top
+        wrapper = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        wrapper.append(self._notification)
+        wrapper.append(root)
+        root.set_vexpand(True)
+        self.set_content(wrapper)
 
     def _build_menu(self) -> Gio.Menu:
         menu = Gio.Menu()
@@ -279,22 +303,23 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.connect("record-toggled", lambda _p: self._on_record_toggle())
         self._preview.connect("retry-requested", self._on_retry)
         self._camera_manager.connect("camera-error", self._on_camera_error)
-        self._camera_manager.connect("cameras-changed", self._on_cameras_changed_auto_start)
+        self._camera_manager.connect(
+            "cameras-changed", self._on_cameras_changed_auto_start
+        )
         self._settings_page.connect("show-fps-changed", self._on_show_fps_changed)
         self._settings_page.connect("mirror-changed", self._on_mirror_changed)
         self.connect("close-request", self._on_close)
 
     # -- signal handlers -----------------------------------------------------
 
-    # Cache controls per camera to avoid PTP re-access
-    _controls_cache: dict[str, list] = {}
-
     def _pick_preferred_format(self, camera: CameraInfo):
         """Return a VideoFormat matching user resolution/FPS preferences, or None."""
         from core.camera_backend import VideoFormat
 
-        res_pref = self._settings.get("preferred-resolution")  # "" / "480" / "720" / "1080" / "2160"
-        fps_pref = self._settings.get("fps-limit")             # 0=auto / 15 / 24 / 30 / 60
+        res_pref = self._settings.get(
+            "preferred-resolution"
+        )  # "" / "480" / "720" / "1080" / "2160"
+        fps_pref = self._settings.get("fps-limit")  # 0=auto / 15 / 24 / 30 / 60
 
         if not res_pref and not fps_pref:
             return None  # auto
@@ -332,15 +357,19 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 if not capped_fps:
                     capped_fps = best.fps
                 return VideoFormat(
-                    width=best.width, height=best.height,
-                    fps=capped_fps, pixel_format=best.pixel_format,
+                    width=best.width,
+                    height=best.height,
+                    fps=capped_fps,
+                    pixel_format=best.pixel_format,
                     description=best.description,
                 )
             return None
 
         return candidates[0] if candidates else None
 
-    def _on_camera_selected(self, _selector: CameraSelector, camera: CameraInfo) -> None:
+    def _on_camera_selected(
+        self, _selector: CameraSelector, camera: CameraInfo
+    ) -> None:
         self._active_camera = camera
         self._settings.set("last-camera-id", camera.id)
         title_widget = self._header.get_title_widget()
@@ -349,32 +378,44 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         # Check if backend needs streaming setup (e.g. gphoto2)
         backend = self._camera_manager.get_backend(camera.backend)
-        needs_setup = (backend and hasattr(backend, "needs_streaming_setup")
-                       and backend.needs_streaming_setup())
+        needs_setup = (
+            backend
+            and hasattr(backend, "needs_streaming_setup")
+            and backend.needs_streaming_setup()
+        )
 
-        print(f"[DEBUG] Camera selected: {camera.name}, backend={camera.backend}, needs_setup={needs_setup}")
-
+        log.debug(
+            "Camera selected: %s, backend=%s, needs_setup=%s",
+            camera.name,
+            camera.backend,
+            needs_setup,
+        )
         if needs_setup:
             # Prevent concurrent streaming attempts — ignore if already in progress
             if self._streaming_lock.locked():
-                print("[DEBUG] Streaming already in progress, ignoring selection")
+                log.debug("Streaming already in progress, ignoring selection")
                 return
 
             # Stop hotplug polling to prevent gphoto2 --auto-detect racing with streaming
             self._camera_manager.stop_hotplug()
 
             # Check if this camera already has a streaming session alive
-            already_streaming = (hasattr(backend, "is_camera_streaming")
-                                 and backend.is_camera_streaming(camera))
+            already_streaming = hasattr(
+                backend, "is_camera_streaming"
+            ) and backend.is_camera_streaming(camera)
             cached_controls = self._controls_cache.get(camera.id)
 
-            print(f"[DEBUG] already_streaming={already_streaming}, cached_controls={cached_controls is not None}, camera.id={camera.id}")
+            log.debug(
+                "already_streaming=%s, cached_controls=%s, camera.id=%s",
+                already_streaming,
+                cached_controls is not None,
+                camera.id,
+            )
             if hasattr(backend, "_active_streams"):
-                print(f"[DEBUG] _active_streams={dict(backend._active_streams)}")
-
+                log.debug("_active_streams=%s", dict(backend._active_streams))
             if already_streaming and cached_controls is not None:
                 # Hot-swap: camera already streaming, just switch the GStreamer pipeline
-                print(f"[DEBUG] Hot-swap to {camera.name} (already streaming)")
+                log.debug("Hot-swap to %s (already streaming)", camera.name)
                 self._stream_engine.stop(stop_backend=False)
                 self._controls_page.set_camera_with_controls(camera, cached_controls)
                 self._stream_engine.play(camera, streaming_ready=True)
@@ -391,29 +432,31 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             def do_controls_then_stream() -> tuple[bool, list]:
                 """Fetch controls BEFORE streaming (gphoto2 locks USB)."""
                 if not self._streaming_lock.acquire(blocking=False):
-                    print("[DEBUG] Lock already held, aborting")
+                    log.debug("Lock already held, aborting")
                     return False, []
                 try:
                     controls = cached_controls
                     if controls is None:
                         # Fetch controls while camera USB is free
-                        print("[DEBUG] Fetching gPhoto2 controls before streaming...")
+                        log.debug("Fetching gPhoto2 controls before streaming...")
                         controls = self._camera_manager.get_controls(camera)
-                        print(f"[DEBUG] Got {len(controls)} controls")
-
+                        log.debug("Got %s controls", len(controls))
                     if already_streaming:
-                        print("[DEBUG] Camera already streaming, skipping start")
+                        log.debug("Camera already streaming, skipping start")
                         return True, controls
 
                     # Now start streaming (takes over USB)
-                    print("[DEBUG] Starting streaming...")
+                    log.debug("Starting streaming...")
                     success = backend.start_streaming(camera)
-                    print(f"[DEBUG] Streaming result: {success}")
+                    log.debug("Streaming result: %s", success)
                     if success:
                         GLib.idle_add(
-                            lambda: self._preview.notification.notify_user(
-                                _("Camera streaming started!"), "success", 3000
-                            ) or False
+                            lambda: (
+                                self._preview.notification.notify_user(
+                                    _("Camera streaming started!"), "success", 3000
+                                )
+                                or False
+                            )
                         )
                     return success, controls
                 finally:
@@ -421,7 +464,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
             def on_done(result: tuple[bool, list]) -> None:
                 success, controls = result
-                print(f"[DEBUG] on_done: success={success}, controls={len(controls)}")
+                log.debug("on_done: success=%s, controls=%s", success, len(controls))
                 self._preview.notification.dismiss()
                 if success:
                     self._controls_cache[camera.id] = controls
@@ -432,6 +475,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                         _("Failed to start camera streaming."), "error"
                     )
                     self._preview._show_retry()
+                # Restart hotplug after gPhoto2 streaming setup completes
+                if self._settings.get("hotplug_enabled"):
+                    self._camera_manager.start_hotplug()
 
             run_async(do_controls_then_stream, on_success=on_done)
         else:
@@ -494,17 +540,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._gallery.refresh()
 
     def _on_qr_detected(self, _page: Any, text: str) -> None:
-        self._preview.notification.notify_user(
-            _("QR Code detected!"), "info", 2000
-        )
+        self._preview.notification.notify_user(_("QR Code detected!"), "info", 2000)
 
     # -- Capture -------------------------------------------------------------
 
     def _on_capture(self, _preview: PreviewArea) -> None:
         if not self._active_camera:
-            self._preview.notification.notify_user(
-                _("No camera selected."), "warning"
-            )
+            self._preview.notification.notify_user(_("No camera selected."), "warning")
             return
 
         timer = self._settings.get("capture-timer")
@@ -520,14 +562,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if self._active_camera and self._active_camera.backend == BackendType.GPHOTO2:
             dialog = Adw.AlertDialog.new(
                 _("Choose capture mode"),
-                _("You can take a screenshot from the current preview "
-                  "or capture a full-resolution photo directly from the camera."),
+                _(
+                    "You can take a screenshot from the current preview "
+                    "or capture a full-resolution photo directly from the camera."
+                ),
             )
             dialog.add_response("webcam", _("Preview screenshot"))
             dialog.add_response("native", _("Camera photo (full resolution)"))
-            dialog.set_response_appearance(
-                "native", Adw.ResponseAppearance.SUGGESTED
-            )
+            dialog.set_response_appearance("native", Adw.ResponseAppearance.SUGGESTED)
             dialog.set_default_response("native")
             dialog.set_close_response("webcam")
             dialog.connect("response", self._on_capture_mode_response)
@@ -545,9 +587,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._do_webcam_capture()
 
     def _do_webcam_capture(self) -> None:
-        self._preview.notification.notify_user(
-            _("Capturing photo…"), "info", 1500
-        )
+        self._preview.notification.notify_user(_("Capturing photo…"), "info", 1500)
 
         import time as _time
         from utils import xdg
@@ -559,9 +599,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         ok = self._stream_engine.capture_snapshot(output_path)
         if ok:
-            self._preview.notification.notify_user(
-                _("Photo saved!"), "success"
-            )
+            self._preview.notification.notify_user(_("Photo saved!"), "success")
             self._gallery.refresh()
         else:
             self._preview.notification.notify_user(
@@ -598,9 +636,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         def _on_done(result: str | None) -> None:
             if result:
-                self._preview.notification.notify_user(
-                    _("Photo saved!"), "success"
-                )
+                self._preview.notification.notify_user(_("Photo saved!"), "success")
                 self._gallery.refresh()
             else:
                 self._preview.notification.notify_user(
@@ -635,9 +671,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _on_phone_status_dot(self, _server, status: str) -> None:
         """Update the phone button status dot color."""
         colors = {
-            "listening": (1.0, 0.76, 0.03),   # yellow/amber
-            "connected": (0.16, 0.65, 0.27),   # green
-            "stopped": (0.6, 0.6, 0.6),        # grey
+            "listening": (1.0, 0.76, 0.03),  # yellow/amber
+            "connected": (0.16, 0.65, 0.27),  # green
+            "stopped": (0.6, 0.6, 0.6),  # grey
         }
         self._phone_status_color = colors.get(status, (0.6, 0.6, 0.6))
         self._phone_dot.set_visible(status != "stopped")
@@ -722,7 +758,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 )
                 return
             path = self._video_recorder.start(
-                self._active_camera, self._stream_engine.pipeline,
+                self._active_camera,
+                self._stream_engine.pipeline,
                 mirror=self._stream_engine.mirror,
             )
             if path:
@@ -746,18 +783,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Use camera name as default profile
         name = "default"
         camera_profiles.save_profile(self._active_camera, name, controls)
-        self._preview.notification.notify_user(
-            _("Profile saved."), "success"
-        )
+        self._preview.notification.notify_user(_("Profile saved."), "success")
 
     def _on_load_profile(self, *_args) -> None:
         if not self._active_camera:
             return
         profiles = camera_profiles.list_profiles(self._active_camera)
         if not profiles:
-            self._preview.notification.notify_user(
-                _("No profiles found."), "info"
-            )
+            self._preview.notification.notify_user(_("No profiles found."), "info")
             return
         # Load the first available profile (default)
         name = profiles[0]
@@ -776,17 +809,12 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         """Auto-start preview with the last used camera, or the first available."""
         current_ids = {c.id for c in self._camera_manager.cameras}
 
-        # Show toast for newly connected cameras
+        # Show notification for newly connected cameras
         for cam in self._camera_manager.cameras:
             if cam.id not in self._known_camera_ids:
-                toast = Adw.Toast.new(f"📷  {cam.name}")
-                toast.set_timeout(4)
-                toast.set_button_label(_("Show"))
-                toast.connect(
-                    "button-clicked",
-                    lambda _t, c=cam: self._select_camera_by_id(c.id),
+                self._notification.notify_user(
+                    f"📷  {cam.name}", level="info", timeout_ms=4000
                 )
-                self._toast_overlay.add_toast(toast)
 
         self._known_camera_ids = current_ids
 
@@ -815,9 +843,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if self._stream_engine.pipeline is not None:
             dialog = Adw.AlertDialog.new(
                 _("Camera is active"),
-                _("The camera is currently streaming. "
-                  "If you choose to keep it running, "
-                  "the camera will remain on after closing the application."),
+                _(
+                    "The camera is currently streaming. "
+                    "If you choose to keep it running, "
+                    "the camera will remain on after closing the application."
+                ),
             )
             dialog.add_response("stop", _("Stop camera and close"))
             dialog.add_response("keep", _("Keep camera on"))

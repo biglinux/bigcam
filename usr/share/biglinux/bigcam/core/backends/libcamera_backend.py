@@ -22,7 +22,11 @@ class LibcameraBackend(CameraBackend):
             try:
                 subprocess.run([cmd, "--version"], capture_output=True, timeout=5)
                 return True
-            except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            except (
+                FileNotFoundError,
+                subprocess.CalledProcessError,
+                subprocess.TimeoutExpired,
+            ):
                 continue
         return False
 
@@ -47,14 +51,16 @@ class LibcameraBackend(CameraBackend):
                     idx = m.group(1)
                     name = m.group(2).strip()
                     path = m.group(3).strip()
-                    cameras.append(CameraInfo(
-                        id=f"libcamera:{idx}",
-                        name=name,
-                        backend=BackendType.LIBCAMERA,
-                        device_path=path,
-                        capabilities=["video", "photo"],
-                        extra={"index": idx},
-                    ))
+                    cameras.append(
+                        CameraInfo(
+                            id=f"libcamera:{idx}",
+                            name=name,
+                            backend=BackendType.LIBCAMERA,
+                            device_path=path,
+                            capabilities=["video", "photo"],
+                            extra={"index": idx},
+                        )
+                    )
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
         return cameras
@@ -66,36 +72,63 @@ class LibcameraBackend(CameraBackend):
         # provide the most common ones as GStreamer element properties.
         return [
             CameraControl(
-                id="brightness", name=_("Brightness"),
+                id="brightness",
+                name=_("Brightness"),
                 category=ControlCategory.IMAGE,
                 control_type=ControlType.INTEGER,
-                value=0, default=0, minimum=-100, maximum=100, step=1,
+                value=0,
+                default=0,
+                minimum=-100,
+                maximum=100,
+                step=1,
             ),
             CameraControl(
-                id="contrast", name=_("Contrast"),
+                id="contrast",
+                name=_("Contrast"),
                 category=ControlCategory.IMAGE,
                 control_type=ControlType.INTEGER,
-                value=100, default=100, minimum=0, maximum=200, step=1,
+                value=100,
+                default=100,
+                minimum=0,
+                maximum=200,
+                step=1,
             ),
             CameraControl(
-                id="saturation", name=_("Saturation"),
+                id="saturation",
+                name=_("Saturation"),
                 category=ControlCategory.IMAGE,
                 control_type=ControlType.INTEGER,
-                value=100, default=100, minimum=0, maximum=200, step=1,
+                value=100,
+                default=100,
+                minimum=0,
+                maximum=200,
+                step=1,
             ),
             CameraControl(
-                id="awb-mode", name=_("Auto White Balance"),
+                id="awb-mode",
+                name=_("Auto White Balance"),
                 category=ControlCategory.WHITE_BALANCE,
                 control_type=ControlType.MENU,
-                value="auto", default="auto",
-                choices=["auto", "incandescent", "tungsten", "fluorescent",
-                         "indoor", "daylight", "cloudy", "custom"],
+                value="auto",
+                default="auto",
+                choices=[
+                    "auto",
+                    "incandescent",
+                    "tungsten",
+                    "fluorescent",
+                    "indoor",
+                    "daylight",
+                    "cloudy",
+                    "custom",
+                ],
             ),
             CameraControl(
-                id="exposure-mode", name=_("Exposure Mode"),
+                id="exposure-mode",
+                name=_("Exposure Mode"),
                 category=ControlCategory.EXPOSURE,
                 control_type=ControlType.MENU,
-                value="normal", default="normal",
+                value="normal",
+                default="normal",
                 choices=["normal", "short", "long", "custom"],
             ),
         ]
@@ -110,6 +143,15 @@ class LibcameraBackend(CameraBackend):
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
         cam_name = camera.device_path
         src = f"libcamerasrc camera-name={cam_name}"
+        # Apply stored controls as extra-controls
+        ctrl_pairs = []
+        for k, v in camera.extra.items():
+            if k.startswith("ctrl_"):
+                ctrl_id = k[5:]
+                ctrl_pairs.append(f"{ctrl_id}={v}")
+        if ctrl_pairs:
+            controls = ",".join(ctrl_pairs)
+            src += f' extra-controls="controls={{{controls}}}"'
         if fmt:
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:
@@ -132,6 +174,7 @@ class LibcameraBackend(CameraBackend):
                 timeout=15,
             )
             import os
+
             return os.path.isfile(output_path)
         except Exception:
             return False

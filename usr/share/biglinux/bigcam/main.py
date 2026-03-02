@@ -16,10 +16,10 @@ gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 gi.require_version("Gst", "1.0")
 
-from gi.repository import Adw, Gio, GLib, Gst
+from gi.repository import Adw, Gio, GLib, Gst  # noqa: E402
 
-from constants import APP_ID, APP_NAME, APP_ICON
-from ui.window import BigDigicamWindow
+from constants import APP_ID, APP_NAME, APP_ICON  # noqa: E402
+from ui.window import BigDigicamWindow  # noqa: E402
 
 Gst.init(None)
 
@@ -56,16 +56,23 @@ class BigDigicamApp(Adw.Application):
         # Also add the system icon path that contains bigcam.svg
         sys_icon_dir = os.path.join(
             os.path.dirname(base_dir),  # up from bigcam/ to biglinux/
-            "..", "..", "icons",         # usr/share/icons
+            "..",
+            "..",
+            "icons",  # usr/share/icons
         )
         sys_icon_dir = os.path.realpath(sys_icon_dir)
-        if os.path.isdir(sys_icon_dir) and sys_icon_dir not in icon_theme.get_search_path():
+        if (
+            os.path.isdir(sys_icon_dir)
+            and sys_icon_dir not in icon_theme.get_search_path()
+        ):
             icon_theme.add_search_path(sys_icon_dir)
 
         Gtk.Window.set_default_icon_name(APP_ICON)
 
         # Load CSS
-        css_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "style.css")
+        css_path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "style.css"
+        )
         if os.path.isfile(css_path):
             provider = Gtk.CssProvider()
             provider.load_from_path(css_path)
