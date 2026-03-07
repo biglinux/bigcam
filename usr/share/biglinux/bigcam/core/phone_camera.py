@@ -43,69 +43,130 @@ _PHONE_HTML = """\
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>BigCam</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:#1a1a2e;color:#e0e0e0;
-  display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:16px}
-h1{font-size:1.4em;margin:12px 0 8px;display:flex;align-items:center;gap:8px}
-h1 svg{width:28px;height:28px}
-.badge{padding:6px 16px;border-radius:20px;font-size:.85em;font-weight:600;margin:8px 0 12px;
-  transition:background .3s}
-.disconnected{background:#dc3545}.connecting{background:#ffc107;color:#111}
-.connected{background:#28a745}
-video{width:100%;max-width:560px;border-radius:12px;background:#000;margin-bottom:12px}
+:root{--bg:#121215;--surface:#1e1e24;--surface2:#2a2a32;--accent:#c9a00c;
+  --accent2:#e6b800;--text:#f0f0f0;--dim:#888;--ok:#2ecc71;--warn:#f39c12;--err:#e74c3c;
+  --radius:16px}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;
+  padding:12px;gap:10px;overflow:hidden}
+
+/* Header */
+.header{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo{width:48px;height:48px;flex-shrink:0}
+.brand{display:flex;flex-direction:column}
+.brand h1{font-size:1.3em;font-weight:700;letter-spacing:.5px}
+.brand span{font-size:.7em;color:var(--dim);font-weight:400}
+
+/* Status badge */
+.badge{padding:5px 18px;border-radius:20px;font-size:.8em;font-weight:600;text-align:center;
+  transition:all .3s ease;flex-shrink:0}
+.disconnected{background:var(--err);color:#fff}
+.connecting{background:var(--warn);color:#111}
+.connected{background:var(--ok);color:#fff}
+
+/* Video */
+.video-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;
+  min-height:0;overflow:hidden;border-radius:var(--radius)}
+video{width:100%;height:100%;object-fit:contain;background:#000;border-radius:var(--radius)}
 canvas{display:none}
-.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
-select,button{padding:10px 20px;border:none;border-radius:8px;font-size:.95em;
-  cursor:pointer;transition:opacity .2s}
-select{background:#2a2a4a;color:#e0e0e0}
-button{color:#fff}
-.btn-start{background:#4361ee}.btn-stop{background:#dc3545}
-.btn-switch{background:#6c757d}
-button:active{opacity:.7}
-.info{font-size:.75em;color:#888;margin-top:auto;padding-top:16px}
-.stats{font-size:.75em;color:#aaa;margin:4px 0}
+
+/* Stats */
+.stats{font-size:.7em;color:var(--dim);text-align:center;flex-shrink:0;min-height:1.2em}
+
+/* Controls */
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:400px;flex-shrink:0}
+select,button{padding:10px 6px;border:none;border-radius:10px;font-size:.85em;
+  cursor:pointer;transition:all .15s ease;text-align:center;-webkit-appearance:none}
+select{background:var(--surface2);color:var(--text);outline:none}
+select:focus{box-shadow:0 0 0 2px var(--accent)}
+button{color:#fff;font-weight:600}
+.btn-start{background:var(--accent);color:#111;grid-column:span 2}
+.btn-stop{background:var(--err);grid-column:span 2}
+.btn-switch{background:var(--surface2);grid-column:span 2}
+button:active{transform:scale(.95);opacity:.85}
+.tip{font-size:.65em;color:var(--dim);text-align:center;flex-shrink:0}
+
+/* Landscape */
+@media (orientation:landscape) and (max-height:500px){
+  body{padding:4px 12px;gap:2px}
+  .header{gap:4px}
+  .logo{width:24px;height:24px}
+  .brand h1{font-size:.8em}
+  .brand span{display:none}
+  .badge{padding:2px 10px;font-size:.6em}
+  .video-wrap{flex:0 1 auto;max-height:50vh;width:100%}
+  .stats{font-size:.6em;min-height:auto}
+  .controls{grid-template-columns:repeat(4,1fr);gap:3px;max-width:none}
+  select,button{padding:5px 3px;font-size:.65em;border-radius:6px}
+  .tip{display:none}
+}
+
+/* Tall phones */
+@media (orientation:portrait) and (min-height:700px){
+  .video-wrap{max-height:55vh}
+  .controls{gap:8px}
+  select,button{padding:12px 8px;font-size:.9em}
+}
 </style>
 </head>
 <body>
-<h1>
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-<path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/>
-</svg>
-BigCam
-</h1>
+
+<div class="header">
+  <svg class="logo" viewBox="0 0 52.351 52.351" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs><linearGradient id="bg" x1=".05" x2="1" y2="1" gradientTransform="translate(-2.38 -2.38)scale(52.35)" gradientUnits="userSpaceOnUse">
+      <stop offset=".2" stop-color="#595500" stop-opacity=".9"/><stop offset=".205" stop-color="#ffeb35"/>
+      <stop offset="1" stop-color="#bf8c05"/></linearGradient></defs>
+    <rect width="52.351" height="52.351" fill="url(#bg)" rx="15.705" opacity=".9"/>
+    <path d="M31.768 7.438q-.296 0-.623.054c-3.527.59-3.38 4.696-3.38 4.696s0 1.817 1.696 2.736c1.411.814 2.223-.063 2.361-.201s3.009-3.73 2.547 3.088c0 0 1.01-1.1 1.074-3.717.062-2.618-1.623-2.78-1.623-2.78s-.743-.188-2.22 1.409c-1.245 1.344-1.518 1.506-1.573 1.523h-.004s-.418.295-.468-.445-.21-2.978 2.047-4.192c2.25-1.213 3.35 1.756 3.35 1.756s-.248-3.923-3.184-3.927M25.404 9.14a1.197 1.597 77.92 0 0-.414.046 1.197 1.597 77.92 0 0-1.308 1.504 1.197 1.597 77.92 0 0 1.808.838 1.197 1.597 77.92 0 0 1.313-1.506 1.197 1.597 77.92 0 0-1.399-.882m-7.431.505c-.015.017-1.011 1.115-1.073 3.713-.061 2.618 1.618 2.774 1.618 2.774s.743.184 2.22-1.41c1.2-1.297 1.5-1.495 1.567-1.524h.013s.416-.29.463.447c.048.738.211 2.987-2.045 4.194-2.253 1.206-3.35-1.756-3.35-1.756s.287 4.459 3.811 3.871c3.527-.588 3.38-4.695 3.38-4.695s.003-1.81-1.698-2.73c-1.411-.815-2.225.062-2.365.202s-3 3.729-2.541-3.086m7.941 2.176a1 1 0 0 0-.16.002 1.223 1.223 0 0 0-1.125 1.317 1.2 1.2 0 0 0 .055.283s.708 2.825 4.535 2.916c0 0-2.206-1.577-2.157-3.393a1.22 1.22 0 0 0-1.148-1.125m-2.418 8.041c-.553 0-.553.003-1.078.56L20.92 22.63h-3.508c-1.217 0-2.213.909-2.213 2.092v12.353c0 1.183.996 2.15 2.213 2.15h8.06v1.133l-8.02 8.02a.83.83 0 0 0 0 1.178.833.833 0 0 0 1.179.002l6.842-6.844v7.924a.83.83 0 0 0 .834.832.83.83 0 0 0 .832-.832V42.8l6.756 6.756a.83.83 0 0 0 1.177-.002.83.83 0 0 0 0-1.178l-7.933-7.932v-1.22h7.974c1.217 0 2.211-.968 2.211-2.15V24.72c0-1.183-.994-2.092-2.21-2.092h-3.51l-1.518-2.227c-.505-.536-.506-.539-1.059-.539zm11.738 4.149h.016a.69.69 0 0 1 .691.691.69.69 0 0 1-.691.692.69.69 0 0 1-.691-.692.69.69 0 0 1 .675-.691m-9.056 1.383h.084a5.53 5.53 0 0 1 5.531 5.533 5.53 5.53 0 0 1-5.531 5.531 5.53 5.53 0 0 1-5.532-5.531 5.53 5.53 0 0 1 5.448-5.533m.017 2.765a2.766 2.766 0 0 0-2.699 2.768 2.766 2.766 0 0 0 2.766 2.765 2.766 2.766 0 0 0 2.765-2.765 2.766 2.766 0 0 0-2.765-2.768z" fill="#444"/>
+  </svg>
+  <div class="brand">
+    <h1>BigCam</h1>
+    <span>Phone as Webcam</span>
+  </div>
+</div>
+
 <div id="status" class="badge disconnected">Disconnected</div>
-<video id="video" autoplay playsinline muted></video>
+
+<div class="video-wrap">
+  <video id="video" autoplay playsinline muted></video>
+</div>
 <canvas id="canvas"></canvas>
 <div id="stats" class="stats"></div>
+
 <div class="controls">
-<select id="resolution" aria-label="Resolution">
-<option value="auto">Auto</option>
-<option value="480">480p</option>
-<option value="720" selected>720p</option>
-<option value="1080">1080p</option>
-</select>
-<select id="facing" aria-label="Camera">
-<option value="environment">Back</option>
-<option value="user">Front</option>
-</select>
-<select id="quality" aria-label="Quality">
-<option value="0.6">Low</option>
-<option value="0.75" selected>Medium</option>
-<option value="0.9">High</option>
-</select>
-<select id="fps" aria-label="FPS">
-<option value="15">15 fps</option>
-<option value="24">24 fps</option>
-<option value="30" selected>30 fps</option>
-</select>
-<button id="btnStart" class="btn-start" onclick="start()">Start</button>
-<button id="btnStop" class="btn-stop" onclick="stop()" hidden>Stop</button>
-<button id="btnSwitch" class="btn-switch" onclick="switchCam()" hidden>&#x21C4;</button>
+    <select id="resolution" aria-label="Resolution">
+      <option value="auto">Auto</option>
+      <option value="480">480p</option>
+      <option value="720" selected>720p</option>
+      <option value="1080">1080p</option>
+    </select>
+    <select id="facing" aria-label="Camera" onchange="if(stream){stop();start()}">
+      <option value="environment">&#x1F4F7; Back</option>
+      <option value="user">&#x1F933; Front</option>
+    </select>
+    <select id="quality" aria-label="Quality">
+      <option value="0.6">Low</option>
+      <option value="0.75" selected>Medium</option>
+      <option value="0.9">High</option>
+    </select>
+    <select id="fps" aria-label="FPS">
+      <option value="15">15 fps</option>
+      <option value="24">24 fps</option>
+      <option value="30" selected>30 fps</option>
+    </select>
+    <button id="btnStart" class="btn-start" onclick="start()">&#x25B6; Start</button>
+    <button id="btnStop" class="btn-stop" onclick="stop()" hidden>&#x25A0; Stop</button>
+    <button id="btnSwitch" class="btn-switch" onclick="switchCam()" hidden>&#x21C4; Switch</button>
+  </div>
 </div>
-<div class="info">Tip: accept the security warning to allow camera access.</div>
+
+<div class="tip">Accept the security warning to allow camera access.</div>
+
 <script>
 let stream=null,ws=null,timer=null,frameCount=0,lastStatTime=0,sending=false;
 let useHttp=false;
@@ -130,7 +191,6 @@ async function start(){
     video.srcObject=stream;
     await video.play();
 
-    /* Try WebSocket first, fallback to HTTP POST for Safari/iOS */
     const proto=location.protocol==='https:'?'wss:':'ws:';
     const wsUrl=proto+'//'+location.host+'/ws';
     useHttp=false;
@@ -187,7 +247,7 @@ function captureFrame(){
     if(now-lastStatTime>=1000){
       const fps=Math.round(frameCount*1000/(now-lastStatTime));
       document.getElementById('stats').textContent=
-        canvas.width+'x'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB/frame';
+        canvas.width+'\\u00d7'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB';
       frameCount=0;lastStatTime=now;
     }
   },'image/jpeg',q);
@@ -212,11 +272,9 @@ async function switchCam(){
   stop();await start();
 }
 
-/* Re-acquire camera on orientation change so dimensions update */
 if(screen.orientation){
   screen.orientation.addEventListener('change',()=>{
     if(stream){
-      /* Only restart media capture, keep WebSocket alive */
       if(timer){clearInterval(timer);timer=null}
       stream.getTracks().forEach(t=>t.stop());
       navigator.mediaDevices.getUserMedia(getConstraints()).then(s=>{

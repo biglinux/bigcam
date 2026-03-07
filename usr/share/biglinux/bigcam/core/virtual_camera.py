@@ -66,7 +66,7 @@ class VirtualCamera:
         try:
             subprocess.run(
                 [
-                    "pkexec",
+                    "sudo",
                     "modprobe",
                     "v4l2loopback",
                     "devices=2",
@@ -160,7 +160,7 @@ class VirtualCamera:
         """Unload and reload v4l2loopback with correct parameters."""
         try:
             subprocess.run(
-                ["pkexec", "modprobe", "-r", "v4l2loopback"],
+                ["sudo", "modprobe", "-r", "v4l2loopback"],
                 capture_output=True,
                 check=True,
             )

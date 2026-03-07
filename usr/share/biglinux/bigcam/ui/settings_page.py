@@ -73,11 +73,10 @@ class SettingsPage(Gtk.ScrolledWindow):
         )
 
         self._build_general(content)
+        self._build_virtual_camera(content)
         self._build_preview(content)
         if _HAS_CV2 and stream_engine is not None:
             self._build_tools(content)
-        self._build_virtual_camera(content)
-        self._build_advanced(content)
 
         clamp.set_child(content)
         self.set_child(clamp)
@@ -132,6 +131,17 @@ class SettingsPage(Gtk.ScrolledWindow):
         )
         theme_row.connect("notify::selected", self._on_theme)
         general.add(theme_row)
+
+        hotplug_row = Adw.SwitchRow(
+            title=_("USB hotplug detection"),
+            subtitle=_("Automatically detect cameras when plugged or unplugged."),
+        )
+        hotplug_row.set_active(self._settings.get("hotplug_enabled"))
+        hotplug_row.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("USB hotplug detection")]
+        )
+        hotplug_row.connect("notify::active", self._on_hotplug)
+        general.add(hotplug_row)
 
         content.append(general)
 
@@ -222,22 +232,6 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         content.append(camera_group)
 
-    def _build_advanced(self, content: Gtk.Box) -> None:
-        advanced = Adw.PreferencesGroup(title=_("Advanced"))
-
-        hotplug_row = Adw.SwitchRow(
-            title=_("USB hotplug detection"),
-            subtitle=_("Automatically detect cameras when plugged or unplugged."),
-        )
-        hotplug_row.set_active(self._settings.get("hotplug_enabled"))
-        hotplug_row.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("USB hotplug detection")]
-        )
-        hotplug_row.connect("notify::active", self._on_hotplug)
-        advanced.add(hotplug_row)
-
-        content.append(advanced)
-
     def _build_tools(self, content: Gtk.Box) -> None:
         import threading
 
@@ -283,8 +277,8 @@ class SettingsPage(Gtk.ScrolledWindow):
             css_classes=["dim-label"],
         )
         self._smile_status.set_margin_top(4)
+        smile_group.add(self._smile_status)
         content.append(smile_group)
-        content.append(self._smile_status)
 
     def _build_virtual_camera(self, content: Gtk.Box) -> None:
         vc_group = Adw.PreferencesGroup(title=_("Virtual Camera"))

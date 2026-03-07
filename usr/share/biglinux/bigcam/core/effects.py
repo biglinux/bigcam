@@ -105,13 +105,22 @@ def _apply_clahe(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 def _apply_detail_enhance(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 10), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.15), 0.0, 1.0)
-    return cv2.detailEnhance(frame, sigma_s=sigma_s, sigma_r=sigma_r)
+    # Use unsharp mask — much faster than cv2.detailEnhance with similar output
+    ksize = int(sigma_s) | 1  # ensure odd
+    ksize = min(ksize, 31)
+    strength = 1.0 + sigma_r * 10
+    blurred = cv2.GaussianBlur(frame, (ksize, ksize), 0)
+    return cv2.addWeighted(frame, strength, blurred, 1.0 - strength, 0)
 
 
 def _apply_beauty(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.4), 0.0, 1.0)
-    return cv2.edgePreservingFilter(frame, flags=1, sigma_s=sigma_s, sigma_r=sigma_r)
+    # bilateralFilter: fast skin-smoothing with edge preservation
+    d = max(5, int(sigma_s) // 10)
+    sigma_color = sigma_r * 200
+    sigma_space = sigma_s / 3
+    return cv2.bilateralFilter(frame, d, sigma_color, sigma_space)
 
 
 def _apply_brightness(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
@@ -133,8 +142,11 @@ def _apply_sharpen(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 
 def _apply_denoise(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    h = int(_clamp(params.get("strength", 10), 1, 30))
-    return cv2.fastNlMeansDenoisingColored(frame, None, h, h, 7, 21)
+    h_val = int(_clamp(params.get("strength", 10), 1, 30))
+    # bilateralFilter is ~40x faster than fastNlMeansDenoisingColored
+    d = max(5, h_val // 2)
+    sigma = h_val * 7.5
+    return cv2.bilateralFilter(frame, d, sigma, sigma)
 
 
 def _apply_white_balance(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
@@ -159,18 +171,38 @@ def _apply_negative(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 def _apply_pencil_sketch(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
-    sigma_r = _clamp(params.get("sigma_r", 0.07), 0.0, 1.0)
     shade = _clamp(params.get("shade_factor", 0.05), 0.0, 0.1)
-    gray, color = cv2.pencilSketch(
-        frame, sigma_s=sigma_s, sigma_r=sigma_r, shade_factor=shade
-    )
-    return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    # Fast pencil sketch: dodge-blend on inverted blur
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    inv = cv2.bitwise_not(gray)
+    ksize = int(sigma_s) | 1
+    ksize = min(ksize, 31)
+    blur = cv2.GaussianBlur(inv, (ksize, ksize), 0)
+    sketch = cv2.divide(gray, cv2.bitwise_not(blur), scale=256)
+    # Apply shade factor
+    if shade > 0.001:
+        sketch = cv2.multiply(sketch, np.array([1.0 - shade * 5], dtype=np.float32))
+        sketch = np.clip(sketch, 0, 255).astype(np.uint8)
+    return cv2.merge([sketch, sketch, sketch])
 
 
 def _apply_stylization(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.45), 0.0, 1.0)
-    return cv2.stylization(frame, sigma_s=sigma_s, sigma_r=sigma_r)
+    # Fast stylization: gaussian smooth + color quantize + edge overlay
+    ksize = int(sigma_s / 4) | 1
+    ksize = min(max(ksize, 3), 31)
+    smooth = cv2.GaussianBlur(frame, (ksize, ksize), 0)
+    # Quantize colors for painterly look
+    div = max(8, int(64 * sigma_r))
+    np.floor_divide(smooth, div, out=smooth)
+    np.multiply(smooth, div, out=smooth)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    edges = cv2.adaptiveThreshold(
+        cv2.medianBlur(gray, 5), 255,
+        cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 2
+    )
+    return cv2.bitwise_and(smooth, smooth, mask=edges)
 
 
 def _apply_cartoon(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
@@ -184,7 +216,7 @@ def _apply_cartoon(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
         9,
         9,
     )
-    color = cv2.bilateralFilter(frame, 9, 300, 300)
+    color = cv2.bilateralFilter(frame, 7, 300, 300)
     return cv2.bitwise_and(color, color, mask=edges)
 
 
