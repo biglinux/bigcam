@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import subprocess
 import threading
 from typing import Any
 
@@ -96,13 +97,24 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         menu_btn.set_menu_model(self._build_menu())
         self._header.pack_end(menu_btn)
 
-        # Phone camera button with status dot overlay
-        phone_btn = Gtk.Button.new_from_icon_name("phone-symbolic")
-        phone_btn.set_tooltip_text(_("Phone as Webcam"))
+        # Phone camera button with icon + label + status dot overlay
+        phone_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        phone_icon = Gtk.Image.new_from_icon_name("phone-symbolic")
+        phone_label = Gtk.Label(label=_("Phone"))
+        phone_label.add_css_class("caption")
+        phone_box.append(phone_icon)
+        phone_box.append(phone_label)
+
+        phone_btn = Gtk.Button()
+        phone_btn.set_child(phone_box)
+        phone_btn.add_css_class("flat")
+        phone_btn.add_css_class("phone-webcam-button")
+        phone_btn.set_tooltip_text(_("Use your phone as a webcam"))
         phone_btn.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Phone as Webcam")]
         )
         phone_btn.set_action_name("win.phone-camera")
+        self._phone_btn = phone_btn
 
         self._phone_dot = Gtk.DrawingArea()
         self._phone_dot.set_content_width(8)
@@ -301,6 +313,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._camera_manager.connect(
             "cameras-changed", self._on_cameras_changed_auto_start
         )
+        self._stream_engine.connect("device-busy", self._on_device_busy)
         self._settings_page.connect("show-fps-changed", self._on_show_fps_changed)
         self._settings_page.connect("mirror-changed", self._on_mirror_changed)
         self.connect("close-request", self._on_close)
@@ -310,6 +323,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     # Cache controls per camera to avoid PTP re-access
     _controls_cache: dict[str, list] = {}
+    # Track cameras that already showed the vcam creation dialog
+    _vcam_dialog_shown: set[str] = set()
 
     def _pick_preferred_format(self, camera: CameraInfo):
         """Return a VideoFormat matching user resolution/FPS preferences, or None."""
@@ -370,6 +385,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self, _selector: CameraSelector, camera: CameraInfo
     ) -> None:
         self._active_camera = camera
+        self._camera_selector.set_active_camera(camera.id)
         self._settings.set("last-camera-id", camera.id)
         title_widget = self._header.get_title_widget()
         if isinstance(title_widget, Adw.WindowTitle):
@@ -411,13 +427,33 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             if already_streaming and cached_controls is not None:
                 # Hot-swap: camera already streaming, just switch the GStreamer pipeline
                 log.debug(f"Hot-swap to {camera.name} (already streaming)")
-                self._stream_engine.stop(stop_backend=False)
+                self._stream_engine.stop(stop_backend=False, keep_vcam=True)
                 self._controls_page.set_camera_with_controls(camera, cached_controls)
                 self._stream_engine.play(camera, streaming_ready=True)
+                self._show_vcam_dialog(camera)
                 return
 
             # Stop only the GStreamer pipeline, keep other cameras' backend alive
-            self._stream_engine.stop(stop_backend=False)
+            self._stream_engine.stop(stop_backend=False, keep_vcam=True)
+
+            # For gphoto2 cameras (DSLRs/mirrorless), auto-enable virtual camera
+            # and pre-allocate v4l2loopback device on the main thread BEFORE
+            # the background thread calls start_streaming().
+            # This lets ffmpeg write directly to v4l2loopback — the virtual
+            # camera survives camera switches and "Keep camera on" close.
+            if camera.backend == BackendType.GPHOTO2:
+                if not VirtualCamera.is_enabled():
+                    VirtualCamera.set_enabled(True)
+                    self._settings.set("virtual-camera-enabled", True)
+                    log.info("Auto-enabled virtual camera for gphoto2 camera %s", camera.name)
+                vcam_dev = VirtualCamera.ensure_ready(
+                    card_label=camera.name,
+                    camera_id=camera.id,
+                )
+                if vcam_dev:
+                    camera.extra["vcam_device"] = vcam_dev
+                    log.info("Pre-allocated vcam %s for gphoto2 camera %s", vcam_dev, camera.name)
+
             self._preview.show_status(
                 _("Please wait…"),
                 _("Starting camera stream…"),
@@ -466,6 +502,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                     self._controls_cache[camera.id] = controls
                     self._controls_page.set_camera_with_controls(camera, controls)
                     self._stream_engine.play(camera, streaming_ready=True)
+                    self._show_vcam_dialog(camera)
                 else:
                     self._preview.notification.notify_user(
                         _("Failed to start camera streaming."), "error"
@@ -476,11 +513,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         else:
             # V4L2, libcamera, PipeWire: load controls async + start stream
             # Stop only GStreamer pipeline on UI thread (instant)
-            old_camera = self._stream_engine._current_camera
-            old_backend_obj = None
-            if old_camera and old_camera.backend != camera.backend:
-                old_backend_obj = self._camera_manager.get_backend(old_camera.backend)
-            self._stream_engine.stop(stop_backend=False)
+            self._stream_engine.stop(stop_backend=False, keep_vcam=True)
 
             # Start the V4L2 camera immediately
             self._controls_page.set_camera(camera)
@@ -488,9 +521,47 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             preferred_fmt = self._pick_preferred_format(camera)
             self._stream_engine.play(camera, fmt=preferred_fmt)
 
-            # Stop old backend (gphoto2) in background — has time.sleep() calls
-            if old_backend_obj and hasattr(old_backend_obj, "stop_streaming"):
-                run_async(lambda: old_backend_obj.stop_streaming(old_camera))
+            # Show virtual camera dialog
+            self._show_vcam_dialog(camera)
+
+            # Keep gphoto2 backend streaming — do NOT stop it when switching away.
+            # The camera stream persists as a v4l2loopback device available to
+            # other apps or to BigCam itself when the user switches back.
+
+    def _show_vcam_dialog(self, camera: CameraInfo) -> None:
+        """Show a dialog informing the user about the virtual camera created (once per device)."""
+        if camera.id in self._vcam_dialog_shown:
+            return
+        vcam_device = VirtualCamera.get_device_for_camera(camera.id)
+        if not vcam_device:
+            return
+        self._vcam_dialog_shown.add(camera.id)
+        dialog = Adw.AlertDialog.new(
+            _("Virtual Camera Created"),
+            _(
+                "A virtual camera was created for this camera.\n\n"
+                "Camera: {camera_name}\n"
+                "Virtual device: {vcam_device}\n\n"
+                "Other applications (Jitsi, Zoom, OBS…) can use this device."
+            ).format(camera_name=camera.name, vcam_device=vcam_device),
+        )
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("ok", _("OK"))
+        dialog.set_response_appearance("ok", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("ok")
+        dialog.set_close_response("ok")
+        dialog.connect("response", self._on_vcam_dialog_response, camera)
+        dialog.present(self)
+
+    def _on_vcam_dialog_response(
+        self, _dialog: Adw.AlertDialog, response: str, camera: CameraInfo
+    ) -> None:
+        if response == "cancel":
+            # User cancelled — stop the virtual camera for this camera
+            self._stream_engine._stop_vcam()
+            self._stream_engine._vcam_device = ""
+            VirtualCamera.release_device(camera.id)
+            self._vcam_dialog_shown.discard(camera.id)
 
     def _on_retry(self, _preview: PreviewArea) -> None:
         """Re-attempt camera connection when user clicks Try Again."""
@@ -502,7 +573,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         """Restart stream to add/remove virtual camera loopback output."""
         self._settings.set("virtual-camera-enabled", _enabled)
         if self._active_camera:
-            self._stream_engine.stop()
+            self._stream_engine.stop(stop_backend=False)
             self._on_camera_selected(self._camera_selector, self._active_camera)
 
     def _on_show_fps_changed(self, _page, show: bool) -> None:
@@ -702,6 +773,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Check if phone reconnected during the delay
         if self._phone_server and self._phone_server.is_connected:
             return False
+        self._phone_btn.remove_css_class("phone-connected")
         if self._active_camera and self._active_camera.backend == BackendType.PHONE:
             self._stream_engine.stop()
             self._active_camera = None
@@ -716,6 +788,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if hasattr(self, "_phone_disconnect_timer") and self._phone_disconnect_timer:
             GLib.source_remove(self._phone_disconnect_timer)
             self._phone_disconnect_timer = None
+
+        self._phone_btn.add_css_class("phone-connected")
 
         phone_cam = CameraInfo(
             id="phone:websocket",
@@ -740,6 +814,124 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_camera_error(self, _manager: CameraManager, message: str) -> None:
         self._preview.notification.notify_user(message, "error", 5000)
+
+    def _on_device_busy(
+        self,
+        _engine: StreamEngine,
+        device_path: str,
+        blocking_apps: list[str],
+    ) -> None:
+        """Show an informative dialog when another app holds the camera."""
+        camera_name = ""
+        if self._active_camera:
+            camera_name = self._active_camera.name
+
+        if blocking_apps:
+            apps_str = ", ".join(blocking_apps)
+            body = _(
+                "The camera \"%(camera)s\" is being used by: %(apps)s.\n\n"
+                "The video preview cannot be displayed while another "
+                "application has exclusive access to this device.\n\n"
+                "Camera settings and controls will continue to work normally.\n\n"
+                "Tip: Enable the Virtual Camera to share the camera feed "
+                "with multiple applications simultaneously."
+            ) % {"camera": camera_name or device_path, "apps": apps_str}
+        else:
+            body = _(
+                "The camera \"%s\" is being used by another application.\n\n"
+                "The video preview cannot be displayed while another "
+                "application has exclusive access to this device.\n\n"
+                "Camera settings and controls will continue to work normally.\n\n"
+                "Tip: Enable the Virtual Camera to share the camera feed "
+                "with multiple applications simultaneously."
+            ) % (camera_name or device_path)
+
+        dialog = Adw.AlertDialog.new(_("Camera in use"), body)
+
+        if blocking_apps:
+            first_app = blocking_apps[0]
+            dialog.add_response(
+                "force-close",
+                _("Force close %s") % first_app,
+            )
+            dialog.set_response_appearance(
+                "force-close", Adw.ResponseAppearance.DESTRUCTIVE
+            )
+
+        if not VirtualCamera.is_enabled():
+            dialog.add_response("virtual-cam", _("Enable Virtual Camera"))
+            dialog.set_response_appearance(
+                "virtual-cam", Adw.ResponseAppearance.SUGGESTED
+            )
+
+        dialog.add_response("close", _("Close"))
+        dialog.set_default_response("close")
+        dialog.set_close_response("close")
+
+        dialog.connect(
+            "response",
+            self._on_device_busy_response,
+            device_path,
+            blocking_apps,
+        )
+        dialog.present(self)
+
+    def _on_device_busy_response(
+        self,
+        _dialog: Adw.AlertDialog,
+        response: str,
+        device_path: str,
+        blocking_apps: list[str],
+    ) -> None:
+        if response == "force-close":
+            self._force_close_device_users(device_path, blocking_apps)
+        elif response == "virtual-cam":
+            self._activate_virtual_camera_from_dialog()
+
+    def _force_close_device_users(
+        self, device_path: str, blocking_apps: list[str]
+    ) -> None:
+        """Terminate processes using the device, then retry the camera."""
+        import signal as sig
+
+        try:
+            result = subprocess.run(
+                ["fuser", device_path],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            pids = result.stdout.strip().split()
+            for pid in pids:
+                pid = pid.strip().rstrip("m")
+                if pid.isdigit():
+                    try:
+                        os.kill(int(pid), sig.SIGTERM)
+                    except ProcessLookupError:
+                        pass
+        except Exception:
+            log.warning("Failed to kill processes on %s", device_path, exc_info=True)
+
+        # Retry after a short delay
+        GLib.timeout_add(2000, self._retry_after_force_close)
+
+    def _retry_after_force_close(self) -> bool:
+        if self._active_camera:
+            self._on_camera_selected(self._camera_selector, self._active_camera)
+        return False
+
+    def _activate_virtual_camera_from_dialog(self) -> None:
+        """Enable virtual camera and restart the pipeline."""
+        VirtualCamera.set_enabled(True)
+        self._settings_page.set_vc_toggle_active(True)
+        self._settings.set("virtual-camera-enabled", True)
+        self._preview.notification.notify_user(
+            _("Virtual Camera enabled. Other applications can use /dev/video10."),
+            "success",
+            5000,
+        )
+        if self._active_camera:
+            GLib.timeout_add(500, self._retry_after_force_close)
 
     # -- recording -----------------------------------------------------------
 
@@ -855,14 +1047,25 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
         if self._stream_engine.pipeline is not None:
-            dialog = Adw.AlertDialog.new(
-                _("Camera is active"),
+            # Build description with active camera name and virtual cam status
+            cam_name = ""
+            if self._active_camera:
+                cam_name = self._active_camera.name
+
+            parts = []
+            if cam_name:
+                parts.append(_("Active camera: %s") % cam_name)
+            if VirtualCamera.is_enabled():
+                parts.append(_("Virtual Camera is enabled (other apps may depend on it)."))
+            parts.append(
                 _(
-                    "The camera is currently streaming. "
                     "If you choose to keep it running, "
                     "the camera will remain on after closing the application."
-                ),
+                )
             )
+            body = "\n\n".join(parts)
+
+            dialog = Adw.AlertDialog.new(_("Camera is active"), body)
             dialog.add_response("stop", _("Stop camera and close"))
             dialog.add_response("keep", _("Keep camera on"))
             dialog.add_response("cancel", _("Cancel"))
@@ -894,8 +1097,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _cleanup_and_close(self) -> None:
         self._video_recorder.stop()
         self._stream_engine.stop()
+        self._stream_engine.stop_all_bg_vcams()
         self._camera_manager.stop_hotplug()
         VirtualCamera.stop()
+        # Stop all gphoto2 backend streaming processes
+        gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
+        if gp_backend and hasattr(gp_backend, "stop_streaming"):
+            gp_backend.stop_streaming()
         if getattr(self, "_background_mode", False):
             self._background_mode = False
             app = self.get_application()

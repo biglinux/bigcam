@@ -6,6 +6,8 @@ USB_PORT="$1"
 UDP_PORT="${2:-5000}"
 CAM_NAME="${3:-DSLR Camera}"
 CAM_NAME="${CAM_NAME//,/}"
+# When called with V4L2_DEV=none, skip writing to v4l2loopback (BigCam handles via appsrc)
+V4L2_DEV="${4:-auto}"
 
 LOG="/tmp/canon_webcam_stream_${UDP_PORT}.log"
 ERR_LOG="/tmp/gphoto_err_${UDP_PORT}.log"
@@ -32,10 +34,10 @@ gio mount -u gphoto2://* 2>/dev/null
 sleep 1
 
 # ── Step 3: Load v4l2loopback ──
-CARD_LABELS="BigCam Virtual,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
+CARD_LABELS="BigCam Virtual 1,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
 if ! lsmod | grep -q v4l2loopback; then
   bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
-    "card_label=$CARD_LABELS"
+    video_nr=10,11,12,13 "card_label=$CARD_LABELS"
   sleep 1
 else
   if [ "$(cat /sys/module/v4l2loopback/parameters/exclusive_caps 2>/dev/null)" = "0" ]; then
@@ -43,24 +45,32 @@ else
       bigsudo modprobe -r v4l2loopback 2>/dev/null
       sleep 1
       bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
-        "card_label=$CARD_LABELS"
+        video_nr=10,11,12,13 "card_label=$CARD_LABELS"
       sleep 1
     fi
   fi
 fi
 
-# ── Step 4: Find a free v4l2loopback virtual device ──
+# ── Step 4: Find a free v4l2loopback virtual device (unless skipped) ──
 DEVICE_VIDEO=""
-for dev in $(ls -v /dev/video* 2>/dev/null); do
-  DRIVER=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Driver name" | sed 's/.*: //')
-  if echo "$DRIVER" | grep -qi "v4l2.*loopback\|loopback"; then
-    if ! fuser "$dev" >/dev/null 2>&1; then
-      DEVICE_VIDEO="$dev"
-      break
+if [ "$V4L2_DEV" = "none" ]; then
+  # BigCam handles v4l2loopback output via appsrc pipeline — only need UDP
+  DEVICE_VIDEO=""
+elif [ "$V4L2_DEV" != "auto" ] && [ -e "$V4L2_DEV" ]; then
+  # Specific device pre-allocated by BigCam — use it directly
+  DEVICE_VIDEO="$V4L2_DEV"
+else
+  for dev in $(ls -v /dev/video* 2>/dev/null); do
+    DRIVER=$(v4l2-ctl -d "$dev" --info 2>/dev/null | grep "Driver name" | sed 's/.*: //')
+    if echo "$DRIVER" | grep -qi "v4l2.*loopback\|loopback"; then
+      if ! fuser "$dev" >/dev/null 2>&1; then
+        DEVICE_VIDEO="$dev"
+        break
+      fi
     fi
-  fi
-done
-[ -z "$DEVICE_VIDEO" ] && echo "ERROR: No free virtual video device found." && exit 1
+  done
+  [ -z "$DEVICE_VIDEO" ] && echo "ERROR: No free virtual video device found." && exit 1
+fi
 
 # ── Step 5: Validate and refresh camera port ──
 if [ -z "$USB_PORT" ]; then
@@ -101,12 +111,23 @@ for attempt in $(seq 1 $MAX_ATTEMPTS); do
     sleep 3
   fi
 
+  # Build ffmpeg command depending on whether v4l2loopback output is needed
+  if [ -n "$DEVICE_VIDEO" ]; then
+    # Split to v4l2loopback + UDP
+    FFMPEG_CMD="ffmpeg -y -hide_banner -loglevel error -stats -i - \
+      -filter_complex \"[0:v]format=yuv420p,split=2[v1][v2]\" \
+      -map \"[v1]\" -r 30 -f v4l2 \"$DEVICE_VIDEO\" \
+      -map \"[v2]\" -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0 \
+      \"udp://127.0.0.1:${UDP_PORT}?pkt_size=1316\""
+  else
+    # UDP only (BigCam handles v4l2loopback via appsrc)
+    FFMPEG_CMD="ffmpeg -y -hide_banner -loglevel error -stats -i - \
+      -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0 \
+      \"udp://127.0.0.1:${UDP_PORT}?pkt_size=1316\""
+  fi
+
   nohup bash -c "gphoto2 --stdout --capture-movie --port '$USB_PORT' 2>\"$ERR_LOG\" | \
-    ffmpeg -y -hide_banner -loglevel error -stats -i - \
-    -filter_complex \"[0:v]format=yuv420p,split=2[v1][v2]\" \
-    -map \"[v1]\" -r 30 -f v4l2 \"$DEVICE_VIDEO\" \
-    -map \"[v2]\" -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0 \
-    \"udp://127.0.0.1:${UDP_PORT}?pkt_size=1316\" >\"$LOG\" 2>&1" &
+    $FFMPEG_CMD >\"$LOG\" 2>&1" &
   PID=$!
   disown
 
@@ -125,7 +146,11 @@ for attempt in $(seq 1 $MAX_ATTEMPTS); do
 
     # Verify ffmpeg is actually writing frames (check log for frame= stats)
     if [ -s "$LOG" ] || ! grep -q "Erro\|Error" "$ERR_LOG" 2>/dev/null; then
-      echo "SUCCESS: $DEVICE_VIDEO"
+      if [ -n "$DEVICE_VIDEO" ]; then
+        echo "SUCCESS: $DEVICE_VIDEO"
+      else
+        echo "SUCCESS: UDP"
+      fi
       exit 0
     fi
   fi

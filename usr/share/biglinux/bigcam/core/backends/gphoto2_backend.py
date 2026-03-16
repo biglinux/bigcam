@@ -664,12 +664,20 @@ class GPhoto2Backend(CameraBackend):
                 pass
 
         port_arg = port if port else ""
+        # Use pre-allocated v4l2loopback device if available (from stream_engine).
+        # This lets ffmpeg write directly to v4l2loopback — the virtual camera
+        # survives camera switches and "Keep camera on" app close.
+        v4l2_dev = camera.extra.get("vcam_device", "none")
+        log.info(
+            "Starting gphoto2 streaming: port=%s, udp=%s, v4l2_dev=%s",
+            port_arg, udp_port, v4l2_dev,
+        )
         try:
             import tempfile
 
             with tempfile.TemporaryFile() as f:
                 res = subprocess.run(
-                    [script, port_arg, udp_port, camera.name],
+                    [script, port_arg, udp_port, camera.name, v4l2_dev],
                     stdout=f,
                     stderr=subprocess.STDOUT,
                 )
@@ -686,10 +694,15 @@ class GPhoto2Backend(CameraBackend):
                         self._active_streams[port] = {
                             "udp_port": udp_port,
                             "launch_port": port,
+                            "vcam_device": v4l2_dev,
                         }
                         return True
                 log.info("GPhoto2 script exited 0 (no explicit SUCCESS)")
-                self._active_streams[port] = {"udp_port": udp_port, "launch_port": port}
+                self._active_streams[port] = {
+                    "udp_port": udp_port,
+                    "launch_port": port,
+                    "vcam_device": v4l2_dev,
+                }
                 return True
 
             log.error("GPhoto2 script failed (code %d): %s", res.returncode, output)
