@@ -369,7 +369,8 @@ class V4L2Backend(CameraBackend):
         self, node_id: int, camera: CameraInfo, fmt: VideoFormat | None
     ) -> str:
         """Build pipewiresrc element — PipeWire allows multi-app camera sharing."""
-        src = f"pipewiresrc target-object={node_id}"
+        # Use 'path' property (object ID), not 'target-object' (serial/name).
+        src = f"pipewiresrc path={node_id}"
         if fmt is None:
             fmt = self._pick_best_format(camera)
         if fmt:

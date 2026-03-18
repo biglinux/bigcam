@@ -36,15 +36,15 @@ sleep 1
 # ── Step 3: Load v4l2loopback ──
 CARD_LABELS="BigCam Virtual 1,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
 if ! lsmod | grep -q v4l2loopback; then
-  bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
+  sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
     video_nr=10,11,12,13 "card_label=$CARD_LABELS"
   sleep 1
 else
   if [ "$(cat /sys/module/v4l2loopback/parameters/exclusive_caps 2>/dev/null)" = "0" ]; then
     if ! fuser /dev/video* >/dev/null 2>&1; then
-      bigsudo modprobe -r v4l2loopback 2>/dev/null
+      sudo -n modprobe -r v4l2loopback 2>/dev/null
       sleep 1
-      bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
+      sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
         video_nr=10,11,12,13 "card_label=$CARD_LABELS"
       sleep 1
     fi

@@ -7,9 +7,11 @@ import subprocess
 import threading
 from typing import Any
 
+import glob
+
 log = logging.getLogger(__name__)
 
-from gi.repository import GLib, GObject
+from gi.repository import Gio, GLib, GObject
 
 from constants import BackendType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
@@ -36,6 +38,16 @@ class CameraManager(GObject.Object):
         self._first_detection = True
         self._hotplug_timer: int | None = None
         self._last_lsusb: str = ""
+        self._last_video_devs: str = ""
+
+        # Gio.FileMonitor for instant /dev/ changes
+        self._dev_monitor: Gio.FileMonitor | None = None
+        # Gio.FileMonitors for /dev/bus/usb/ directories (gphoto2 cameras)
+        self._usb_bus_monitors: list[Gio.FileMonitor] = []
+        # Debounce timer for batching rapid device events
+        self._debounce_timer: int | None = None
+        # Lock to protect shared polling state across threads
+        self._poll_lock = threading.Lock()
 
         self._register_backends()
 
@@ -81,29 +93,31 @@ class CameraManager(GObject.Object):
         def _worker() -> None:
             all_cameras: list[CameraInfo] = []
             seen_ids: set[str] = set()
-            for b in self._backends:
-                if b.get_backend_type() == BackendType.IP:
-                    continue  # IP cameras are added manually
-                try:
-                    found = b.detect_cameras()
-                    if (
-                        not found
-                        and hasattr(b, "_streaming_active")
-                        and b._streaming_active
-                    ):
-                        # Keep existing cameras for this backend during streaming
-                        found = [
-                            c
-                            for c in self._cameras
-                            if c.backend == b.get_backend_type()
-                        ]
-                    for cam in found:
-                        if cam.id not in seen_ids:
-                            seen_ids.add(cam.id)
-                            all_cameras.append(cam)
-                except Exception as exc:
-                    GLib.idle_add(self.emit, "camera-error", str(exc))
-            self._detecting = False
+            try:
+                for b in self._backends:
+                    if b.get_backend_type() == BackendType.IP:
+                        continue  # IP cameras are added manually
+                    try:
+                        found = b.detect_cameras()
+                        if (
+                            not found
+                            and hasattr(b, "_streaming_active")
+                            and b._streaming_active
+                        ):
+                            # Keep existing cameras for this backend during streaming
+                            found = [
+                                c
+                                for c in self._cameras
+                                if c.backend == b.get_backend_type()
+                            ]
+                        for cam in found:
+                            if cam.id not in seen_ids:
+                                seen_ids.add(cam.id)
+                                all_cameras.append(cam)
+                    except Exception as exc:
+                        GLib.idle_add(self.emit, "camera-error", str(exc))
+            finally:
+                self._detecting = False
             GLib.idle_add(self._on_detection_done, all_cameras)
 
         threading.Thread(target=_worker, daemon=True).start()
@@ -120,7 +134,16 @@ class CameraManager(GObject.Object):
         old_ids = {c.id for c in self._cameras}
         new_ids = {c.id for c in cameras}
         self._cameras = cameras
-        if self._first_detection or old_ids != new_ids:
+        changed = self._first_detection or old_ids != new_ids
+        log.info(
+            "Detection done: %d cameras, old=%s, new=%s, first=%s, emit=%s",
+            len(cameras),
+            old_ids,
+            new_ids,
+            self._first_detection,
+            changed,
+        )
+        if changed:
             self._first_detection = False
             self.emit("cameras-changed")
         return False
@@ -188,30 +211,158 @@ class CameraManager(GObject.Object):
         backend = self.get_backend(camera.backend)
         return backend.capture_photo(camera, output_path) if backend else False
 
-    # -- hotplug polling -----------------------------------------------------
+    # -- hotplug detection ---------------------------------------------------
 
     def start_hotplug(self, interval_ms: int = 5000) -> None:
+        """Start USB hotplug monitoring using /dev/ inotify + polling fallback."""
+        # Take a baseline snapshot so the first poll doesn't false-trigger
+        self._snapshot_device_state()
+        log.info("Hotplug monitoring started (poll=%dms, baseline=%s)",
+                 interval_ms, self._last_video_devs)
+
+        # Start Gio.FileMonitor on /dev/ for instant V4L2 device detection
+        if self._dev_monitor is None:
+            try:
+                dev_dir = Gio.File.new_for_path("/dev")
+                self._dev_monitor = dev_dir.monitor_directory(
+                    Gio.FileMonitorFlags.NONE, None
+                )
+                self._dev_monitor.connect("changed", self._on_dev_changed)
+                log.info("Started /dev/ monitor for instant hotplug detection")
+            except Exception:
+                log.warning("Failed to start /dev/ file monitor", exc_info=True)
+
+        # Monitor /dev/bus/usb/ directories for instant gphoto2 camera detection
+        if not self._usb_bus_monitors:
+            try:
+                for bus_dir in sorted(glob.glob("/dev/bus/usb/*/")):
+                    gf = Gio.File.new_for_path(bus_dir)
+                    mon = gf.monitor_directory(Gio.FileMonitorFlags.NONE, None)
+                    mon.connect("changed", self._on_usb_bus_changed)
+                    self._usb_bus_monitors.append(mon)
+                if self._usb_bus_monitors:
+                    log.info("Started %d USB bus monitors for gphoto2 hotplug",
+                             len(self._usb_bus_monitors))
+            except Exception:
+                log.warning("Failed to start USB bus monitors", exc_info=True)
+
+        # Keep polling as a safety-net fallback
         if self._hotplug_timer is None:
             self._hotplug_timer = GLib.timeout_add(interval_ms, self._poll_hotplug)
 
     def stop_hotplug(self) -> None:
+        # Cancel pending debounce
+        if self._debounce_timer is not None:
+            GLib.source_remove(self._debounce_timer)
+            self._debounce_timer = None
+
         if self._hotplug_timer is not None:
             GLib.source_remove(self._hotplug_timer)
             self._hotplug_timer = None
 
+        if self._dev_monitor is not None:
+            self._dev_monitor.cancel()
+            self._dev_monitor = None
+
+        for mon in self._usb_bus_monitors:
+            mon.cancel()
+        self._usb_bus_monitors.clear()
+
+    def _snapshot_device_state(self) -> None:
+        """Capture current USB + video device state as baseline."""
+        with self._poll_lock:
+            try:
+                result = subprocess.run(
+                    ["lsusb"], capture_output=True, text=True, timeout=5
+                )
+                self._last_lsusb = result.stdout
+            except Exception:
+                self._last_lsusb = ""
+            try:
+                self._last_video_devs = ",".join(
+                    sorted(glob.glob("/dev/video*"))
+                )
+            except Exception:
+                self._last_video_devs = ""
+
+    def _on_dev_changed(
+        self,
+        _monitor: Gio.FileMonitor,
+        file: Gio.File,
+        _other_file: Gio.File | None,
+        event_type: Gio.FileMonitorEvent,
+    ) -> None:
+        """Instant callback when a file in /dev/ is created or deleted."""
+        name = file.get_basename()
+        log.debug("_on_dev_changed: event=%s name=%s", event_type.value_nick, name)
+
+        if event_type not in (
+            Gio.FileMonitorEvent.CREATED,
+            Gio.FileMonitorEvent.DELETED,
+        ):
+            return
+
+        if name and name.startswith("video"):
+            log.info("Instant hotplug event: %s %s", event_type.value_nick, name)
+            self._schedule_debounced_detection()
+
+    def _on_usb_bus_changed(
+        self,
+        _monitor: Gio.FileMonitor,
+        file: Gio.File,
+        _other_file: Gio.File | None,
+        event_type: Gio.FileMonitorEvent,
+    ) -> None:
+        """Instant callback when a USB device is added/removed on the bus."""
+        if event_type not in (
+            Gio.FileMonitorEvent.CREATED,
+            Gio.FileMonitorEvent.DELETED,
+        ):
+            return
+        log.info("USB bus hotplug: %s %s", event_type.value_nick, file.get_path())
+        self._schedule_debounced_detection(debounce_ms=2000)
+
+    def _schedule_debounced_detection(self, debounce_ms: int = 800) -> None:
+        """Debounce rapid device events into a single detection run."""
+        if self._debounce_timer is not None:
+            GLib.source_remove(self._debounce_timer)
+        self._debounce_timer = GLib.timeout_add(debounce_ms, self._debounced_detect)
+
+    def _debounced_detect(self) -> bool:
+        """Fire after debounce period expires."""
+        self._debounce_timer = None
+        log.debug("Debounced hotplug detection triggered")
+        self._snapshot_device_state()
+        self.detect_cameras_async()
+        return False  # one-shot
+
     def _poll_hotplug(self) -> bool:
+        """Safety-net polling fallback — runs at a longer interval."""
         if self._detecting:
             return True
 
-        def _check_usb() -> None:
-            try:
-                result = subprocess.run(["lsusb"], capture_output=True, text=True)
-                current = result.stdout
-                if current != self._last_lsusb:
-                    self._last_lsusb = current
-                    GLib.idle_add(self.detect_cameras_async)
-            except Exception:
-                log.debug("USB hotplug check failed", exc_info=True)
+        def _check_changes() -> None:
+            changed = False
+            with self._poll_lock:
+                try:
+                    result = subprocess.run(
+                        ["lsusb"], capture_output=True, text=True, timeout=5
+                    )
+                    current_usb = result.stdout
+                    if current_usb != self._last_lsusb:
+                        self._last_lsusb = current_usb
+                        changed = True
+                except Exception:
+                    log.debug("USB hotplug check failed", exc_info=True)
+                try:
+                    video_devs = ",".join(sorted(glob.glob("/dev/video*")))
+                    if video_devs != self._last_video_devs:
+                        self._last_video_devs = video_devs
+                        changed = True
+                except Exception:
+                    log.debug("Video device check failed", exc_info=True)
+            if changed:
+                GLib.idle_add(self.detect_cameras_async)
 
-        threading.Thread(target=_check_usb, daemon=True).start()
+        threading.Thread(target=_check_changes, daemon=True).start()
         return True
