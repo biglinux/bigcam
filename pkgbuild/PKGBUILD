@@ -17,6 +17,7 @@ depends=(
     'v4l2loopback-dkms'
     'x264'
     'pipewire'
+    'polkit'
 )
 optdepends=(
     'libcamera: CSI/ISP camera support (Raspberry Pi, Intel IPU6)'

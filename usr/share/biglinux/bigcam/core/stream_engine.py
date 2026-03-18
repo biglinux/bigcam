@@ -80,6 +80,7 @@ class StreamEngine(GObject.Object):
         self._pipeline: Gst.Pipeline | None = None
         self._bus_watch_id: int | None = None
         self._current_camera: CameraInfo | None = None
+        self._current_fmt: VideoFormat | None = None
         self._gtksink: Any = None
         self._use_appsink = False
         self._last_texture: Gdk.Texture | None = None
@@ -91,6 +92,8 @@ class StreamEngine(GObject.Object):
         self._probe_debug_count: int = 0
         self._last_probe_bgr = None
         self._overlay_rects: list[tuple] = []  # [(x,y,w,h), ...] for QR overlay
+        self._qr_scan_active: bool = False  # whether QR scanning mode is on
+        self._qr_scan_tick: int = 0  # animation counter for scanning guide
         self._video_recorder: Any = None  # set by window to enable phone recording
         self._zoom_level: float = 1.0  # 1.0 = no zoom, 2.0 = 2x zoom
         self._sharpness: float = 0.0  # 0.0 = off, positive = sharpen strength
@@ -103,6 +106,12 @@ class StreamEngine(GObject.Object):
         self._vcam_device: str = ""
         self._vcam_w: int = 0
         self._vcam_h: int = 0
+        # Flag: True while _rebuild_vcam is scheduled/running on the main thread.
+        # Prevents multiple concurrent rebuild requests from the probe thread.
+        self._vcam_building: bool = False
+        # Most-recent frame queued while the vcam pipeline is being built.
+        # Tuple of (bgra_bytes, w, h) or None.
+        self._vcam_pending_frame: tuple | None = None
         # Background virtual camera pipelines (camera_id → pipeline)
         self._bg_vcam_pipelines: dict[str, Gst.Pipeline] = {}
 
@@ -119,6 +128,11 @@ class StreamEngine(GObject.Object):
     def set_overlay_rects(self, rects: list[tuple]) -> None:
         """Set rectangles to draw on the video feed (e.g. QR bounding boxes)."""
         self._overlay_rects = rects
+
+    def set_qr_scanning(self, active: bool) -> None:
+        """Enable/disable QR scanning guide overlay."""
+        self._qr_scan_active = active
+        self._qr_scan_tick = 0
 
     def set_zoom(self, level: float) -> None:
         """Set digital zoom level (1.0 = no zoom, up to 4.0)."""
@@ -196,6 +210,7 @@ class StreamEngine(GObject.Object):
         self._frame_count += 1
 
         has_work = (self._effects.has_active_effects() or self._overlay_rects
+                    or self._qr_scan_active
                     or self._zoom_level > 1.0 or self._sharpness > 0.0
                     or self._backlight_comp > 0.0
                     or self._pan != 0.0 or self._tilt != 0.0)
@@ -245,6 +260,7 @@ class StreamEngine(GObject.Object):
             if bgr is not None:
                 needs_replace = (
                     self._effects.has_active_effects() or self._overlay_rects
+                    or self._qr_scan_active
                     or self._zoom_level > 1.0 or self._sharpness > 0.0
                     or self._backlight_comp > 0.0
                     or self._pan != 0.0 or self._tilt != 0.0
@@ -291,16 +307,60 @@ class StreamEngine(GObject.Object):
                             x, y, rw, rh = rect
                             # Restore bright area inside rect
                             overlay[y:y+rh, x:x+rw] = processed[y:y+rh, x:x+rw]
-                            # Red border
+                            # Green border when detected
                             cv2.rectangle(
-                                overlay, (x, y), (x + rw, y + rh), (0, 0, 255), 3
+                                overlay, (x, y), (x + rw, y + rh), (0, 255, 0), 3
                             )
+                        processed = overlay
+                    elif self._qr_scan_active:
+                        # Draw scanning guide: centered square with animated corners
+                        fh, fw = processed.shape[:2]
+                        side = min(fw, fh) * 2 // 3
+                        cx, cy = fw // 2, fh // 2
+                        x1, y1 = cx - side // 2, cy - side // 2
+                        x2, y2 = x1 + side, y1 + side
+                        corner_len = side // 5
+                        self._qr_scan_tick += 1
+                        # Darken outside the guide area
+                        overlay = processed.copy()
+                        mask = np.ones((fh, fw), dtype=np.uint8)
+                        mask[y1:y2, x1:x2] = 0
+                        overlay[mask == 1] = (overlay[mask == 1] * 0.4).astype(np.uint8)
+                        # Animated scanning line (moves up and down)
+                        scan_range = y2 - y1
+                        scan_pos = y1 + int((self._qr_scan_tick % 60) / 60.0 * scan_range)
+                        cv2.line(overlay, (x1 + 4, scan_pos), (x2 - 4, scan_pos), (0, 200, 255), 2)
+                        # Corner markers (white, thick)
+                        color = (255, 255, 255)
+                        t = 3
+                        # Top-left
+                        cv2.line(overlay, (x1, y1), (x1 + corner_len, y1), color, t)
+                        cv2.line(overlay, (x1, y1), (x1, y1 + corner_len), color, t)
+                        # Top-right
+                        cv2.line(overlay, (x2, y1), (x2 - corner_len, y1), color, t)
+                        cv2.line(overlay, (x2, y1), (x2, y1 + corner_len), color, t)
+                        # Bottom-left
+                        cv2.line(overlay, (x1, y2), (x1 + corner_len, y2), color, t)
+                        cv2.line(overlay, (x1, y2), (x1, y2 - corner_len), color, t)
+                        # Bottom-right
+                        cv2.line(overlay, (x2, y2), (x2 - corner_len, y2), color, t)
+                        cv2.line(overlay, (x2, y2), (x2, y2 - corner_len), color, t)
                         processed = overlay
                     # Store for snapshot/photo (mirror applied for consistency with preview)
                     self._last_probe_bgr = (
                         cv2.flip(processed, 1) if self._mirror else processed
                     )
-                    # Convert back to original format
+                    # Feed effects-processed frame to virtual camera.
+                    # Always use BGRA (what the vcam appsrc caps declare) converted
+                    # from the BGR `processed` array — independent of source format.
+                    if self._vcam_device:
+                        vcam_bgra = cv2.cvtColor(processed, cv2.COLOR_BGR2BGRA)
+                        self._push_vcam(vcam_bgra.tobytes(), w, h)
+                    
+                    # Push to video recorder
+                    if self._video_recorder and self._video_recorder.is_recording:
+                        self._video_recorder.write_frame(self._last_probe_bgr)
+                    # Convert back to original GStreamer pipeline format
                     if fmt in ("BGRA", "BGRx"):
                         out = np.empty((h, w, 4), dtype=np.uint8)
                         out[:, :, :3] = processed
@@ -336,9 +396,11 @@ class StreamEngine(GObject.Object):
                         self._last_probe_bgr = cv2.flip(bgr, 1)
                     else:
                         self._last_probe_bgr = bgr.copy()
-                    # Feed unprocessed frame to virtual camera
-                    if self._vcam_device and fmt in ("BGRA", "BGRx"):
-                        self._push_vcam(bytes(raw_arr), w, h)
+                    # Feed unprocessed frame to virtual camera.
+                    # Convert bgr view to BGRA (vcam appsrc caps) for all source formats.
+                    if self._vcam_device and bgr is not None:
+                        vcam_bgra = cv2.cvtColor(bgr, cv2.COLOR_BGR2BGRA)
+                        self._push_vcam(vcam_bgra.tobytes(), w, h)
         except Exception as e:
             if self._probe_debug_count <= 5:
                 log.debug(f"paintable_probe error: {e}")
@@ -351,9 +413,6 @@ class StreamEngine(GObject.Object):
             new_buf.duration = buf.duration
             new_buf.offset = buf.offset
             info.set_buffer(new_buf)
-            # Feed effects-processed frame to virtual camera
-            if self._vcam_device:
-                self._push_vcam(result, w, h)
         return Gst.PadProbeReturn.OK
 
     @property
@@ -368,26 +427,26 @@ class StreamEngine(GObject.Object):
         """Save the current preview frame as a PNG file.
 
         Works for both paintable and appsink pipelines.
+        Prioritizes the probe's BGR frame which has all effects and mirroring applied.
         """
-        # Appsink pipeline stores last texture directly
-        if self._use_appsink and self._last_texture:
-            try:
-                self._last_texture.save_to_png(output_path)
-                return True
-            except Exception as exc:
-                log.error("Failed to save appsink snapshot: %s", exc)
-                return False
-
-        # Paintable pipeline — capture from probe's last frame
+        # 1. Try capture from probe's last frame (includes all effects + mirror)
         if self._last_probe_bgr is not None:
             try:
                 cv2.imwrite(output_path, self._last_probe_bgr)
                 return True
             except Exception as exc:
                 log.error("Failed to save probe snapshot: %s", exc)
-                return False
+                # Fall through to fallback methods
 
-        # Fallback — try paintable directly
+        # 2. Appsink pipeline fallback: stores last texture directly
+        if self._use_appsink and self._last_texture:
+            try:
+                self._last_texture.save_to_png(output_path)
+                return True
+            except Exception as exc:
+                log.error("Failed to save appsink snapshot: %s", exc)
+
+        # 3. Last resort: try paintable directly
         if self._gtksink:
             paintable = self._gtksink.get_property("paintable")
             if paintable and hasattr(paintable, "save_to_png"):
@@ -410,13 +469,26 @@ class StreamEngine(GObject.Object):
             streaming_ready: If True, skip start_streaming() because caller
                              already handled it (e.g. window async setup).
         """
+        # Avoid tearing down a running pipeline for the same camera+format
+        if (
+            self._current_camera
+            and self._current_camera.id == camera.id
+            and self._pipeline is not None
+            and fmt == self._current_fmt
+        ):
+            log.debug("play(): camera %s already playing, skipping restart", camera.name)
+            return True
+
+        log.info("play() called: camera=%s id=%s, bg_vcams=%s", camera.name, camera.id, list(self._bg_vcam_pipelines.keys()))
         self.stop(stop_backend=False, keep_vcam=True)
         self._current_camera = camera
+        self._current_fmt = fmt
         # If this camera had a background vcam, stop it (we'll create a new effects-aware one)
         self._stop_bg_vcam(camera.id)
         self._use_appsink = camera.backend in _APPSINK_BACKENDS
-        log.debug(
-            f"play: camera={camera.name}, backend={camera.backend}, use_appsink={self._use_appsink}, streaming_ready={streaming_ready}"
+        log.info(
+            "play: camera=%s, backend=%s, use_appsink=%s, streaming_ready=%s",
+            camera.name, camera.backend, self._use_appsink, streaming_ready,
         )
 
         # Phone camera – frames come via WebRTC, no GStreamer pipeline needed
@@ -478,16 +550,18 @@ class StreamEngine(GObject.Object):
         if target_fps > 0:
             rate_limiter = f"videorate drop-only=true ! video/x-raw,framerate={target_fps}/1 ! "
 
-        base_pipeline = (
-            f"{gst_source} ! "
+        n_threads = min(os.cpu_count() or 2, 4)
+        suffix = (
             f"queue max-size-buffers=5 leaky=downstream silent=true ! "
             f"{rate_limiter}"
-            f"videoconvert n-threads={min(os.cpu_count() or 2, 4)} name=conv ! "
+            f"videoconvert n-threads={n_threads} name=conv ! "
             f"video/x-raw,format=BGRA ! "
             f"tee name=t ! "
             f"queue max-size-buffers=3 leaky=downstream silent=true ! "
             f"gtk4paintablesink sync=false"
         )
+
+        base_pipeline = f"{gst_source} ! {suffix}"
 
         if self._try_start_paintable(base_pipeline):
             # Start separate vcam pipeline for effects-processed output
@@ -495,11 +569,31 @@ class StreamEngine(GObject.Object):
                 self._start_vcam(loopback_device)
             return True
 
+        # PipeWire source may fail on some format/fps combinations.
+        # Fallback: try V4L2 direct access if the original source was PipeWire.
+        camera = self._current_camera
+        if camera and "pipewiresrc" in gst_source and camera.device_path:
+            log.warning(
+                "PipeWire pipeline failed for %s, falling back to v4l2src",
+                camera.device_path,
+            )
+            backend = self._manager.get_backend(camera.backend)
+            if backend and hasattr(backend, "_v4l2_gst_source"):
+                fmt_obj = None
+                if camera.formats:
+                    fmt_obj = backend._pick_best_format(camera)
+                v4l2_source = backend._v4l2_gst_source(camera.device_path, camera, fmt_obj)
+                fallback_pipeline = f"{v4l2_source} ! {suffix}"
+                if self._try_start_paintable(fallback_pipeline):
+                    if loopback_device:
+                        self._start_vcam(loopback_device)
+                    return True
+
         # All pipelines failed — check if device is busy
-        if self._current_camera and self._current_camera.device_path:
-            users = _find_device_users(self._current_camera.device_path)
+        if camera and camera.device_path:
+            users = _find_device_users(camera.device_path)
             if users:
-                self.emit("device-busy", self._current_camera.device_path, users)
+                self.emit("device-busy", camera.device_path, users)
                 return False
 
         self.emit("error", _("Failed to start camera stream."))
@@ -574,20 +668,21 @@ class StreamEngine(GObject.Object):
         self._appsink_max_retries = 30  # 30 * 500ms = 15s max wait (like old app)
         self._appsink_timer_id: int | None = None
 
-        # For gphoto2 cameras: ffmpeg writes directly to v4l2loopback,
-        # so we do NOT create an appsrc→v4l2sink pipeline (it would conflict
-        # and it dies when switching cameras anyway).
-        # For other appsink backends (IP), keep the appsrc pipeline.
-        direct_vcam = self._current_camera and self._current_camera.extra.get("vcam_device")
-        if not direct_vcam:
+        # BigCam is the sole writer to v4l2loopback so that OpenCV effects
+        # are always visible on the virtual camera output.  For gPhoto2,
+        # the device was pre-allocated in window.py; for IP cameras, we
+        # allocate one here.
+        pre_allocated = self._current_camera and self._current_camera.extra.get("vcam_device")
+        if pre_allocated:
+            log.info("Using pre-allocated vcam device %s for effects output", pre_allocated)
+            self._start_vcam(pre_allocated)
+        else:
             loopback_device = VirtualCamera.ensure_ready(
                 card_label=self._current_camera.name if self._current_camera else None,
                 camera_id=self._current_camera.id if self._current_camera else "",
             )
             if loopback_device:
                 self._start_vcam(loopback_device)
-        else:
-            log.info("Skipping appsrc vcam — ffmpeg writes directly to %s", direct_vcam)
 
         # Wait 2s for ffmpeg to start producing frames, then try
         self._appsink_timer_id = GLib.timeout_add(2000, self._try_appsink_first)
@@ -743,6 +838,7 @@ class StreamEngine(GObject.Object):
             self._stop_phone_v4l2()
             self._phone_v4l2_device = ""
             self._current_camera = None
+            self._current_fmt = None
             self.emit("state-changed", "stopped")
 
         if self._pipeline is not None:
@@ -755,6 +851,7 @@ class StreamEngine(GObject.Object):
             self._pipeline = None
             self._gtksink = None
             self._current_camera = None
+            self._current_fmt = None
             self.emit("state-changed", "stopped")
 
         if camera and stop_backend:
@@ -806,6 +903,11 @@ class StreamEngine(GObject.Object):
             # Feed effects-processed (or original) frame to virtual camera
             if self._vcam_device:
                 self._push_vcam(data, w, h)
+            
+            # Feed to video recorder
+            if self._video_recorder and self._video_recorder.is_recording:
+                # Use reconstructed BGR frame (which has effects)
+                self._video_recorder.write_frame(self._last_probe_bgr)
             stride = len(data) // h
             glib_bytes = GLib.Bytes.new(data)
             GLib.idle_add(self._update_texture, w, h, stride, glib_bytes)
@@ -830,13 +932,21 @@ class StreamEngine(GObject.Object):
         """Prepare appsrc → v4l2sink pipeline for virtual camera output.
 
         The pipeline is created lazily on the first frame when resolution is known.
+        Pipeline creation MUST happen on the GLib main thread to avoid deadlocks
+        with GStreamer's internal mutexes (probe callbacks run on streaming threads).
         """
         self._vcam_device = device
+        self._vcam_building = False
+        self._vcam_pending_frame = None
         log.info("Virtual camera output prepared on %s", device)
 
     def _rebuild_vcam(self, w: int, h: int) -> None:
-        """(Re)create the virtual camera pipeline with correct resolution."""
+        """(Re)create the virtual camera pipeline with correct resolution.
+
+        MUST be called on the GLib main thread (not from a GStreamer probe).
+        """
         self._stop_vcam()
+        self._vcam_building = False
         device = self._vcam_device
         if not device:
             return
@@ -858,6 +968,16 @@ class StreamEngine(GObject.Object):
         self._vcam_h = h
         ret = self._vcam_pipeline.set_state(Gst.State.PLAYING)
         log.info("Virtual camera started on %s (%dx%d) state=%s", device, w, h, ret)
+        # Drain the frame that was queued while we were building
+        pending = self._vcam_pending_frame
+        self._vcam_pending_frame = None
+        if pending and self._vcam_appsrc:
+            self._push_vcam(*pending)
+
+    def _rebuild_vcam_idle(self, w: int, h: int) -> bool:
+        """GLib idle callback: create vcam pipeline on the main thread."""
+        self._rebuild_vcam(w, h)
+        return False  # Run only once
 
     def _stop_vcam(self) -> None:
         """Stop the virtual camera pipeline."""
@@ -870,11 +990,23 @@ class StreamEngine(GObject.Object):
             self._vcam_h = 0
 
     def _push_vcam(self, bgra_bytes: bytes, w: int, h: int) -> None:
-        """Push a BGRA frame to the virtual camera appsrc."""
+        """Push a BGRA frame to the virtual camera appsrc.
+
+        Safe to call from any thread. Pipeline creation is delegated to the
+        GLib main thread the first time this is called (lazy init).
+        """
         if not self._vcam_device:
             return
+
+        # Pipeline not ready yet: schedule creation on the main thread and
+        # stash the most-recent frame so it can be sent once the pipeline starts.
         if self._vcam_w == 0:
-            self._rebuild_vcam(w, h)
+            self._vcam_pending_frame = (bgra_bytes, w, h)
+            if not self._vcam_building:
+                self._vcam_building = True
+                GLib.idle_add(self._rebuild_vcam_idle, w, h)
+            return
+
         appsrc = self._vcam_appsrc
         if not appsrc:
             return
@@ -919,9 +1051,21 @@ class StreamEngine(GObject.Object):
         # Stop any existing background pipeline for this camera
         self._stop_bg_vcam(cam_id)
 
+        # Build a proper source with format caps using the backend
+        # _v4l2_gst_source() already includes jpegdec for MJPEG formats
+        backend = self._manager.get_backend(camera.backend)
+        fmt_obj = None
+        if backend and hasattr(backend, "_pick_best_format") and camera.formats:
+            fmt_obj = backend._pick_best_format(camera)
+        if backend and hasattr(backend, "_v4l2_gst_source"):
+            source = backend._v4l2_gst_source(camera.device_path, camera, fmt_obj)
+        else:
+            source = f"v4l2src device={camera.device_path}"
+
+        nthreads = min(os.cpu_count() or 2, 4)
         pipeline_str = (
-            f"v4l2src device={camera.device_path} ! "
-            f"videoconvert n-threads={min(os.cpu_count() or 2, 4)} ! "
+            f"{source} ! "
+            f"videoconvert n-threads={nthreads} ! "
             f"video/x-raw,format=YUY2 ! "
             f"v4l2sink device={device} sync=false"
         )
@@ -942,7 +1086,8 @@ class StreamEngine(GObject.Object):
         """Stop a specific background virtual camera pipeline."""
         pipe = self._bg_vcam_pipelines.pop(camera_id, None)
         if pipe:
-            log.info("Stopping background vcam for %s", camera_id)
+            import traceback
+            log.info("Stopping background vcam for %s\n%s", camera_id, "".join(traceback.format_stack()[-4:-1]))
             pipe.set_state(Gst.State.NULL)
 
     def stop_all_bg_vcams(self) -> None:
@@ -961,6 +1106,8 @@ class StreamEngine(GObject.Object):
     _phone_v4l2_device: str = ""
     _phone_v4l2_w: int = 0
     _phone_v4l2_h: int = 0
+    _phone_v4l2_building: bool = False
+    _phone_v4l2_pending_frame: Any = None  # (bgr_ndarray, w, h) or None
 
     def _start_phone_camera(self, camera: CameraInfo) -> bool:
         """Receive frames from the phone camera WebSocket server."""
@@ -988,11 +1135,17 @@ class StreamEngine(GObject.Object):
     def _start_phone_v4l2(self, device: str) -> None:
         """Create appsrc → videoconvert → v4l2sink pipeline for phone → virtual camera."""
         self._phone_v4l2_device = device
+        self._phone_v4l2_building = False
+        self._phone_v4l2_pending_frame = None
         # Pipeline will be created on first frame when we know the resolution
 
     def _rebuild_phone_v4l2(self, w: int, h: int) -> None:
-        """(Re)create the v4l2 pipeline with correct resolution."""
+        """(Re)create the v4l2 pipeline with correct resolution.
+
+        MUST be called on the GLib main thread (not from an asyncio callback).
+        """
         self._stop_phone_v4l2()
+        self._phone_v4l2_building = False
         device = self._phone_v4l2_device
         if not device:
             log.warning("Cannot rebuild phone v4l2: no device set")
@@ -1022,6 +1175,17 @@ class StreamEngine(GObject.Object):
             h,
             ret,
         )
+        # Drain the frame queued while building
+        pending = self._phone_v4l2_pending_frame
+        self._phone_v4l2_pending_frame = None
+        if pending is not None and self._phone_v4l2_appsrc:
+            bgr_p, wp, hp = pending
+            self._push_phone_v4l2(bgr_p, wp, hp)
+
+    def _rebuild_phone_v4l2_idle(self, w: int, h: int) -> bool:
+        """GLib idle callback: create phone v4l2 pipeline on the main thread."""
+        self._rebuild_phone_v4l2(w, h)
+        return False  # Run only once
 
     def _stop_phone_v4l2(self) -> None:
         """Stop the phone virtual camera pipeline."""
@@ -1040,12 +1204,19 @@ class StreamEngine(GObject.Object):
         When the phone rotates, the frame is resized to match the original
         pipeline resolution to avoid recreating the v4l2sink (which causes
         OBS to drop the device).
+
+        Safe to call from asyncio threads. Pipeline creation is delegated to
+        the GLib main thread on first call (lazy init).
         """
         if not self._phone_v4l2_device:
             return
-        # First frame: create pipeline with the initial resolution
+        # First frame: schedule pipeline creation on the main thread
         if not self._phone_v4l2_caps_set:
-            self._rebuild_phone_v4l2(w, h)
+            self._phone_v4l2_pending_frame = (bgr, w, h)
+            if not self._phone_v4l2_building:
+                self._phone_v4l2_building = True
+                GLib.idle_add(self._rebuild_phone_v4l2_idle, w, h)
+            return
         appsrc = self._phone_v4l2_appsrc
         if not appsrc:
             return
@@ -1141,6 +1312,10 @@ class StreamEngine(GObject.Object):
                     self.emit("device-busy", self._current_camera.device_path, [])
                 return
 
+            # PipeWire async failure (e.g. unhandled format): retry with v4l2src
+            if self._try_pw_fallback():
+                return
+
             self.stop()
             self.emit("error", error_text)
         elif msg.type == Gst.MessageType.WARNING:
@@ -1149,3 +1324,64 @@ class StreamEngine(GObject.Object):
             # Suppress expected leaky queue warnings
             if "descartada" not in wmsg and "dropping" not in wmsg.lower():
                 log.warning("GStreamer warning: %s", wmsg)
+
+    def _try_pw_fallback(self) -> bool:
+        """If the current pipeline uses pipewiresrc, retry with v4l2src.
+
+        Returns True if fallback succeeded and streaming continues.
+        """
+        camera = self._current_camera
+        if not camera or not camera.device_path:
+            return False
+        # Only fallback if the failing pipeline uses pipewiresrc
+        if not self._pipeline:
+            return False
+        pipe_str = self._pipeline.get_name()
+        has_pw = False
+        it = self._pipeline.iterate_sources()
+        while True:
+            ret, elem = it.next()
+            if ret == Gst.IteratorResult.OK:
+                factory = elem.get_factory()
+                if factory and factory.get_name() == "pipewiresrc":
+                    has_pw = True
+                    break
+            else:
+                break
+        if not has_pw:
+            return False
+
+        log.warning(
+            "PipeWire pipeline failed async for %s, retrying with v4l2src",
+            camera.device_path,
+        )
+        # Save loopback state before stop
+        loopback_device = self._vcam_device
+        self.stop()
+
+        backend = self._manager.get_backend(camera.backend)
+        if not backend or not hasattr(backend, "_v4l2_gst_source"):
+            return False
+
+        fmt_obj = None
+        if camera.formats and hasattr(backend, "_pick_best_format"):
+            fmt_obj = backend._pick_best_format(camera)
+        v4l2_source = backend._v4l2_gst_source(
+            camera.device_path, camera, fmt_obj
+        )
+        n_threads = min(os.cpu_count() or 2, 4)
+        suffix = (
+            f"queue max-size-buffers=5 leaky=downstream silent=true ! "
+            f"videoconvert n-threads={n_threads} name=conv ! "
+            f"video/x-raw,format=BGRA ! "
+            f"tee name=t ! "
+            f"queue max-size-buffers=3 leaky=downstream silent=true ! "
+            f"gtk4paintablesink sync=false"
+        )
+        fallback_pipeline = f"{v4l2_source} ! {suffix}"
+        if self._try_start_paintable(fallback_pipeline):
+            self._current_camera = camera
+            if loopback_device:
+                self._start_vcam(loopback_device)
+            return True
+        return False

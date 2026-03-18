@@ -128,6 +128,7 @@ class ToolsPage(Gtk.ScrolledWindow):
     def _on_qr_toggled(self, row: Adw.SwitchRow, _pspec: Any) -> None:
         self._qr_active = row.get_active()
         log.debug(f"QR toggle: active={self._qr_active}")
+        self._engine.set_qr_scanning(self._qr_active)
         if self._qr_active:
             self._init_qr_detector()
             self._qr_timer_id = GLib.timeout_add(150, self._scan_qr)

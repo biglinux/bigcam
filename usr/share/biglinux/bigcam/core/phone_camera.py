@@ -43,45 +43,51 @@ _PHONE_HTML = """\
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BigCam</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#121215;--surface:#1e1e24;--surface2:#2a2a32;--accent:#c9a00c;
   --accent2:#e6b800;--text:#f0f0f0;--dim:#888;--ok:#2ecc71;--warn:#f39c12;--err:#e74c3c;
-  --radius:16px}
-html,body{height:100%;overflow:hidden}
+  --radius:14px;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+  --safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px)}
+html{height:100%}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100vh;
-  padding:12px;gap:10px;overflow:hidden}
+  display:flex;flex-direction:column;align-items:center;
+  height:100dvh;height:100vh;
+  padding:calc(10px + var(--safe-t)) calc(10px + var(--safe-r)) calc(10px + var(--safe-b)) calc(10px + var(--safe-l));
+  gap:8px;overflow:hidden}
 
 /* Header */
-.header{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.logo{width:48px;height:48px;flex-shrink:0}
+.header{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.logo{width:40px;height:40px;flex-shrink:0}
 .brand{display:flex;flex-direction:column}
-.brand h1{font-size:1.3em;font-weight:700;letter-spacing:.5px}
-.brand span{font-size:.7em;color:var(--dim);font-weight:400}
+.brand h1{font-size:1.2em;font-weight:700;letter-spacing:.5px}
+.brand span{font-size:.65em;color:var(--dim);font-weight:400}
 
 /* Status badge */
-.badge{padding:5px 18px;border-radius:20px;font-size:.8em;font-weight:600;text-align:center;
+.badge{padding:4px 16px;border-radius:20px;font-size:.75em;font-weight:600;text-align:center;
   transition:all .3s ease;flex-shrink:0}
 .disconnected{background:var(--err);color:#fff}
 .connecting{background:var(--warn);color:#111}
 .connected{background:var(--ok);color:#fff}
 
 /* Video */
-.video-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;
+.video-wrap{flex:1 1 0;display:flex;align-items:center;justify-content:center;width:100%;
   min-height:0;overflow:hidden;border-radius:var(--radius)}
 video{width:100%;height:100%;object-fit:contain;background:#000;border-radius:var(--radius)}
 canvas{display:none}
 
 /* Stats */
-.stats{font-size:.7em;color:var(--dim);text-align:center;flex-shrink:0;min-height:1.2em}
+.stats{font-size:.65em;color:var(--dim);text-align:center;flex-shrink:0;min-height:1em}
 
 /* Controls */
-.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:400px;flex-shrink:0}
-select,button{padding:10px 6px;border:none;border-radius:10px;font-size:.85em;
-  cursor:pointer;transition:all .15s ease;text-align:center;-webkit-appearance:none}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:400px;
+  flex-shrink:0;align-self:center}
+select,button{padding:10px 6px;border:none;border-radius:10px;font-size:.82em;
+  cursor:pointer;transition:all .15s ease;text-align:center;-webkit-appearance:none;
+  min-height:44px;touch-action:manipulation}
 select{background:var(--surface2);color:var(--text);outline:none}
 select:focus{box-shadow:0 0 0 2px var(--accent)}
 button{color:#fff;font-weight:600}
@@ -89,28 +95,55 @@ button{color:#fff;font-weight:600}
 .btn-stop{background:var(--err);grid-column:span 2}
 .btn-switch{background:var(--surface2);grid-column:span 2}
 button:active{transform:scale(.95);opacity:.85}
-.tip{font-size:.65em;color:var(--dim);text-align:center;flex-shrink:0}
+.tip{font-size:.6em;color:var(--dim);text-align:center;flex-shrink:0}
 
-/* Landscape */
+/* ── Landscape: side-by-side layout ── */
 @media (orientation:landscape) and (max-height:500px){
-  body{padding:4px 12px;gap:2px}
-  .header{gap:4px}
-  .logo{width:24px;height:24px}
-  .brand h1{font-size:.8em}
-  .brand span{display:none}
-  .badge{padding:2px 10px;font-size:.6em}
-  .video-wrap{flex:0 1 auto;max-height:50vh;width:100%}
-  .stats{font-size:.6em;min-height:auto}
-  .controls{grid-template-columns:repeat(4,1fr);gap:3px;max-width:none}
-  select,button{padding:5px 3px;font-size:.65em;border-radius:6px}
+  body{
+    display:grid;
+    grid-template-columns:1fr clamp(180px,40%,320px);
+    grid-template-rows:auto auto 1fr auto;
+    padding:calc(4px + var(--safe-t)) calc(6px + var(--safe-r)) calc(4px + var(--safe-b)) calc(6px + var(--safe-l));
+    gap:4px 10px;align-items:stretch}
+
+  /* Video fills entire left column */
+  .video-wrap{grid-column:1;grid-row:1/-1;height:100%;border-radius:10px}
+
+  /* Right column panel */
+  .header{grid-column:2;grid-row:1;gap:8px;justify-content:center}
+  .logo{width:48px;height:48px}
+  .brand h1{font-size:1.2em}
+  .brand span{font-size:.65em}
+
+  #status{grid-column:2;grid-row:2;padding:3px 12px;font-size:.7em;justify-self:center}
+
+  .controls{
+    grid-column:2;grid-row:3;
+    grid-template-columns:1fr 1fr;
+    max-width:none;gap:6px;
+    align-content:start;align-self:start}
+  select,button{padding:12px 6px;font-size:.85em;border-radius:8px;min-height:40px}
+  .btn-start,.btn-stop,.btn-switch{grid-column:span 2}
+
+  .stats{grid-column:2;grid-row:4;font-size:.6em;min-height:auto}
   .tip{display:none}
 }
 
-/* Tall phones */
+/* ── Tall portrait phones ── */
 @media (orientation:portrait) and (min-height:700px){
   .video-wrap{max-height:55vh}
   .controls{gap:8px}
-  select,button{padding:12px 8px;font-size:.9em}
+  select,button{padding:12px 8px;font-size:.9em}}
+
+/* ── Very short landscape (foldables, small screens) ── */
+@media (orientation:landscape) and (max-height:360px){
+  body{grid-template-rows:auto auto 1fr auto;gap:2px 6px}
+  .header{gap:2px}
+  .logo{width:16px;height:16px}
+  .brand h1{font-size:.6em}
+  .brand span{display:none}
+  #status{padding:1px 6px;font-size:.5em}
+  select,button{padding:4px 2px;font-size:.6em;min-height:24px}
 }
 </style>
 </head>
@@ -139,30 +172,29 @@ button:active{transform:scale(.95);opacity:.85}
 <div id="stats" class="stats"></div>
 
 <div class="controls">
-    <select id="resolution" aria-label="Resolution">
-      <option value="auto">Auto</option>
-      <option value="480">480p</option>
-      <option value="720" selected>720p</option>
-      <option value="1080">1080p</option>
-    </select>
-    <select id="facing" aria-label="Camera" onchange="if(stream){stop();start()}">
-      <option value="environment">&#x1F4F7; Back</option>
-      <option value="user">&#x1F933; Front</option>
-    </select>
-    <select id="quality" aria-label="Quality">
-      <option value="0.6">Low</option>
-      <option value="0.75" selected>Medium</option>
-      <option value="0.9">High</option>
-    </select>
-    <select id="fps" aria-label="FPS">
-      <option value="15">15 fps</option>
-      <option value="24">24 fps</option>
-      <option value="30" selected>30 fps</option>
-    </select>
-    <button id="btnStart" class="btn-start" onclick="start()">&#x25B6; Start</button>
-    <button id="btnStop" class="btn-stop" onclick="stop()" hidden>&#x25A0; Stop</button>
-    <button id="btnSwitch" class="btn-switch" onclick="switchCam()" hidden>&#x21C4; Switch</button>
-  </div>
+  <select id="resolution" aria-label="Resolution">
+    <option value="auto">Auto</option>
+    <option value="480">480p</option>
+    <option value="720" selected>720p</option>
+    <option value="1080">1080p</option>
+  </select>
+  <select id="facing" aria-label="Camera" onchange="if(stream){stop();start()}">
+    <option value="environment">&#x1F4F7; Back</option>
+    <option value="user">&#x1F933; Front</option>
+  </select>
+  <select id="quality" aria-label="Quality">
+    <option value="0.6">Low</option>
+    <option value="0.75" selected>Medium</option>
+    <option value="0.9">High</option>
+  </select>
+  <select id="fps" aria-label="FPS">
+    <option value="15">15 fps</option>
+    <option value="24">24 fps</option>
+    <option value="30" selected>30 fps</option>
+  </select>
+  <button id="btnStart" class="btn-start" onclick="start()">&#x25B6; Start</button>
+  <button id="btnStop" class="btn-stop" onclick="stop()" hidden>&#x25A0; Stop</button>
+  <button id="btnSwitch" class="btn-switch" onclick="switchCam()" hidden>&#x21C4; Switch</button>
 </div>
 
 <div class="tip">Accept the security warning to allow camera access.</div>

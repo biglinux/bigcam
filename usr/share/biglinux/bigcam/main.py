@@ -6,6 +6,20 @@ from __future__ import annotations
 import sys
 import os
 import signal
+import logging
+
+# Configure logging early
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(name)s:%(levelname)s: %(message)s",
+    filename="/tmp/bigcam_debug.log",
+    filemode="w",
+)
+# Also log INFO+ to stderr so we can see critical messages in terminal
+_console = logging.StreamHandler()
+_console.setLevel(logging.INFO)
+_console.setFormatter(logging.Formatter("%(name)s:%(levelname)s: %(message)s"))
+logging.getLogger().addHandler(_console)
 
 # Ensure the package root is in sys.path
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))

@@ -184,21 +184,20 @@ class GPhoto2Backend(CameraBackend):
     _last_detected: list[CameraInfo] = []
 
     def detect_cameras(self) -> list[CameraInfo]:
-        # While streaming, return previously detected cameras
-        if self._streaming_active:
-            return self._last_detected
-
         cameras: list[CameraInfo] = []
         try:
-            # Kill GVFS to release the camera
-            subprocess.run(
-                ["pkill", "-f", "gvfs-gphoto2-volume-monitor"],
-                capture_output=True,
-            )
-            time.sleep(1)
+            # Kill GVFS to release the camera (skip if already streaming
+            # to avoid disrupting an active session)
+            if not self._streaming_active:
+                subprocess.run(
+                    ["pkill", "-f", "gvfs-gphoto2-volume-monitor"],
+                    capture_output=True,
+                )
+                time.sleep(1)
 
             # Retry up to 2 times in case GVFS hasn't released the device yet
-            for attempt in range(2):
+            max_attempts = 1 if self._streaming_active else 2
+            for attempt in range(max_attempts):
                 result = subprocess.run(
                     ["gphoto2", "--auto-detect"],
                     capture_output=True,
@@ -229,11 +228,15 @@ class GPhoto2Backend(CameraBackend):
 
                 if cameras:
                     break
-                time.sleep(1)
+                if not self._streaming_active:
+                    time.sleep(1)
         except Exception:
             pass
         if cameras:
             self._last_detected = cameras
+        elif self._streaming_active:
+            # Fallback: if --auto-detect failed during streaming, keep previous
+            return self._last_detected
         return cameras
 
     # -- controls ------------------------------------------------------------
@@ -664,10 +667,11 @@ class GPhoto2Backend(CameraBackend):
                 pass
 
         port_arg = port if port else ""
-        # Use pre-allocated v4l2loopback device if available (from stream_engine).
-        # This lets ffmpeg write directly to v4l2loopback — the virtual camera
-        # survives camera switches and "Keep camera on" app close.
-        v4l2_dev = camera.extra.get("vcam_device", "none")
+        # Do NOT let ffmpeg write directly to v4l2loopback — BigCam's
+        # appsrc pipeline handles v4l2loopback output so that OpenCV
+        # effects are applied to the virtual camera.  Passing "none"
+        # tells the script to stream only via UDP.
+        v4l2_dev = "none"
         log.info(
             "Starting gphoto2 streaming: port=%s, udp=%s, v4l2_dev=%s",
             port_arg, udp_port, v4l2_dev,

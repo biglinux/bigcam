@@ -251,12 +251,16 @@ def _apply_vignette(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
         mask = 1.0 - strength * (radius / max_r) ** 2
         _vignette_cache[key] = np.clip(mask, 0, 1)
     mask = _vignette_cache[key]
-    return (frame * mask[:, :, np.newaxis]).astype(np.uint8)
+    mask3 = cv2.merge([mask, mask, mask])
+    return cv2.multiply(frame, mask3, dtype=cv2.CV_8U)
 
 
 # ── Advanced / Background effects ──
 
 _face_detector: Any = None
+_face_detect_counter: int = 0
+_face_detect_interval: int = 5
+_last_face_rects: Any = np.array([])
 
 
 def _get_face_detector() -> Any:
@@ -267,6 +271,23 @@ def _get_face_detector() -> Any:
     return _face_detector
 
 
+def _detect_faces_throttled(gray: np.ndarray) -> Any:
+    """Run face detection at most once every N frames, reusing previous result."""
+    global _face_detect_counter, _last_face_rects
+    _face_detect_counter += 1
+    if _face_detect_counter >= _face_detect_interval or len(_last_face_rects) == 0:
+        _face_detect_counter = 0
+        detector = _get_face_detector()
+        eq = cv2.equalizeHist(gray)
+        _last_face_rects = detector.detectMultiScale(
+            eq,
+            scaleFactor=1.1,
+            minNeighbors=4,
+            minSize=(50, 50),
+        )
+    return _last_face_rects
+
+
 def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     strength = int(_clamp(params.get("strength", 21), 1, 51))
     if strength % 2 == 0:
@@ -274,15 +295,8 @@ def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
     blurred = cv2.GaussianBlur(frame, (strength, strength), 0)
 
-    detector = _get_face_detector()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    eq = cv2.equalizeHist(gray)
-    faces = detector.detectMultiScale(
-        eq,
-        scaleFactor=1.1,
-        minNeighbors=4,
-        minSize=(50, 50),
-    )
+    faces = _detect_faces_throttled(gray)
 
     if len(faces) == 0:
         return blurred
@@ -505,6 +519,21 @@ def _register_effects() -> None:
             ),
             _apply_vignette,
         ),
+        # ── Advanced ──
+        (
+            EffectInfo(
+                effect_id="bg_blur",
+                name=_("Background Blur"),
+                icon="blur-symbolic",
+                category=EffectCategory.ADVANCED,
+                params=[
+                    EffectParam(
+                        "strength", _("Strength"), 1, 51, 21, 2
+                    ),
+                ],
+            ),
+            _apply_bg_blur,
+        ),
 
     ]
 
@@ -514,6 +543,7 @@ class EffectPipeline:
 
     def __init__(self) -> None:
         self._effects: list[tuple[EffectInfo, Any]] = []
+        self._active_count: int = 0
         if _HAS_CV2:
             _register_effects()
             self._effects = list(_EFFECTS_REGISTRY)
@@ -534,7 +564,9 @@ class EffectPipeline:
     def set_enabled(self, effect_id: str, enabled: bool) -> None:
         for info, _ in self._effects:
             if info.effect_id == effect_id:
-                info.enabled = enabled
+                if info.enabled != enabled:
+                    self._active_count += 1 if enabled else -1
+                    info.enabled = enabled
                 return
 
     def set_param(self, effect_id: str, param_name: str, value: float) -> None:
@@ -557,9 +589,10 @@ class EffectPipeline:
             info.enabled = False
             for p in info.params:
                 p.value = p.default
+        self._active_count = 0
 
     def has_active_effects(self) -> bool:
-        return any(info.enabled for info, _ in self._effects)
+        return self._active_count > 0
 
     def apply(self, frame: np.ndarray) -> np.ndarray:
         """Apply all enabled effects to a BGR frame."""

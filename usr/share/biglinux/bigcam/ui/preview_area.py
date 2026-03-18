@@ -189,10 +189,10 @@ class PreviewArea(Gtk.Overlay):
         box.add_css_class("osd")
         box.add_css_class("toolbar")
 
-        # Capture button
         self._capture_btn = Gtk.Button.new_from_icon_name("camera-photo-symbolic")
         self._capture_btn.add_css_class("circular")
         self._capture_btn.add_css_class("suggested-action")
+        self._capture_btn.add_css_class("capture-button")
         self._capture_btn.set_tooltip_text(_("Capture photo"))
         self._capture_btn.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Capture photo")]
@@ -200,14 +200,35 @@ class PreviewArea(Gtk.Overlay):
         self._capture_btn.connect("clicked", lambda _b: self.emit("capture-requested"))
         box.append(self._capture_btn)
 
-        # Record button
-        self._record_btn = Gtk.Button.new_from_icon_name("media-record-symbolic")
-        self._record_btn.add_css_class("circular")
-        self._record_btn.set_tooltip_text(_("Record video"))
+        # Record button — classic REC style (red dot with circular border)
+        self._rec_dot = Gtk.Box()
+        self._rec_dot.add_css_class("rec-dot")
+        self._rec_stop = Gtk.Box()
+        self._rec_stop.add_css_class("rec-stop-icon")
+        self._rec_stop.set_visible(False)
+        self._rec_stop.set_halign(Gtk.Align.CENTER)
+        self._rec_stop.set_valign(Gtk.Align.CENTER)
+        self._rec_overlay = Gtk.Overlay()
+        self._rec_overlay.set_child(self._rec_dot)
+        self._rec_overlay.add_overlay(self._rec_stop)
+        self._rec_overlay.set_halign(Gtk.Align.CENTER)
+        self._rec_overlay.set_valign(Gtk.Align.CENTER)
+        self._record_btn = Gtk.Button()
+        self._record_btn.set_child(self._rec_overlay)
+        self._record_btn.add_css_class("record-button")
+        self._is_recording = False
+        self._record_btn.set_tooltip_text(_("Record video (Ctrl+R)"))
         self._record_btn.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Record video")]
         )
         self._record_btn.connect("clicked", lambda _b: self.emit("record-toggled"))
+
+        # Hover controller for stop icon during recording
+        hover_ctrl = Gtk.EventControllerMotion()
+        hover_ctrl.connect("enter", self._on_rec_hover_enter)
+        hover_ctrl.connect("leave", self._on_rec_hover_leave)
+        self._record_btn.add_controller(hover_ctrl)
+
         box.append(self._record_btn)
 
         return box
@@ -217,6 +238,7 @@ class PreviewArea(Gtk.Overlay):
     def _on_state_changed(self, _engine: StreamEngine, state: str) -> None:
         if state == "playing":
             self._stop_progress_pulse()
+            self._last_error = ""
             paintable = self._engine.paintable
             if paintable:
                 self._picture.set_paintable(paintable)
@@ -406,14 +428,27 @@ class PreviewArea(Gtk.Overlay):
             self._retry_timer = None
 
     def set_recording_state(self, recording: bool) -> None:
+        self._is_recording = recording
         if recording:
-            self._record_btn.set_icon_name("media-playback-stop-symbolic")
-            self._record_btn.add_css_class("destructive-action")
+            self._record_btn.add_css_class("recording")
+            self._rec_dot.add_css_class("recording")
             self._record_btn.set_tooltip_text(_("Stop recording"))
         else:
-            self._record_btn.set_icon_name("media-record-symbolic")
-            self._record_btn.remove_css_class("destructive-action")
-            self._record_btn.set_tooltip_text(_("Record video"))
+            self._record_btn.remove_css_class("recording")
+            self._rec_dot.remove_css_class("recording")
+            self._rec_stop.set_visible(False)
+            self._rec_dot.set_visible(True)
+            self._record_btn.set_tooltip_text(_("Record video (Ctrl+R)"))
+
+    def _on_rec_hover_enter(self, *_args) -> None:
+        if self._is_recording:
+            self._rec_dot.set_visible(False)
+            self._rec_stop.set_visible(True)
+
+    def _on_rec_hover_leave(self, *_args) -> None:
+        if self._is_recording:
+            self._rec_stop.set_visible(False)
+            self._rec_dot.set_visible(True)
 
     # -- grid overlay --------------------------------------------------------
 

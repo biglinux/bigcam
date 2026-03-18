@@ -14,6 +14,9 @@ from gi.repository import Adw, Gtk, GLib, GObject
 from core.effects import EffectPipeline, EffectInfo, EffectCategory, EffectParam
 from utils.i18n import _
 
+import logging
+log = logging.getLogger(__name__)
+
 
 _CATEGORY_LABELS = {
     EffectCategory.ADJUST: _("Adjustments"),
@@ -198,7 +201,6 @@ class EffectsPage(Gtk.ScrolledWindow):
         if self._resetting:
             return
         enabled = row.get_active()
-        effect.enabled = enabled
         self._pipeline.set_enabled(effect.effect_id, enabled)
         self.emit("effect-changed")
 
@@ -208,7 +210,6 @@ class EffectsPage(Gtk.ScrolledWindow):
         if self._resetting:
             return
         enabled = switch.get_active()
-        effect.enabled = enabled
         self._pipeline.set_enabled(effect.effect_id, enabled)
         self.emit("effect-changed")
 
@@ -252,7 +253,6 @@ class EffectsPage(Gtk.ScrolledWindow):
     def _on_reset_category(self, _btn: Gtk.Button, effs: list[EffectInfo]) -> None:
         self._resetting = True
         for eff in effs:
-            eff.enabled = False
             self._pipeline.set_enabled(eff.effect_id, False)
             self._pipeline.reset_effect(eff.effect_id)
             for param in eff.params:

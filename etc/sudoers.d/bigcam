@@ -1,3 +1,6 @@
 # Allow all users to load/unload v4l2loopback without password (BigCam)
+# modprobe may live in /usr/bin or /usr/sbin depending on distro
 ALL ALL=(root) NOPASSWD: /usr/bin/modprobe v4l2loopback *
 ALL ALL=(root) NOPASSWD: /usr/bin/modprobe -r v4l2loopback
+ALL ALL=(root) NOPASSWD: /usr/sbin/modprobe v4l2loopback *
+ALL ALL=(root) NOPASSWD: /usr/sbin/modprobe -r v4l2loopback

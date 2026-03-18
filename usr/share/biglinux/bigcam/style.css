@@ -45,3 +45,85 @@
 row.expander image.expander-row-arrow {
     -gtk-icon-source: -gtk-icontheme("pan-up-symbolic");
 }
+
+/* Capture button — perfect circle */
+.capture-button {
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 9999px;
+    padding: 0;
+}
+
+.capture-button image {
+    padding: 0;
+    margin: 0;
+}
+
+/* Record button — classic REC style */
+.record-button {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    border: 3px solid white;
+    background: transparent;
+    transition: all 300ms ease-in-out;
+}
+
+.record-button:hover {
+    border-color: alpha(white, 0.7);
+    background: alpha(white, 0.1);
+}
+
+.rec-dot {
+    min-width: 16px;
+    min-height: 16px;
+    border-radius: 50%;
+    background-color: @error_bg_color;
+    transition: all 300ms ease-in-out;
+}
+
+/* Recording active — red dot expands to fill circle and pulses */
+.record-button.recording {
+    border-color: @error_color;
+}
+
+.record-button.recording:hover {
+    border-color: alpha(@error_color, 0.8);
+    background: alpha(@error_color, 0.15);
+}
+
+.rec-dot.recording {
+    min-width: 32px;
+    min-height: 32px;
+    background-color: @error_color;
+    animation: rec-pulse 1.2s ease-in-out infinite;
+}
+
+/* Stop icon shown on hover during recording */
+.rec-stop-icon {
+    min-width: 14px;
+    min-height: 14px;
+    border-radius: 2px;
+    background-color: white;
+}
+
+@keyframes rec-pulse {
+    0%, 100% { opacity: 1.0; }
+    50% { opacity: 0.3; }
+}
+
+/* Phone as Webcam button */
+.phone-webcam-button {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85em;
+}
+
+.phone-webcam-button:hover {
+    background-color: alpha(@accent_color, 0.1);
+}
+
+.phone-webcam-button.phone-connected {
+    color: @success_color;
+}

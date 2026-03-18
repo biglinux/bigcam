@@ -35,15 +35,15 @@ sleep 2
 
 # Load v4l2loopback with 4 virtual devices if not loaded
 if ! lsmod | grep -q v4l2loopback; then
-  bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 "card_label=$CARD_LABELS"
+  sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 "card_label=$CARD_LABELS"
   sleep 1
 else
   # If loaded with exclusive_caps=0, reload only if no device is in use
   if [ "$(cat /sys/module/v4l2loopback/parameters/exclusive_caps 2>/dev/null)" = "0" ]; then
     if ! fuser /dev/video* >/dev/null 2>&1; then
-      bigsudo modprobe -r v4l2loopback 2>/dev/null
+      sudo -n modprobe -r v4l2loopback 2>/dev/null
       sleep 1
-      bigsudo modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 "card_label=$CARD_LABELS"
+      sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 "card_label=$CARD_LABELS"
       sleep 1
     fi
   fi
