@@ -1055,6 +1055,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._stream_engine.stop()
             self._active_camera = None
             self._camera_selector.set_active_camera(None)
+            self._controls_page.set_camera(None)
             self._preview.show_status(
                 _("No camera"),
                 _("Connect a camera or select one from the list above."),
