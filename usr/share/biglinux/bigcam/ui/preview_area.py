@@ -10,6 +10,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gtk, Graphene, GLib, GObject
 
+from core.audio_monitor import AudioMonitor
 from core.stream_engine import StreamEngine
 from utils.i18n import _
 
@@ -166,6 +167,16 @@ class PreviewArea(Gtk.Overlay):
         self._grid_drawing.set_visible(False)
         self.add_overlay(self._grid_drawing)
 
+        # -- audio volume overlay (top-left) --------------------------------
+        self._audio_monitor: AudioMonitor | None = None
+        self._audio_box = self._build_audio_overlay()
+        self._audio_box.set_halign(Gtk.Align.START)
+        self._audio_box.set_valign(Gtk.Align.START)
+        self._audio_box.set_margin_top(8)
+        self._audio_box.set_margin_start(8)
+        self._audio_box.set_visible(False)
+        self.add_overlay(self._audio_box)
+
         # -- engine signals --------------------------------------------------
         self._engine.connect("state-changed", self._on_state_changed)
         self._engine.connect("error", self._on_error)
@@ -232,6 +243,145 @@ class PreviewArea(Gtk.Overlay):
         box.append(self._record_btn)
 
         return box
+
+    # -- audio overlay -------------------------------------------------------
+
+    def _build_audio_overlay(self) -> Gtk.Box:
+        box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=4,
+            margin_start=6,
+            margin_end=6,
+            margin_top=4,
+            margin_bottom=4,
+        )
+        box.add_css_class("osd")
+        box.add_css_class("audio-overlay")
+
+        self._audio_checks_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=2
+        )
+        box.append(self._audio_checks_box)
+
+        self._mute_btn = Gtk.Button.new_from_icon_name(
+            "audio-volume-medium-symbolic"
+        )
+        self._mute_btn.add_css_class("flat")
+        self._mute_btn.add_css_class("circular")
+        self._mute_btn.add_css_class("audio-overlay-btn")
+        self._mute_btn.set_tooltip_text(_("Mute"))
+        self._mute_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Mute")]
+        )
+        self._mute_btn.connect("clicked", self._on_mute_clicked)
+        box.append(self._mute_btn)
+
+        self._vol_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 0.0, 1.0, 0.05
+        )
+        self._vol_scale.set_value(0.5)
+        self._vol_scale.set_draw_value(False)
+        self._vol_scale.set_size_request(120, -1)
+        self._vol_scale.add_css_class("audio-vol-scale")
+        self._vol_scale.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Volume")]
+        )
+        self._vol_scale_handler = self._vol_scale.connect(
+            "value-changed", self._on_vol_scale_changed
+        )
+        box.append(self._vol_scale)
+
+        return box
+
+    def set_audio_monitor(self, monitor: AudioMonitor | None) -> None:
+        """Bind an AudioMonitor to the overlay controls."""
+        if self._audio_monitor:
+            try:
+                self._audio_monitor.disconnect_by_func(self._on_sources_changed)
+                self._audio_monitor.disconnect_by_func(self._on_volume_changed)
+                self._audio_monitor.disconnect_by_func(self._on_mute_changed)
+            except TypeError:
+                pass
+        self._audio_monitor = monitor
+        if monitor:
+            monitor.connect("sources-changed", self._on_sources_changed)
+            monitor.connect("volume-changed", self._on_volume_changed)
+            monitor.connect("mute-changed", self._on_mute_changed)
+            self._sync_scale(monitor.volume)
+            self._update_mute_icon(monitor.muted)
+        else:
+            self._audio_box.set_visible(False)
+
+    def _on_sources_changed(self, mon: AudioMonitor) -> None:
+        # Clear old checkboxes
+        while True:
+            child = self._audio_checks_box.get_first_child()
+            if child is None:
+                break
+            self._audio_checks_box.remove(child)
+
+        sources = mon.sources
+        if not sources:
+            self._audio_box.set_visible(False)
+            return
+
+        for idx, (src_name, label) in enumerate(sources, start=1):
+            check = Gtk.CheckButton(label=str(idx))
+            check.set_active(mon.is_active(src_name))
+            check.set_tooltip_text(label)
+            check.update_property(
+                [Gtk.AccessibleProperty.LABEL],
+                [f"{label} – audio {idx}"],
+            )
+            check.connect("toggled", self._on_audio_check_toggled, src_name)
+            self._audio_checks_box.append(check)
+
+        self._audio_box.set_visible(True)
+
+    def _on_audio_check_toggled(
+        self, check: Gtk.CheckButton, source_name: str
+    ) -> None:
+        if not self._audio_monitor:
+            return
+        is_active = self._audio_monitor.is_active(source_name)
+        want_active = check.get_active()
+        if want_active != is_active:
+            self._audio_monitor.toggle_source(source_name)
+
+    def _on_volume_changed(self, _mon: AudioMonitor, volume: float) -> None:
+        self._sync_scale(volume)
+        self._update_mute_icon(self._audio_monitor.muted if self._audio_monitor else False)
+
+    def _on_mute_changed(self, _mon: AudioMonitor, muted: bool) -> None:
+        self._update_mute_icon(muted)
+
+    def _sync_scale(self, volume: float) -> None:
+        self._vol_scale.handler_block(self._vol_scale_handler)
+        self._vol_scale.set_value(volume)
+        self._vol_scale.handler_unblock(self._vol_scale_handler)
+
+    def _update_mute_icon(self, muted: bool) -> None:
+        if muted:
+            icon = "audio-volume-muted-symbolic"
+            self._mute_btn.set_tooltip_text(_("Unmute"))
+        else:
+            vol = self._audio_monitor.volume if self._audio_monitor else 0.5
+            if vol < 0.33:
+                icon = "audio-volume-low-symbolic"
+            elif vol < 0.66:
+                icon = "audio-volume-medium-symbolic"
+            else:
+                icon = "audio-volume-high-symbolic"
+            self._mute_btn.set_tooltip_text(_("Mute"))
+        self._mute_btn.set_icon_name(icon)
+
+    def _on_mute_clicked(self, _btn: Gtk.Button) -> None:
+        if self._audio_monitor:
+            self._audio_monitor.toggle_mute()
+
+    def _on_vol_scale_changed(self, scale: Gtk.Scale) -> None:
+        if self._audio_monitor:
+            self._audio_monitor.set_volume(scale.get_value())
 
     # -- signals / callbacks -------------------------------------------------
 

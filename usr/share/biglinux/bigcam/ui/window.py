@@ -16,6 +16,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Adw, Gtk, Gio, GLib
 
 from constants import APP_NAME, BackendType
+from core.audio_monitor import AudioMonitor
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
 from core.stream_engine import StreamEngine
@@ -57,6 +58,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._video_recorder = VideoRecorder(self._camera_manager)
         self._stream_engine._video_recorder = self._video_recorder
 
+        self._audio_monitor = AudioMonitor()
         self._active_camera: CameraInfo | None = None
         self._known_camera_ids: set[str] = set()
         self._streaming_lock = threading.Lock()
@@ -168,6 +170,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.set_show_fps(self._settings.get("show_fps"))
         self._preview.set_grid_visible(self._settings.get("grid_overlay"))
         self._preview.set_mirror(bool(self._settings.get("mirror_preview")))
+        self._preview.set_audio_monitor(self._audio_monitor)
+        self._audio_monitor.detect_all()
+        self._audio_monitor.connect("source-toggled", self._on_audio_source_toggled)
         self._paned.set_start_child(self._preview)
 
         # RIGHT: sidebar with ViewStack
@@ -542,6 +547,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._settings_page.update_camera_formats(camera)
             preferred_fmt = self._pick_preferred_format(camera)
             self._stream_engine.play(camera, fmt=preferred_fmt)
+
+
 
             # Show virtual camera dialog
             self._show_vcam_dialog(camera)
@@ -969,6 +976,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 self._active_camera,
                 self._stream_engine.pipeline,
                 mirror=self._stream_engine.mirror,
+                audio_sources=self._audio_monitor.all_source_names,
+                active_audio_sources=self._audio_monitor.active_source_names,
             )
             if path:
                 self._preview.set_recording_state(True)
@@ -979,6 +988,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 self._preview.notification.notify_user(
                     _("Failed to start recording."), "error"
                 )
+
+    def _on_audio_source_toggled(
+        self, _monitor: AudioMonitor, source_name: str, active: bool
+    ) -> None:
+        """Forward audio source toggle to the video recorder during recording."""
+        if self._video_recorder.is_recording:
+            self._video_recorder.set_source_active(source_name, active)
 
     # -- profiles ------------------------------------------------------------
 
@@ -1016,6 +1032,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _on_cameras_changed_auto_start(self, _manager: CameraManager) -> None:
         """Auto-start preview with the last used camera, or the first available."""
         current_ids = {c.id for c in self._camera_manager.cameras}
+
+        # Re-detect audio sources when USB devices change
+        self._audio_monitor.detect_all()
 
         # Show toast for newly connected cameras
         for cam in self._camera_manager.cameras:
@@ -1146,6 +1165,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _cleanup_and_close(self) -> None:
         self._video_recorder.stop()
+        self._audio_monitor.stop_all()
         self._stream_engine.stop()
         self._stream_engine.stop_all_bg_vcams()
         self._camera_manager.stop_hotplug()
