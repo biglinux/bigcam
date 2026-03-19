@@ -214,8 +214,9 @@ class StreamEngine(GObject.Object):
                     or self._zoom_level > 1.0 or self._sharpness > 0.0
                     or self._backlight_comp > 0.0
                     or self._pan != 0.0 or self._tilt != 0.0)
+        is_recording = self._video_recorder and self._video_recorder.is_recording
         # Fast path: no effects/overlays — only grab BGR every 10th frame for photos
-        if not has_work and self._frame_count % 10 != 0:
+        if not has_work and not is_recording and self._frame_count % 10 != 0:
             return Gst.PadProbeReturn.OK
 
         buf = info.get_buffer()
@@ -396,6 +397,9 @@ class StreamEngine(GObject.Object):
                         self._last_probe_bgr = cv2.flip(bgr, 1)
                     else:
                         self._last_probe_bgr = bgr.copy()
+                    # Push to video recorder
+                    if is_recording:
+                        self._video_recorder.write_frame(self._last_probe_bgr)
                     # Feed unprocessed frame to virtual camera.
                     # Convert bgr view to BGRA (vcam appsrc caps) for all source formats.
                     if self._vcam_device and bgr is not None:
@@ -484,7 +488,14 @@ class StreamEngine(GObject.Object):
         self._current_camera = camera
         self._current_fmt = fmt
         # If this camera had a background vcam, stop it (we'll create a new effects-aware one)
+        # The bg vcam uses v4l2src which holds an exclusive lock on the device.
+        # After stopping it, PipeWire needs a moment to re-expose the node
+        # before pipewiresrc can connect.
+        had_bg_vcam = camera.id in self._bg_vcam_pipelines
         self._stop_bg_vcam(camera.id)
+        if had_bg_vcam:
+            import time
+            time.sleep(0.15)
         self._use_appsink = camera.backend in _APPSINK_BACKENDS
         log.info(
             "play: camera=%s, backend=%s, use_appsink=%s, streaming_ready=%s",
@@ -916,6 +927,9 @@ class StreamEngine(GObject.Object):
     def _update_texture(
         self, w: int, h: int, stride: int, glib_bytes: GLib.Bytes
     ) -> bool:
+        # Discard stale appsink frames if pipeline mode changed to paintable
+        if not self._use_appsink:
+            return False
         try:
             texture = Gdk.MemoryTexture.new(
                 w, h, Gdk.MemoryFormat.B8G8R8A8_PREMULTIPLIED, glib_bytes, stride
@@ -1086,8 +1100,7 @@ class StreamEngine(GObject.Object):
         """Stop a specific background virtual camera pipeline."""
         pipe = self._bg_vcam_pipelines.pop(camera_id, None)
         if pipe:
-            import traceback
-            log.info("Stopping background vcam for %s\n%s", camera_id, "".join(traceback.format_stack()[-4:-1]))
+            log.info("Stopping background vcam for %s", camera_id)
             pipe.set_state(Gst.State.NULL)
 
     def stop_all_bg_vcams(self) -> None:

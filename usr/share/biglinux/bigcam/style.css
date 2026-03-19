@@ -127,3 +127,19 @@ row.expander image.expander-row-arrow {
 .phone-webcam-button.phone-connected {
     color: @success_color;
 }
+
+/* Audio volume overlay (top-left) */
+.audio-overlay {
+    border-radius: 8px;
+    padding: 2px 6px;
+}
+
+.audio-overlay-btn {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+}
+
+.audio-vol-scale {
+    margin: 0 4px;
+}
