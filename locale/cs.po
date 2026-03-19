@@ -2,7 +2,7 @@
 # Copyright (C) 2026 THE bigcam'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the bigcam package.
 # Automatically generated, 2026.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam 1.0\n"
@@ -15,59 +15,62 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: attranslate\n"
-# 
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 59
-#: usr/share/biglinux/bigcam/ui/notification.py:59
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/notification.py:59
 msgid "Dismiss"
-msgstr ""
-# 
+msgstr "Zavřít"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 62
-#: usr/share/biglinux/bigcam/ui/notification.py:62
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/notification.py:62
 msgid "Dismiss notification"
-msgstr ""
-# 
+msgstr "Zavřít oznámení"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 79
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1059
-#: usr/share/biglinux/bigcam/ui/preview_area.py:79
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:79
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1064
 msgid "No camera"
-msgstr ""
-# 
+msgstr "Žádná kamera"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 80
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1060
-#: usr/share/biglinux/bigcam/ui/preview_area.py:80
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:80
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1065
 msgid "Connect a camera or select one from the list above."
-msgstr ""
-# 
+msgstr "Připojte kameru nebo vyberte jednu ze seznamu výše."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 86
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 92
-#: usr/share/biglinux/bigcam/ui/preview_area.py:86
-#: usr/share/biglinux/bigcam/ui/preview_area.py:92
+#. Retry button (hidden by default)
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:86
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:92
 msgid "Try again"
-msgstr ""
-# 
+msgstr "Zkuste to znovu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 196
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 198
-#: usr/share/biglinux/bigcam/ui/preview_area.py:196
-#: usr/share/biglinux/bigcam/ui/preview_area.py:198
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:196
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:198
 msgid "Capture photo"
-msgstr ""
-# 
+msgstr "Pořídit fotografii"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 220
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 441
-#: usr/share/biglinux/bigcam/ui/preview_area.py:209
-#: usr/share/biglinux/bigcam/ui/preview_area.py:419
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:220
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:441
 msgid "Record video (Ctrl+R)"
-msgstr ""
-# 
+msgstr "Nahrávat video (Ctrl+R)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 222
-#: usr/share/biglinux/bigcam/ui/preview_area.py:211
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:222
 msgid "Record video"
-msgstr ""
-# 
+msgstr "Nahrávat video"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 338
@@ -75,274 +78,284 @@ msgstr ""
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 534
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 686
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 725
-#: usr/share/biglinux/bigcam/ui/preview_area.py:319
-#: usr/share/biglinux/bigcam/ui/window.py:436
-#: usr/share/biglinux/bigcam/ui/window.py:626
-#: usr/share/biglinux/bigcam/ui/window.py:656
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:338
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:477
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:538
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:690
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:729
 msgid "Please wait…"
-msgstr ""
-# 
+msgstr "Prosím čekejte…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 406
-#: usr/share/biglinux/bigcam/ui/preview_area.py:387
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:406
 msgid "Camera in use by:"
-msgstr ""
-# 
+msgstr "Kamera používána:"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 407
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 410
-#: usr/share/biglinux/bigcam/ui/preview_area.py:388
-#: usr/share/biglinux/bigcam/ui/preview_area.py:391
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:407
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:410
 msgid "Camera busy"
-msgstr ""
-# 
+msgstr "Kamera je obsazená"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 409
-#: usr/share/biglinux/bigcam/ui/preview_area.py:390
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:409
 msgid "Camera is being used"
-msgstr ""
-# 
+msgstr "Kamera je momentálně používána"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 413
-#: usr/share/biglinux/bigcam/ui/preview_area.py:394
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:413
 msgid "Connection failed"
-msgstr ""
-# 
+msgstr "Připojení selhalo"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 416
-#: usr/share/biglinux/bigcam/ui/preview_area.py:397
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:416
 msgid "Could not connect to the camera. Check the connection and try again."
 msgstr ""
-# 
+"Nepodařilo se připojit ke kameře. Zkontrolujte připojení a zkuste to znovu."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 435
-#: usr/share/biglinux/bigcam/ui/preview_area.py:415
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:435
 msgid "Stop recording"
-msgstr ""
-# 
+msgstr "Zastavit nahrávání"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 484
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 495
-#: usr/share/biglinux/bigcam/ui/preview_area.py:452
-#: usr/share/biglinux/bigcam/ui/preview_area.py:463
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:484
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:495
 #, python-brace-format
 msgid "{n} seconds remaining"
-msgstr ""
-# 
+msgstr "{n} sekund zbývá"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 87
-#: usr/share/biglinux/bigcam/ui/settings_page.py:87
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:87
 msgid "General"
-msgstr ""
-# 
+msgstr "Obecné"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 91
-#: usr/share/biglinux/bigcam/ui/settings_page.py:91
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:91
 msgid "Photo directory"
-msgstr ""
-# 
+msgstr "Složka fotografií"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 97
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 46
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 48
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:46
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:48
-#: usr/share/biglinux/bigcam/ui/settings_page.py:97
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:46
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:48
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:97
 msgid "Open photos folder"
-msgstr ""
-# 
+msgstr "Otevřít složku fotografií"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 108
-#: usr/share/biglinux/bigcam/ui/settings_page.py:108
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:108
 msgid "Video directory"
-msgstr ""
-# 
+msgstr "Složka videí"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 114
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 50
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 52
-#: usr/share/biglinux/bigcam/ui/settings_page.py:114
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:50
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:52
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:114
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:50
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:52
 msgid "Open videos folder"
-msgstr ""
-# 
+msgstr "Otevřít složku videí"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 124
-#: usr/share/biglinux/bigcam/ui/settings_page.py:124
+#. Theme
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:124
 msgid "Theme"
-msgstr ""
-# 
+msgstr "Téma"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 127
-#: usr/share/biglinux/bigcam/ui/settings_page.py:127
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:127
 msgid "System"
-msgstr ""
-# 
+msgstr "Systém"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 127
-#: usr/share/biglinux/bigcam/ui/settings_page.py:127
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:127
 msgid "Light"
-msgstr ""
-# 
+msgstr "Světlé"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 127
-#: usr/share/biglinux/bigcam/ui/settings_page.py:127
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:127
 msgid "Dark"
-msgstr ""
-# 
+msgstr "Tmavé"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 135
-#: usr/share/biglinux/bigcam/ui/settings_page.py:135
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:135
 msgid "Application theme"
-msgstr ""
-# 
+msgstr "Téma aplikace"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 141
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 147
-#: usr/share/biglinux/bigcam/ui/settings_page.py:141
-#: usr/share/biglinux/bigcam/ui/settings_page.py:147
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:141
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:147
 msgid "USB hotplug detection"
-msgstr ""
-# 
+msgstr "Detekce USB hotplug"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 142
-#: usr/share/biglinux/bigcam/ui/settings_page.py:142
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:142
 msgid "Automatically detect cameras when plugged or unplugged."
-msgstr ""
-# 
+msgstr "Automaticky detekovat kamery při připojení nebo odpojení."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 155
-#: usr/share/biglinux/bigcam/ui/settings_page.py:155
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:155
 msgid "Preview"
-msgstr ""
-# 
+msgstr "Náhled"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 158
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 164
-#: usr/share/biglinux/bigcam/ui/settings_page.py:158
-#: usr/share/biglinux/bigcam/ui/settings_page.py:164
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:158
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:164
 msgid "Mirror preview"
-msgstr ""
-# 
+msgstr "Zrcadlit náhled"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 159
-#: usr/share/biglinux/bigcam/ui/settings_page.py:159
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:159
 msgid "Flip the preview horizontally like a mirror."
-msgstr ""
-# 
+msgstr "Otočit náhled horizontálně jako zrcadlo."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 170
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 175
-#: usr/share/biglinux/bigcam/ui/settings_page.py:170
-#: usr/share/biglinux/bigcam/ui/settings_page.py:175
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:170
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:175
 msgid "Show FPS counter"
-msgstr ""
-# 
+msgstr "Zobrazit počítadlo FPS"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 181
-#: usr/share/biglinux/bigcam/ui/settings_page.py:181
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:181
 msgid "Grid overlay"
-msgstr ""
-# 
+msgstr "Mřížka překryvu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 182
-#: usr/share/biglinux/bigcam/ui/settings_page.py:182
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:182
 msgid "Show a rule-of-thirds grid over the preview."
-msgstr ""
-# 
+msgstr "Zobrazit mřížku pravidla třetin přes náhled."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 192
-#: usr/share/biglinux/bigcam/ui/settings_page.py:192
+#. -- Camera group (resolution, FPS, timer) ---------------------------
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:192
 msgid "Camera"
-msgstr ""
-# 
+msgstr "Kamera"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 195
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 103
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:103
-#: usr/share/biglinux/bigcam/ui/settings_page.py:195
+#. Resolution — fixed tiers, filtered per-camera
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:103
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:195
 msgid "Resolution"
-msgstr ""
-# 
+msgstr "Rozlišení"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 198
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 221
-#: usr/share/biglinux/bigcam/ui/settings_page.py:198
-#: usr/share/biglinux/bigcam/ui/settings_page.py:221
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:198
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:221
 msgid "Auto"
-msgstr ""
-# 
+msgstr "Automaticky"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 218
-#: usr/share/biglinux/bigcam/ui/settings_page.py:218
+#. FPS limit
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:218
 msgid "FPS limit"
-msgstr ""
-# 
+msgstr "Limit FPS"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 236
-#: usr/share/biglinux/bigcam/ui/settings_page.py:236
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:236
 msgid "Capture timer"
-msgstr ""
-# 
+msgstr "Časovač snímání"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 237
-#: usr/share/biglinux/bigcam/ui/settings_page.py:237
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:237
 msgid "Countdown before taking a photo."
-msgstr ""
-# 
+msgstr "Odpočet před pořízením fotografie."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 241
-#: usr/share/biglinux/bigcam/ui/settings_page.py:241
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
 msgid "Off"
-msgstr ""
-# 
+msgstr "Vypnuto"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 266
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 85
-#: usr/share/biglinux/bigcam/ui/settings_page.py:266
-#: usr/share/biglinux/bigcam/ui/tools_page.py:85
+#. --- QR Code Scanner ---
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:266
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:85
 msgid "QR Code Scanner"
-msgstr ""
-# 
+msgstr "Skenovač QR kódů"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 268
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 89
-#: usr/share/biglinux/bigcam/ui/settings_page.py:268
-#: usr/share/biglinux/bigcam/ui/tools_page.py:89
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:268
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:89
 msgid "Scan QR Codes"
-msgstr ""
-# 
+msgstr "Skenovat QR kódy"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 269
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 90
-#: usr/share/biglinux/bigcam/ui/settings_page.py:269
-#: usr/share/biglinux/bigcam/ui/tools_page.py:90
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:269
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:90
 msgid "Detect QR codes in the camera feed"
-msgstr ""
-# 
+msgstr "Detekovat QR kódy v náhledu kamery"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 277
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 96
-#: usr/share/biglinux/bigcam/ui/settings_page.py:277
-#: usr/share/biglinux/bigcam/ui/tools_page.py:96
+#. --- Smile Capture ---
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:277
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:96
 msgid "Smile Capture"
-msgstr ""
-# 
+msgstr "Pořízení snímku při úsměvu"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 279
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 100
-#: usr/share/biglinux/bigcam/ui/settings_page.py:279
-#: usr/share/biglinux/bigcam/ui/tools_page.py:100
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:279
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:100
 msgid "Capture on Smile"
-msgstr ""
-# 
+msgstr "Zachytit při úsměvu"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 280
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 101
-#: usr/share/biglinux/bigcam/ui/settings_page.py:280
-#: usr/share/biglinux/bigcam/ui/tools_page.py:101
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:280
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:101
 msgid "Automatically take a photo when a smile is detected"
-msgstr ""
-# 
+msgstr "Automaticky pořídit fotografii při rozpoznání úsměvu"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 286
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 107
-#: usr/share/biglinux/bigcam/ui/settings_page.py:286
-#: usr/share/biglinux/bigcam/ui/tools_page.py:107
+#. Sensitivity slider
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:286
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:107
 msgid "Sensitivity"
-msgstr ""
-# 
+msgstr "Citlivost"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 307
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 38
-#: usr/share/biglinux/bigcam/ui/settings_page.py:307
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:38
+#. Status group with ExpanderRow
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:307
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:38
 msgid "Virtual Camera"
-msgstr ""
-# 
+msgstr "Virtuální kamera"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -353,22 +366,22 @@ msgstr ""
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 41
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 87
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 26
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:87
-#: usr/share/biglinux/bigcam/ui/settings_page.py:309
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:41
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:87
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:309
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:41
 msgid "Status"
-msgstr ""
-# 
+msgstr "Stav"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 315
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 57
-#: usr/share/biglinux/bigcam/ui/settings_page.py:315
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:57
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:315
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:57
 msgid "Device"
-msgstr ""
-# 
+msgstr "Zařízení"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 316
@@ -376,174 +389,180 @@ msgstr ""
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 58
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 152
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 153
-#: usr/share/biglinux/bigcam/ui/settings_page.py:316
-#: usr/share/biglinux/bigcam/ui/settings_page.py:660
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:58
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:152
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:153
+#. gray
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:316
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:660
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:58
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:152
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:153
 msgid "Not loaded"
-msgstr ""
-# 
+msgstr "Nenačteno"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 322
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 81
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 88
-#: usr/share/biglinux/bigcam/ui/settings_page.py:322
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:81
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:88
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:322
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:81
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:88
 msgid "Enable virtual camera"
-msgstr ""
-# 
+msgstr "Povolit virtuální kameru"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 323
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 82
-#: usr/share/biglinux/bigcam/ui/settings_page.py:323
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:82
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:323
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:82
 msgid "Create a virtual camera output for video calls and streaming."
-msgstr ""
-# 
+msgstr "Vytvořit virtuální výstup kamery pro videohovory a streamování."
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 562
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 288
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 357
-#: usr/share/biglinux/bigcam/ui/settings_page.py:562
-#: usr/share/biglinux/bigcam/ui/tools_page.py:287
-#: usr/share/biglinux/bigcam/ui/tools_page.py:356
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:562
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:288
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:357
 msgid "Watching for smiles..."
-msgstr ""
-# 
+msgstr "Sledování úsměvů..."
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 641
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 127
-#: usr/share/biglinux/bigcam/ui/settings_page.py:641
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:127
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:641
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:127
 msgid "v4l2loopback not available"
-msgstr ""
-# 
+msgstr "v4l2loopback není dostupný"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 648
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 138
-#: usr/share/biglinux/bigcam/ui/settings_page.py:648
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:138
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:648
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:138
 msgid "Active"
-msgstr ""
-# 
+msgstr "Aktivní"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 653
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 144
-#: usr/share/biglinux/bigcam/ui/settings_page.py:653
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:144
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:653
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:144
 msgid "Module loaded"
-msgstr ""
-# 
+msgstr "Modul načten"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 658
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 150
-#: usr/share/biglinux/bigcam/ui/settings_page.py:658
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:150
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:658
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:150
 msgid "Module not loaded"
-msgstr ""
-# 
+msgstr "Modul nenačten"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 51
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:51
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:51
 msgid "Virtual camera status"
-msgstr ""
-# 
+msgstr "Stav virtuální kamery"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 66
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:66
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:66
 msgid "Module"
-msgstr ""
-# 
+msgstr "Modul"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 67
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:67
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:67
 msgid "v4l2loopback"
-msgstr ""
-# 
+msgstr "v4l2loopback"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 78
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 355
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:355
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:78
+#. Action buttons (FlowBox for side-by-side layout)
+#. Actions group
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:355
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:78
 msgid "Actions"
-msgstr ""
-# 
+msgstr "Akce"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 97
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:97
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:97
 msgid "Usage"
-msgstr ""
-# 
+msgstr "Použití"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 99
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
 msgid ""
-"When enabled, the active camera preview is sent to a virtual camera device that applications like "
-"OBS Studio, Google Meet, and Zoom can use."
+"When enabled, the active camera preview is sent to a virtual camera device "
+"that applications like OBS Studio, Google Meet, and Zoom can use."
 msgstr ""
-# 
+"Po zapnutí je aktivní náhled kamery odesílán do virtuálního kamerového "
+"zařízení, které mohou používat aplikace jako OBS Studio, Google Meet a Zoom."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 129
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:129
+#. red
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:129
 msgid "Not installed"
-msgstr ""
-# 
+msgstr "Není nainstalováno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 130
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:130
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:130
 msgid "—"
-msgstr ""
-# 
+msgstr "—"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 141
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 147
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:141
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:147
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:141
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:147
 msgid "Loaded"
-msgstr ""
-# 
+msgstr "Načteno"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 68
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 68
-#: usr/share/biglinux/bigcam/ui/effects_page.py:65
-#: usr/share/biglinux/bigcam/ui/tools_page.py:68
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:68
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:68
 msgid "OpenCV not available"
-msgstr ""
-# 
+msgstr "OpenCV není dostupné"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 69
-#: usr/share/biglinux/bigcam/ui/tools_page.py:69
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:69
 msgid "Install python-opencv to use tools."
-msgstr ""
-# 
+msgstr "Nainstalujte python-opencv pro použití nástrojů."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 333
-#: usr/share/biglinux/bigcam/ui/tools_page.py:332
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:333
 msgid "Smile detected! Capturing..."
-msgstr ""
-# 
+msgstr "Úsměv detekován! Fotografuji..."
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 345
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 671
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 717
-#: usr/share/biglinux/bigcam/ui/tools_page.py:344
-#: usr/share/biglinux/bigcam/ui/window.py:611
-#: usr/share/biglinux/bigcam/ui/window.py:648
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:345
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:675
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:721
 msgid "Photo saved!"
-msgstr ""
-# 
+msgstr "Fotografie uložena!"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 348
-#: usr/share/biglinux/bigcam/ui/tools_page.py:347
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:348
 msgid "Capture failed."
-msgstr ""
-# 
+msgstr "Zachycení selhalo."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 41
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:41
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:41
 msgid "Captured Photos"
-msgstr ""
-# 
+msgstr "Zachycené fotografie"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -551,71 +570,70 @@ msgstr ""
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 54
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 58
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 268
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:54
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:58
-#: usr/share/biglinux/bigcam/ui/window.py:268
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:54
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:58
 msgid "Refresh"
-msgstr ""
-# 
+msgstr "Aktualizovat"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 56
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:56
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:56
 msgid "Refresh photo gallery"
-msgstr ""
-# 
+msgstr "Aktualizovat galerii fotografií"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 79
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:79
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:79
 msgid "No photos yet"
-msgstr ""
-# 
+msgstr "Žádné fotografie zatím"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 80
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:80
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:80
 msgid "Captured photos will appear here."
-msgstr ""
-# 
+msgstr "Pořízené fotografie se zde zobrazí."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 142
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:142
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:142
 #, python-format
 msgid "Open %s"
-msgstr ""
-# 
+msgstr "Otevřít %s"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 158
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 184
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 191
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 303
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:158
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:184
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:191
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:303
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:158
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:184
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:191
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:303
 msgid "Delete"
-msgstr ""
-# 
+msgstr "Smazat"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 161
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 194
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:161
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:194
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:161
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:194
 #, python-format
 msgid "Delete %s"
-msgstr ""
-# 
+msgstr "Smazat %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 180
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:180
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:180
 msgid "Delete photo?"
-msgstr ""
-# 
+msgstr "Smazat fotografii?"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 181
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 300
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:181
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:300
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:181
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:300
 #, python-format
 msgid "\"%s\" will be permanently deleted."
-msgstr ""
-# 
+msgstr "\"%s\" bude trvale smazán."
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -623,151 +641,159 @@ msgstr ""
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 183
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 302
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1120
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:183
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:302
-#: usr/share/biglinux/bigcam/ui/window.py:1014
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:183
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:302
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1122
 msgid "Cancel"
-msgstr ""
-# 
+msgstr "Zrušit"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
-#: usr/share/biglinux/bigcam/ui/about_dialog.py:35
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
 msgid "Universal webcam control center for Linux."
-msgstr ""
-# 
+msgstr "Univerzální centrum ovládání webkamery pro Linux."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 45
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:45
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:45
 msgid "Recorded Videos"
-msgstr ""
-# 
+msgstr "Nahraná videa"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 60
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:60
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:60
 msgid "Refresh video gallery"
-msgstr ""
-# 
+msgstr "Aktualizovat galerii videí"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 83
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:83
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:83
 msgid "No videos yet"
-msgstr ""
-# 
+msgstr "Žádná videa zatím"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 84
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:84
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:84
 msgid "Recorded videos will appear here."
-msgstr ""
-# 
+msgstr "Nahraná videa se zde zobrazí."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 175
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 213
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:175
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:213
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:175
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:213
 #, python-format
 msgid "Play %s"
-msgstr ""
-# 
+msgstr "Přehrát %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 299
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:299
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:299
 msgid "Delete video?"
-msgstr ""
-# 
+msgstr "Smazat video?"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 39
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 114
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:39
-#: usr/share/biglinux/bigcam/ui/window.py:114
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:39
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:197
 msgid "Phone as Webcam"
-msgstr ""
-# 
+msgstr "Telefon jako webkamera"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 69
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:69
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:69
 msgid "QR Code for phone camera connection"
-msgstr ""
-# 
+msgstr "QR kód pro připojení kamery telefonu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 76
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 189
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:76
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:189
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:76
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:189
 msgid "Press Start to generate URL"
-msgstr ""
-# 
+msgstr "Stiskněte Start pro vygenerování URL"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 96
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 228
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:96
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:228
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:96
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:228
 msgid "Phone camera status: Idle"
-msgstr ""
-# 
+msgstr "Stav kamery telefonu: Nečinný"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 99
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 192
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 225
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:99
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:192
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:225
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:99
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:192
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:225
 msgid "Idle"
-msgstr ""
-# 
+msgstr "Nečinný"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 120
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 404
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:120
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:404
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:120
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:404
 msgid "Start"
-msgstr ""
-# 
+msgstr "Start"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 126
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:126
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:126
 msgid "Stop"
-msgstr ""
-# 
+msgstr "Stop"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 138
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:138
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:138
 msgid ""
 "1. Press Start\n"
 "2. Scan the QR code with your phone\n"
 "3. Accept the security warning\n"
 "4. Allow camera access and press Start"
 msgstr ""
-# 
+"1. Stiskněte Start\n"
+"2. Naskenujte QR kód telefonem\n"
+"3. Potvrďte bezpečnostní upozornění\n"
+"4. Povolit přístup ke kameře a stisknout Start"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 198
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 218
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:198
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:218
+#. green
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:198
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:218
 msgid "Connected"
-msgstr ""
-# 
+msgstr "Připojeno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 204
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:204
+#. red
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:204
 msgid "Disconnected"
-msgstr ""
-# 
+msgstr "Odpojeno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 211
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 244
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:211
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:244
+#. yellow
+#. yellow = waiting
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:211
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:244
 msgid "Waiting for connection..."
-msgstr ""
-# 
+msgstr "Čekání na připojení..."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 214
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:214
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:214
 msgid "Phone camera status: Waiting for connection"
-msgstr ""
-# 
+msgstr "Stav kamery telefonu: Čekání na připojení"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 221
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:221
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:221
 msgid "Phone camera status: Connected"
-msgstr ""
-# 
+msgstr "Stav kamery telefonu: Připojeno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 251
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:251
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:251
 msgid "(install python-qrcode for QR code)"
-msgstr ""
-# 
+msgstr "(nainstalujte python-qrcode pro QR kód)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 281
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:281
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:281
 msgid "Missing Dependencies"
-msgstr ""
-# 
+msgstr "Chybějící závislosti"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 283
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:283
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:283
 msgid ""
 "The phone camera feature requires:\n"
 "\n"
@@ -775,1163 +801,1290 @@ msgid ""
 "\n"
 "Install with: sudo pacman -S python-aiohttp"
 msgstr ""
-# 
+"Funkce fotoaparátu telefonu vyžaduje:\n"
+"\n"
+"• python-aiohttp\n"
+"\n"
+"Nainstalujte pomocí: sudo pacman -S python-aiohttp"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 288
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:288
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:288
 msgid "OK"
-msgstr ""
-# 
+msgstr "OK"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 83
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 392
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 103
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:83
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:392
-#: usr/share/biglinux/bigcam/ui/window.py:103
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:83
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:392
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:186
 msgid "Phone"
-msgstr ""
-# 
+msgstr "Telefon"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 92
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:92
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:92
 msgid "SMS"
-msgstr ""
-# 
+msgstr "SMS"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 105
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 134
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 393
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:105
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:134
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:393
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:105
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:134
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:393
 msgid "E-mail"
-msgstr ""
-# 
+msgstr "E-mail"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 154
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:154
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:154
 msgid "Wi-Fi"
-msgstr ""
-# 
+msgstr "Wi-Fi"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 164
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 406
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:164
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:406
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:164
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:406
 msgid "Location"
-msgstr ""
-# 
+msgstr "Poloha"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 178
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:178
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:178
 msgid "Calendar Event"
-msgstr ""
-# 
+msgstr "Událost v kalendáři"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 210
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 230
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:210
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:230
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:210
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:230
 msgid "Contact Card"
-msgstr ""
-# 
+msgstr "Kontaktní karta"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 235
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:235
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:235
 msgid "Payment (PIX)"
-msgstr ""
-# 
+msgstr "Platba (PIX)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 262
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:262
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:262
 msgid "Authentication (TOTP)"
-msgstr ""
-# 
+msgstr "Ověření (TOTP)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 275
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:275
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:275
 msgid "App Store"
-msgstr ""
-# 
+msgstr "App Store"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 282
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:282
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:282
 msgid "Social Network"
-msgstr ""
-# 
+msgstr "Sociální síť"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 286
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 386
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 50
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:286
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:386
+#. Generic URL
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:286
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:386
 msgid "URL"
-msgstr ""
-# 
+msgstr "URL"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 289
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 387
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:289
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:387
+#. Fallback: plain text
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:289
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:387
 msgid "Text"
-msgstr ""
-# 
+msgstr "Text"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 320
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:320
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:320
 msgid "QR Code Detected"
-msgstr ""
-# 
+msgstr "QR kód detekován"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 388
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:388
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:388
 msgid "Number"
-msgstr ""
-# 
+msgstr "Číslo"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 389
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:389
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:389
 msgid "Message"
-msgstr ""
-# 
+msgstr "Zpráva"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 390
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:390
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:390
 msgid "Address"
-msgstr ""
-# 
+msgstr "Adresa"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 391
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 44
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:44
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:391
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:44
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:391
 msgid "Name"
-msgstr ""
-# 
+msgstr "Jméno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 394
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:394
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:394
 msgid "Organization"
-msgstr ""
-# 
+msgstr "Organizace"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 395
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:395
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:395
 msgid "Title"
-msgstr ""
-# 
+msgstr "Titul"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 396
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:396
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:396
 msgid "Network (SSID)"
-msgstr ""
-# 
+msgstr "Síť (SSID)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 397
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:397
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:397
 msgid "Password"
-msgstr ""
-# 
+msgstr "Heslo"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 398
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:398
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:398
 msgid "Security"
-msgstr ""
-# 
+msgstr "Zabezpečení"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 399
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:399
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:399
 msgid "Hidden"
-msgstr ""
-# 
+msgstr "Skryté"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 400
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:400
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:400
 msgid "Latitude"
-msgstr ""
-# 
+msgstr "Zeměpisná šířka"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 401
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:401
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:401
 msgid "Longitude"
-msgstr ""
-# 
+msgstr "Zeměpisná délka"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 402
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:402
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:402
 msgid "Coordinates"
-msgstr ""
-# 
+msgstr "Souřadnice"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 403
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:403
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:403
 msgid "Summary"
-msgstr ""
-# 
+msgstr "Souhrn"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 405
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:405
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:405
 msgid "End"
-msgstr ""
-# 
+msgstr "Konec"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 407
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:407
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:407
 msgid "Payload"
-msgstr ""
-# 
+msgstr "Náklad"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 408
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:408
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:408
 msgid "Currency"
-msgstr ""
-# 
+msgstr "Měna"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 409
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:409
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:409
 msgid "Account"
-msgstr ""
-# 
+msgstr "Účet"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 410
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:410
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:410
 msgid "Secret"
-msgstr ""
-# 
+msgstr "Tajný klíč"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 411
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:411
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:411
 msgid "Issuer"
-msgstr ""
-# 
+msgstr "Vydavatel"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 412
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:412
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:412
 msgid "URI"
-msgstr ""
-# 
+msgstr "URI"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 413
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:413
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:413
 msgid "Subject"
-msgstr ""
-# 
+msgstr "Předmět"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 424
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:424
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:424
 msgid "Copy"
-msgstr ""
-# 
+msgstr "Kopírovat"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 436
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:436
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:436
 msgid "Open in Browser"
-msgstr ""
-# 
+msgstr "Otevřít v prohlížeči"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 445
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 453
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:445
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:453
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:445
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:453
 msgid "Copy Number"
-msgstr ""
-# 
+msgstr "Kopírovat číslo"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 460
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:460
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:460
 msgid "Copy Message"
-msgstr ""
-# 
+msgstr "Kopírovat zprávu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 464
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:464
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:464
 msgid "WhatsApp"
-msgstr ""
-# 
+msgstr "WhatsApp"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 469
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:469
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:469
 msgid "Open E-mail Client"
-msgstr ""
-# 
+msgstr "Otevřít e-mailového klienta"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 479
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:479
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:479
 msgid "Copy Password"
-msgstr ""
-# 
+msgstr "Kopírovat heslo"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 487
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:487
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:487
 msgid "Copy SSID"
-msgstr ""
-# 
+msgstr "Kopírovat SSID"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 495
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:495
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:495
 msgid "Open in Maps"
-msgstr ""
-# 
+msgstr "Otevřít v Mapách"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 504
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:504
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:504
 msgid "Save .ics File"
-msgstr ""
-# 
+msgstr "Uložit soubor .ics"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 513
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:513
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:513
 msgid "Save Contact"
-msgstr ""
-# 
+msgstr "Uložit kontakt"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 522
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:522
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:522
 msgid "Copy PIX"
-msgstr ""
-# 
+msgstr "Kopírovat PIX"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 531
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:531
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:531
 msgid "Copy Address"
-msgstr ""
-# 
+msgstr "Kopírovat adresu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 540
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:540
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:540
 msgid "Copy Secret"
-msgstr ""
-# 
+msgstr "Kopírovat tajemství"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 547
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:547
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:547
 msgid "Copy URI"
-msgstr ""
-# 
+msgstr "Kopírovat URI"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 554
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:554
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:554
 msgid "Copy Raw"
-msgstr ""
-# 
+msgstr "Kopírovat Raw"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 557
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:557
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:557
 msgid "Save to File"
-msgstr ""
-# 
+msgstr "Uložit do souboru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 590
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:590
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:590
 msgid "Copied!"
-msgstr ""
-# 
+msgstr "Zkopírováno!"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 626
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:626
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:626
 msgid "iCalendar Files"
-msgstr ""
-# 
+msgstr "iCalendar soubory"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 652
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:652
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:652
 msgid "vCard Files"
-msgstr ""
-# 
+msgstr "vCard soubory"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 657
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:657
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:657
 msgid "Text Files"
-msgstr ""
-# 
+msgstr "Textové soubory"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 672
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:672
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:672
 msgid "All Files"
-msgstr ""
-# 
+msgstr "Všechny soubory"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 688
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:688
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:688
 #, python-format
 msgid "Saved: %s"
-msgstr ""
-# 
+msgstr "Uloženo: %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 692
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:692
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:692
 #, python-format
 msgid "Error: %s"
-msgstr ""
-# 
+msgstr "Chyba: %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 60
-#: usr/share/biglinux/bigcam/ui/camera_selector.py:60
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:60
 msgid "Select camera"
-msgstr ""
-# 
+msgstr "Vyberte kameru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 62
-#: usr/share/biglinux/bigcam/ui/camera_selector.py:62
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:62
 msgid "Camera selector"
-msgstr ""
-# 
+msgstr "Výběr kamery"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 95
-#: usr/share/biglinux/bigcam/ui/window.py:95
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:178
 msgid "Menu"
-msgstr ""
-# 
+msgstr "Menu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 96
-#: usr/share/biglinux/bigcam/ui/window.py:96
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:179
 msgid "Main menu"
-msgstr ""
-# 
+msgstr "Hlavní menu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 112
-#: usr/share/biglinux/bigcam/ui/window.py:112
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:195
 msgid "Use your phone as a webcam"
-msgstr ""
-# 
+msgstr "Použijte svůj telefon jako webovou kameru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 131
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 765
-#: usr/share/biglinux/bigcam/ui/window.py:131
-#: usr/share/biglinux/bigcam/ui/window.py:696
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:214
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:769
 msgid "Phone camera status"
-msgstr ""
-# 
+msgstr "Stav kamery telefonu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 144
-#: usr/share/biglinux/bigcam/ui/window.py:144
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:227
 msgid "Refresh cameras"
-msgstr ""
-# 
+msgstr "Obnovit kamery"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 146
-#: usr/share/biglinux/bigcam/ui/window.py:146
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:229
 msgid "Refresh camera list"
-msgstr ""
-# 
+msgstr "Obnovit seznam kamer"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 186
-#: usr/share/biglinux/bigcam/ui/window.py:186
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:104
 msgid "Controls"
-msgstr ""
-# 
+msgstr "Ovládání"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 195
-#: usr/share/biglinux/bigcam/ui/window.py:195
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:113
 msgid "Effects"
-msgstr ""
-# 
+msgstr "Efekty"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 204
-#: usr/share/biglinux/bigcam/ui/window.py:204
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:122
 msgid "Photos"
-msgstr ""
-# 
+msgstr "Fotky"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 213
-#: usr/share/biglinux/bigcam/ui/window.py:213
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:131
 msgid "Videos"
-msgstr ""
-# 
+msgstr "Videa"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 237
-#: usr/share/biglinux/bigcam/ui/window.py:237
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:155
 msgid "Settings"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 256
-#: usr/share/biglinux/bigcam/ui/window.py:256
-msgid "Capture Photo"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 257
-#: usr/share/biglinux/bigcam/ui/window.py:257
-msgid "Record Video"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 261
-#: usr/share/biglinux/bigcam/ui/window.py:261
-msgid "Save Profile"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 262
-#: usr/share/biglinux/bigcam/ui/window.py:262
-msgid "Load Profile"
-msgstr ""
-# 
+msgstr "Nastavení"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 263
-#: usr/share/biglinux/bigcam/ui/window.py:263
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:270
 msgid "Profiles"
-msgstr ""
-# 
+msgstr "Profily"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 266
-#: usr/share/biglinux/bigcam/ui/window.py:266
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:273
 msgid "Add IP Camera…"
-msgstr ""
-# 
+msgstr "Přidat IP kameru…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 267
-#: usr/share/biglinux/bigcam/ui/window.py:267
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:274
 msgid "Phone as Webcam…"
-msgstr ""
-# 
+msgstr "Telefon jako webkamera…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 269
-#: usr/share/biglinux/bigcam/ui/window.py:269
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:276
 msgid "About"
-msgstr ""
-# 
+msgstr "O aplikaci"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 474
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 535
-#: usr/share/biglinux/bigcam/ui/window.py:437
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:478
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:539
 msgid "Starting camera stream…"
-msgstr ""
-# 
+msgstr "Spouští se stream kamery…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 501
-#: usr/share/biglinux/bigcam/ui/window.py:466
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:505
 msgid "Camera streaming started!"
-msgstr ""
-# 
+msgstr "Stream kamery spuštěn!"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 521
-#: usr/share/biglinux/bigcam/ui/window.py:485
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:525
 msgid "Failed to start camera streaming."
-msgstr ""
-# 
+msgstr "Nepodařilo se spustit stream kamery."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 562
+#. Show a simple notice instead of a blocking dialog
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:566
 #, python-brace-format
 msgid "Virtual Camera: {vcam_device} Created!"
 msgstr "Virtuální kamera: {vcam_device} byla vytvořena!"
-# 
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 607
-#: usr/share/biglinux/bigcam/ui/window.py:547
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:611
 msgid "Smile captured! Photo saved."
-msgstr ""
-# 
+msgstr "Úsměv zachycen! Fotografie uložena."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 612
-#: usr/share/biglinux/bigcam/ui/window.py:552
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:616
 msgid "QR Code detected!"
-msgstr ""
-# 
+msgstr "QR kód detekován!"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 618
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 965
-#: usr/share/biglinux/bigcam/ui/window.py:558
-#: usr/share/biglinux/bigcam/ui/window.py:896
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:622
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:969
 msgid "No camera selected."
-msgstr ""
-# 
+msgstr "Není vybrána žádná kamera."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 633
-#: usr/share/biglinux/bigcam/ui/window.py:573
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:637
 msgid "Choose capture mode"
-msgstr ""
-# 
+msgstr "Vyberte režim snímání"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 635
-#: usr/share/biglinux/bigcam/ui/window.py:575
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:639
 msgid ""
-"You can take a screenshot from the current preview or capture a full-resolution photo directly from "
-"the camera."
+"You can take a screenshot from the current preview or capture a full-"
+"resolution photo directly from the camera."
 msgstr ""
-# 
+"Můžete pořídit snímek obrazovky z aktuálního náhledu nebo přímo z kamery "
+"zachytit fotografii v plném rozlišení."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 639
-#: usr/share/biglinux/bigcam/ui/window.py:579
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:643
 msgid "Preview screenshot"
-msgstr ""
-# 
+msgstr "Snímek obrazovky náhledu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 640
-#: usr/share/biglinux/bigcam/ui/window.py:580
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:644
 msgid "Camera photo (full resolution)"
-msgstr ""
-# 
+msgstr "Fotografie z kamery (plné rozlišení)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 659
-#: usr/share/biglinux/bigcam/ui/window.py:599
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:663
 msgid "Capturing photo…"
-msgstr ""
-# 
+msgstr "Fotografování…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 675
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 721
-#: usr/share/biglinux/bigcam/ui/window.py:615
-#: usr/share/biglinux/bigcam/ui/window.py:652
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:679
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:725
 msgid "Failed to capture photo."
-msgstr ""
-# 
+msgstr "Nepodařilo se pořídit fotografii."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 687
-#: usr/share/biglinux/bigcam/ui/window.py:627
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:691
 msgid "Switching to photography mode."
-msgstr ""
-# 
+msgstr "Přepínání do režimu fotografie."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 726
-#: usr/share/biglinux/bigcam/ui/window.py:657
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:730
 msgid "Resuming camera streaming…"
-msgstr ""
-# 
+msgstr "Obnovení přenosu z kamery…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 759
-#: usr/share/biglinux/bigcam/ui/window.py:690
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:763
 msgid "Phone camera: waiting"
-msgstr ""
-# 
+msgstr "Kamera telefonu: čekání"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 760
-#: usr/share/biglinux/bigcam/ui/window.py:691
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:764
 msgid "Phone camera: connected"
-msgstr ""
-# 
+msgstr "Kamera telefonu: připojeno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 761
-#: usr/share/biglinux/bigcam/ui/window.py:692
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:765
 msgid "Phone camera: stopped"
-msgstr ""
-# 
+msgstr "Kamera telefonu: zastaveno"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 844
-#: usr/share/biglinux/bigcam/ui/window.py:775
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:848
 #, python-format
 msgid ""
 "The camera \"%(camera)s\" is being used by: %(apps)s.\n"
 "\n"
-"The video preview cannot be displayed while another application has exclusive access to this "
-"device.\n"
+"The video preview cannot be displayed while another application has exclusive access to this device.\n"
 "\n"
 "Camera settings and controls will continue to work normally.\n"
 "\n"
 "Tip: Enable the Virtual Camera to share the camera feed with multiple applications simultaneously."
 msgstr ""
-# 
+"Kamera \"%(camera)s\" je používána: %(apps)s.\n"
+"\n"
+"Náhled videa nelze zobrazit, když má jiná aplikace výhradní přístup k tomuto zařízení.\n"
+"\n"
+"Nastavení a ovládání kamery budou i nadále fungovat normálně.\n"
+"\n"
+"Tip: Povolením Virtuální kamery můžete sdílet obraz z kamery s více aplikacemi současně."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 853
-#: usr/share/biglinux/bigcam/ui/window.py:784
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:857
 #, python-format
 msgid ""
 "The camera \"%s\" is being used by another application.\n"
 "\n"
-"The video preview cannot be displayed while another application has exclusive access to this "
-"device.\n"
+"The video preview cannot be displayed while another application has exclusive access to this device.\n"
 "\n"
 "Camera settings and controls will continue to work normally.\n"
 "\n"
 "Tip: Enable the Virtual Camera to share the camera feed with multiple applications simultaneously."
 msgstr ""
-# 
+"Kamera \"%s\" je používána jinou aplikací.\n"
+"\n"
+"Náhled videa nelze zobrazit, když má jiná aplikace výhradní přístup k tomuto zařízení.\n"
+"\n"
+"Nastavení a ovládání kamery budou i nadále fungovat normálně.\n"
+"\n"
+"Tip: Povolením Virtuální kamery můžete sdílet obraz z kamery s více aplikacemi současně."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 861
-#: usr/share/biglinux/bigcam/ui/window.py:792
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:865
 msgid "Camera in use"
-msgstr ""
-# 
+msgstr "Kamera v použití"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 867
-#: usr/share/biglinux/bigcam/ui/window.py:798
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:871
 #, python-format
 msgid "Force close %s"
-msgstr ""
-# 
+msgstr "Vynutit ukončení %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 874
-#: usr/share/biglinux/bigcam/ui/window.py:805
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:878
 msgid "Enable Virtual Camera"
-msgstr ""
-# 
+msgstr "Povolit Virtuální kameru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 879
-#: usr/share/biglinux/bigcam/ui/window.py:810
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:883
 msgid "Close"
-msgstr ""
-# 
+msgstr "Zavřít"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 941
-#: usr/share/biglinux/bigcam/ui/window.py:872
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:945
 msgid "Virtual Camera enabled. Other applications can use /dev/video10."
 msgstr ""
-# 
+"Virtuální kamera povolena. Ostatní aplikace mohou používat /dev/video10."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 959
-#: usr/share/biglinux/bigcam/ui/window.py:890
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:963
 #, python-format
 msgid "Video saved: %s"
-msgstr ""
-# 
+msgstr "Video uloženo: %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 976
-#: usr/share/biglinux/bigcam/ui/window.py:907
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:980
 msgid "Recording…"
-msgstr ""
-# 
+msgstr "Nahrávání…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 980
-#: usr/share/biglinux/bigcam/ui/window.py:911
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:984
 msgid "Failed to start recording."
-msgstr ""
-# 
+msgstr "Nepodařilo se spustit nahrávání."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 994
-#: usr/share/biglinux/bigcam/ui/window.py:925
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:998
 msgid "Profile saved."
-msgstr ""
-# 
+msgstr "Profil uložen."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1001
-#: usr/share/biglinux/bigcam/ui/window.py:932
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1005
 msgid "No profiles found."
-msgstr ""
-# 
+msgstr "Nebyly nalezeny žádné profily."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1011
-#: usr/share/biglinux/bigcam/ui/window.py:942
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1015
 #, python-format
 msgid "Profile loaded: %s"
-msgstr ""
-# 
+msgstr "Profil načten: %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1025
-#: usr/share/biglinux/bigcam/ui/window.py:956
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1029
 msgid "Show"
-msgstr ""
-# 
+msgstr "Zobrazit"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1106
-#: usr/share/biglinux/bigcam/ui/window.py:1000
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1108
 #, python-format
 msgid "Active camera: %s"
-msgstr ""
-# 
+msgstr "Aktivní kamera: %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1108
-#: usr/share/biglinux/bigcam/ui/window.py:1002
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1110
 msgid "Virtual Camera is enabled (other apps may depend on it)."
-msgstr ""
-# 
+msgstr "Virtuální kamera je povolena (ostatní aplikace na ní mohou záviset)."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1111
-#: usr/share/biglinux/bigcam/ui/window.py:1005
-msgid "If you choose to keep it running, the camera will remain on after closing the application."
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1113
+msgid ""
+"If you choose to keep it running, the camera will remain on after closing "
+"the application."
 msgstr ""
-# 
+"Pokud se rozhodnete ji nechat běžet, kamera zůstane zapnutá i po zavření "
+"aplikace."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1117
-#: usr/share/biglinux/bigcam/ui/window.py:1011
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1119
 msgid "Camera is active"
-msgstr ""
-# 
+msgstr "Kamera je aktivní"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1118
-#: usr/share/biglinux/bigcam/ui/window.py:1012
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1120
 msgid "Stop camera and close"
-msgstr ""
-# 
+msgstr "Zastavit kameru a zavřít"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1119
-#: usr/share/biglinux/bigcam/ui/window.py:1013
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1121
 msgid "Keep camera on"
-msgstr ""
-# 
+msgstr "Nechat kameru zapnutou"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 22
-#: usr/share/biglinux/bigcam/ui/effects_page.py:19
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:22
 msgid "Adjustments"
-msgstr ""
-# 
+msgstr "Úpravy"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 23
-#: usr/share/biglinux/bigcam/ui/effects_page.py:20
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:23
 msgid "Filters"
-msgstr ""
-# 
+msgstr "Filtry"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 24
-#: usr/share/biglinux/bigcam/ui/effects_page.py:21
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:24
 msgid "Artistic"
-msgstr ""
-# 
+msgstr "Umělecké"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 25
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 27
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:27
-#: usr/share/biglinux/bigcam/ui/effects_page.py:22
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:27
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:25
 msgid "Advanced"
-msgstr ""
-# 
+msgstr "Pokročilé"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 69
-#: usr/share/biglinux/bigcam/ui/effects_page.py:66
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:69
 msgid "Install python-opencv to enable video effects."
-msgstr ""
-# 
+msgstr "Nainstalujte python-opencv pro povolení video efektů."
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 106
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 360
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:360
-#: usr/share/biglinux/bigcam/ui/effects_page.py:103
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:360
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:106
 msgid "Reset to defaults"
-msgstr ""
-# 
+msgstr "Obnovit výchozí nastavení"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 110
-#: usr/share/biglinux/bigcam/ui/effects_page.py:107
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:110
 #, python-format
 msgid "Reset %s effects"
-msgstr ""
-# 
+msgstr "Obnovit %s efekty"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 24
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
 msgid "Add IP Camera"
-msgstr ""
-# 
+msgstr "Přidat IP kameru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 42
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
 msgid "Camera Details"
-msgstr ""
-# 
+msgstr "Detaily kamery"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 46
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
 msgid "Camera name"
-msgstr ""
-# 
+msgstr "Název kamery"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 53
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
 msgid "Camera URL (RTSP or HTTP)"
-msgstr ""
-# 
+msgstr "URL kamery (RTSP nebo HTTP)"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 60
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
+#. Action button
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
 msgid "Add Camera"
-msgstr ""
-# 
+msgstr "Přidat kameru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 64
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
 msgid "Add IP camera"
-msgstr ""
-# 
+msgstr "Přidat IP kameru"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 21
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:21
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:21
 msgid "Image"
-msgstr ""
-# 
+msgstr "Obrázek"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
 msgid "Exposure"
-msgstr ""
-# 
+msgstr "Expozice"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 23
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
 msgid "Focus"
-msgstr ""
-# 
+msgstr "Zaostření"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 24
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
 msgid "White Balance"
-msgstr ""
-# 
+msgstr "Vyvážení bílé"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 25
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
 msgid "Capture"
-msgstr ""
-# 
+msgstr "Zachytit"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 72
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:72
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:72
 msgid "No camera selected"
-msgstr ""
-# 
+msgstr "Není vybrána žádná kamera"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 73
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:73
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:73
 msgid "Select a camera to see its controls."
-msgstr ""
-# 
+msgstr "Vyberte kameru pro zobrazení jejích ovládacích prvků."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 106
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:106
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:106
 msgid "Loading controls…"
-msgstr ""
-# 
+msgstr "Načítání ovládacích prvků…"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 142
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:142
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:142
 msgid "Phone camera"
-msgstr ""
-# 
+msgstr "Kamera telefonu"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 144
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:144
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:144
 msgid ""
-"Adjust resolution, quality, and FPS directly on the phone's browser page. Use the Effects tab for "
-"brightness, contrast, and other adjustments."
+"Adjust resolution, quality, and FPS directly on the phone's browser page. "
+"Use the Effects tab for brightness, contrast, and other adjustments."
 msgstr ""
-# 
+"Nastavte rozlišení, kvalitu a FPS přímo na stránce prohlížeče telefonu. Pro "
+"úpravy jasu, kontrastu a dalších parametrů použijte záložku Efekty."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 151
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:151
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:151
 msgid "No adjustable controls"
-msgstr ""
-# 
+msgstr "Žádné nastavitelné ovládací prvky"
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 152
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:152
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:152
 msgid "This camera does not expose any controls."
-msgstr ""
-# 
+msgstr "Tato kamera nenabízí žádné ovládací prvky."
+
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 363
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 #, python-format
 msgid "Reset %s controls"
-msgstr ""
-# 
+msgstr "Obnovit ovládací prvky %s"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 334
-#: usr/share/biglinux/bigcam/core/effects.py:320
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:334
 msgid "Brightness / Contrast"
-msgstr ""
-# 
+msgstr "Jas / Kontrast"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 338
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 20
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 76
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:76
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
-#: usr/share/biglinux/bigcam/core/effects.py:324
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 20
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
+# line: 76
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:338
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:76
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
 msgid "Brightness"
-msgstr ""
-# 
+msgstr "Jas"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 339
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 21
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 87
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:87
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
-#: usr/share/biglinux/bigcam/core/effects.py:325
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 21
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
+# line: 87
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:339
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:87
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
 msgid "Contrast"
-msgstr ""
-# 
+msgstr "Kontrast"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 347
-#: usr/share/biglinux/bigcam/core/effects.py:333
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:347
 msgid "Gamma Correction"
-msgstr ""
-# 
+msgstr "Korekce gammy"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 351
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 25
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
-#: usr/share/biglinux/bigcam/core/effects.py:337
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 25
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:351
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
 msgid "Gamma"
-msgstr ""
-# 
+msgstr "Gamma"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 359
-#: usr/share/biglinux/bigcam/core/effects.py:345
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:359
 msgid "CLAHE (Adaptive Contrast)"
-msgstr ""
-# 
+msgstr "CLAHE (adaptivní kontrast)"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 363
-#: usr/share/biglinux/bigcam/core/effects.py:349
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:363
 msgid "Clip Limit"
-msgstr ""
-# 
+msgstr "Limit ořezu"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 364
-#: usr/share/biglinux/bigcam/core/effects.py:350
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:364
 msgid "Grid Size"
-msgstr ""
-# 
+msgstr "Velikost mřížky"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 372
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 26
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 109
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:109
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
-#: usr/share/biglinux/bigcam/core/effects.py:358
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 26
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
+# line: 109
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:372
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:109
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
 msgid "Auto White Balance"
-msgstr ""
-# 
+msgstr "Automatická korekce bílé"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 382
-#: usr/share/biglinux/bigcam/core/effects.py:368
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:382
 msgid "Detail Enhance"
-msgstr ""
-# 
+msgstr "Zesílení detailů"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 386
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 399
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 464
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 478
-#: usr/share/biglinux/bigcam/core/effects.py:372
-#: usr/share/biglinux/bigcam/core/effects.py:385
-#: usr/share/biglinux/bigcam/core/effects.py:450
-#: usr/share/biglinux/bigcam/core/effects.py:464
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:386
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:399
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:464
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:478
 msgid "Smoothing"
-msgstr ""
-# 
+msgstr "Vyhlazování"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 387
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 465
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 479
-#: usr/share/biglinux/bigcam/core/effects.py:373
-#: usr/share/biglinux/bigcam/core/effects.py:451
-#: usr/share/biglinux/bigcam/core/effects.py:465
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:387
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:465
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:479
 msgid "Detail"
-msgstr ""
-# 
+msgstr "Detaily"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 395
-#: usr/share/biglinux/bigcam/core/effects.py:381
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:395
 msgid "Beauty / Soft Skin"
-msgstr ""
-# 
+msgstr "Krása / Měkká pleť"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 400
-#: usr/share/biglinux/bigcam/core/effects.py:386
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:400
 msgid "Intensity"
-msgstr ""
-# 
+msgstr "Intenzita"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 408
-#: usr/share/biglinux/bigcam/core/effects.py:394
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:408
 msgid "Sharpen"
-msgstr ""
-# 
+msgstr "Zaostřit"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 412
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 424
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 517
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 531
-#: usr/share/biglinux/bigcam/core/effects.py:398
-#: usr/share/biglinux/bigcam/core/effects.py:410
-#: usr/share/biglinux/bigcam/core/effects.py:503
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:412
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:424
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:517
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:531
 msgid "Strength"
-msgstr ""
-# 
+msgstr "Síla"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 420
-#: usr/share/biglinux/bigcam/core/effects.py:406
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:420
 msgid "Denoise"
-msgstr ""
-# 
+msgstr "Odšumění"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 433
-#: usr/share/biglinux/bigcam/core/effects.py:419
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:433
 msgid "Grayscale"
-msgstr ""
-# 
+msgstr "Šedotón"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 442
-#: usr/share/biglinux/bigcam/core/effects.py:428
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:442
 msgid "Sepia"
-msgstr ""
-# 
+msgstr "Sépie"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 451
-#: usr/share/biglinux/bigcam/core/effects.py:437
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:451
 msgid "Negative"
-msgstr ""
-# 
+msgstr "Negativ"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 460
-#: usr/share/biglinux/bigcam/core/effects.py:446
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:460
 msgid "Pencil Sketch"
-msgstr ""
-# 
+msgstr "Kresba tužkou"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 466
-#: usr/share/biglinux/bigcam/core/effects.py:452
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:466
 msgid "Shade"
-msgstr ""
-# 
+msgstr "Stínování"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 474
-#: usr/share/biglinux/bigcam/core/effects.py:460
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:474
 msgid "Painting"
-msgstr ""
-# 
+msgstr "Malování"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 488
-#: usr/share/biglinux/bigcam/core/effects.py:474
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:488
 msgid "Edge Detection"
-msgstr ""
-# 
+msgstr "Detekce hran"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 492
-#: usr/share/biglinux/bigcam/core/effects.py:478
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:492
 msgid "Threshold 1"
-msgstr ""
-# 
+msgstr "Prahová hodnota 1"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 493
-#: usr/share/biglinux/bigcam/core/effects.py:479
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:493
 msgid "Threshold 2"
-msgstr ""
-# 
+msgstr "Prahová hodnota 2"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 501
-#: usr/share/biglinux/bigcam/core/effects.py:487
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:501
 msgid "Color Map"
-msgstr ""
-# 
+msgstr "Barevná mapa"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 505
-#: usr/share/biglinux/bigcam/core/effects.py:491
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:505
 msgid "Style"
-msgstr ""
-# 
+msgstr "Styl"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 513
-#: usr/share/biglinux/bigcam/core/effects.py:499
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:513
 msgid "Vignette"
-msgstr ""
-# 
+msgstr "Vinětace"
+
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 526
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:526
 msgid "Background Blur"
 msgstr "Rozostření pozadí"
-# 
+
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 521
-#: usr/share/biglinux/bigcam/core/stream_engine.py:419
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:521
 msgid "Failed to start camera streaming process."
-msgstr ""
-# 
+msgstr "Nepodařilo se spustit proces streamování kamery."
+
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 526
-#: usr/share/biglinux/bigcam/core/stream_engine.py:424
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:526
 msgid "Failed to obtain GStreamer source for this camera."
-msgstr ""
-# 
+msgstr "Nepodařilo se získat zdroj GStreamer pro tuto kameru."
+
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 599
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 799
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 810
-#: usr/share/biglinux/bigcam/core/stream_engine.py:482
-#: usr/share/biglinux/bigcam/core/stream_engine.py:665
-#: usr/share/biglinux/bigcam/core/stream_engine.py:676
+#. retry in 500ms
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:599
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:799
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:810
 msgid "Failed to start camera stream."
-msgstr ""
-# 
+msgstr "Nepodařilo se spustit stream kamery."
+
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1116
-#: usr/share/biglinux/bigcam/core/stream_engine.py:793
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1116
 msgid "Phone camera server not available."
-msgstr ""
-# 
+msgstr "Server kamery telefonu není dostupný."
+
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1299
-#: usr/share/biglinux/bigcam/core/stream_engine.py:951
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1299
 msgid "Unknown GStreamer error"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py, line: 217
-#: usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:218
+msgstr "Neznámá chyba GStreamer"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,
+# line: 217
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:217
 msgid "Generic Camera"
-msgstr ""
-# 
+msgstr "Obecná kamera"
+
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 22
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 98
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:98
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 22
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
+# line: 98
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:98
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
 msgid "Saturation"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 23
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
+msgstr "Sytost"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 23
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
 msgid "Hue"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 24
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
+msgstr "Odtíň"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 24
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
 msgid "Sharpness"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 27
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
+msgstr "Ostrost"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 27
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
 msgid "White Balance Temperature"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 28
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
+msgstr "Teplota vyvážení bílé"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 28
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
 msgid "Gain"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 29
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
+msgstr "Zisk"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 29
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
 msgid "Auto Exposure"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 30
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 31
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:30
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
+msgstr "Automatická expozice"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 30
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 31
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:30
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
 msgid "Exposure Time"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 32
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
+msgstr "Doba expozice"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 32
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
 msgid "Exposure Auto Priority"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 33
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
+msgstr "Priorita automatické expozice"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 33
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
 msgid "Auto Focus"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 34
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
+msgstr "Automatické zaostření"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 34
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
 msgid "Focus Distance"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 35
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
+msgstr "Vzdálenost zaostření"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 35
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
 msgid "Zoom"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 36
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
+msgstr "Zoom"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 36
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
 msgid "Pan"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 37
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
+msgstr "Panorámování"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 37
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
 msgid "Tilt"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 38
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
+msgstr "Náklon"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 38
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
 msgid "Backlight Compensation"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 39
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
+msgstr "Kompenzace protisvětla"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 39
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
 msgid "Power Line Frequency"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 40
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
+msgstr "Frekvence napájecí sítě"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 40
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
 msgid "Exposure Bias"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 41
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
+msgstr "Korekce expozice"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 41
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
 msgid "WB Preset"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 42
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
+msgstr "Přednastavení WB"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 42
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
 msgid "Image Stabilization"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 43
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
+msgstr "Stabilizace obrazu"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 43
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
 msgid "ISO Sensitivity"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 44
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
+msgstr "Citlivost ISO"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 44
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
 msgid "Auto ISO"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 45
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
+msgstr "Automatické ISO"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 45
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
 msgid "Scene Mode"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 46
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
+msgstr "Režim scény"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 46
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
 msgid "3A Lock"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 47
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
+msgstr "Zámek 3A"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 47
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
 msgid "LED Mode"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 48
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:48
+msgstr "Režim LED"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
+# 48
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:48
 msgid "LED Frequency"
-msgstr ""
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 127
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
+msgstr "Frekvence LED"
+
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
+# line: 127
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
 msgid "Exposure Mode"
-msgstr ""
+msgstr "Režim expozice"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:281
+#, python-brace-format
+msgid "{fps} FPS"
+msgstr "{fps} FPS"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:283
+msgid "Live"
+msgstr "Živě"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:199
+msgid "480p"
+msgstr "480p"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:200
+msgid "720p (HD)"
+msgstr "720p (HD)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:201
+msgid "1080p (Full HD)"
+msgstr "1080p (Full HD)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:202
+msgid "4K (UHD)"
+msgstr "4K (UHD)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
+msgid "3s"
+msgstr "3s"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
+msgid "5s"
+msgstr "5s"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
+msgid "10s"
+msgstr "10s"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:263
+msgid "Capture Photo (Ctrl+P)"
+msgstr "Pořídit fotografii (Ctrl+P)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:264
+msgid "Record Video (Ctrl+R)"
+msgstr "Nahrávat video (Ctrl+R)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:268
+msgid "Save Profile (Ctrl+S)"
+msgstr "Uložit profil (Ctrl+S)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:269
+msgid "Load Profile (Ctrl+L)"
+msgstr "Načíst profil (Ctrl+L)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:275
+msgid "Refresh (F5)"
+msgstr "Obnovit (F5)"
+
+#: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:812
+msgid "BigCam Phone"
+msgstr "BigCam Phone"
+
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 256
+#~ msgid "Capture Photo"
+#~ msgstr ""
+
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 257
+#~ msgid "Record Video"
+#~ msgstr ""
+
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 261
+#~ msgid "Save Profile"
+#~ msgstr ""
+
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 262
+#~ msgid "Load Profile"
+#~ msgstr ""

@@ -196,10 +196,10 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._res_combo.add_prefix(Gtk.Image.new_from_icon_name("video-display-symbolic"))
         self._all_res_tiers: list[tuple[str, str]] = [
             ("", _("Auto")),
-            ("480", "480p"),
-            ("720", "720p (HD)"),
-            ("1080", "1080p (Full HD)"),
-            ("2160", "4K (UHD)"),
+            ("480", _("480p")),
+            ("720", _("720p (HD)")),
+            ("1080", _("1080p (Full HD)")),
+            ("2160", _("4K (UHD)")),
         ]
         self._res_values: list[str] = [v for v, _lbl in self._all_res_tiers]
         res_model = Gtk.StringList()
@@ -238,7 +238,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         )
         timer_row.add_prefix(Gtk.Image.new_from_icon_name("timer-symbolic"))
         timer_model = Gtk.StringList()
-        for label in (_("Off"), "3s", "5s", "10s"):
+        for label in (_("Off"), _("3s"), _("5s"), _("10s")):
             timer_model.append(label)
         timer_row.set_model(timer_model)
         _TIMER_VALUES = [0, 3, 5, 10]

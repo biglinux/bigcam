@@ -79,102 +79,20 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     # -- UI build ------------------------------------------------------------
 
     def _build_ui(self) -> None:
-        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        # -- Sidebar pane (left) ---------------------------------------------
+        sidebar_toolbar = Adw.ToolbarView()
 
-        # Header bar
-        self._header = Adw.HeaderBar()
-        self._header.set_title_widget(Adw.WindowTitle(title=APP_NAME, subtitle=""))
+        sidebar_header = Adw.HeaderBar()
+        sidebar_header.set_show_end_title_buttons(False)
 
-        # Camera selector in header
-        self._camera_selector = CameraSelector(self._camera_manager)
-        self._header.pack_start(self._camera_selector)
+        sidebar_title = Gtk.Label(label=APP_NAME)
+        sidebar_title.add_css_class("heading")
+        sidebar_header.set_title_widget(sidebar_title)
 
-        # Menu button
-        menu_btn = Gtk.MenuButton()
-        menu_btn.set_icon_name("open-menu-symbolic")
-        menu_btn.set_tooltip_text(_("Menu"))
-        menu_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Main menu")])
-        menu_btn.set_menu_model(self._build_menu())
-        self._header.pack_end(menu_btn)
+        sidebar_toolbar.add_top_bar(sidebar_header)
 
-        # Phone camera button with icon + label + status dot overlay
-        phone_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        phone_icon = Gtk.Image.new_from_icon_name("phone-symbolic")
-        phone_label = Gtk.Label(label=_("Phone"))
-        phone_label.add_css_class("caption")
-        phone_box.append(phone_icon)
-        phone_box.append(phone_label)
+        sidebar_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
 
-        phone_btn = Gtk.Button()
-        phone_btn.set_child(phone_box)
-        phone_btn.add_css_class("flat")
-        phone_btn.add_css_class("phone-webcam-button")
-        phone_btn.set_tooltip_text(_("Use your phone as a webcam"))
-        phone_btn.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Phone as Webcam")]
-        )
-        phone_btn.set_action_name("win.phone-camera")
-        self._phone_btn = phone_btn
-
-        self._phone_dot = Gtk.DrawingArea()
-        self._phone_dot.set_content_width(8)
-        self._phone_dot.set_content_height(8)
-        self._phone_dot.set_halign(Gtk.Align.END)
-        self._phone_dot.set_valign(Gtk.Align.START)
-        self._phone_dot.set_margin_end(4)
-        self._phone_dot.set_margin_top(4)
-        self._phone_dot.set_can_target(False)
-        self._phone_status_color = (0.6, 0.6, 0.6)  # grey = idle
-        self._phone_dot.set_draw_func(self._draw_phone_dot)
-        self._phone_dot.update_property(
-            [Gtk.AccessibleProperty.LABEL],
-            [_("Phone camera status")],
-        )
-        self._phone_dot.set_visible(False)
-
-        phone_overlay = Gtk.Overlay()
-        phone_overlay.set_child(phone_btn)
-        phone_overlay.add_overlay(self._phone_dot)
-        self._header.pack_end(phone_overlay)
-
-        self._phone_server.connect("status-changed", self._on_phone_status_dot)
-
-        # Refresh button
-        refresh_btn = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
-        refresh_btn.set_tooltip_text(_("Refresh cameras"))
-        refresh_btn.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Refresh camera list")]
-        )
-        refresh_btn.set_action_name("win.refresh")
-        self._header.pack_end(refresh_btn)
-
-        root.append(self._header)
-
-        # Progress bar (thin, hidden by default)
-        self._progress = Gtk.ProgressBar(visible=False)
-        self._progress.add_css_class("osd")
-        root.append(self._progress)
-
-        # Main content: Paned
-        self._paned = Gtk.Paned(
-            orientation=Gtk.Orientation.HORIZONTAL,
-            shrink_start_child=False,
-            shrink_end_child=False,
-        )
-        self._paned.set_position(600)
-
-        # LEFT: preview
-        self._preview = PreviewArea(self._stream_engine)
-        self._preview.set_show_fps(self._settings.get("show_fps"))
-        self._preview.set_grid_visible(self._settings.get("grid_overlay"))
-        self._preview.set_mirror(bool(self._settings.get("mirror_preview")))
-        self._paned.set_start_child(self._preview)
-
-        # RIGHT: sidebar with ViewStack
-        sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        sidebar.set_size_request(300, -1)
-
-        # ViewSwitcherBar-like header for pages
         self._view_stack = Adw.ViewStack()
         self._view_stack.set_vexpand(True)
 
@@ -240,32 +158,121 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         switcher = Adw.ViewSwitcherBar(stack=self._view_stack, reveal=True)
 
-        sidebar.append(self._view_stack)
-        sidebar.append(switcher)
+        sidebar_box.append(self._view_stack)
+        sidebar_box.append(switcher)
+        sidebar_toolbar.set_content(sidebar_box)
 
-        self._paned.set_end_child(sidebar)
-        root.append(self._paned)
+        # -- Content pane (right) --------------------------------------------
+        content_toolbar = Adw.ToolbarView()
+
+        self._header = Adw.HeaderBar()
+        self._header.set_show_start_title_buttons(False)
+
+        # Camera selector centered as title widget
+        self._camera_selector = CameraSelector(self._camera_manager)
+        self._header.set_title_widget(self._camera_selector)
+
+        # Menu button (rightmost, before window controls)
+        menu_btn = Gtk.MenuButton()
+        menu_btn.set_icon_name("open-menu-symbolic")
+        menu_btn.set_tooltip_text(_("Menu"))
+        menu_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Main menu")])
+        menu_btn.set_menu_model(self._build_menu())
+        self._header.pack_end(menu_btn)
+
+        # Phone camera button with icon + label + status dot overlay
+        phone_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        phone_icon = Gtk.Image.new_from_icon_name("phone-symbolic")
+        phone_label = Gtk.Label(label=_("Phone"))
+        phone_label.add_css_class("caption")
+        phone_box.append(phone_icon)
+        phone_box.append(phone_label)
+
+        phone_btn = Gtk.Button()
+        phone_btn.set_child(phone_box)
+        phone_btn.add_css_class("flat")
+        phone_btn.add_css_class("phone-webcam-button")
+        phone_btn.set_tooltip_text(_("Use your phone as a webcam"))
+        phone_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Phone as Webcam")]
+        )
+        phone_btn.set_action_name("win.phone-camera")
+        self._phone_btn = phone_btn
+
+        self._phone_dot = Gtk.DrawingArea()
+        self._phone_dot.set_content_width(8)
+        self._phone_dot.set_content_height(8)
+        self._phone_dot.set_halign(Gtk.Align.END)
+        self._phone_dot.set_valign(Gtk.Align.START)
+        self._phone_dot.set_margin_end(4)
+        self._phone_dot.set_margin_top(4)
+        self._phone_dot.set_can_target(False)
+        self._phone_status_color = (0.6, 0.6, 0.6)  # grey = idle
+        self._phone_dot.set_draw_func(self._draw_phone_dot)
+        self._phone_dot.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Phone camera status")],
+        )
+        self._phone_dot.set_visible(False)
+
+        phone_overlay = Gtk.Overlay()
+        phone_overlay.set_child(phone_btn)
+        phone_overlay.add_overlay(self._phone_dot)
+        self._header.pack_end(phone_overlay)
+
+        self._phone_server.connect("status-changed", self._on_phone_status_dot)
+
+        # Refresh button
+        refresh_btn = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
+        refresh_btn.set_tooltip_text(_("Refresh cameras"))
+        refresh_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Refresh camera list")]
+        )
+        refresh_btn.set_action_name("win.refresh")
+        self._header.pack_end(refresh_btn)
+
+        content_toolbar.add_top_bar(self._header)
+
+        # Preview area (main content)
+        self._preview = PreviewArea(self._stream_engine)
+        self._preview.set_show_fps(self._settings.get("show_fps"))
+        self._preview.set_grid_visible(self._settings.get("grid_overlay"))
+        self._preview.set_mirror(bool(self._settings.get("mirror_preview")))
+        content_toolbar.set_content(self._preview)
+
+        # Progress bar as bottom bar
+        self._progress = Gtk.ProgressBar(visible=False)
+        self._progress.add_css_class("osd")
+        content_toolbar.add_bottom_bar(self._progress)
+
+        # -- OverlaySplitView ------------------------------------------------
+        self._split_view = Adw.OverlaySplitView()
+        self._split_view.set_min_sidebar_width(280)
+        self._split_view.set_max_sidebar_width(360)
+        self._split_view.set_sidebar_width_fraction(0.32)
+        self._split_view.set_sidebar(sidebar_toolbar)
+        self._split_view.set_content(content_toolbar)
 
         self._toast_overlay = Adw.ToastOverlay()
-        self._toast_overlay.set_child(root)
+        self._toast_overlay.set_child(self._split_view)
         self.set_content(self._toast_overlay)
 
     def _build_menu(self) -> Gio.Menu:
         menu = Gio.Menu()
         section1 = Gio.Menu()
-        section1.append(_("Capture Photo") + " (Ctrl+P)", "win.capture")
-        section1.append(_("Record Video") + " (Ctrl+R)", "win.record-toggle")
+        section1.append(_("Capture Photo (Ctrl+P)"), "win.capture")
+        section1.append(_("Record Video (Ctrl+R)"), "win.record-toggle")
         menu.append_section(None, section1)
 
         section2 = Gio.Menu()
-        section2.append(_("Save Profile") + " (Ctrl+S)", "win.save-profile")
-        section2.append(_("Load Profile") + " (Ctrl+L)", "win.load-profile")
+        section2.append(_("Save Profile (Ctrl+S)"), "win.save-profile")
+        section2.append(_("Load Profile (Ctrl+L)"), "win.load-profile")
         menu.append_section(_("Profiles"), section2)
 
         section3 = Gio.Menu()
         section3.append(_("Add IP Camera…"), "win.add-ip")
         section3.append(_("Phone as Webcam…"), "win.phone-camera")
-        section3.append(_("Refresh") + " (F5)", "win.refresh")
+        section3.append(_("Refresh (F5)"), "win.refresh")
         section3.append(_("About"), "win.about")
         menu.append_section(None, section3)
         return menu
@@ -399,9 +406,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._active_camera = camera
         self._camera_selector.set_active_camera(camera.id)
         self._settings.set("last-camera-id", camera.id)
-        title_widget = self._header.get_title_widget()
-        if isinstance(title_widget, Adw.WindowTitle):
-            title_widget.set_subtitle(camera.name)
 
         # Check if backend needs streaming setup (e.g. gphoto2)
         backend = self._camera_manager.get_backend(camera.backend)
@@ -805,7 +809,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         phone_cam = CameraInfo(
             id="phone:websocket",
-            name="BigCam Phone",
+            name=_("BigCam Phone"),
             backend=BackendType.PHONE,
             device_path="websocket",
             capabilities=["video"],
@@ -1060,9 +1064,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 _("No camera"),
                 _("Connect a camera or select one from the list above."),
             )
-            title_widget = self._header.get_title_widget()
-            if isinstance(title_widget, Adw.WindowTitle):
-                title_widget.set_subtitle("")
 
         elif (
             self._active_camera

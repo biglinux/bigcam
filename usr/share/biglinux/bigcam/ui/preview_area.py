@@ -278,9 +278,9 @@ class PreviewArea(Gtk.Overlay):
         if self._engine.is_playing():
             fps = self._engine.fps
             if fps > 0:
-                self._fps_label.set_text(f"{fps:.0f} FPS")
+                self._fps_label.set_text(_("{fps} FPS").format(fps=f"{fps:.0f}"))
             else:
-                self._fps_label.set_text("⏵ Live")
+                self._fps_label.set_text(_("Live"))
             return True
         self._fps_label.set_visible(False)
         self._fps_timer = None

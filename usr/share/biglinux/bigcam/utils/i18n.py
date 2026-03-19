@@ -1,25 +1,32 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Internationalization support for BigCam."""
+
 import gettext
 import os
-import locale
 
-APP_NAME = "bigcam"
+# Determine locale directory
+# Priority: 1) Local project locale, 2) AppImage, 3) System install
+locale_dir = "/usr/share/locale"  # Default fallback for system install
 
-# When installed: /usr/share/locale
-# When developing: <project>/usr/share/locale
-_app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_share_dir = os.path.dirname(os.path.dirname(_app_dir))
-localedir = os.path.join(_share_dir, "locale")
+# Check if running from source/local (e.g. python main.py from the project)
+script_dir = os.path.dirname(os.path.abspath(__file__))  # utils/
+app_dir = os.path.dirname(script_dir)  # bigcam/
+share_dir = os.path.dirname(app_dir)  # share/
+local_locale = os.path.join(share_dir, "locale")  # share/locale
 
-try:
-    locale.setlocale(locale.LC_ALL, "")
-except locale.Error:
-    pass
+if os.path.isdir(local_locale):
+    locale_dir = local_locale
 
-if os.path.isdir(localedir):
-    gettext.bindtextdomain(APP_NAME, localedir)
-    gettext.textdomain(APP_NAME)
-    _ = gettext.gettext
-else:
+# Check if we're in an AppImage (overrides local)
+if "APPIMAGE" in os.environ or "APPDIR" in os.environ:
+    appimage_locale = os.path.join(share_dir, "locale")
+    if os.path.isdir(appimage_locale):
+        locale_dir = appimage_locale
 
-    def _(msg):
-        return msg
+# Configure the translation text domain for bigcam
+gettext.bindtextdomain("bigcam", locale_dir)
+gettext.textdomain("bigcam")
+
+# Export _ directly as the translation function
+_ = gettext.gettext
