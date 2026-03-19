@@ -15,17 +15,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: attranslate\n"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 59
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/notification.py:59
 msgid "Dismiss"
 msgstr "閉じる"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 62
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/notification.py:62
 msgid "Dismiss notification"
 msgstr "通知を閉じる"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 79
@@ -34,7 +31,6 @@ msgstr "通知を閉じる"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1064
 msgid "No camera"
 msgstr "カメラがありません"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 80
@@ -43,7 +39,6 @@ msgstr "カメラがありません"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1065
 msgid "Connect a camera or select one from the list above."
 msgstr "カメラを接続するか、上のリストから選択してください。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 86
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 92
 #. Retry button (hidden by default)
@@ -51,26 +46,22 @@ msgstr "カメラを接続するか、上のリストから選択してくださ
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:92
 msgid "Try again"
 msgstr "再試行"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 196
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 198
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:196
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:198
 msgid "Capture photo"
 msgstr "写真を撮る"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 220
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 441
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:220
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:441
 msgid "Record video (Ctrl+R)"
 msgstr "動画を録画 (Ctrl+R)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 222
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:222
 msgid "Record video"
 msgstr "動画を録画"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 338
@@ -85,39 +76,32 @@ msgstr "動画を録画"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:729
 msgid "Please wait…"
 msgstr "お待ちください…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 406
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:406
 msgid "Camera in use by:"
 msgstr "カメラ使用中："
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 407
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 410
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:407
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:410
 msgid "Camera busy"
 msgstr "カメラが使用中です"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 409
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:409
 msgid "Camera is being used"
 msgstr "カメラは使用中です"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 413
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:413
 msgid "Connection failed"
 msgstr "接続に失敗しました"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 416
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:416
 msgid "Could not connect to the camera. Check the connection and try again."
 msgstr "カメラに接続できませんでした。接続を確認して再試行してください。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 435
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:435
 msgid "Stop recording"
 msgstr "録画を停止"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 484
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 495
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:484
@@ -125,17 +109,14 @@ msgstr "録画を停止"
 #, python-brace-format
 msgid "{n} seconds remaining"
 msgstr "{n} 秒残り"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 87
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:87
 msgid "General"
 msgstr "一般"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 91
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:91
 msgid "Photo directory"
 msgstr "写真フォルダー"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 97
@@ -146,12 +127,10 @@ msgstr "写真フォルダー"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:97
 msgid "Open photos folder"
 msgstr "写真フォルダーを開く"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 108
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:108
 msgid "Video directory"
 msgstr "ビデオフォルダー"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 114
@@ -162,85 +141,70 @@ msgstr "ビデオフォルダー"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:52
 msgid "Open videos folder"
 msgstr "ビデオフォルダーを開く"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 124
 #. Theme
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:124
 msgid "Theme"
 msgstr "テーマ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 127
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:127
 msgid "System"
 msgstr "システム"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 127
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:127
 msgid "Light"
 msgstr "ライト"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 127
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:127
 msgid "Dark"
 msgstr "ダーク"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 135
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:135
 msgid "Application theme"
 msgstr "アプリケーションテーマ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 141
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 147
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:141
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:147
 msgid "USB hotplug detection"
 msgstr "USBホットプラグ検出"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 142
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:142
 msgid "Automatically detect cameras when plugged or unplugged."
 msgstr "カメラの接続・切断を自動で検出します。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 155
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:155
 msgid "Preview"
 msgstr "プレビュー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 158
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 164
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:158
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:164
 msgid "Mirror preview"
 msgstr "プレビューをミラー表示"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 159
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:159
 msgid "Flip the preview horizontally like a mirror."
 msgstr "プレビューを鏡のように水平反転します。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 170
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 175
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:170
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:175
 msgid "Show FPS counter"
 msgstr "FPSカウンターを表示"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 181
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:181
 msgid "Grid overlay"
 msgstr "グリッドオーバーレイ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 182
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:182
 msgid "Show a rule-of-thirds grid over the preview."
 msgstr "プレビューに三分割法のグリッドを表示します。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 192
 #. -- Camera group (resolution, FPS, timer) ---------------------------
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:192
 msgid "Camera"
 msgstr "カメラ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 195
@@ -250,35 +214,29 @@ msgstr "カメラ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:195
 msgid "Resolution"
 msgstr "解像度"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 198
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 221
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:198
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:221
 msgid "Auto"
 msgstr "自動"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 218
 #. FPS limit
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:218
 msgid "FPS limit"
 msgstr "FPS制限"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 236
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:236
 msgid "Capture timer"
 msgstr "撮影タイマー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 237
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:237
 msgid "Countdown before taking a photo."
 msgstr "写真を撮る前のカウントダウン。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 241
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
 msgid "Off"
 msgstr "オフ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 266
@@ -288,7 +246,6 @@ msgstr "オフ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:85
 msgid "QR Code Scanner"
 msgstr "QRコードスキャナー"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 268
@@ -297,7 +254,6 @@ msgstr "QRコードスキャナー"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:89
 msgid "Scan QR Codes"
 msgstr "QRコードをスキャン"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 269
@@ -306,7 +262,6 @@ msgstr "QRコードをスキャン"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:90
 msgid "Detect QR codes in the camera feed"
 msgstr "カメラ映像内のQRコードを検出"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 277
@@ -316,7 +271,6 @@ msgstr "カメラ映像内のQRコードを検出"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:96
 msgid "Smile Capture"
 msgstr "スマイルキャプチャ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 279
@@ -325,7 +279,6 @@ msgstr "スマイルキャプチャ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:100
 msgid "Capture on Smile"
 msgstr "スマイルで撮影"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 280
@@ -334,7 +287,6 @@ msgstr "スマイルで撮影"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:101
 msgid "Automatically take a photo when a smile is detected"
 msgstr "笑顔を検出したら自動で写真を撮ります"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 286
@@ -344,7 +296,6 @@ msgstr "笑顔を検出したら自動で写真を撮ります"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:107
 msgid "Sensitivity"
 msgstr "感度"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 307
@@ -354,7 +305,6 @@ msgstr "感度"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:38
 msgid "Virtual Camera"
 msgstr "バーチャルカメラ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -371,7 +321,6 @@ msgstr "バーチャルカメラ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:41
 msgid "Status"
 msgstr "ステータス"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 315
@@ -380,7 +329,6 @@ msgstr "ステータス"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:57
 msgid "Device"
 msgstr "デバイス"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 316
@@ -396,7 +344,6 @@ msgstr "デバイス"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:153
 msgid "Not loaded"
 msgstr "読み込まれていません"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 322
@@ -407,7 +354,6 @@ msgstr "読み込まれていません"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:88
 msgid "Enable virtual camera"
 msgstr "バーチャルカメラを有効にする"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 323
@@ -416,7 +362,6 @@ msgstr "バーチャルカメラを有効にする"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:82
 msgid "Create a virtual camera output for video calls and streaming."
 msgstr "ビデオ通話や配信用にバーチャルカメラ出力を作成します。"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 562
@@ -427,7 +372,6 @@ msgstr "ビデオ通話や配信用にバーチャルカメラ出力を作成し
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:357
 msgid "Watching for smiles..."
 msgstr "笑顔を監視中..."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 641
@@ -436,7 +380,6 @@ msgstr "笑顔を監視中..."
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:127
 msgid "v4l2loopback not available"
 msgstr "v4l2loopbackが利用できません"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 648
@@ -445,7 +388,6 @@ msgstr "v4l2loopbackが利用できません"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:138
 msgid "Active"
 msgstr "アクティブ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 653
@@ -454,7 +396,6 @@ msgstr "アクティブ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:144
 msgid "Module loaded"
 msgstr "モジュールが読み込まれました"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 658
@@ -463,22 +404,18 @@ msgstr "モジュールが読み込まれました"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:150
 msgid "Module not loaded"
 msgstr "モジュールが読み込まれていません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 51
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:51
 msgid "Virtual camera status"
 msgstr "バーチャルカメラのステータス"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 66
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:66
 msgid "Module"
 msgstr "モジュール"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 67
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:67
 msgid "v4l2loopback"
 msgstr "v4l2loopback"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 78
@@ -489,12 +426,10 @@ msgstr "v4l2loopback"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:78
 msgid "Actions"
 msgstr "操作"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 97
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:97
 msgid "Usage"
 msgstr "使用方法"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 99
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
 msgid ""
@@ -503,25 +438,21 @@ msgid ""
 msgstr ""
 "有効にすると、アクティブなカメラのプレビューが仮想カメラデバイスに送信され、OBS Studio、Google "
 "Meet、Zoomなどのアプリケーションで使用できます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 129
 #. red
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:129
 msgid "Not installed"
 msgstr "インストールされていません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 130
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:130
 msgid "—"
 msgstr "—"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 141
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 147
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:141
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:147
 msgid "Loaded"
 msgstr "読み込み済み"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 68
@@ -530,17 +461,14 @@ msgstr "読み込み済み"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:68
 msgid "OpenCV not available"
 msgstr "OpenCVが利用できません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 69
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:69
 msgid "Install python-opencv to use tools."
 msgstr "ツールを使用するにはpython-opencvをインストールしてください。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 333
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:333
 msgid "Smile detected! Capturing..."
 msgstr "笑顔を検出しました！撮影中..."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 345
@@ -551,17 +479,14 @@ msgstr "笑顔を検出しました！撮影中..."
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:721
 msgid "Photo saved!"
 msgstr "写真を保存しました！"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 348
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:348
 msgid "Capture failed."
 msgstr "撮影に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 41
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:41
 msgid "Captured Photos"
 msgstr "撮影した写真"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -573,28 +498,23 @@ msgstr "撮影した写真"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:58
 msgid "Refresh"
 msgstr "更新"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 56
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:56
 msgid "Refresh photo gallery"
 msgstr "写真ギャラリーを更新"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 79
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:79
 msgid "No photos yet"
 msgstr "写真がまだありません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 80
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:80
 msgid "Captured photos will appear here."
 msgstr "撮影した写真はここに表示されます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 142
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:142
 #, python-format
 msgid "Open %s"
 msgstr "%sを開く"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 158
@@ -607,7 +527,6 @@ msgstr "%sを開く"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:303
 msgid "Delete"
 msgstr "削除"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 161
@@ -617,12 +536,10 @@ msgstr "削除"
 #, python-format
 msgid "Delete %s"
 msgstr "%sを削除"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 180
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:180
 msgid "Delete photo?"
 msgstr "写真を削除しますか？"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 181
@@ -632,7 +549,6 @@ msgstr "写真を削除しますか？"
 #, python-format
 msgid "\"%s\" will be permanently deleted."
 msgstr "「%s」は完全に削除されます。"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -645,32 +561,26 @@ msgstr "「%s」は完全に削除されます。"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1122
 msgid "Cancel"
 msgstr "キャンセル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
 msgid "Universal webcam control center for Linux."
 msgstr "Linux向けのユニバーサルウェブカメラコントロールセンター。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 45
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:45
 msgid "Recorded Videos"
 msgstr "録画ビデオ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 60
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:60
 msgid "Refresh video gallery"
 msgstr "ビデオギャラリーを更新"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 83
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:83
 msgid "No videos yet"
 msgstr "ビデオがまだありません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 84
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:84
 msgid "Recorded videos will appear here."
 msgstr "録画したビデオはここに表示されます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 175
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 213
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:175
@@ -678,12 +588,10 @@ msgstr "録画したビデオはここに表示されます。"
 #, python-format
 msgid "Play %s"
 msgstr "%sを再生"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 299
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:299
 msgid "Delete video?"
 msgstr "ビデオを削除しますか？"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 39
@@ -692,26 +600,22 @@ msgstr "ビデオを削除しますか？"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:197
 msgid "Phone as Webcam"
 msgstr "電話をウェブカメラとして使用"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 69
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:69
 msgid "QR Code for phone camera connection"
 msgstr "電話カメラ接続用QRコード"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 76
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 189
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:76
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:189
 msgid "Press Start to generate URL"
 msgstr "URLを生成するには開始を押してください"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 96
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 228
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:96
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:228
 msgid "Phone camera status: Idle"
 msgstr "電話カメラの状態：アイドル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 99
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 192
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 225
@@ -720,7 +624,6 @@ msgstr "電話カメラの状態：アイドル"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:225
 msgid "Idle"
 msgstr "アイドル"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 120
@@ -729,12 +632,10 @@ msgstr "アイドル"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:404
 msgid "Start"
 msgstr "開始"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 126
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:126
 msgid "Stop"
 msgstr "停止"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 138
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:138
 msgid ""
@@ -747,7 +648,6 @@ msgstr ""
 "2. 電話でQRコードをスキャン\n"
 "3. セキュリティ警告を承認\n"
 "4. カメラアクセスを許可して開始を押す"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 198
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 218
 #. green
@@ -755,13 +655,11 @@ msgstr ""
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:218
 msgid "Connected"
 msgstr "接続済み"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 204
 #. red
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:204
 msgid "Disconnected"
 msgstr "接続解除"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 211
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 244
 #. yellow
@@ -770,27 +668,22 @@ msgstr "接続解除"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:244
 msgid "Waiting for connection..."
 msgstr "接続待機中..."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 214
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:214
 msgid "Phone camera status: Waiting for connection"
 msgstr "電話カメラの状態：接続待機中"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 221
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:221
 msgid "Phone camera status: Connected"
 msgstr "電話カメラの状態：接続済み"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 251
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:251
 msgid "(install python-qrcode for QR code)"
 msgstr "（QRコード用にpython-qrcodeをインストールしてください）"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 281
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:281
 msgid "Missing Dependencies"
 msgstr "依存関係が不足しています"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 283
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:283
 msgid ""
@@ -805,12 +698,10 @@ msgstr ""
 "• python-aiohttp\n"
 "\n"
 "インストールコマンド：sudo pacman -S python-aiohttp"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 288
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:288
 msgid "OK"
 msgstr "OK"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 83
@@ -821,12 +712,10 @@ msgstr "OK"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:186
 msgid "Phone"
 msgstr "電話"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 92
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:92
 msgid "SMS"
 msgstr "SMS"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 105
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 134
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 393
@@ -835,51 +724,42 @@ msgstr "SMS"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:393
 msgid "E-mail"
 msgstr "Eメール"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 154
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:154
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 164
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 406
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:164
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:406
 msgid "Location"
 msgstr "位置情報"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 178
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:178
 msgid "Calendar Event"
 msgstr "カレンダーイベント"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 210
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 230
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:210
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:230
 msgid "Contact Card"
 msgstr "連絡先カード"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 235
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:235
 msgid "Payment (PIX)"
 msgstr "支払い（PIX）"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 262
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:262
 msgid "Authentication (TOTP)"
 msgstr "認証（TOTP）"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 275
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:275
 msgid "App Store"
 msgstr "アプリストア"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 282
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:282
 msgid "Social Network"
 msgstr "ソーシャルネットワーク"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 286
@@ -891,7 +771,6 @@ msgstr "ソーシャルネットワーク"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:386
 msgid "URL"
 msgstr "URL"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 289
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 387
 #. Fallback: plain text
@@ -899,27 +778,22 @@ msgstr "URL"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:387
 msgid "Text"
 msgstr "テキスト"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 320
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:320
 msgid "QR Code Detected"
 msgstr "QRコード検出"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 388
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:388
 msgid "Number"
 msgstr "番号"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 389
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:389
 msgid "Message"
 msgstr "メッセージ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 390
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:390
 msgid "Address"
 msgstr "住所"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 391
@@ -928,408 +802,330 @@ msgstr "住所"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:391
 msgid "Name"
 msgstr "名前"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 394
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:394
 msgid "Organization"
 msgstr "組織"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 395
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:395
 msgid "Title"
 msgstr "タイトル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 396
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:396
 msgid "Network (SSID)"
 msgstr "ネットワーク (SSID)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 397
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:397
 msgid "Password"
 msgstr "パスワード"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 398
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:398
 msgid "Security"
 msgstr "セキュリティ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 399
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:399
 msgid "Hidden"
 msgstr "非表示"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 400
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:400
 msgid "Latitude"
 msgstr "緯度"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 401
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:401
 msgid "Longitude"
 msgstr "経度"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 402
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:402
 msgid "Coordinates"
 msgstr "座標"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 403
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:403
 msgid "Summary"
 msgstr "サマリー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 405
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:405
 msgid "End"
 msgstr "終了"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 407
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:407
 msgid "Payload"
 msgstr "ペイロード"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 408
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:408
 msgid "Currency"
 msgstr "通貨"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 409
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:409
 msgid "Account"
 msgstr "アカウント"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 410
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:410
 msgid "Secret"
 msgstr "シークレット"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 411
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:411
 msgid "Issuer"
 msgstr "発行者"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 412
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:412
 msgid "URI"
 msgstr "URI"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 413
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:413
 msgid "Subject"
 msgstr "件名"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 424
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:424
 msgid "Copy"
 msgstr "コピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 436
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:436
 msgid "Open in Browser"
 msgstr "ブラウザで開く"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 445
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 453
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:445
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:453
 msgid "Copy Number"
 msgstr "番号をコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 460
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:460
 msgid "Copy Message"
 msgstr "メッセージをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 464
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:464
 msgid "WhatsApp"
 msgstr "WhatsApp"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 469
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:469
 msgid "Open E-mail Client"
 msgstr "メールクライアントを開く"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 479
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:479
 msgid "Copy Password"
 msgstr "パスワードをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 487
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:487
 msgid "Copy SSID"
 msgstr "SSIDをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 495
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:495
 msgid "Open in Maps"
 msgstr "マップで開く"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 504
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:504
 msgid "Save .ics File"
 msgstr ".icsファイルを保存"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 513
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:513
 msgid "Save Contact"
 msgstr "連絡先を保存"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 522
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:522
 msgid "Copy PIX"
 msgstr "PIXをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 531
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:531
 msgid "Copy Address"
 msgstr "住所をコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 540
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:540
 msgid "Copy Secret"
 msgstr "シークレットをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 547
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:547
 msgid "Copy URI"
 msgstr "URIをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 554
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:554
 msgid "Copy Raw"
 msgstr "生データをコピー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 557
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:557
 msgid "Save to File"
 msgstr "ファイルに保存"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 590
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:590
 msgid "Copied!"
 msgstr "コピーしました！"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 626
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:626
 msgid "iCalendar Files"
 msgstr "iCalendarファイル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 652
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:652
 msgid "vCard Files"
 msgstr "vCardファイル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 657
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:657
 msgid "Text Files"
 msgstr "テキストファイル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 672
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:672
 msgid "All Files"
 msgstr "すべてのファイル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 688
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:688
 #, python-format
 msgid "Saved: %s"
 msgstr "保存済み: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 692
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:692
 #, python-format
 msgid "Error: %s"
 msgstr "エラー: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 60
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:60
 msgid "Select camera"
 msgstr "カメラを選択"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 62
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:62
 msgid "Camera selector"
 msgstr "カメラセレクター"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 95
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:178
 msgid "Menu"
 msgstr "メニュー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 96
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:179
 msgid "Main menu"
 msgstr "メインメニュー"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 112
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:195
 msgid "Use your phone as a webcam"
 msgstr "スマートフォンをウェブカメラとして使用"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 131
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 765
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:214
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:769
 msgid "Phone camera status"
 msgstr "スマートフォンカメラの状態"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 144
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:227
 msgid "Refresh cameras"
 msgstr "カメラを更新"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 146
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:229
 msgid "Refresh camera list"
 msgstr "カメラリストを更新"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 186
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:104
 msgid "Controls"
 msgstr "コントロール"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 195
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:113
 msgid "Effects"
 msgstr "エフェクト"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 204
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:122
 msgid "Photos"
 msgstr "写真"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 213
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:131
 msgid "Videos"
 msgstr "ビデオ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 237
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:155
 msgid "Settings"
 msgstr "設定"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 263
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:270
 msgid "Profiles"
 msgstr "プロファイル"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 266
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:273
 msgid "Add IP Camera…"
 msgstr "IPカメラを追加…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 267
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:274
 msgid "Phone as Webcam…"
 msgstr "スマホをウェブカメラに…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 269
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:276
 msgid "About"
 msgstr "バージョン情報"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 474
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 535
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:478
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:539
 msgid "Starting camera stream…"
 msgstr "カメラストリームを開始しています…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 501
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:505
 msgid "Camera streaming started!"
 msgstr "カメラストリームが開始されました！"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 521
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:525
 msgid "Failed to start camera streaming."
 msgstr "カメラストリームの開始に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 562
 #. Show a simple notice instead of a blocking dialog
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:566
 #, python-brace-format
 msgid "Virtual Camera: {vcam_device} Created!"
 msgstr "仮想カメラ: {vcam_device} が作成されました!"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 607
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:611
 msgid "Smile captured! Photo saved."
 msgstr "スマイルをキャプチャしました！写真が保存されました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 612
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:616
 msgid "QR Code detected!"
 msgstr "QRコードを検出しました！"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 618
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 965
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:622
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:969
 msgid "No camera selected."
 msgstr "カメラが選択されていません。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 633
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:637
 msgid "Choose capture mode"
 msgstr "キャプチャモードを選択"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 635
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:639
 msgid ""
 "You can take a screenshot from the current preview or capture a full-"
 "resolution photo directly from the camera."
 msgstr "現在のプレビューからスクリーンショットを撮るか、カメラから直接フル解像度の写真を撮影できます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 639
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:643
 msgid "Preview screenshot"
 msgstr "プレビューのスクリーンショット"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 640
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:644
 msgid "Camera photo (full resolution)"
 msgstr "カメラ写真（フル解像度）"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 659
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:663
 msgid "Capturing photo…"
 msgstr "写真を撮影中…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 675
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 721
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:679
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:725
 msgid "Failed to capture photo."
 msgstr "写真の撮影に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 687
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:691
 msgid "Switching to photography mode."
 msgstr "写真撮影モードに切り替えています。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 726
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:730
 msgid "Resuming camera streaming…"
 msgstr "カメラのストリーミングを再開しています…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 759
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:763
 msgid "Phone camera: waiting"
 msgstr "携帯カメラ：待機中"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 760
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:764
 msgid "Phone camera: connected"
 msgstr "携帯カメラ：接続済み"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 761
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:765
 msgid "Phone camera: stopped"
 msgstr "携帯カメラ：停止しました"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 844
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:848
 #, python-format
@@ -1349,7 +1145,6 @@ msgstr ""
 "カメラの設定とコントロールは通常通り動作します。\n"
 "\n"
 "ヒント：仮想カメラを有効にすると、複数のアプリケーションでカメラ映像を同時に共有できます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 853
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:857
 #, python-format
@@ -1369,118 +1164,96 @@ msgstr ""
 "カメラの設定とコントロールは通常通り動作します。\n"
 "\n"
 "ヒント：仮想カメラを有効にすると、複数のアプリケーションでカメラ映像を同時に共有できます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 861
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:865
 msgid "Camera in use"
 msgstr "カメラ使用中"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 867
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:871
 #, python-format
 msgid "Force close %s"
 msgstr "%s を強制終了"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 874
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:878
 msgid "Enable Virtual Camera"
 msgstr "仮想カメラを有効にする"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 879
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:883
 msgid "Close"
 msgstr "閉じる"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 941
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:945
 msgid "Virtual Camera enabled. Other applications can use /dev/video10."
 msgstr "仮想カメラが有効になりました。他のアプリケーションは /dev/video10 を使用できます。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 959
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:963
 #, python-format
 msgid "Video saved: %s"
 msgstr "ビデオを保存しました: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 976
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:980
 msgid "Recording…"
 msgstr "録画中…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 980
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:984
 msgid "Failed to start recording."
 msgstr "録画の開始に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 994
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:998
 msgid "Profile saved."
 msgstr "プロファイルが保存されました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1001
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1005
 msgid "No profiles found."
 msgstr "プロファイルが見つかりません。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1011
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1015
 #, python-format
 msgid "Profile loaded: %s"
 msgstr "プロファイルを読み込みました: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1025
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1029
 msgid "Show"
 msgstr "表示"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1106
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1108
 #, python-format
 msgid "Active camera: %s"
 msgstr "使用中のカメラ: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1108
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1110
 msgid "Virtual Camera is enabled (other apps may depend on it)."
 msgstr "バーチャルカメラが有効です（他のアプリが依存している場合があります）。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1111
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1113
 msgid ""
 "If you choose to keep it running, the camera will remain on after closing "
 "the application."
 msgstr "継続して実行する場合、アプリを閉じてもカメラはオンのままになります。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1117
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1119
 msgid "Camera is active"
 msgstr "カメラがアクティブです"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1118
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1120
 msgid "Stop camera and close"
 msgstr "カメラを停止して閉じる"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1119
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:1121
 msgid "Keep camera on"
 msgstr "カメラをオンのままにする"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 22
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:22
 msgid "Adjustments"
 msgstr "調整"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 23
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:23
 msgid "Filters"
 msgstr "フィルター"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 24
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:24
 msgid "Artistic"
 msgstr "アーティスティック"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 25
@@ -1489,12 +1262,10 @@ msgstr "アーティスティック"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:25
 msgid "Advanced"
 msgstr "詳細設定"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 69
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:69
 msgid "Install python-opencv to enable video effects."
 msgstr "ビデオ効果を有効にするには python-opencv をインストールしてください。"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 106
@@ -1503,117 +1274,95 @@ msgstr "ビデオ効果を有効にするには python-opencv をインストー
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:106
 msgid "Reset to defaults"
 msgstr "デフォルトにリセット"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 110
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:110
 #, python-format
 msgid "Reset %s effects"
 msgstr "%s 効果をリセット"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 24
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
 msgid "Add IP Camera"
 msgstr "IPカメラを追加"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 42
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
 msgid "Camera Details"
 msgstr "カメラの詳細"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 46
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
 msgid "Camera name"
 msgstr "カメラ名"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 53
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
 msgid "Camera URL (RTSP or HTTP)"
 msgstr "カメラのURL（RTSPまたはHTTP）"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 60
 #. Action button
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
 msgid "Add Camera"
 msgstr "カメラを追加"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 64
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
 msgid "Add IP camera"
 msgstr "IPカメラを追加"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 21
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:21
 msgid "Image"
 msgstr "画像"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
 msgid "Exposure"
 msgstr "露出"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 23
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
 msgid "Focus"
 msgstr "フォーカス"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 24
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
 msgid "White Balance"
 msgstr "ホワイトバランス"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 25
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
 msgid "Capture"
 msgstr "キャプチャ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 72
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:72
 msgid "No camera selected"
 msgstr "カメラが選択されていません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 73
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:73
 msgid "Select a camera to see its controls."
 msgstr "コントロールを表示するカメラを選択してください。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 106
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:106
 msgid "Loading controls…"
 msgstr "コントロールを読み込み中…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 142
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:142
 msgid "Phone camera"
 msgstr "携帯電話のカメラ"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 144
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:144
 msgid ""
 "Adjust resolution, quality, and FPS directly on the phone's browser page. "
 "Use the Effects tab for brightness, contrast, and other adjustments."
 msgstr "解像度、画質、FPSは携帯電話のブラウザページで直接調整してください。明るさ、コントラストなどの調整はEffectsタブを使用します。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 151
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:151
 msgid "No adjustable controls"
 msgstr "調整可能なコントロールはありません"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 152
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:152
 msgid "This camera does not expose any controls."
 msgstr "このカメラはコントロールを提供していません。"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 363
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 #, python-format
 msgid "Reset %s controls"
 msgstr "%s コントロールをリセット"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 334
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:334
 msgid "Brightness / Contrast"
 msgstr "明るさ / コントラスト"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -1628,7 +1377,6 @@ msgstr "明るさ / コントラスト"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
 msgid "Brightness"
 msgstr "明るさ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -1643,12 +1391,10 @@ msgstr "明るさ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
 msgid "Contrast"
 msgstr "コントラスト"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 347
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:347
 msgid "Gamma Correction"
 msgstr "ガンマ補正"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 351
@@ -1658,22 +1404,18 @@ msgstr "ガンマ補正"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
 msgid "Gamma"
 msgstr "ガンマ"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 359
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:359
 msgid "CLAHE (Adaptive Contrast)"
 msgstr "CLAHE（適応コントラスト）"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 363
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:363
 msgid "Clip Limit"
 msgstr "クリップリミット"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 364
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:364
 msgid "Grid Size"
 msgstr "グリッドサイズ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -1688,12 +1430,10 @@ msgstr "グリッドサイズ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
 msgid "Auto White Balance"
 msgstr "自動ホワイトバランス"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 382
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:382
 msgid "Detail Enhance"
 msgstr "ディテール強調"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 386
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 399
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 464
@@ -1704,7 +1444,6 @@ msgstr "ディテール強調"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:478
 msgid "Smoothing"
 msgstr "平滑化"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 387
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 465
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 479
@@ -1713,22 +1452,18 @@ msgstr "平滑化"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:479
 msgid "Detail"
 msgstr "ディテール"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 395
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:395
 msgid "Beauty / Soft Skin"
 msgstr "美肌 / ソフトスキン"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 400
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:400
 msgid "Intensity"
 msgstr "強度"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 408
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:408
 msgid "Sharpen"
 msgstr "シャープ"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 412
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 424
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 517
@@ -1739,87 +1474,70 @@ msgstr "シャープ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:531
 msgid "Strength"
 msgstr "強さ"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 420
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:420
 msgid "Denoise"
 msgstr "ノイズ除去"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 433
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:433
 msgid "Grayscale"
 msgstr "グレースケール"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 442
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:442
 msgid "Sepia"
 msgstr "セピア"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 451
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:451
 msgid "Negative"
 msgstr "ネガティブ"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 460
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:460
 msgid "Pencil Sketch"
 msgstr "鉛筆スケッチ"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 466
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:466
 msgid "Shade"
 msgstr "シェード"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 474
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:474
 msgid "Painting"
 msgstr "ペインティング"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 488
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:488
 msgid "Edge Detection"
 msgstr "エッジ検出"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 492
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:492
 msgid "Threshold 1"
 msgstr "閾値 1"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 493
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:493
 msgid "Threshold 2"
 msgstr "閾値 2"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 501
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:501
 msgid "Color Map"
 msgstr "カラーマップ"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 505
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:505
 msgid "Style"
 msgstr "スタイル"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 513
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:513
 msgid "Vignette"
 msgstr "ビネット"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 526
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/effects.py:526
 msgid "Background Blur"
 msgstr "背景ぼかし"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 521
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:521
 msgid "Failed to start camera streaming process."
 msgstr "カメラストリーミングプロセスの起動に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 526
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:526
 msgid "Failed to obtain GStreamer source for this camera."
 msgstr "このカメラのGStreamerソースの取得に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 599
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 799
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 810
@@ -1829,23 +1547,19 @@ msgstr "このカメラのGStreamerソースの取得に失敗しました。"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:810
 msgid "Failed to start camera stream."
 msgstr "カメラストリームの起動に失敗しました。"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1116
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1116
 msgid "Phone camera server not available."
 msgstr "携帯電話カメラサーバーが利用できません。"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1299
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1299
 msgid "Unknown GStreamer error"
 msgstr "不明なGStreamerエラー"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,
 # line: 217
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:217
 msgid "Generic Camera"
 msgstr "ジェネリックカメラ"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
@@ -1856,37 +1570,31 @@ msgstr "ジェネリックカメラ"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
 msgid "Saturation"
 msgstr "彩度"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 23
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
 msgid "Hue"
 msgstr "色相"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 24
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
 msgid "Sharpness"
 msgstr "シャープネス"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 27
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
 msgid "White Balance Temperature"
 msgstr "ホワイトバランステンパレーター"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 28
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
 msgid "Gain"
 msgstr "ゲイン"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 29
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
 msgid "Auto Exposure"
 msgstr "自動露出"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 30
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
@@ -1895,188 +1603,151 @@ msgstr "自動露出"
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
 msgid "Exposure Time"
 msgstr "露出時間"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 32
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
 msgid "Exposure Auto Priority"
 msgstr "露出自動優先"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 33
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
 msgid "Auto Focus"
 msgstr "オートフォーカス"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 34
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
 msgid "Focus Distance"
 msgstr "焦点距離"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 35
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
 msgid "Zoom"
 msgstr "ズーム"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 36
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
 msgid "Pan"
 msgstr "パン"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 37
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
 msgid "Tilt"
 msgstr "チルト"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 38
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
 msgid "Backlight Compensation"
 msgstr "逆光補正"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 39
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
 msgid "Power Line Frequency"
 msgstr "電源周波数"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 40
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
 msgid "Exposure Bias"
 msgstr "露出補正"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 41
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
 msgid "WB Preset"
 msgstr "WBプリセット"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 42
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
 msgid "Image Stabilization"
 msgstr "手ブレ補正"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 43
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
 msgid "ISO Sensitivity"
 msgstr "ISO感度"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 44
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
 msgid "Auto ISO"
 msgstr "自動ISO"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 45
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
 msgid "Scene Mode"
 msgstr "シーンモード"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 46
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
 msgid "3A Lock"
 msgstr "3Aロック"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 47
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
 msgid "LED Mode"
 msgstr "LEDモード"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 48
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:48
 msgid "LED Frequency"
 msgstr "LED周波数"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
 # line: 127
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
 msgid "Exposure Mode"
 msgstr "露出モード"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:281
 #, python-brace-format
 msgid "{fps} FPS"
 msgstr "{fps} FPS"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:283
 msgid "Live"
 msgstr "ライブ"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:199
 msgid "480p"
 msgstr "480p"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:200
 msgid "720p (HD)"
 msgstr "720p (HD)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:201
 msgid "1080p (Full HD)"
 msgstr "1080p (フルHD)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:202
 msgid "4K (UHD)"
 msgstr "4K (UHD)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
 msgid "3s"
 msgstr "3秒"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
 msgid "5s"
 msgstr "5秒"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
 msgid "10s"
 msgstr "10秒"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:263
 msgid "Capture Photo (Ctrl+P)"
 msgstr "写真を撮る (Ctrl+P)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:264
 msgid "Record Video (Ctrl+R)"
 msgstr "ビデオを録画 (Ctrl+R)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:268
 msgid "Save Profile (Ctrl+S)"
 msgstr "プロファイルを保存 (Ctrl+S)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:269
 msgid "Load Profile (Ctrl+L)"
 msgstr "プロファイルを読み込む (Ctrl+L)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:275
 msgid "Refresh (F5)"
 msgstr "更新 (F5)"
-
 #: /home/talesam/Servidor/GitHub/bigcam/usr/share/biglinux/bigcam/ui/window.py:812
 msgid "BigCam Phone"
 msgstr "BigCam Phone"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 256
 #~ msgid "Capture Photo"
 #~ msgstr ""
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 257
 #~ msgid "Record Video"
 #~ msgstr ""
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 261
 #~ msgid "Save Profile"
 #~ msgstr ""
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 262
 #~ msgid "Load Profile"
 #~ msgstr ""
