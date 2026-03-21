@@ -904,13 +904,49 @@ class StreamEngine(GObject.Object):
                 bgr = bgra[:, :, :3].copy()
                 if self._effects.has_active_effects():
                     bgr = self._effects.apply(bgr)
+                # Digital zoom + pan/tilt
+                if self._zoom_level > 1.0 or self._pan != 0.0 or self._tilt != 0.0:
+                    zh, zw = bgr.shape[:2]
+                    zoom = self._zoom_level
+                    if (self._pan != 0.0 or self._tilt != 0.0) and zoom < 1.5:
+                        zoom = 1.5
+                    crop_h = int(zh / zoom)
+                    crop_w = int(zw / zoom)
+                    cx = zw // 2 + int(self._pan * (zw - crop_w) / 2)
+                    cy = zh // 2 + int(self._tilt * (zh - crop_h) / 2)
+                    x0 = max(0, min(cx - crop_w // 2, zw - crop_w))
+                    y0 = max(0, min(cy - crop_h // 2, zh - crop_h))
+                    cropped = bgr[y0:y0 + crop_h, x0:x0 + crop_w]
+                    bgr = cv2.resize(cropped, (zw, zh), interpolation=cv2.INTER_LINEAR)
+                # Software sharpness
+                if self._sharpness > 0.0:
+                    blurred = cv2.GaussianBlur(bgr, (0, 0), 3)
+                    amount = self._sharpness * 2.0
+                    bgr = cv2.addWeighted(bgr, 1.0 + amount, blurred, -amount, 0)
+                # Software backlight compensation
+                if self._backlight_comp > 0.0:
+                    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+                    clip = 1.0 + self._backlight_comp * 3.0
+                    clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
+                    lab[:, :, 0] = clahe.apply(lab[:, :, 0])
+                    bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
                 # Mirror for snapshot/tools (flip when mirror ON)
                 self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
             except Exception:
                 pass
-            # Apply effects to BGRA data for preview texture
-            if self._effects.has_active_effects():
-                data = self._effects.apply_bgra(data, w, h)
+            # Reconstruct BGRA from processed BGR for preview
+            needs_rebuild = (
+                self._effects.has_active_effects()
+                or self._zoom_level > 1.0
+                or self._sharpness > 0.0
+                or self._backlight_comp > 0.0
+                or self._pan != 0.0
+                or self._tilt != 0.0
+            )
+            if needs_rebuild and self._last_probe_bgr is not None:
+                display_bgr = cv2.flip(self._last_probe_bgr, 1) if self._mirror else self._last_probe_bgr
+                bgra_out = cv2.cvtColor(display_bgr, cv2.COLOR_BGR2BGRA)
+                data = bgra_out.tobytes()
             # Feed effects-processed (or original) frame to virtual camera
             if self._vcam_device:
                 self._push_vcam(data, w, h)

@@ -1,119 +1,386 @@
-/* BigCam – minimal style overrides for Adwaita */
+/* === BigCam – Full Viewport Camera App === */
+
+/* --- Global: black background everywhere --- */
+window.bigcam {
+    background-color: #000000;
+}
+
+.video-bg {
+    background-color: #000000;
+}
 
 .preview-area {
-    background-color: #1a1a1a;
-    border-radius: 12px;
+    background-color: #000000;
+        border-radius: 0;
 }
 
 .preview-picture {
-    background-color: #1a1a1a;
+    background-color: #000000;
+        border-radius: 0;
+    }
+    
+    /* --- Top Bar Overlay (gradient for legibility) --- */
+    .osd-bar.top-bar {
+        background: linear-gradient(to bottom,
+                rgba(0, 0, 0, 0.55) 0%,
+                rgba(0, 0, 0, 0.25) 70%,
+                transparent 100%);
+        padding: 8px 16px;
+    }
+    
+    .osd-bar.top-bar button {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: rgba(255, 255, 255, 0.9);
+        min-width: 36px;
+        min-height: 36px;
+        -gtk-icon-size: 20px;
+        border-radius: 9999px;
+        transition: background 150ms ease;
+    }
+    
+    .osd-bar.top-bar button:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .osd-bar.top-bar button:active {
+        background: rgba(255, 255, 255, 0.20);
+    }
+    
+    .osd-bar.top-bar menubutton button {
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    /* --- Bottom Controls Overlay (gradient edge-to-edge) --- */
+    .osd-bar.bottom-bar {
+        background: linear-gradient(to top,
+                rgba(0, 0, 0, 0.55) 0%,
+                rgba(0, 0, 0, 0.25) 70%,
+                transparent 100%);
+        padding: 12px 16px 20px 16px;
+    }
+    
+    /* --- Mode Switcher (Photo/Video icon toggle) --- */
+    .mode-switcher {
+        margin-bottom: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 9999px;
+        padding: 2px;
+    }
+    
+    .mode-switcher button {
+        background: none;
+        border: none;
+        box-shadow: none;
+        color: rgba(255, 255, 255, 0.5);
+        padding: 8px 14px;
+        border-radius: 9999px;
+        transition: all 200ms ease;
+        min-height: 0;
+        min-width: 0;
+        -gtk-icon-size: 18px;
+    }
+    
+    .mode-switcher button:checked {
+        background-color: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+    }
+    
+    .mode-switcher button:hover:not(:checked) {
+        color: rgba(255, 255, 255, 0.75);
+    }
+    
+    /* --- Capture Button (64px Google Camera style) --- */
+    .capture-button {
+        min-width: 64px;
+        min-height: 64px;
+        border-radius: 9999px;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.85);
+        transition: all 150ms ease;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .capture-button:hover {
+        background-color: #ffffff;
+        border-color: #ffffff;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+    
+    .capture-button:active {
+        min-width: 58px;
+        min-height: 58px;
+    }
+    
+    .capture-button image {
+        padding: 0;
+        margin: 0;
+        -gtk-icon-size: 28px;
+    }
+    
+    /* Video mode: red button */
+    .capture-button.video-mode {
+        background-color: @error_color;
+        border-color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* During recording: square stop shape */
+    .capture-button.recording {
     border-radius: 8px;
+    min-width: 36px;
+        min-height: 36px;
+        background-color: @error_color;
+        animation: rec-pulse 1.2s ease-in-out infinite;
+    }
+    
+    /* --- Record Button (circular, video mode) --- */
+    button.record-button {
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 9999px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.08);
+        padding: 0;
+        margin: 0;
+        transition: all 150ms ease;
+    }
+    
+    button.record-button:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .rec-dot {
+        min-width: 20px;
+        min-height: 20px;
+        border-radius: 9999px;
+        background-color: @error_color;
+        transition: all 300ms ease-in-out;
+    }
+    
+    /* Recording active — red dot pulses */
+    button.record-button.recording {
+        border-color: @error_color;
+    }
+    
+    button.record-button.recording:hover {
+        border-color: alpha(@error_color, 0.8);
+        background: alpha(@error_color, 0.15);
+    }
+    
+    .rec-dot.recording {
+        min-width: 32px;
+        min-height: 32px;
+        background-color: @error_color;
+        animation: rec-pulse 1.2s ease-in-out infinite;
+    }
+    
+    /* Stop icon shown on hover during recording */
+    .rec-stop-icon {
+        min-width: 14px;
+        min-height: 14px;
+        border-radius: 2px;
+        background-color: white;
+    }
+    
+    @keyframes rec-pulse {
+    
+        0%,
+        100% {
+            opacity: 1.0;
+        }
+    
+        50% {
+            opacity: 0.3;
+        }
+    }
+    
+    /* --- Controls Bar Buttons (bottom bar, circular) --- */
+    .controls-bar button.flat {
+        color: rgba(255, 255, 255, 0.9);
+        min-width: 44px;
+        min-height: 44px;
+        -gtk-icon-size: 22px;
+        border-radius: 9999px;
+        transition: background 150ms ease;
+        padding: 0;
+    }
+    
+    .controls-bar button.flat:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+/* --- Pin button (Always on Top) --- */
+button.pin-btn {
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 9999px;
+    padding: 0;
+    margin: 0 4px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.45);
 }
 
-.fps-label {
-    padding: 4px 8px;
-    border-radius: 6px;
+button.pin-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+button.pin-btn:checked {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+    
+    /* Bottom circle button — overrides Adwaita padding for perfect circle */
+    button.bottom-circle-btn {
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: 9999px;
+        padding: 0;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        -gtk-icon-size: 20px;
+        color: rgba(255, 255, 255, 0.5);
+}
+
+button.bottom-circle-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Toggle circle buttons: active = bright, inactive = dim */
+button.bottom-circle-btn:checked {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+}
+
+/* --- Last Photo Thumbnail (perfect circle, clipped) --- */
+button.last-photo-btn {
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 9999px;
+    padding: 0;
+    margin: 0;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+button.last-photo-btn:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+button.last-photo-btn picture {
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 9999px;
+}
+
+/* --- Zoom Button (perfect circle with text) --- */
+button.zoom-btn {
+    font-weight: 700;
     font-size: 0.85em;
-    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    margin: 0;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
 }
 
+button.zoom-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* --- FPS Label (right side, centered, button-like) --- */
+.fps-label {
+    padding: 6px 12px;
+        border-radius: 9999px;
+    font-size: 0.85em;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: rgba(255, 255, 255, 0.15);
+        color: #ffd600;
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Countdown overlay --- */
+.countdown-overlay {
+    font-size: 96px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* --- Flash overlay (white flash on capture) --- */
+.flash-overlay {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* --- Recording Timer (top bar center) --- */
+.rec-timer {
+    color: @error_color;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.95em;
+}
+
+.rec-timer .rec-indicator {
+    min-width: 8px;
+    min-height: 8px;
+    border-radius: 9999px;
+    background-color: @error_color;
+    margin-right: 6px;
+    animation: rec-blink 1s step-end infinite;
+}
+
+@keyframes rec-blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* --- Timer button active indicator --- */
+.timer-active {
+    color: @accent_color;
+}
+
+/* --- Floating toolbar (legacy, hidden) --- */
 .toolbar {
     border-radius: 12px;
     padding: 6px 16px;
 }
 
-/* Delete button on thumbnails */
+/* --- Delete button on gallery thumbnails --- */
 .delete-thumb-btn {
     min-width: 28px;
     min-height: 28px;
     padding: 4px;
     opacity: 0.7;
 }
+
 .delete-thumb-btn:hover {
     opacity: 1;
 }
 
-/* Countdown overlay (big centered number) */
-.countdown-overlay {
-    font-size: 96px;
-    font-weight: 800;
-    color: @light_1;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.7);
-}
-
-/* ExpanderRow arrow indicator */
+/* --- ExpanderRow arrow indicator --- */
 row.expander image.expander-row-arrow {
     -gtk-icon-source: -gtk-icontheme("pan-up-symbolic");
 }
 
-/* Capture button — perfect circle */
-.capture-button {
-    min-width: 48px;
-    min-height: 48px;
-    border-radius: 9999px;
-    padding: 0;
-}
-
-.capture-button image {
-    padding: 0;
-    margin: 0;
-}
-
-/* Record button — classic REC style */
-.record-button {
-    min-width: 40px;
-    min-height: 40px;
-    padding: 0;
-    border-radius: 50%;
-    border: 3px solid white;
-    background: transparent;
-    transition: all 300ms ease-in-out;
-}
-
-.record-button:hover {
-    border-color: alpha(white, 0.7);
-    background: alpha(white, 0.1);
-}
-
-.rec-dot {
-    min-width: 16px;
-    min-height: 16px;
-    border-radius: 50%;
-    background-color: @error_bg_color;
-    transition: all 300ms ease-in-out;
-}
-
-/* Recording active — red dot expands to fill circle and pulses */
-.record-button.recording {
-    border-color: @error_color;
-}
-
-.record-button.recording:hover {
-    border-color: alpha(@error_color, 0.8);
-    background: alpha(@error_color, 0.15);
-}
-
-.rec-dot.recording {
-    min-width: 32px;
-    min-height: 32px;
-    background-color: @error_color;
-    animation: rec-pulse 1.2s ease-in-out infinite;
-}
-
-/* Stop icon shown on hover during recording */
-.rec-stop-icon {
-    min-width: 14px;
-    min-height: 14px;
-    border-radius: 2px;
-    background-color: white;
-}
-
-@keyframes rec-pulse {
-    0%, 100% { opacity: 1.0; }
-    50% { opacity: 0.3; }
-}
-
-/* Phone as Webcam button */
+/* --- Phone as Webcam button --- */
 .phone-webcam-button {
     padding: 4px 10px;
     border-radius: 6px;
@@ -128,10 +395,13 @@ row.expander image.expander-row-arrow {
     color: @success_color;
 }
 
-/* Audio volume overlay (top-left) */
+/* --- Audio volume overlay (left side, centered, button-like) --- */
 .audio-overlay {
-    border-radius: 8px;
-    padding: 4px 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 8px 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .audio-overlay-btn {
@@ -145,7 +415,6 @@ row.expander image.expander-row-arrow {
     margin: 0;
 }
 
-/* Vertical volume slider container */
 .audio-vol-slider-container {
     padding: 4px 8px;
     min-width: 32px;
@@ -163,4 +432,56 @@ row.expander image.expander-row-arrow {
     font-size: 0.8em;
     font-weight: bold;
     opacity: 0.7;
+}
+
+/* --- Grid overlay --- */
+.grid-drawing {
+    opacity: 0.3;
+}
+
+/* --- Status page (no camera) --- */
+.status-overlay statuspage {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- Immersion mode (auto-hide chrome) --- */
+box.immersion-active {
+    background-color: #000000;
+}
+
+/* --- Sidebar panel overlay --- */
+.sidebar-panel {
+    background-color: alpha(@window_bg_color, 0.95);
+}
+
+/* --- Sidebar bottom tab bar --- */
+.sidebar-tab-bar {
+    padding: 6px 4px;
+}
+
+.sidebar-tab-btn {
+    padding: 6px 4px;
+    border-radius: 8px;
+    min-height: 48px;
+}
+
+.sidebar-tab-btn:checked {
+    background-color: alpha(@accent_color, 0.15);
+    color: @accent_color;
+}
+
+.sidebar-tab-btn .caption {
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+/* --- Sidebar drag handle --- */
+.sidebar-drag-handle {
+    min-width: 6px;
+    background: alpha(@borders, 0.3);
+}
+
+.sidebar-drag-handle:hover {
+    background: alpha(@accent_color, 0.5);
 }

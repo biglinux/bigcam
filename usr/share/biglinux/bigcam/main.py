@@ -34,6 +34,8 @@ from gi.repository import Adw, Gio, GLib, Gst
 
 from constants import APP_ID, APP_NAME, APP_ICON
 from ui.window import BigDigicamWindow
+from ui.welcome_dialog import WelcomeDialog
+from utils.settings_manager import SettingsManager
 
 Gst.init(None)
 
@@ -46,6 +48,8 @@ class BigDigicamApp(Adw.Application):
             application_id=APP_ID,
             flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
         )
+        self._first_activation = True
+        self._settings_mgr = SettingsManager()
 
     def do_activate(self) -> None:
         # Reuse existing window (may be hidden after "Keep camera on")
@@ -61,6 +65,16 @@ class BigDigicamApp(Adw.Application):
             win.set_visible(True)
             self.release()
         win.present()
+
+        if self._first_activation:
+            self._first_activation = False
+            if WelcomeDialog.should_show(self._settings_mgr):
+                GLib.idle_add(self._show_welcome, win)
+
+    def _show_welcome(self, win: Gtk.Window) -> bool:
+        self._welcome_dialog = WelcomeDialog(win, self._settings_mgr)
+        self._welcome_dialog.present()
+        return False
 
     def do_startup(self) -> None:
         Adw.Application.do_startup(self)

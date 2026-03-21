@@ -1,4 +1,4 @@
-"""Main application window – Paned layout with preview + controls sidebar."""
+"""Main application window – OverlaySplitView layout with preview + overlay sidebar."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gdk, Gtk, Gio, GLib
 
 from constants import APP_NAME, BackendType
 from core.audio_monitor import AudioMonitor
@@ -32,6 +32,7 @@ from ui.video_gallery import VideoGallery
 from ui.settings_page import SettingsPage
 from ui.effects_page import EffectsPage
 from ui.about_dialog import show_about
+from ui.immersion import ImmersionController
 from ui.ip_camera_dialog import IPCameraDialog
 from ui.phone_camera_dialog import PhoneCameraDialog
 from core.phone_camera import PhoneCameraServer
@@ -43,12 +44,13 @@ log = logging.getLogger(__name__)
 
 
 class BigDigicamWindow(Adw.ApplicationWindow):
-    """Primary window with preview pane and tabbed control sidebar."""
+    """Primary window with full-viewport preview and overlay sidebar."""
 
     def __init__(self, app: Adw.Application) -> None:
         super().__init__(application=app, title=APP_NAME)
         self.set_default_size(1000, 650)
         self.set_size_request(700, 500)
+        self.add_css_class("bigcam")
 
         self._settings = SettingsManager()
         self._camera_manager = CameraManager()
@@ -59,6 +61,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._stream_engine._video_recorder = self._video_recorder
 
         self._audio_monitor = AudioMonitor()
+        self._syncing_toggle = False
+        self._tooltip_widgets: list[tuple[Gtk.Widget, str]] = []
         self._active_camera: CameraInfo | None = None
         self._known_camera_ids: set[str] = set()
         self._streaming_lock = threading.Lock()
@@ -71,33 +75,46 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._setup_shortcuts()
         self._connect_signals()
         self._apply_theme()
+        self._setup_immersion()
+
+        # Apply initial tooltip state
+        if not self._settings.get("show-help-tooltips"):
+            self._set_tooltips_enabled(False)
 
         # Initial camera detection
         GLib.idle_add(self._camera_manager.detect_cameras_async)
+        GLib.idle_add(self._update_last_photo_thumbnail)
 
         if self._settings.get("hotplug_enabled"):
             self._camera_manager.start_hotplug()
 
     # -- UI build ------------------------------------------------------------
 
+    def _register_tooltip(self, widget: Gtk.Widget, text: str) -> None:
+        widget.set_tooltip_text(text)
+        self._tooltip_widgets.append((widget, text))
+
+    def _update_tooltip(self, widget: Gtk.Widget, text: str) -> None:
+        for i, (w, _) in enumerate(self._tooltip_widgets):
+            if w is widget:
+                self._tooltip_widgets[i] = (widget, text)
+                break
+        if self._settings.get("show-help-tooltips"):
+            widget.set_tooltip_text(text)
+        else:
+            widget.set_tooltip_text(None)
+
     def _build_ui(self) -> None:
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
-        # Header bar
-        self._header = Adw.HeaderBar()
-        self._header.set_title_widget(Adw.WindowTitle(title=APP_NAME, subtitle=""))
+        # Window-level notification banner (pushes all content down)
+        self._window_banner = Adw.Banner()
+        self._window_banner.set_revealed(False)
+        self._window_banner_timeout: int | None = None
+        root.append(self._window_banner)
 
-        # Camera selector in header
+        # Camera selector (created here, placed in top bar overlay)
         self._camera_selector = CameraSelector(self._camera_manager)
-        self._header.pack_start(self._camera_selector)
-
-        # Menu button
-        menu_btn = Gtk.MenuButton()
-        menu_btn.set_icon_name("open-menu-symbolic")
-        menu_btn.set_tooltip_text(_("Menu"))
-        menu_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Main menu")])
-        menu_btn.set_menu_model(self._build_menu())
-        self._header.pack_end(menu_btn)
 
         # Phone camera button with icon + label + status dot overlay
         phone_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -111,7 +128,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         phone_btn.set_child(phone_box)
         phone_btn.add_css_class("flat")
         phone_btn.add_css_class("phone-webcam-button")
-        phone_btn.set_tooltip_text(_("Use your phone as a webcam"))
+        self._register_tooltip(phone_btn, _("Use your phone as a webcam"))
         phone_btn.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Phone as Webcam")]
         )
@@ -134,38 +151,27 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._phone_dot.set_visible(False)
 
-        phone_overlay = Gtk.Overlay()
-        phone_overlay.set_child(phone_btn)
-        phone_overlay.add_overlay(self._phone_dot)
-        self._header.pack_end(phone_overlay)
+        self._phone_overlay = Gtk.Overlay()
+        self._phone_overlay.set_child(phone_btn)
+        self._phone_overlay.add_overlay(self._phone_dot)
 
         self._phone_server.connect("status-changed", self._on_phone_status_dot)
 
-        # Refresh button
-        refresh_btn = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
-        refresh_btn.set_tooltip_text(_("Refresh cameras"))
-        refresh_btn.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Refresh camera list")]
-        )
-        refresh_btn.set_action_name("win.refresh")
-        self._header.pack_end(refresh_btn)
-
-        root.append(self._header)
-
-        # Progress bar (thin, hidden by default)
+        # Progress bar (thin, hidden, placed as overlay later)
         self._progress = Gtk.ProgressBar(visible=False)
         self._progress.add_css_class("osd")
-        root.append(self._progress)
 
-        # Main content: Paned
-        self._paned = Gtk.Paned(
-            orientation=Gtk.Orientation.HORIZONTAL,
-            shrink_start_child=False,
-            shrink_end_child=False,
+        # Main content: OverlaySplitView (sidebar overlays the preview)
+        self._split_view = Adw.OverlaySplitView(
+            show_sidebar=False,
+            sidebar_position=Gtk.PackType.END,
+            max_sidebar_width=400,
+            min_sidebar_width=280,
+            sidebar_width_fraction=0.35,
+            collapsed=True,
         )
-        self._paned.set_position(600)
 
-        # LEFT: preview
+        # Content: preview area
         self._preview = PreviewArea(self._stream_engine)
         self._preview.set_show_fps(self._settings.get("show_fps"))
         self._preview.set_grid_visible(self._settings.get("grid_overlay"))
@@ -175,13 +181,412 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._audio_monitor.connect("source-toggled", self._on_audio_source_toggled)
         self._audio_monitor.connect("source-volume-changed", self._on_audio_source_volume_changed)
         self._audio_monitor.connect("mute-changed", self._on_audio_mute_changed)
-        self._paned.set_start_child(self._preview)
 
-        # RIGHT: sidebar with ViewStack
+        # Hide PreviewArea's built-in floating toolbar (replaced by our bottom bar)
+        self._preview.set_toolbar_visible(False)
+
+        # Main overlay: preview + top/bottom bars
+        self._main_overlay = Gtk.Overlay()
+        self._main_overlay.set_overflow(Gtk.Overflow.HIDDEN)
+
+        # Black background box behind the preview (visible during transitions)
+        video_bg = Gtk.Box()
+        video_bg.add_css_class("video-bg")
+        video_bg.set_hexpand(True)
+        video_bg.set_vexpand(True)
+        self._main_overlay.set_child(video_bg)
+
+        # Preview as overlay on top of the black background
+        self._main_overlay.add_overlay(self._preview)
+        self._main_overlay.set_measure_overlay(self._preview, False)
+        self._main_overlay.set_clip_overlay(self._preview, True)
+
+        # Flash overlay (white, shown briefly on photo capture)
+        self._flash_overlay = Gtk.Box()
+        self._flash_overlay.add_css_class("flash-overlay")
+        self._flash_overlay.set_hexpand(True)
+        self._flash_overlay.set_vexpand(True)
+        self._flash_overlay.set_opacity(0)
+        self._flash_overlay.set_can_target(False)
+        self._main_overlay.add_overlay(self._flash_overlay)
+
+        # -- Top bar overlay --------------------------------------------------
+        top_bar = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=8,
+        )
+        top_bar.add_css_class("osd-bar")
+        top_bar.add_css_class("top-bar")
+
+        # Window controls (minimize/maximize/close) on the right end
+        win_controls_end = Gtk.WindowControls(side=Gtk.PackType.END)
+        win_controls_end.set_halign(Gtk.Align.END)
+
+        # Always on Top pin button (before camera selector)
+        pin_btn = Gtk.ToggleButton()
+        pin_icon = Gtk.Image.new_from_icon_name("view-pin-symbolic")
+        pin_icon.set_pixel_size(16)
+        pin_btn.set_child(pin_icon)
+        self._register_tooltip(pin_btn, _("Always on Top"))
+        pin_btn.add_css_class("pin-btn")
+        pin_btn.connect("toggled", self._on_always_on_top_toggled)
+        self._pin_btn = pin_btn
+        top_bar.append(pin_btn)
+
+        # Camera selector
+        top_bar.append(self._camera_selector)
+
+        # Phone button (next to camera selector)
+        top_bar.append(self._phone_overlay)
+
+        # Spacer
+        spacer = Gtk.Box()
+        spacer.set_hexpand(True)
+        top_bar.append(spacer)
+
+        # Recording timer (center, visible only during recording)
+        rec_timer_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=4,
+            halign=Gtk.Align.CENTER,
+        )
+        rec_timer_box.add_css_class("rec-timer")
+        rec_indicator = Gtk.Box()
+        rec_indicator.add_css_class("rec-indicator")
+        rec_indicator.set_halign(Gtk.Align.CENTER)
+        rec_indicator.set_valign(Gtk.Align.CENTER)
+        rec_timer_box.append(rec_indicator)
+        rec_timer_label = Gtk.Label(label="00:00")
+        rec_timer_box.append(rec_timer_label)
+        rec_timer_box.set_visible(False)
+        self._rec_timer_box = rec_timer_box
+        self._rec_timer_label = rec_timer_label
+        self._rec_timer_seconds = 0
+        self._rec_timer_source_id: int | None = None
+        top_bar.append(rec_timer_box)
+
+        # Spacer
+        spacer2 = Gtk.Box()
+        spacer2.set_hexpand(True)
+        top_bar.append(spacer2)
+
+        # Refresh button
+        top_refresh = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
+        self._register_tooltip(top_refresh, _("Refresh cameras"))
+        top_refresh.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Refresh camera list")]
+        )
+        top_refresh.add_css_class("flat")
+        top_refresh.add_css_class("circular")
+        top_refresh.set_action_name("win.refresh")
+        top_bar.append(top_refresh)
+
+        # Grid toggle
+        grid_btn = Gtk.ToggleButton()
+        grid_btn.set_icon_name("view-grid-symbolic")
+        self._register_tooltip(grid_btn, _("Toggle grid overlay"))
+        grid_btn.add_css_class("flat")
+        grid_btn.add_css_class("circular")
+        grid_btn.set_active(self._settings.get("grid_overlay"))
+        grid_btn.connect("toggled", self._on_grid_btn_toggled)
+        self._grid_btn = grid_btn
+        top_bar.append(grid_btn)
+
+        # Timer cycle button (shows current timer value)
+        timer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        timer_icon = Gtk.Image.new_from_icon_name("timer-symbolic")
+        saved_timer = self._settings.get("capture-timer") or 0
+        if saved_timer > 0:
+            timer_init_label = f"{saved_timer}s"
+        else:
+            timer_init_label = _("Off")
+        self._timer_label = Gtk.Label(label=timer_init_label)
+        self._timer_label.add_css_class("caption")
+        timer_box.append(timer_icon)
+        timer_box.append(self._timer_label)
+        timer_btn = Gtk.Button()
+        timer_btn.set_child(timer_box)
+        self._register_tooltip(timer_btn, _("Capture timer"))
+        timer_btn.add_css_class("flat")
+        if saved_timer > 0:
+            timer_btn.add_css_class("timer-active")
+        timer_btn.set_action_name("win.cycle-timer")
+        self._timer_btn = timer_btn
+        top_bar.append(timer_btn)
+
+        # Menu button
+        top_menu_btn = Gtk.MenuButton()
+        top_menu_btn.set_icon_name("open-menu-symbolic")
+        self._register_tooltip(top_menu_btn, _("Menu"))
+        top_menu_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Main menu")]
+        )
+        top_menu_btn.add_css_class("flat")
+        top_menu_btn.add_css_class("circular")
+        top_menu_btn.set_menu_model(self._build_menu())
+        top_bar.append(top_menu_btn)
+
+        # Window controls (CSD buttons)
+        top_bar.append(win_controls_end)
+        # Wrap top bar in WindowHandle for CSD drag + window controls
+        top_handle = Gtk.WindowHandle()
+        top_handle.set_child(top_bar)
+
+        self._top_bar_revealer = Gtk.Revealer(
+            transition_type=Gtk.RevealerTransitionType.CROSSFADE,
+            transition_duration=300,
+            reveal_child=True,
+        )
+        self._top_bar_revealer.set_child(top_handle)
+        self._top_bar_revealer.set_halign(Gtk.Align.FILL)
+        self._top_bar_revealer.set_valign(Gtk.Align.START)
+        self._main_overlay.add_overlay(self._top_bar_revealer)
+
+        # -- Bottom bar overlay -----------------------------------------------
+        bottom_zone = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL,
+            spacing=8,
+        )
+        bottom_zone.add_css_class("osd-bar")
+        bottom_zone.add_css_class("bottom-bar")
+
+        # -- Mode Switcher (Photo / Video icon toggle) ------------------------
+        self._current_mode = "photo"
+        mode_switcher = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=0,
+            halign=Gtk.Align.CENTER,
+        )
+        mode_switcher.add_css_class("mode-switcher")
+
+        photo_btn = Gtk.ToggleButton()
+        photo_btn.set_icon_name("camera-photo-symbolic")
+        photo_btn.set_active(True)
+        self._register_tooltip(photo_btn, _("Photo mode"))
+        photo_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Photo mode")]
+        )
+        self._mode_photo_btn = photo_btn
+
+        video_btn = Gtk.ToggleButton()
+        video_btn.set_icon_name("camera-video-symbolic")
+        video_btn.set_group(photo_btn)
+        self._register_tooltip(video_btn, _("Video mode"))
+        video_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Video mode")]
+        )
+        self._mode_video_btn = video_btn
+
+        photo_btn.connect("toggled", self._on_mode_toggled, "photo")
+        video_btn.connect("toggled", self._on_mode_toggled, "video")
+
+        mode_switcher.append(photo_btn)
+        mode_switcher.append(video_btn)
+        bottom_zone.append(mode_switcher)
+
+        # -- Controls bar (CenterBox) ----------------------------------------
+        controls_bar = Gtk.CenterBox()
+        controls_bar.set_halign(Gtk.Align.FILL)
+        controls_bar.add_css_class("controls-bar")
+
+        # Left: last photo thumbnail + mirror button
+        controls_start = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+
+        # Last photo thumbnail (perfect circle, clipped)
+        last_photo_btn = Gtk.Button()
+        last_photo_btn.add_css_class("last-photo-btn")
+        last_photo_btn.add_css_class("circular")
+        last_photo_btn.set_size_request(44, 44)
+        last_photo_btn.set_halign(Gtk.Align.CENTER)
+        last_photo_btn.set_valign(Gtk.Align.CENTER)
+        last_photo_btn.set_overflow(Gtk.Overflow.HIDDEN)
+        self._register_tooltip(last_photo_btn, _("Last photo"))
+        last_photo_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Open last photo")]
+        )
+        last_photo_btn.connect("clicked", self._on_last_photo_clicked)
+        last_photo_btn.set_visible(False)
+        self._last_photo_btn = last_photo_btn
+        controls_start.append(last_photo_btn)
+
+        mirror_btn = Gtk.ToggleButton()
+        mirror_icon = Gtk.Image.new_from_icon_name("object-flip-horizontal-symbolic")
+        mirror_icon.set_pixel_size(20)
+        mirror_btn.set_child(mirror_icon)
+        self._register_tooltip(mirror_btn, _("Mirror preview"))
+        mirror_btn.add_css_class("bottom-circle-btn")
+        mirror_btn.set_size_request(44, 44)
+        mirror_btn.set_halign(Gtk.Align.CENTER)
+        mirror_btn.set_valign(Gtk.Align.CENTER)
+        mirror_btn.set_active(bool(self._settings.get("mirror_preview")))
+        mirror_btn.connect("toggled", self._on_mirror_btn_toggled)
+        self._mirror_btn = mirror_btn
+        controls_start.append(mirror_btn)
+
+        # QR Code scanner toggle
+        qr_btn = Gtk.ToggleButton()
+        qr_icon = Gtk.Image.new_from_icon_name("scanner-symbolic")
+        qr_icon.set_pixel_size(20)
+        qr_btn.set_child(qr_icon)
+        self._register_tooltip(qr_btn, _("Scan QR Codes"))
+        qr_btn.add_css_class("bottom-circle-btn")
+        qr_btn.set_size_request(44, 44)
+        qr_btn.set_halign(Gtk.Align.CENTER)
+        qr_btn.set_valign(Gtk.Align.CENTER)
+        qr_btn.connect("toggled", self._on_qr_quick_toggled)
+        self._qr_quick_btn = qr_btn
+        controls_start.append(qr_btn)
+
+        # Capture on Smile toggle
+        smile_btn = Gtk.ToggleButton()
+        smile_icon = Gtk.Image.new_from_icon_name("face-smile-symbolic")
+        smile_icon.set_pixel_size(20)
+        smile_btn.set_child(smile_icon)
+        self._register_tooltip(smile_btn, _("Capture on Smile"))
+        smile_btn.add_css_class("bottom-circle-btn")
+        smile_btn.set_size_request(44, 44)
+        smile_btn.set_halign(Gtk.Align.CENTER)
+        smile_btn.set_valign(Gtk.Align.CENTER)
+        smile_btn.connect("toggled", self._on_smile_quick_toggled)
+        self._smile_quick_btn = smile_btn
+        controls_start.append(smile_btn)
+
+        # Virtual Camera toggle
+        vcam_btn = Gtk.ToggleButton()
+        vcam_icon = Gtk.Image.new_from_icon_name("camera-web-symbolic")
+        vcam_icon.set_pixel_size(20)
+        vcam_btn.set_child(vcam_icon)
+        self._register_tooltip(vcam_btn, _("Enable Virtual Camera"))
+        vcam_btn.add_css_class("bottom-circle-btn")
+        vcam_btn.set_size_request(44, 44)
+        vcam_btn.set_halign(Gtk.Align.CENTER)
+        vcam_btn.set_valign(Gtk.Align.CENTER)
+        vcam_btn.connect("toggled", self._on_vcam_quick_toggled)
+        self._vcam_quick_btn = vcam_btn
+        controls_start.append(vcam_btn)
+
+        controls_bar.set_start_widget(controls_start)
+
+        # Center: capture + record buttons
+        controls_center = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=16)
+        controls_center.set_halign(Gtk.Align.CENTER)
+
+        capture_btn = Gtk.Button.new_from_icon_name("camera-photo-symbolic")
+        capture_btn.add_css_class("capture-button")
+        self._register_tooltip(capture_btn, _("Capture photo"))
+        capture_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Capture photo")]
+        )
+        capture_btn.set_action_name("win.capture")
+        self._bottom_capture_btn = capture_btn
+        controls_center.append(capture_btn)
+
+        # Record button (red dot style — visible only in video mode)
+        rec_dot = Gtk.Box()
+        rec_dot.add_css_class("rec-dot")
+        rec_stop = Gtk.Box()
+        rec_stop.add_css_class("rec-stop-icon")
+        rec_stop.set_visible(False)
+        rec_stop.set_halign(Gtk.Align.CENTER)
+        rec_stop.set_valign(Gtk.Align.CENTER)
+        rec_overlay = Gtk.Overlay()
+        rec_overlay.set_child(rec_dot)
+        rec_overlay.add_overlay(rec_stop)
+        rec_overlay.set_halign(Gtk.Align.CENTER)
+        rec_overlay.set_valign(Gtk.Align.CENTER)
+        record_btn = Gtk.Button()
+        record_btn.set_child(rec_overlay)
+        record_btn.add_css_class("record-button")
+        record_btn.set_size_request(44, 44)
+        record_btn.set_halign(Gtk.Align.CENTER)
+        record_btn.set_valign(Gtk.Align.CENTER)
+        self._register_tooltip(record_btn, _("Record video (Ctrl+R)"))
+        record_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Record video")]
+        )
+        record_btn.set_action_name("win.record-toggle")
+        record_btn.set_visible(False)  # Hidden in photo mode
+        self._bottom_record_btn = record_btn
+        self._bottom_rec_dot = rec_dot
+        self._bottom_rec_stop = rec_stop
+        controls_center.append(record_btn)
+
+        controls_bar.set_center_widget(controls_center)
+
+        # Right: zoom + sidebar toggle
+        controls_end = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+
+        zoom_btn = Gtk.Button(label="1x")
+        zoom_btn.add_css_class("zoom-btn")
+        zoom_btn.set_size_request(44, 44)
+        zoom_btn.set_halign(Gtk.Align.CENTER)
+        zoom_btn.set_valign(Gtk.Align.CENTER)
+        self._register_tooltip(zoom_btn, _("Zoom level"))
+        zoom_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Change zoom level")]
+        )
+        zoom_btn.connect("clicked", self._on_zoom_btn_clicked)
+        self._zoom_btn = zoom_btn
+        self._zoom_levels = [1.0, 1.5, 2.0]
+        self._zoom_index = 0
+        controls_end.append(zoom_btn)
+
+        fullscreen_btn = Gtk.Button()
+        fs_icon = Gtk.Image.new_from_icon_name("view-fullscreen-symbolic")
+        fs_icon.set_pixel_size(20)
+        fullscreen_btn.set_child(fs_icon)
+        self._register_tooltip(fullscreen_btn, _("Fullscreen (F11)"))
+        fullscreen_btn.add_css_class("bottom-circle-btn")
+        fullscreen_btn.set_size_request(44, 44)
+        fullscreen_btn.set_halign(Gtk.Align.CENTER)
+        fullscreen_btn.set_valign(Gtk.Align.CENTER)
+        fullscreen_btn.connect("clicked", lambda _b: self._on_toggle_fullscreen_action())
+        controls_end.append(fullscreen_btn)
+
+        sidebar_btn = Gtk.Button()
+        sidebar_icon = Gtk.Image.new_from_icon_name("sidebar-show-right-symbolic")
+        sidebar_icon.set_pixel_size(20)
+        sidebar_btn.set_child(sidebar_icon)
+        self._register_tooltip(sidebar_btn, _("Toggle sidebar"))
+        sidebar_btn.add_css_class("bottom-circle-btn")
+        sidebar_btn.set_size_request(44, 44)
+        sidebar_btn.set_halign(Gtk.Align.CENTER)
+        sidebar_btn.set_valign(Gtk.Align.CENTER)
+        sidebar_btn.connect("clicked", self._on_sidebar_toggle_clicked)
+        controls_end.append(sidebar_btn)
+        controls_bar.set_end_widget(controls_end)
+
+        bottom_zone.append(controls_bar)
+
+        self._bottom_bar_revealer = Gtk.Revealer(
+            transition_type=Gtk.RevealerTransitionType.CROSSFADE,
+            transition_duration=300,
+            reveal_child=True,
+        )
+        self._bottom_bar_revealer.set_child(bottom_zone)
+        self._bottom_bar_revealer.set_halign(Gtk.Align.FILL)
+        self._bottom_bar_revealer.set_valign(Gtk.Align.END)
+        self._main_overlay.add_overlay(self._bottom_bar_revealer)
+
+        self._split_view.set_content(self._main_overlay)
+
+        # Sidebar with drag handle + ViewStack + own header
+        sidebar_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+
+        # Drag handle for sidebar resizing
+        drag_handle = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
+        drag_handle.set_size_request(6, -1)
+        drag_handle.set_cursor(Gdk.Cursor.new_from_name("col-resize"))
+        drag_handle.add_css_class("sidebar-drag-handle")
+        drag_gesture = Gtk.GestureDrag()
+        drag_gesture.connect("drag-update", self._on_sidebar_drag)
+        drag_handle.add_controller(drag_gesture)
+        sidebar_outer.append(drag_handle)
+
         sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        sidebar.set_size_request(300, -1)
+        sidebar.add_css_class("sidebar-panel")
+        sidebar.set_hexpand(True)
 
-        # ViewSwitcherBar-like header for pages
         self._view_stack = Adw.ViewStack()
         self._view_stack.set_vexpand(True)
 
@@ -245,17 +650,456 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "configure",
         )
 
-        switcher = Adw.ViewSwitcherBar(stack=self._view_stack, reveal=True)
+        # Sidebar header with close button (no ViewSwitcher here)
+        sidebar_header = Adw.HeaderBar()
+        sidebar_header.add_css_class("flat")
+        sidebar_header.set_title_widget(Gtk.Label(label=""))
+        sidebar_header.set_show_start_title_buttons(False)
+        sidebar_header.set_show_end_title_buttons(False)
+        close_sidebar_btn = Gtk.Button.new_from_icon_name("window-close-symbolic")
+        self._register_tooltip(close_sidebar_btn, _("Close sidebar"))
+        close_sidebar_btn.add_css_class("flat")
+        close_sidebar_btn.connect("clicked", lambda _b: self._split_view.set_show_sidebar(False))
+        sidebar_header.pack_end(close_sidebar_btn)
 
+        sidebar.append(sidebar_header)
         sidebar.append(self._view_stack)
-        sidebar.append(switcher)
 
-        self._paned.set_end_child(sidebar)
-        root.append(self._paned)
+        # Bottom tab bar with larger icons
+        tab_bar = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL,
+            spacing=0,
+            homogeneous=True,
+        )
+        tab_bar.add_css_class("sidebar-tab-bar")
 
+        tab_items = [
+            ("controls", "camera-symbolic", _("Controls")),
+            ("effects", "applications-graphics-symbolic", _("Effects")),
+            ("gallery", "view-list-images-symbolic", _("Photos")),
+            ("videos", "view-list-video-symbolic", _("Videos")),
+            ("settings", "preferences-system-symbolic", _("Settings")),
+        ]
+        self._sidebar_tab_btns: list[Gtk.ToggleButton] = []
+        group_btn: Gtk.ToggleButton | None = None
+        for name, icon_name, title in tab_items:
+            btn = Gtk.ToggleButton()
+            box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+            box.set_halign(Gtk.Align.CENTER)
+            icon = Gtk.Image.new_from_icon_name(icon_name)
+            icon.set_pixel_size(24)
+            box.append(icon)
+            label = Gtk.Label(label=title)
+            label.add_css_class("caption")
+            box.append(label)
+            btn.set_child(box)
+            btn.add_css_class("flat")
+            btn.add_css_class("sidebar-tab-btn")
+            if group_btn:
+                btn.set_group(group_btn)
+            else:
+                group_btn = btn
+                btn.set_active(True)
+            btn.connect("toggled", self._on_sidebar_tab_toggled, name)
+            tab_bar.append(btn)
+            self._sidebar_tab_btns.append(btn)
+
+        sidebar.append(Gtk.Separator())
+        sidebar.append(tab_bar)
+        sidebar_outer.append(sidebar)
+
+        self._sidebar = sidebar_outer
+        self._split_view.set_sidebar(sidebar_outer)
+
+        # React to sidebar visibility for immersion
+        self._split_view.connect("notify::show-sidebar", self._on_sidebar_toggled)
+
+        root.append(self._split_view)
+
+        self._root_box = root
         self._toast_overlay = Adw.ToastOverlay()
         self._toast_overlay.set_child(root)
         self.set_content(self._toast_overlay)
+
+    def _on_sidebar_toggle_clicked(self, _btn: Gtk.Button) -> None:
+        visible = self._split_view.get_show_sidebar()
+        self._split_view.set_show_sidebar(not visible)
+
+    def _on_sidebar_tab_toggled(self, btn: Gtk.ToggleButton, page_name: str) -> None:
+        if btn.get_active():
+            self._view_stack.set_visible_child_name(page_name)
+
+    def _on_mode_toggled(self, btn: Gtk.ToggleButton, mode: str) -> None:
+        """Switch between Photo and Video mode."""
+        if not btn.get_active():
+            return
+        self._current_mode = mode
+        if mode == "video":
+            self._bottom_capture_btn.set_icon_name("media-record-symbolic")
+            self._bottom_capture_btn.add_css_class("video-mode")
+            self._update_tooltip(self._bottom_capture_btn, _("Start recording"))
+            self._bottom_record_btn.set_visible(False)
+        else:
+            self._bottom_capture_btn.set_icon_name("camera-photo-symbolic")
+            self._bottom_capture_btn.remove_css_class("video-mode")
+            self._bottom_capture_btn.remove_css_class("recording")
+            self._update_tooltip(self._bottom_capture_btn, _("Capture photo"))
+            self._bottom_record_btn.set_visible(False)
+        self._update_last_media_thumbnail()
+
+    def _on_zoom_btn_clicked(self, _btn: Gtk.Button) -> None:
+        """Cycle through zoom levels: 1x → 1.5x → 2x → 1x."""
+        self._zoom_index = (self._zoom_index + 1) % len(self._zoom_levels)
+        level = self._zoom_levels[self._zoom_index]
+        label = f"{level:.0f}x" if level == int(level) else f"{level}x"
+        self._zoom_btn.set_label(label)
+        self._stream_engine.set_zoom(level)
+
+    def _on_last_photo_clicked(self, _btn: Gtk.Button) -> None:
+        """Open the last captured photo or video with the default viewer."""
+        if self._current_mode == "video":
+            path = self._get_last_video_path()
+        else:
+            path = self._get_last_photo_path()
+        if path:
+            Gtk.FileLauncher.new(Gio.File.new_for_path(path)).launch(self, None, None, None)
+
+    def _update_last_media_thumbnail(self, specific_path: str | None = None) -> bool:
+        """Refresh the circular thumbnail based on current mode.
+        Returns False so it can be used with GLib.timeout_add.
+        If specific_path is given, show that file directly instead of scanning."""
+        if specific_path:
+            path = specific_path
+            if self._current_mode == "video":
+                tooltip = _("Last video")
+            else:
+                tooltip = _("Last photo")
+        elif self._current_mode == "video":
+            path = self._get_last_video_path()
+            tooltip = _("Last video")
+        else:
+            path = self._get_last_photo_path()
+            tooltip = _("Last photo")
+        self._update_tooltip(self._last_photo_btn, tooltip)
+        if path and os.path.isfile(path):
+            is_video = path.lower().endswith((".mp4", ".mkv", ".webm", ".avi"))
+            if is_video:
+                try:
+                    thumb_path = path + ".thumb.png"
+                    if not os.path.exists(thumb_path):
+                        subprocess.run(
+                            ["ffmpeg", "-y", "-i", path, "-ss", "00:00:00",
+                             "-vframes", "1", "-vf", "scale=40:40:force_original_aspect_ratio=increase,crop=40:40",
+                             thumb_path],
+                            capture_output=True, timeout=5,
+                        )
+                    if os.path.exists(thumb_path):
+                        from gi.repository import GdkPixbuf
+                        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(thumb_path, 40, 40, True)
+                        texture = Gdk.Texture.new_for_pixbuf(pixbuf)
+                        image = Gtk.Image.new_from_paintable(texture)
+                        image.set_pixel_size(40)
+                        self._last_photo_btn.set_child(image)
+                        self._last_photo_btn.set_visible(True)
+                    else:
+                        icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
+                        icon.set_pixel_size(24)
+                        self._last_photo_btn.set_child(icon)
+                        self._last_photo_btn.set_visible(True)
+                except Exception:
+                    icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
+                    icon.set_pixel_size(24)
+                    self._last_photo_btn.set_child(icon)
+                    self._last_photo_btn.set_visible(True)
+            else:
+                try:
+                    from gi.repository import GdkPixbuf
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 40, 40, True)
+                    texture = Gdk.Texture.new_for_pixbuf(pixbuf)
+                    image = Gtk.Image.new_from_paintable(texture)
+                    image.set_pixel_size(40)
+                    self._last_photo_btn.set_child(image)
+                    self._last_photo_btn.set_visible(True)
+                except Exception:
+                    self._last_photo_btn.set_visible(False)
+        else:
+            self._last_photo_btn.set_visible(False)
+        return False
+
+    def _update_last_photo_thumbnail(self) -> None:
+        """Refresh thumbnail — delegates to mode-aware method."""
+        self._update_last_media_thumbnail()
+
+    def _get_last_photo_path(self) -> str | None:
+        """Return the path of the most recently captured photo, or None."""
+        from utils import xdg
+        photos_dir = xdg.photos_dir()
+        if not os.path.isdir(photos_dir):
+            return None
+        entries = []
+        for entry in os.scandir(photos_dir):
+            if entry.is_file() and entry.name.lower().endswith(
+                (".jpg", ".jpeg", ".png", ".webp")
+            ):
+                entries.append(entry)
+        if not entries:
+            return None
+        entries.sort(key=lambda e: e.stat().st_mtime, reverse=True)
+        return entries[0].path
+
+    def _get_last_video_path(self) -> str | None:
+        """Return the path of the most recently recorded video, or None."""
+        from utils import xdg
+        vids_dir = xdg.videos_dir()
+        if not os.path.isdir(vids_dir):
+            return None
+        entries = []
+        for entry in os.scandir(vids_dir):
+            if entry.is_file() and entry.name.lower().endswith(
+                (".mp4", ".mkv", ".webm", ".avi")
+            ):
+                entries.append(entry)
+        if not entries:
+            return None
+        entries.sort(key=lambda e: e.stat().st_mtime, reverse=True)
+        return entries[0].path
+
+    def _on_sidebar_drag(self, gesture: Gtk.GestureDrag, offset_x: float, _offset_y: float) -> None:
+        """Resize the sidebar by dragging the handle."""
+        current_width = self._split_view.get_max_sidebar_width()
+        new_width = max(280, min(500, current_width - offset_x))
+        self._split_view.set_max_sidebar_width(new_width)
+
+    def _on_sidebar_toggled(self, split_view: Adw.OverlaySplitView, _pspec: object) -> None:
+        if split_view.get_show_sidebar():
+            self._immersion.inhibit()
+        else:
+            self._immersion.uninhibit()
+
+    def _on_grid_btn_toggled(self, btn: Gtk.ToggleButton) -> None:
+        visible = btn.get_active()
+        self._preview.set_grid_visible(visible)
+        self._settings.set("grid_overlay", visible)
+
+    def _on_mirror_btn_toggled(self, btn: Gtk.ToggleButton) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        new_val = btn.get_active()
+        self._settings.set("mirror_preview", new_val)
+        self._stream_engine.mirror = new_val
+        self._preview.set_mirror(new_val)
+        self._settings_page._mirror_row.set_active(new_val)
+        self._syncing_toggle = False
+
+    def _on_mirror_btn_clicked(self, _btn: Gtk.Button) -> None:
+        self._mirror_btn.set_active(not self._mirror_btn.get_active())
+
+    def _on_qr_quick_toggled(self, btn: Gtk.ToggleButton) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        self._settings_page._qr_row.set_active(btn.get_active())
+        self._syncing_toggle = False
+
+    def _on_smile_quick_toggled(self, btn: Gtk.ToggleButton) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        self._settings_page._smile_row.set_active(btn.get_active())
+        self._syncing_toggle = False
+
+    def _on_vcam_quick_toggled(self, btn: Gtk.ToggleButton) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        self._settings_page._vc_toggle_row.set_active(btn.get_active())
+        self._syncing_toggle = False
+
+    def _on_settings_qr_changed(self, row: object, _pspec: object) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        self._qr_quick_btn.set_active(row.get_active())
+        self._syncing_toggle = False
+
+    def _on_settings_smile_changed(self, row: object, _pspec: object) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        self._smile_quick_btn.set_active(row.get_active())
+        self._syncing_toggle = False
+
+    def _on_settings_vcam_changed(self, row: object, _pspec: object) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
+        self._vcam_quick_btn.set_active(row.get_active())
+        self._syncing_toggle = False
+
+    def _on_help_tooltips_changed(self, _page: object, enabled: bool) -> None:
+        self._set_tooltips_enabled(enabled)
+
+    def _on_capture_timer_changed(self, _page: object, value: int) -> None:
+        if value == 0:
+            self._timer_label.set_label(_("Off"))
+            self._timer_btn.remove_css_class("timer-active")
+            self._update_tooltip(self._timer_btn, _("Capture timer: Off"))
+        else:
+            self._timer_label.set_label(f"{value}s")
+            self._timer_btn.add_css_class("timer-active")
+            self._update_tooltip(self._timer_btn, _("Capture timer: %ds") % value)
+
+    def _set_tooltips_enabled(self, enabled: bool) -> None:
+        for widget, tooltip_text in self._tooltip_widgets:
+            widget.set_tooltip_text(tooltip_text if enabled else None)
+
+    # -- action handlers for keyboard shortcuts ------------------------------
+
+    def _on_toggle_mirror_action(self, *_args) -> None:
+        self._on_mirror_btn_clicked(None)
+
+    def _on_toggle_grid_action(self, *_args) -> None:
+        self._grid_btn.set_active(not self._grid_btn.get_active())
+
+    def _on_cycle_timer_action(self, *_args) -> None:
+        self._cycle_timer()
+
+    def _on_toggle_fullscreen_action(self, *_args) -> None:
+        if self.is_fullscreen():
+            self.unfullscreen()
+        else:
+            self.fullscreen()
+
+    def _on_escape_action(self, *_args) -> None:
+        if self._split_view.get_show_sidebar():
+            self._split_view.set_show_sidebar(False)
+        elif self.is_fullscreen():
+            self.unfullscreen()
+
+    def _on_always_on_top_toggled(self, btn: Gtk.ToggleButton) -> None:
+        on_top = btn.get_active()
+        script = f'workspace.activeWindow.keepAbove = {"true" if on_top else "false"};'
+        script_path = '/tmp/kwin_bigcam_above.js'
+        plugin_name = 'bigcam_above'
+        try:
+            with open(script_path, 'w') as f:
+                f.write(script)
+            result = subprocess.run(
+                ['qdbus', 'org.kde.KWin', '/Scripting',
+                 'org.kde.kwin.Scripting.loadScript', script_path, plugin_name],
+                capture_output=True, text=True,
+            )
+            script_id = result.stdout.strip()
+            if script_id.isdigit():
+                subprocess.run(
+                    ['qdbus', 'org.kde.KWin', f'/Scripting/Script{script_id}',
+                     'org.kde.kwin.Script.run'],
+                    capture_output=True,
+                )
+            subprocess.run(
+                ['qdbus', 'org.kde.KWin', '/Scripting',
+                 'org.kde.kwin.Scripting.unloadScript', plugin_name],
+                capture_output=True,
+            )
+        except (FileNotFoundError, OSError):
+            pass
+        finally:
+            try:
+                os.unlink(script_path)
+            except OSError:
+                pass
+
+    def _on_show_welcome_action(self, *_args) -> None:
+        from ui.welcome_dialog import WelcomeDialog
+        dialog = WelcomeDialog(self, self._settings)
+        dialog.present()
+
+    def _set_zoom_level(self, index: int) -> None:
+        self._zoom_index = index % len(self._zoom_levels)
+        level = self._zoom_levels[self._zoom_index]
+        label = f"{level:.0f}x" if level == int(level) else f"{level}x"
+        self._zoom_btn.set_label(label)
+        self._stream_engine.set_zoom(level)
+
+    def _switch_sidebar_tab(self, index: int) -> None:
+        pages = self._view_stack.get_pages()
+        if index < pages.get_n_items():
+            page = pages.get_item(index)
+            self._view_stack.set_visible_child_name(page.get_name())
+            if not self._split_view.get_show_sidebar():
+                self._split_view.set_show_sidebar(True)
+
+    def _cycle_timer(self) -> None:
+        """Cycle capture timer: Off → 3s → 5s → 10s → Off."""
+        _TIMER_VALUES = [0, 3, 5, 10]
+        current = self._settings.get("capture-timer") or 0
+        try:
+            idx = _TIMER_VALUES.index(current)
+        except ValueError:
+            idx = 0
+        next_val = _TIMER_VALUES[(idx + 1) % len(_TIMER_VALUES)]
+        self._settings.set("capture-timer", next_val)
+        if next_val == 0:
+            self._timer_label.set_label(_("Off"))
+            self._timer_btn.remove_css_class("timer-active")
+            self._update_tooltip(self._timer_btn, _("Capture timer: Off"))
+        else:
+            self._timer_label.set_label(f"{next_val}s")
+            self._timer_btn.add_css_class("timer-active")
+            self._update_tooltip(self._timer_btn, _("Capture timer: %ds") % next_val)
+        # Sync settings page ComboRow
+        new_idx = _TIMER_VALUES.index(next_val)
+        self._settings_page._syncing_timer = True
+        self._settings_page._timer_row.set_selected(new_idx)
+        self._settings_page._syncing_timer = False
+
+    def _trigger_flash(self) -> None:
+        """Show a brief white flash overlay on photo capture."""
+        self._flash_overlay.set_opacity(0.8)
+        GLib.timeout_add(100, self._flash_fade_out)
+
+    def _show_notification(self, message: str, _level: str = "info", timeout_ms: int = 3000, **_kwargs) -> None:
+        """Show a window-level banner that pushes content down."""
+        if self._window_banner_timeout is not None:
+            GLib.source_remove(self._window_banner_timeout)
+            self._window_banner_timeout = None
+        self._window_banner.set_title(message)
+        self._window_banner.set_revealed(True)
+        if timeout_ms > 0:
+            self._window_banner_timeout = GLib.timeout_add(
+                timeout_ms, self._dismiss_notification
+            )
+
+    def _dismiss_notification(self) -> bool:
+        self._window_banner_timeout = None
+        self._window_banner.set_revealed(False)
+        return GLib.SOURCE_REMOVE
+
+    def _flash_fade_out(self) -> bool:
+        self._flash_overlay.set_opacity(0)
+        return GLib.SOURCE_REMOVE
+
+    def _start_rec_timer(self) -> None:
+        """Start the recording duration timer in the top bar."""
+        self._rec_timer_seconds = 0
+        self._rec_timer_label.set_label("00:00")
+        self._rec_timer_box.set_visible(True)
+        self._rec_timer_source_id = GLib.timeout_add_seconds(1, self._update_rec_timer)
+
+    def _stop_rec_timer(self) -> None:
+        """Stop and hide the recording timer."""
+        if self._rec_timer_source_id is not None:
+            GLib.source_remove(self._rec_timer_source_id)
+            self._rec_timer_source_id = None
+        self._rec_timer_box.set_visible(False)
+        self._rec_timer_seconds = 0
+
+    def _update_rec_timer(self) -> bool:
+        self._rec_timer_seconds += 1
+        mins, secs = divmod(self._rec_timer_seconds, 60)
+        self._rec_timer_label.set_label(f"{mins:02d}:{secs:02d}")
+        return GLib.SOURCE_CONTINUE
 
     def _build_menu(self) -> Gio.Menu:
         menu = Gio.Menu()
@@ -273,8 +1117,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         section3.append(_("Add IP Camera…"), "win.add-ip")
         section3.append(_("Phone as Webcam…"), "win.phone-camera")
         section3.append(_("Refresh") + " (F5)", "win.refresh")
+        section3.append("Welcome Screen", "win.show-welcome")
         section3.append(_("About"), "win.about")
         menu.append_section(None, section3)
+
+        section_quit = Gio.Menu()
+        section_quit.append(_("Quit") + " (Ctrl+Q)", "app.quit")
+        menu.append_section(None, section_quit)
         return menu
 
     # -- actions -------------------------------------------------------------
@@ -289,6 +1138,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "record-toggle": self._on_record_toggle,
             "save-profile": self._on_save_profile,
             "load-profile": self._on_load_profile,
+            "toggle-mirror": self._on_toggle_mirror_action,
+            "toggle-grid": self._on_toggle_grid_action,
+            "cycle-timer": self._on_cycle_timer_action,
+            "toggle-fullscreen": self._on_toggle_fullscreen_action,
+            "toggle-sidebar": lambda *_a: self._on_sidebar_toggle_clicked(None),
+            "zoom-1x": lambda *_a: self._set_zoom_level(0),
+            "zoom-1.5x": lambda *_a: self._set_zoom_level(1),
+            "zoom-2x": lambda *_a: self._set_zoom_level(2),
+            "escape": self._on_escape_action,
+            "switch-tab-1": lambda *_a: self._switch_sidebar_tab(0),
+            "switch-tab-2": lambda *_a: self._switch_sidebar_tab(1),
+            "switch-tab-3": lambda *_a: self._switch_sidebar_tab(2),
+            "switch-tab-4": lambda *_a: self._switch_sidebar_tab(3),
+            "switch-tab-5": lambda *_a: self._switch_sidebar_tab(4),
+            "show-welcome": self._on_show_welcome_action,
         }
         for name, callback in simple_actions.items():
             action = Gio.SimpleAction.new(name, None)
@@ -305,6 +1169,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "win.refresh": ["F5", "<Primary>F5"],
             "win.save-profile": ["<Primary>s"],
             "win.load-profile": ["<Primary>l"],
+            "win.toggle-mirror": ["<Primary>m"],
+            "win.toggle-grid": ["<Primary>g"],
+            "win.cycle-timer": ["<Primary>t"],
+            "win.toggle-fullscreen": ["F11"],
+            "win.toggle-sidebar": ["Tab"],
+            "win.zoom-1x": ["1"],
+            "win.zoom-1.5x": ["2"],
+            "win.zoom-2x": ["3"],
+            "win.escape": ["Escape"],
+            "win.switch-tab-1": ["<Primary>1"],
+            "win.switch-tab-2": ["<Primary>2"],
+            "win.switch-tab-3": ["<Primary>3"],
+            "win.switch-tab-4": ["<Primary>4"],
+            "win.switch-tab-5": ["<Primary>5"],
+            "app.quit": ["<Primary>q"],
         }
         for action_name, accels in shortcuts.items():
             app.set_accels_for_action(action_name, accels)
@@ -323,6 +1202,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._stream_engine.connect("device-busy", self._on_device_busy)
         self._settings_page.connect("show-fps-changed", self._on_show_fps_changed)
         self._settings_page.connect("mirror-changed", self._on_mirror_changed)
+        self._settings_page._qr_row.connect("notify::active", self._on_settings_qr_changed)
+        self._settings_page._smile_row.connect("notify::active", self._on_settings_smile_changed)
+        self._settings_page._vc_toggle_row.connect("notify::active", self._on_settings_vcam_changed)
+        self._settings_page.connect("help-tooltips-changed", self._on_help_tooltips_changed)
+        self._settings_page.connect("capture-timer-changed", self._on_capture_timer_changed)
         self.connect("close-request", self._on_close)
         self.connect("map", self._on_window_mapped)
 
@@ -406,9 +1290,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._active_camera = camera
         self._camera_selector.set_active_camera(camera.id)
         self._settings.set("last-camera-id", camera.id)
-        title_widget = self._header.get_title_widget()
-        if isinstance(title_widget, Adw.WindowTitle):
-            title_widget.set_subtitle(camera.name)
+        self.set_title(f"{APP_NAME} — {camera.name}")
 
         # Check if backend needs streaming setup (e.g. gphoto2)
         backend = self._camera_manager.get_backend(camera.backend)
@@ -504,7 +1386,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                     if success:
                         GLib.idle_add(
                             lambda: (
-                                self._preview.notification.notify_user(
+                                self._show_notification(
                                     _("Camera streaming started!"), "success", 3000
                                 )
                                 or False
@@ -517,14 +1399,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             def on_done(result: tuple[bool, list]) -> None:
                 success, controls = result
                 log.debug(f"on_done: success={success}, controls={len(controls)}")
-                self._preview.notification.dismiss()
+                self._dismiss_notification()
                 if success:
                     self._controls_cache[camera.id] = controls
                     self._controls_page.set_camera_with_controls(camera, controls)
                     self._stream_engine.play(camera, streaming_ready=True)
                     self._show_vcam_dialog(camera)
                 else:
-                    self._preview.notification.notify_user(
+                    self._show_notification(
                         _("Failed to start camera streaming."), "error"
                     )
                     self._preview._show_retry()
@@ -569,7 +1451,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         
         # Show a simple notice instead of a blocking dialog
         msg = _("Virtual Camera: {vcam_device} Created!").format(vcam_device=vcam_device)
-        self._preview.notification.notify_user(msg, "info", 4000)
+        self._show_notification(msg, "info", 4000)
 
     def _on_retry(self, _preview: PreviewArea) -> None:
         """Re-attempt camera connection when user clicks Try Again."""
@@ -592,8 +1474,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.set_show_fps(show)
 
     def _on_mirror_changed(self, _page, mirror: bool) -> None:
+        if self._syncing_toggle:
+            return
+        self._syncing_toggle = True
         self._stream_engine.mirror = mirror
         self._preview.set_mirror(mirror)
+        self._mirror_btn.set_active(mirror)
+        self._syncing_toggle = False
 
     def _on_resolution_changed(self, _page, value: str) -> None:
         if self._active_camera:
@@ -612,32 +1499,26 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     # -- Tools signals -------------------------------------------------------
 
     def _on_smile_captured(self, _page: Any, path: str) -> None:
-        self._preview.notification.notify_user(
+        self._show_notification(
             _("Smile captured! Photo saved."), "success", 3000
         )
         self._gallery.refresh()
+        self._update_last_media_thumbnail(path)
 
     def _on_qr_detected(self, _page: Any, text: str) -> None:
-        self._preview.notification.notify_user(_("QR Code detected!"), "info", 2000)
+        self._show_notification(_("QR Code detected!"), "info", 2000)
 
     # -- Capture -------------------------------------------------------------
 
     def _on_capture(self, _preview: PreviewArea) -> None:
         if not self._active_camera:
-            self._preview.notification.notify_user(_("No camera selected."), "warning")
+            self._show_notification(_("No camera selected."), "warning")
             return
 
-        timer = self._settings.get("capture-timer")
-        if timer and timer > 0:
-            self._preview.start_countdown(timer, self._do_capture_after_timer)
-            return
-
-        self._do_capture_after_timer()
-
-    def _do_capture_after_timer(self) -> None:
         from constants import BackendType
 
-        if self._active_camera and self._active_camera.backend == BackendType.GPHOTO2:
+        # gPhoto2: ask capture mode BEFORE starting timer
+        if self._active_camera.backend == BackendType.GPHOTO2:
             dialog = Adw.AlertDialog.new(
                 _("Choose capture mode"),
                 _(
@@ -654,18 +1535,26 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             dialog.present(self)
             return
 
+        timer = self._settings.get("capture-timer")
+        if timer and timer > 0:
+            self._preview.start_countdown(timer, self._do_webcam_capture)
+            return
+
         self._do_webcam_capture()
 
     def _on_capture_mode_response(
         self, _dialog: Adw.AlertDialog, response: str
     ) -> None:
-        if response == "native":
-            self._do_native_capture()
-        else:
-            self._do_webcam_capture()
+        capture_fn = self._do_native_capture if response == "native" else self._do_webcam_capture
+        timer = self._settings.get("capture-timer")
+        if timer and timer > 0:
+            self._preview.start_countdown(timer, capture_fn)
+            return
+        capture_fn()
 
     def _do_webcam_capture(self) -> None:
-        self._preview.notification.notify_user(_("Capturing photo…"), "info", 1500)
+        self._trigger_flash()
+        self._show_notification(_("Capturing photo…"), "info", 1500)
 
         import time as _time
         from utils import xdg
@@ -677,14 +1566,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         ok = self._stream_engine.capture_snapshot(output_path)
         if ok:
-            self._preview.notification.notify_user(_("Photo saved!"), "success")
+            self._show_notification(_("Photo saved!"), "success")
             self._gallery.refresh()
+            self._update_last_media_thumbnail(output_path)
         else:
-            self._preview.notification.notify_user(
+            self._show_notification(
                 _("Failed to capture photo."), "error"
             )
 
     def _do_native_capture(self) -> None:
+        self._trigger_flash()
         camera = self._active_camera
         if not camera:
             return
@@ -723,10 +1614,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         def _on_done(result: str | None) -> None:
             if result:
-                self._preview.notification.notify_user(_("Photo saved!"), "success")
+                self._show_notification(_("Photo saved!"), "success")
                 self._gallery.refresh()
+                self._update_last_media_thumbnail(result)
             else:
-                self._preview.notification.notify_user(
+                self._show_notification(
                     _("Failed to capture photo."), "error"
                 )
             # Resume streaming
@@ -834,7 +1726,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         show_about(self)
 
     def _on_camera_error(self, _manager: CameraManager, message: str) -> None:
-        self._preview.notification.notify_user(message, "error", 5000)
+        self._show_notification(message, "error", 5000)
 
     def _on_device_busy(
         self,
@@ -946,7 +1838,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         VirtualCamera.set_enabled(True)
         self._settings_page.set_vc_toggle_active(True)
         self._settings.set("virtual-camera-enabled", True)
-        self._preview.notification.notify_user(
+        self._show_notification(
             _("Virtual Camera enabled. Other applications can use /dev/video10."),
             "success",
             5000,
@@ -957,20 +1849,32 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     # -- recording -----------------------------------------------------------
 
     def _on_capture_action(self, *_args) -> None:
+        if self._current_mode == "video":
+            self._on_record_toggle()
+            return
         self._on_capture(self._preview)
 
     def _on_record_toggle(self, *_args) -> None:
         if self._video_recorder.is_recording:
             path = self._video_recorder.stop()
             self._preview.set_recording_state(False)
+            self._immersion.uninhibit()
+            self._stop_rec_timer()
+            # Update capture button state in video mode
+            if self._current_mode == "video":
+                self._bottom_capture_btn.remove_css_class("recording")
+                self._bottom_capture_btn.set_icon_name("media-record-symbolic")
+                self._update_tooltip(self._bottom_capture_btn, _("Start recording"))
             if path:
-                self._preview.notification.notify_user(
+                self._show_notification(
                     _("Video saved: %s") % os.path.basename(path), "success"
                 )
                 self._video_gallery.refresh()
+                # Slight delay so the file is fully flushed before thumbnail generation
+                GLib.timeout_add(500, self._update_last_media_thumbnail)
         else:
             if not self._active_camera:
-                self._preview.notification.notify_user(
+                self._show_notification(
                     _("No camera selected."), "warning"
                 )
                 return
@@ -989,11 +1893,18 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             )
             if path:
                 self._preview.set_recording_state(True)
-                self._preview.notification.notify_user(
+                self._immersion.inhibit()
+                self._start_rec_timer()
+                # Update capture button state in video mode
+                if self._current_mode == "video":
+                    self._bottom_capture_btn.add_css_class("recording")
+                    self._bottom_capture_btn.set_icon_name("media-playback-stop-symbolic")
+                    self._update_tooltip(self._bottom_capture_btn, _("Stop recording"))
+                self._show_notification(
                     _("Recording…"), "info", 0, progress=True
                 )
             else:
-                self._preview.notification.notify_user(
+                self._show_notification(
                     _("Failed to start recording."), "error"
                 )
 
@@ -1027,14 +1938,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Use camera name as default profile
         name = "default"
         camera_profiles.save_profile(self._active_camera, name, controls)
-        self._preview.notification.notify_user(_("Profile saved."), "success")
+        self._show_notification(_("Profile saved."), "success")
 
     def _on_load_profile(self, *_args) -> None:
         if not self._active_camera:
             return
         profiles = camera_profiles.list_profiles(self._active_camera)
         if not profiles:
-            self._preview.notification.notify_user(_("No profiles found."), "info")
+            self._show_notification(_("No profiles found."), "info")
             return
         # Load the first available profile (default)
         name = profiles[0]
@@ -1043,7 +1954,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._camera_manager.set_control(self._active_camera, ctrl_id, value)
         # Refresh controls UI
         self._controls_page.set_camera(self._active_camera)
-        self._preview.notification.notify_user(
+        self._show_notification(
             _("Profile loaded: %s") % name, "success"
         )
 
@@ -1099,9 +2010,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 _("No camera"),
                 _("Connect a camera or select one from the list above."),
             )
-            title_widget = self._header.get_title_widget()
-            if isinstance(title_widget, Adw.WindowTitle):
-                title_widget.set_subtitle("")
+            self.set_title(APP_NAME)
 
         elif (
             self._active_camera
@@ -1184,6 +2093,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self.set_visible(False)
 
     def _cleanup_and_close(self) -> None:
+        self._immersion.cleanup()
         self._video_recorder.stop()
         self._audio_monitor.stop_all()
         self._stream_engine.stop()
@@ -1211,3 +2121,22 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "dark": Adw.ColorScheme.FORCE_DARK,
         }
         style_manager.set_color_scheme(scheme_map.get(theme, Adw.ColorScheme.DEFAULT))
+
+    # -- immersion -----------------------------------------------------------
+
+    def _setup_immersion(self) -> None:
+        """Wire up the immersive auto-hide controller."""
+        self._immersion = ImmersionController(self)
+        self._immersion.set_split_view(self._split_view)
+        self._immersion.set_root_box(self._root_box)
+
+        # Top/bottom bar revealers (crossfade)
+        self._immersion.add_revealer(self._top_bar_revealer)
+        self._immersion.add_revealer(self._bottom_bar_revealer)
+
+        # Window-level progress bar
+        self._immersion.add_fade_widget(self._progress)
+
+        # Preview overlays that should fade
+        for w in self._preview.immersion_widgets():
+            self._immersion.add_fade_widget(w)

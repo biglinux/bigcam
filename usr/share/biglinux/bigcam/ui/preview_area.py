@@ -69,9 +69,11 @@ class PreviewArea(Gtk.Overlay):
 
         # -- video picture ---------------------------------------------------
         self._picture = MirroredPicture()
-        self._picture.set_content_fit(Gtk.ContentFit.CONTAIN)
+        self._picture.set_content_fit(Gtk.ContentFit.COVER)
         self._picture.set_hexpand(True)
         self._picture.set_vexpand(True)
+        self._picture.set_halign(Gtk.Align.FILL)
+        self._picture.set_valign(Gtk.Align.FILL)
         self._picture.add_css_class("preview-picture")
 
         # -- status page (no camera) -----------------------------------------
@@ -129,14 +131,12 @@ class PreviewArea(Gtk.Overlay):
         self._toast_overlay.set_vexpand(True)
         self.set_child(content_box)
 
-        # -- FPS label (top-right overlay) -----------------------------------
+        # -- FPS label (right side, centered vertically) -------------------
         self._fps_label = Gtk.Label(label="")
-        self._fps_label.add_css_class("osd")
         self._fps_label.add_css_class("fps-label")
         self._fps_label.set_halign(Gtk.Align.END)
-        self._fps_label.set_valign(Gtk.Align.START)
-        self._fps_label.set_margin_top(8)
-        self._fps_label.set_margin_end(8)
+        self._fps_label.set_valign(Gtk.Align.CENTER)
+        self._fps_label.set_margin_end(12)
         self._fps_label.set_visible(False)
         self.add_overlay(self._fps_label)
 
@@ -167,13 +167,12 @@ class PreviewArea(Gtk.Overlay):
         self._grid_drawing.set_visible(False)
         self.add_overlay(self._grid_drawing)
 
-        # -- audio volume overlay (top-left) --------------------------------
+        # -- audio volume overlay (left side, centered vertically) ----------
         self._audio_monitor: AudioMonitor | None = None
         self._audio_box = self._build_audio_overlay()
         self._audio_box.set_halign(Gtk.Align.START)
-        self._audio_box.set_valign(Gtk.Align.START)
-        self._audio_box.set_margin_top(8)
-        self._audio_box.set_margin_start(8)
+        self._audio_box.set_valign(Gtk.Align.CENTER)
+        self._audio_box.set_margin_start(12)
         self._audio_box.set_visible(False)
         self.add_overlay(self._audio_box)
 
@@ -185,6 +184,23 @@ class PreviewArea(Gtk.Overlay):
     def set_mirror(self, mirror: bool) -> None:
         """Toggle horizontal mirror on the preview picture."""
         self._picture.mirror = mirror
+
+    # -- immersion helpers ---------------------------------------------------
+
+    def immersion_widgets(self) -> list[Gtk.Widget]:
+        """Return overlay widgets that should fade during immersion."""
+        return [
+            self._toolbar,
+            self._fps_label,
+            self._audio_box,
+            self._grid_drawing,
+            self._top_progress,
+            self._banner,
+        ]
+
+    def is_countdown_active(self) -> bool:
+        """True while a capture countdown timer is running."""
+        return self._countdown_timer_id is not None
 
     # -- floating toolbar ----------------------------------------------------
 
@@ -258,7 +274,6 @@ class PreviewArea(Gtk.Overlay):
             margin_top=4,
             margin_bottom=4,
         )
-        outer.add_css_class("osd")
         outer.add_css_class("audio-overlay")
 
         # Top row: checkboxes + mute icon
@@ -275,7 +290,6 @@ class PreviewArea(Gtk.Overlay):
         self._mute_btn = Gtk.Button.new_from_icon_name(
             "audio-volume-medium-symbolic"
         )
-        self._mute_btn.add_css_class("flat")
         self._mute_btn.add_css_class("circular")
         self._mute_btn.add_css_class("audio-overlay-btn")
         self._mute_btn.set_tooltip_text(_("Mute"))
@@ -512,6 +526,10 @@ class PreviewArea(Gtk.Overlay):
             self._fps_label.set_visible(True)
         else:
             self._fps_label.set_visible(False)
+
+    def set_toolbar_visible(self, visible: bool) -> None:
+        """Show or hide the built-in floating toolbar."""
+        self._toolbar.set_visible(visible)
 
     # -- public helpers ------------------------------------------------------
 
