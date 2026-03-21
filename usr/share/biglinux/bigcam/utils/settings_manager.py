@@ -30,6 +30,7 @@ _DEFAULTS: dict[str, object] = {
     "gphoto2-bitrate": 5000,
     # General
     "show-welcome": True,
+    "show-help-tooltips": True,
     "show_fps": True,
     "theme": "system",
     "auto-start-preview": True,

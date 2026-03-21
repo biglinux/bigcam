@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import os
+import urllib.request
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -255,66 +257,90 @@ def _apply_vignette(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     return cv2.multiply(frame, mask3, dtype=cv2.CV_8U)
 
 
-# ── Advanced / Background effects ──
+# ── Advanced / Background effects (MediaPipe selfie segmentation) ──
 
-_face_detector: Any = None
-_face_detect_counter: int = 0
-_face_detect_interval: int = 5
-_last_face_rects: Any = np.array([])
-
-
-def _get_face_detector() -> Any:
-    global _face_detector
-    if _face_detector is None:
-        model_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-        _face_detector = cv2.CascadeClassifier(model_path)
-    return _face_detector
+_SELFIE_MODEL_URL = (
+    "https://storage.googleapis.com/mediapipe-models/"
+    "image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite"
+)
+_selfie_segmenter: Any = None
+_selfie_model_path: str = ""
 
 
-def _detect_faces_throttled(gray: np.ndarray) -> Any:
-    """Run face detection at most once every N frames, reusing previous result."""
-    global _face_detect_counter, _last_face_rects
-    _face_detect_counter += 1
-    if _face_detect_counter >= _face_detect_interval or len(_last_face_rects) == 0:
-        _face_detect_counter = 0
-        detector = _get_face_detector()
-        eq = cv2.equalizeHist(gray)
-        _last_face_rects = detector.detectMultiScale(
-            eq,
-            scaleFactor=1.1,
-            minNeighbors=4,
-            minSize=(50, 50),
-        )
-    return _last_face_rects
+def _get_selfie_segmenter() -> Any:
+    """Lazy-init MediaPipe selfie segmenter (downloads model on first use)."""
+    global _selfie_segmenter, _selfie_model_path
+    if _selfie_segmenter is not None:
+        return _selfie_segmenter
+
+    try:
+        import mediapipe as mp
+        from mediapipe.tasks import python as mp_python
+        from mediapipe.tasks.python import vision
+    except ImportError:
+        log.warning("mediapipe not installed — background blur disabled")
+        return None
+
+    cache_dir = os.path.join(
+        os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
+        "bigcam",
+    )
+    os.makedirs(cache_dir, exist_ok=True)
+    _selfie_model_path = os.path.join(cache_dir, "selfie_segmenter.tflite")
+
+    if not os.path.exists(_selfie_model_path):
+        log.info("Downloading selfie segmenter model…")
+        try:
+            urllib.request.urlretrieve(_SELFIE_MODEL_URL, _selfie_model_path)
+        except Exception:
+            log.exception("Failed to download selfie segmenter model")
+            return None
+
+    base_options = mp_python.BaseOptions(model_asset_path=_selfie_model_path)
+    options = vision.ImageSegmenterOptions(
+        base_options=base_options,
+        running_mode=vision.RunningMode.IMAGE,
+        output_confidence_masks=True,
+        output_category_mask=False,
+    )
+    _selfie_segmenter = vision.ImageSegmenter.create_from_options(options)
+    return _selfie_segmenter
 
 
 def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
+    import mediapipe as mp
+
     strength = int(_clamp(params.get("strength", 21), 1, 51))
     if strength % 2 == 0:
         strength += 1
 
     blurred = cv2.GaussianBlur(frame, (strength, strength), 0)
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = _detect_faces_throttled(gray)
-
-    if len(faces) == 0:
+    segmenter = _get_selfie_segmenter()
+    if segmenter is None:
         return blurred
 
-    mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+    result = segmenter.segment(mp_image)
 
-    for fx, fy, fw, fh in faces:
-        margin_x = int(fw * 0.5)
-        margin_y = int(fh * 0.8)
-        cx, cy = fx + fw // 2, fy + fh // 2
-        axes = (fw // 2 + margin_x, fh // 2 + margin_y)
-        cv2.ellipse(mask, (cx, cy), axes, 0, 0, 360, 255, -1)
+    if not result.confidence_masks:
+        return blurred
 
-    mask_blur = cv2.GaussianBlur(mask, (31, 31), 0)
-    inv_mask = cv2.bitwise_not(mask_blur)
-    # Blend using uint8 arithmetic — avoids 3 float array allocations
-    fg = cv2.multiply(frame, cv2.merge([mask_blur, mask_blur, mask_blur]), scale=1.0 / 255)
-    bg = cv2.multiply(blurred, cv2.merge([inv_mask, inv_mask, inv_mask]), scale=1.0 / 255)
+    # confidence_masks[0] = person probability per pixel (0.0–1.0)
+    mask = result.confidence_masks[0].numpy_view()
+    if mask.ndim == 3:
+        mask = mask[:, :, 0]
+
+    # Smooth mask edges to avoid hard cutoff artifacts
+    mask_u8 = (mask * 255).astype(np.uint8)
+    mask_u8 = cv2.GaussianBlur(mask_u8, (15, 15), 0)
+
+    # Blend: person stays sharp, background gets blurred
+    mask_3ch = cv2.merge([mask_u8, mask_u8, mask_u8])
+    inv_mask_3ch = cv2.bitwise_not(mask_3ch)
+    fg = cv2.multiply(frame, mask_3ch, scale=1.0 / 255)
+    bg = cv2.multiply(blurred, inv_mask_3ch, scale=1.0 / 255)
     return cv2.add(fg, bg)
 
 

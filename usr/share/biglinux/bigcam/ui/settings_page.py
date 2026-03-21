@@ -40,6 +40,8 @@ class SettingsPage(Gtk.ScrolledWindow):
         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "help-tooltips-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "capture-timer-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
     }
 
     def __init__(self, settings: SettingsManager, stream_engine=None) -> None:
@@ -149,22 +151,37 @@ class SettingsPage(Gtk.ScrolledWindow):
         hotplug_row.connect("notify::active", self._on_hotplug)
         general.add(hotplug_row)
 
+        # Help tooltips
+        self._help_tooltips_row = Adw.SwitchRow(
+            title=_("Show help on hover"),
+            subtitle=_("Show tooltip hints when hovering over buttons."),
+        )
+        self._help_tooltips_row.add_prefix(
+            Gtk.Image.new_from_icon_name("dialog-information-symbolic")
+        )
+        self._help_tooltips_row.set_active(self._settings.get("show-help-tooltips"))
+        self._help_tooltips_row.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Show help on hover")]
+        )
+        self._help_tooltips_row.connect("notify::active", self._on_help_tooltips)
+        general.add(self._help_tooltips_row)
+
         content.append(general)
 
     def _build_preview(self, content: Gtk.Box) -> None:
         preview = Adw.PreferencesGroup(title=_("Preview"))
 
-        mirror_row = Adw.SwitchRow(
+        self._mirror_row = Adw.SwitchRow(
             title=_("Mirror preview"),
             subtitle=_("Flip the preview horizontally like a mirror."),
         )
-        mirror_row.add_prefix(Gtk.Image.new_from_icon_name("object-flip-horizontal-symbolic"))
-        mirror_row.set_active(self._settings.get("mirror_preview"))
-        mirror_row.update_property(
+        self._mirror_row.add_prefix(Gtk.Image.new_from_icon_name("object-flip-horizontal-symbolic"))
+        self._mirror_row.set_active(self._settings.get("mirror_preview"))
+        self._mirror_row.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Mirror preview")]
         )
-        mirror_row.connect("notify::active", self._on_mirror)
-        preview.add(mirror_row)
+        self._mirror_row.connect("notify::active", self._on_mirror)
+        preview.add(self._mirror_row)
 
         show_fps_row = Adw.SwitchRow(
             title=_("Show FPS counter"),
@@ -232,23 +249,23 @@ class SettingsPage(Gtk.ScrolledWindow):
 
 
         # Capture timer
-        timer_row = Adw.ComboRow(
+        self._timer_row = Adw.ComboRow(
             title=_("Capture timer"),
             subtitle=_("Countdown before taking a photo."),
         )
-        timer_row.add_prefix(Gtk.Image.new_from_icon_name("timer-symbolic"))
+        self._timer_row.add_prefix(Gtk.Image.new_from_icon_name("timer-symbolic"))
         timer_model = Gtk.StringList()
         for label in (_("Off"), "3s", "5s", "10s"):
             timer_model.append(label)
-        timer_row.set_model(timer_model)
+        self._timer_row.set_model(timer_model)
         _TIMER_VALUES = [0, 3, 5, 10]
         current_timer = self._settings.get("capture-timer")
         try:
-            timer_row.set_selected(_TIMER_VALUES.index(current_timer))
+            self._timer_row.set_selected(_TIMER_VALUES.index(current_timer))
         except ValueError:
-            timer_row.set_selected(0)
-        timer_row.connect("notify::selected", self._on_capture_timer)
-        camera_group.add(timer_row)
+            self._timer_row.set_selected(0)
+        self._timer_row.connect("notify::selected", self._on_capture_timer)
+        camera_group.add(self._timer_row)
 
         content.append(camera_group)
 
@@ -358,6 +375,11 @@ class SettingsPage(Gtk.ScrolledWindow):
     def _on_hotplug(self, row: Adw.SwitchRow, _pspec) -> None:
         self._settings.set("hotplug_enabled", row.get_active())
 
+    def _on_help_tooltips(self, row: Adw.SwitchRow, _pspec) -> None:
+        active = row.get_active()
+        self._settings.set("show-help-tooltips", active)
+        self.emit("help-tooltips-changed", active)
+
     def _on_resolution(self, row: Adw.ComboRow, _pspec) -> None:
         if getattr(self, '_updating_formats', False):
             return
@@ -404,10 +426,13 @@ class SettingsPage(Gtk.ScrolledWindow):
         self.emit("fps-limit-changed", value)
 
     def _on_capture_timer(self, row: Adw.ComboRow, _pspec) -> None:
+        if getattr(self, '_syncing_timer', False):
+            return
         _TIMER_VALUES = [0, 3, 5, 10]
         idx = row.get_selected()
         value = _TIMER_VALUES[idx] if idx < len(_TIMER_VALUES) else 0
         self._settings.set("capture-timer", value)
+        self.emit("capture-timer-changed", value)
 
     def _on_grid_overlay(self, row: Adw.SwitchRow, _pspec) -> None:
         active = row.get_active()
