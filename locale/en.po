@@ -1448,6 +1448,11 @@ msgid "Phone as Webcam…"
 msgstr "Phone as Webcam…"
 
 #
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1172
+msgid "Welcome Screen"
+msgstr "Welcome Screen"
+
+#
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1173
 msgid "About"
 msgstr "About"
@@ -1753,7 +1758,7 @@ msgstr "Install python-opencv to enable video effects."
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 #
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 106
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 360
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 365
 msgid "Reset to defaults"
 msgstr "Reset to defaults"
 
@@ -1858,7 +1863,7 @@ msgid "This camera does not expose any controls."
 msgstr "This camera does not expose any controls."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 363
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 368
 #, python-format
 msgid "Reset %s controls"
 msgstr "Reset %s controls"
@@ -2043,29 +2048,30 @@ msgid "Background Blur"
 msgstr "Background Blur"
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 540
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 541
 msgid "Failed to start camera streaming process."
 msgstr "Failed to start camera streaming process."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 545
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 553
 msgid "Failed to obtain GStreamer source for this camera."
 msgstr "Failed to obtain GStreamer source for this camera."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 620
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 820
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 831
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 623
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 823
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 834
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1026
 msgid "Failed to start camera stream."
 msgstr "Failed to start camera stream."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1198
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1241
 msgid "Phone camera server not available."
 msgstr "Phone camera server not available."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1381
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1424
 msgid "Unknown GStreamer error"
 msgstr "Unknown GStreamer error"
 
