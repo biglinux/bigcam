@@ -496,8 +496,14 @@ class StreamEngine(GObject.Object):
         had_bg_vcam = camera.id in self._bg_vcam_pipelines
         self._stop_bg_vcam(camera.id)
         if had_bg_vcam:
-            import time
-            time.sleep(0.15)
+            # PipeWire needs a moment to re-expose the node — defer the rest
+            GLib.timeout_add(150, self._play_continue, camera, fmt, streaming_ready)
+            return True
+        return self._play_continue(camera, fmt, streaming_ready)
+
+    def _play_continue(self, camera: CameraInfo, fmt: VideoFormat | None, streaming_ready: bool) -> bool:
+        """Continuation of play() — may be deferred via GLib.timeout_add.
+        Always returns False so GLib.timeout_add won't repeat."""
         self._use_appsink = camera.backend in _APPSINK_BACKENDS
         log.info(
             "play: camera=%s, backend=%s, use_appsink=%s, streaming_ready=%s",
@@ -545,8 +551,10 @@ class StreamEngine(GObject.Object):
             target_fps = int(max(fmt.fps))
 
         if self._use_appsink:
-            return self._build_appsink_pipeline(gst_source)
-        return self._build_paintable_pipeline(gst_source, target_fps)
+            self._build_appsink_pipeline(gst_source)
+            return False
+        self._build_paintable_pipeline(gst_source, target_fps)
+        return False
 
     def _build_paintable_pipeline(self, gst_source: str, target_fps: int = 0) -> bool:
         """Direct camera sources — use tee + gtk4paintablesink (recording-ready).
@@ -780,8 +788,8 @@ class StreamEngine(GObject.Object):
                 pipeline.set_state(Gst.State.NULL)
                 continue
 
-            # Wait briefly to check state (max 2s)
-            ret, state, _ = pipeline.get_state(2 * Gst.SECOND)
+            # Non-blocking state check — accept ASYNC as success
+            ret, state, _ = pipeline.get_state(50 * Gst.MSECOND)
             log.debug(f"Pipeline {i + 1}: ret={ret}, state={state}")
             if ret == Gst.StateChangeReturn.FAILURE:
                 pipeline.set_state(Gst.State.NULL)

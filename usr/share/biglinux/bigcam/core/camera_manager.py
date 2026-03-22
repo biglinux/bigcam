@@ -269,21 +269,24 @@ class CameraManager(GObject.Object):
         self._usb_bus_monitors.clear()
 
     def _snapshot_device_state(self) -> None:
-        """Capture current USB + video device state as baseline."""
-        with self._poll_lock:
-            try:
-                result = subprocess.run(
-                    ["lsusb"], capture_output=True, text=True, timeout=5
-                )
-                self._last_lsusb = result.stdout
-            except Exception:
-                self._last_lsusb = ""
-            try:
-                self._last_video_devs = ",".join(
-                    sorted(glob.glob("/dev/video*"))
-                )
-            except Exception:
-                self._last_video_devs = ""
+        """Capture current USB + video device state as baseline (runs in background)."""
+        def _do_snapshot() -> None:
+            with self._poll_lock:
+                try:
+                    result = subprocess.run(
+                        ["lsusb"], capture_output=True, text=True, timeout=5
+                    )
+                    self._last_lsusb = result.stdout
+                except Exception:
+                    self._last_lsusb = ""
+                try:
+                    self._last_video_devs = ",".join(
+                        sorted(glob.glob("/dev/video*"))
+                    )
+                except Exception:
+                    self._last_video_devs = ""
+
+        threading.Thread(target=_do_snapshot, daemon=True).start()
 
     def _on_dev_changed(
         self,

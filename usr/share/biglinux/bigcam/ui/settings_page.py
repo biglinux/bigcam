@@ -630,6 +630,7 @@ class SettingsPage(Gtk.ScrolledWindow):
                 )
             self._smile_cooldown = False
             self._smile_consecutive = 0
+            self._smile_scanning = False
             self._smile_status.set_text(_("Watching for smiles..."))
             self._smile_timer_id = GLib.timeout_add(300, self._detect_smile)
         else:
@@ -641,23 +642,31 @@ class SettingsPage(Gtk.ScrolledWindow):
     def _detect_smile(self) -> bool:
         if not self._smile_active:
             return False
-        if self._smile_cooldown:
+        if self._smile_cooldown or self._smile_scanning:
             return True
         frame = self._engine.last_frame_bgr
         if frame is None:
             return True
+        self._smile_scanning = True
+        sensitivity = int(self._sensitivity_scale.get_value())
+        self._threading.Thread(
+            target=self._detect_smile_worker,
+            args=(frame.copy(), sensitivity),
+            daemon=True,
+        ).start()
+        return True
+
+    def _detect_smile_worker(self, frame, sensitivity: int) -> None:
+        smile_found = False
         try:
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = self._face_cascade.detectMultiScale(
                 gray, scaleFactor=1.3, minNeighbors=5, minSize=(80, 80)
             )
             if len(faces) == 0:
-                self._smile_consecutive = 0
-                return True
-            sensitivity = int(self._sensitivity_scale.get_value())
-            # Invert: high slider = low minNeighbors = more sensitive
+                GLib.idle_add(self._detect_smile_done, False)
+                return
             min_neighbors = max(10, 55 - sensitivity * 5)
-            smile_found = False
             for x, y, fw, fh in faces:
                 roi_gray = gray[y : y + fh, x : x + fw]
                 lower_half = roi_gray[fh // 2 :, :]
@@ -672,16 +681,20 @@ class SettingsPage(Gtk.ScrolledWindow):
                 if len(smiles) > 0:
                     smile_found = True
                     break
-            if smile_found:
-                self._smile_consecutive += 1
-                if self._smile_consecutive >= 3:
-                    self._smile_consecutive = 0
-                    GLib.idle_add(self._trigger_smile_capture)
-            else:
-                self._smile_consecutive = 0
         except Exception:
             pass
-        return True
+        GLib.idle_add(self._detect_smile_done, smile_found)
+
+    def _detect_smile_done(self, smile_found: bool) -> bool:
+        self._smile_scanning = False
+        if smile_found:
+            self._smile_consecutive += 1
+            if self._smile_consecutive >= 3:
+                self._smile_consecutive = 0
+                self._trigger_smile_capture()
+        else:
+            self._smile_consecutive = 0
+        return False
 
     def _trigger_smile_capture(self) -> bool:
         if self._smile_cooldown:
@@ -707,31 +720,41 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _refresh_vc_status(self) -> None:
         self._vc_updating = True
-        try:
-            if not VirtualCamera.is_available():
-                self._vc_status_row.set_subtitle(_("v4l2loopback not available"))
-                self._vc_status_icon.set_from_icon_name("dialog-warning-symbolic")
-                self._vc_toggle_row.set_sensitive(False)
-                return
-            device = VirtualCamera.find_loopback_device()
-            enabled = VirtualCamera.is_enabled()
-            if enabled and device:
-                self._vc_status_row.set_subtitle(_("Active"))
-                self._vc_status_icon.set_from_icon_name("emblem-ok-symbolic")
-                self._vc_device_row.set_subtitle(device)
-                self._vc_toggle_row.set_active(True)
-            elif device:
-                self._vc_status_row.set_subtitle(_("Module loaded"))
-                self._vc_status_icon.set_from_icon_name("emblem-default-symbolic")
-                self._vc_device_row.set_subtitle(device)
-                self._vc_toggle_row.set_active(False)
-            else:
-                self._vc_status_row.set_subtitle(_("Module not loaded"))
-                self._vc_status_icon.set_from_icon_name("dialog-information-symbolic")
-                self._vc_device_row.set_subtitle(_("Not loaded"))
-                self._vc_toggle_row.set_active(False)
-        finally:
-            self._vc_updating = False
+
+        def _query() -> tuple[bool, str | None, bool]:
+            available = VirtualCamera.is_available()
+            device = VirtualCamera.find_loopback_device() if available else None
+            enabled = VirtualCamera.is_enabled() if available else False
+            return available, device, enabled
+
+        def _update(result: tuple[bool, str | None, bool]) -> None:
+            available, device, enabled = result
+            try:
+                if not available:
+                    self._vc_status_row.set_subtitle(_("v4l2loopback not available"))
+                    self._vc_status_icon.set_from_icon_name("dialog-warning-symbolic")
+                    self._vc_toggle_row.set_sensitive(False)
+                    return
+                if enabled and device:
+                    self._vc_status_row.set_subtitle(_("Active"))
+                    self._vc_status_icon.set_from_icon_name("emblem-ok-symbolic")
+                    self._vc_device_row.set_subtitle(device)
+                    self._vc_toggle_row.set_active(True)
+                elif device:
+                    self._vc_status_row.set_subtitle(_("Module loaded"))
+                    self._vc_status_icon.set_from_icon_name("emblem-default-symbolic")
+                    self._vc_device_row.set_subtitle(device)
+                    self._vc_toggle_row.set_active(False)
+                else:
+                    self._vc_status_row.set_subtitle(_("Module not loaded"))
+                    self._vc_status_icon.set_from_icon_name("dialog-information-symbolic")
+                    self._vc_device_row.set_subtitle(_("Not loaded"))
+                    self._vc_toggle_row.set_active(False)
+            finally:
+                self._vc_updating = False
+
+        from utils.async_worker import run_async
+        run_async(_query, on_success=_update)
 
     def _on_vc_toggle(self, row: Adw.SwitchRow, _pspec) -> None:
         if self._vc_updating:

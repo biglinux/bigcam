@@ -285,6 +285,7 @@ class ToolsPage(Gtk.ScrolledWindow):
                     os.path.join(_HAARCASCADES, "haarcascade_smile.xml")
                 )
             self._smile_cooldown = False
+            self._smile_scanning = False
             self._smile_status.set_text(_("Watching for smiles..."))
             self._smile_timer_id = GLib.timeout_add(300, self._detect_smile)
         else:
@@ -296,22 +297,32 @@ class ToolsPage(Gtk.ScrolledWindow):
     def _detect_smile(self) -> bool:
         if not self._smile_active:
             return False
-        if self._smile_cooldown:
+        if self._smile_cooldown or self._smile_scanning:
             return True
         frame = self._engine.last_frame_bgr
         if frame is None:
             return True
+        self._smile_scanning = True
+        sensitivity = int(self._sensitivity_scale.get_value())
+        import threading
+        threading.Thread(
+            target=self._detect_smile_worker,
+            args=(frame.copy(), sensitivity),
+            daemon=True,
+        ).start()
+        return True
+
+    def _detect_smile_worker(self, frame, sensitivity: int) -> None:
         try:
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = self._face_cascade.detectMultiScale(
                 gray, scaleFactor=1.3, minNeighbors=5, minSize=(80, 80)
             )
             if len(faces) == 0:
-                return True
-            sensitivity = int(self._sensitivity_scale.get_value())
+                GLib.idle_add(self._detect_smile_done, False)
+                return
             for x, y, fw, fh in faces:
                 roi_gray = gray[y : y + fh, x : x + fw]
-                # Look for smiles in the lower half of the face
                 lower_half = roi_gray[fh // 2 :, :]
                 smiles = self._smile_cascade.detectMultiScale(
                     lower_half,
@@ -320,11 +331,17 @@ class ToolsPage(Gtk.ScrolledWindow):
                     minSize=(25, 15),
                 )
                 if len(smiles) > 0:
-                    GLib.idle_add(self._trigger_smile_capture)
-                    return True
+                    GLib.idle_add(self._detect_smile_done, True)
+                    return
         except Exception:
             log.debug("Smile detection error", exc_info=True)
-        return True
+        GLib.idle_add(self._detect_smile_done, False)
+
+    def _detect_smile_done(self, smile_found: bool) -> bool:
+        self._smile_scanning = False
+        if smile_found:
+            self._trigger_smile_capture()
+        return False
 
     def _trigger_smile_capture(self) -> bool:
         if self._smile_cooldown:

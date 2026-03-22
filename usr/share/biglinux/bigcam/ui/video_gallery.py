@@ -102,11 +102,30 @@ class VideoGallery(Gtk.ScrolledWindow):
 
         videos = self._list_videos()
         self._empty.set_visible(len(videos) == 0)
+        if not videos:
+            return
 
-        for path in videos[:100]:
-            thumb = self._make_thumbnail(path)
-            if thumb:
-                self._flowbox.append(thumb)
+        # Pre-generate thumbnails and durations in background
+        from utils.async_worker import run_async
+        batch = videos[:100]
+
+        def _prepare() -> list[tuple[str, str | None, str | None]]:
+            results = []
+            for path in batch:
+                thumb_path = self._get_thumb_path(path)
+                if thumb_path and not os.path.isfile(thumb_path):
+                    self._generate_thumb_file(path, thumb_path)
+                duration = self._get_duration(path)
+                results.append((path, thumb_path, duration))
+            return results
+
+        def _build_ui(results: list[tuple[str, str | None, str | None]]) -> None:
+            for path, thumb_path, duration in results:
+                thumb = self._make_thumbnail_from_cache(path, thumb_path, duration)
+                if thumb:
+                    self._flowbox.append(thumb)
+
+        run_async(_prepare, on_success=_build_ui)
 
     def _list_videos(self) -> list[str]:
         if not os.path.isdir(self._videos_dir):
@@ -283,6 +302,93 @@ class VideoGallery(Gtk.ScrolledWindow):
             return f"{mins}:{secs_rem:02d}"
         except Exception:
             return None
+
+    def _generate_thumb_file(
+        self, video_path: str, thumb_path: str
+    ) -> None:
+        """Generate thumbnail file via ffmpeg (no pixbuf — safe for background thread)."""
+        try:
+            subprocess.run(
+                [
+                    "ffmpeg", "-y", "-i", video_path,
+                    "-ss", "00:00:01", "-frames:v", "1",
+                    "-vf", f"scale={self.THUMB_SIZE}:-1",
+                    "-q:v", "5", thumb_path,
+                ],
+                capture_output=True,
+                timeout=10,
+            )
+        except Exception:
+            log.debug("Thumbnail generation failed for %s", video_path, exc_info=True)
+
+    def _make_thumbnail_from_cache(
+        self, path: str, thumb_path: str | None, duration: str | None
+    ) -> Gtk.Widget | None:
+        """Build thumbnail widget using pre-generated cache (main thread only)."""
+        pixbuf = None
+        if thumb_path and os.path.isfile(thumb_path):
+            pixbuf = self._load_pixbuf(thumb_path)
+        if pixbuf is None:
+            return self._make_placeholder(path)
+
+        texture = Gdk.Texture.new_for_pixbuf(pixbuf)
+        picture = Gtk.Picture.new_for_paintable(texture)
+        picture.set_content_fit(Gtk.ContentFit.COVER)
+        picture.set_size_request(self.THUMB_SIZE, self.THUMB_SIZE)
+        picture.add_css_class("card")
+
+        inner_overlay = Gtk.Overlay()
+        inner_overlay.set_child(picture)
+
+        play_icon = Gtk.Image.new_from_icon_name("media-playback-start-symbolic")
+        play_icon.set_pixel_size(32)
+        play_icon.set_opacity(0.8)
+        play_icon.set_halign(Gtk.Align.CENTER)
+        play_icon.set_valign(Gtk.Align.CENTER)
+        inner_overlay.add_overlay(play_icon)
+
+        if duration:
+            dur_label = Gtk.Label(label=duration)
+            dur_label.add_css_class("caption")
+            dur_box = Gtk.Box()
+            dur_box.append(dur_label)
+            dur_box.add_css_class("osd")
+            dur_box.set_halign(Gtk.Align.END)
+            dur_box.set_valign(Gtk.Align.END)
+            dur_box.set_margin_end(4)
+            dur_box.set_margin_bottom(4)
+            inner_overlay.add_overlay(dur_box)
+
+        open_btn = Gtk.Button()
+        open_btn.set_child(inner_overlay)
+        open_btn.add_css_class("flat")
+        open_btn.set_tooltip_text(os.path.basename(path))
+        open_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Play %s") % os.path.basename(path)],
+        )
+        open_btn.connect("clicked", self._on_open_video, path)
+
+        outer_overlay = Gtk.Overlay()
+        outer_overlay.set_child(open_btn)
+
+        del_btn = Gtk.Button.new_from_icon_name("user-trash-symbolic")
+        del_btn.add_css_class("osd")
+        del_btn.add_css_class("circular")
+        del_btn.add_css_class("delete-thumb-btn")
+        del_btn.set_halign(Gtk.Align.END)
+        del_btn.set_valign(Gtk.Align.START)
+        del_btn.set_margin_end(4)
+        del_btn.set_margin_top(4)
+        del_btn.set_tooltip_text(_("Delete"))
+        del_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [_("Delete %s") % os.path.basename(path)],
+        )
+        del_btn.connect("clicked", self._on_delete_clicked, path)
+        outer_overlay.add_overlay(del_btn)
+
+        return outer_overlay
 
     def _on_open_video(self, _btn: Gtk.Button, path: str) -> None:
         """Open video in default system player."""

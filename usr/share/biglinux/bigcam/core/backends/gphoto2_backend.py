@@ -634,7 +634,7 @@ class GPhoto2Backend(CameraBackend):
         return (
             f"udpsrc port={udp_port} address=127.0.0.1 "
             f'caps="video/mpegts,packetsize=(int)1316" ! '
-            f"queue max-size-bytes=2097152 ! tsdemux ! decodebin ! videoconvert"
+            f"queue max-size-bytes=2097152 leaky=downstream ! tsdemux ! decodebin ! videoconvert"
         )
 
     def start_streaming(self, camera: CameraInfo) -> bool:

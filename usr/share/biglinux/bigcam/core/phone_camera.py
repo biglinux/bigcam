@@ -392,7 +392,6 @@ class PhoneCameraServer(GObject.Object):
             return True
 
         self._port = port
-        _ensure_cert()
 
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(
@@ -407,6 +406,8 @@ class PhoneCameraServer(GObject.Object):
         if not self._running:
             return
         self._running = False
+
+        had_clients = bool(self._ws_clients) or self._width > 0
 
         if self._loop and self._loop.is_running():
 
@@ -429,11 +430,16 @@ class PhoneCameraServer(GObject.Object):
         self._thread = None
         self._loop = None
         self._width = self._height = 0
+        # Emit "disconnected" so the window cleans up the phone camera entry
+        # even if the WebSocket handler's finally block didn't get a chance.
+        if had_clients:
+            GLib.idle_add(self.emit, "disconnected")
         GLib.idle_add(self.emit, "status-changed", "stopped")
 
     # -- asyncio server ------------------------------------------------------
 
     def _run_loop(self) -> None:
+        _ensure_cert()
         asyncio.set_event_loop(self._loop)
         self._loop.run_until_complete(self._start_server())
         self._loop.run_forever()

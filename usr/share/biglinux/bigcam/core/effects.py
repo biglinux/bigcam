@@ -291,7 +291,27 @@ def _get_selfie_segmenter() -> Any:
     if not os.path.exists(_selfie_model_path):
         log.info("Downloading selfie segmenter model…")
         try:
-            urllib.request.urlretrieve(_SELFIE_MODEL_URL, _selfie_model_path)
+            import threading
+
+            download_done = threading.Event()
+            download_error: list[Exception] = []
+
+            def _download() -> None:
+                try:
+                    urllib.request.urlretrieve(_SELFIE_MODEL_URL, _selfie_model_path)
+                except Exception as exc:
+                    download_error.append(exc)
+                finally:
+                    download_done.set()
+
+            threading.Thread(target=_download, daemon=True).start()
+            # Wait with a generous timeout to avoid blocking forever
+            if not download_done.wait(timeout=60):
+                log.error("Selfie segmenter download timed out")
+                return None
+            if download_error:
+                log.exception("Failed to download selfie segmenter model")
+                return None
         except Exception:
             log.exception("Failed to download selfie segmenter model")
             return None

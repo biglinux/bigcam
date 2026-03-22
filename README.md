@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.0.2</h1>
+<h1 align="center">BigCam 4.0.3</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.0.2-brightgreen.svg" alt="Version 4.0.2">
+  <img src="https://img.shields.io/badge/Version-4.0.3-brightgreen.svg" alt="Version 4.0.3">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">

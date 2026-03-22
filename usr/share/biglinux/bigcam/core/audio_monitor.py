@@ -254,7 +254,7 @@ class AudioMonitor(GObject.Object):
             "audioconvert ! "
             "audioresample ! "
             f"volume name=vol_{hash(source) & 0xFFFF:04x} ! "
-            "queue max-size-time=1000000000 ! "
+            "queue max-size-time=1000000000 leaky=downstream ! "
             "autoaudiosink sync=false"
         )
         vol_name = f"vol_{hash(source) & 0xFFFF:04x}"

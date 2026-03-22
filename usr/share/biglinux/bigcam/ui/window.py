@@ -15,7 +15,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gdk, Gtk, Gio, GLib
 
-from constants import APP_NAME, BackendType
+from constants import APP_NAME, APP_ICON, BackendType
 from core.audio_monitor import AudioMonitor
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
@@ -162,7 +162,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Main content: OverlaySplitView (sidebar overlays the preview)
         self._split_view = Adw.OverlaySplitView(
             show_sidebar=False,
-            sidebar_position=Gtk.PackType.END,
+            sidebar_position=Gtk.PackType.START,
             max_sidebar_width=400,
             min_sidebar_width=280,
             sidebar_width_fraction=0.35,
@@ -222,6 +222,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         win_controls_end = Gtk.WindowControls(side=Gtk.PackType.END)
         win_controls_end.set_halign(Gtk.Align.END)
 
+        # Sidebar toggle button (Controls, top-left)
+        controls_btn = Gtk.Button()
+        controls_icon = Gtk.Image.new_from_icon_name("sidebar-show-symbolic")
+        controls_icon.set_pixel_size(20)
+        controls_btn.set_child(controls_icon)
+        self._register_tooltip(controls_btn, _("Controls"))
+        controls_btn.add_css_class("controls-toggle-btn")
+        controls_btn.connect("clicked", self._on_sidebar_toggle_clicked)
+        top_bar.append(controls_btn)
+
         # Always on Top pin button (before camera selector)
         pin_btn = Gtk.ToggleButton()
         pin_icon = Gtk.Image.new_from_icon_name("view-pin-symbolic")
@@ -233,16 +243,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._pin_btn = pin_btn
         top_bar.append(pin_btn)
 
-        # Camera selector
-        top_bar.append(self._camera_selector)
-
-        # Phone button (next to camera selector)
+        # Phone button (left of camera selector)
         top_bar.append(self._phone_overlay)
 
-        # Spacer
-        spacer = Gtk.Box()
-        spacer.set_hexpand(True)
-        top_bar.append(spacer)
+        # Spacer (push camera selector to center)
+        top_spacer_start = Gtk.Box()
+        top_spacer_start.set_hexpand(True)
+        top_bar.append(top_spacer_start)
+
+        # Camera selector (centered)
+        top_bar.append(self._camera_selector)
+
+        # Spacer (push right items to the end)
+        top_spacer_end = Gtk.Box()
+        top_spacer_end.set_hexpand(True)
+        top_bar.append(top_spacer_end)
 
         # Recording timer (center, visible only during recording)
         rec_timer_box = Gtk.Box(
@@ -265,11 +280,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._rec_timer_source_id: int | None = None
         top_bar.append(rec_timer_box)
 
-        # Spacer
-        spacer2 = Gtk.Box()
-        spacer2.set_hexpand(True)
-        top_bar.append(spacer2)
-
         # Refresh button
         top_refresh = Gtk.Button.new_from_icon_name("view-refresh-symbolic")
         self._register_tooltip(top_refresh, _("Refresh cameras"))
@@ -280,39 +290,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         top_refresh.add_css_class("circular")
         top_refresh.set_action_name("win.refresh")
         top_bar.append(top_refresh)
-
-        # Grid toggle
-        grid_btn = Gtk.ToggleButton()
-        grid_btn.set_icon_name("view-grid-symbolic")
-        self._register_tooltip(grid_btn, _("Toggle grid overlay"))
-        grid_btn.add_css_class("flat")
-        grid_btn.add_css_class("circular")
-        grid_btn.set_active(self._settings.get("grid_overlay"))
-        grid_btn.connect("toggled", self._on_grid_btn_toggled)
-        self._grid_btn = grid_btn
-        top_bar.append(grid_btn)
-
-        # Timer cycle button (shows current timer value)
-        timer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
-        timer_icon = Gtk.Image.new_from_icon_name("timer-symbolic")
-        saved_timer = self._settings.get("capture-timer") or 0
-        if saved_timer > 0:
-            timer_init_label = f"{saved_timer}s"
-        else:
-            timer_init_label = _("Off")
-        self._timer_label = Gtk.Label(label=timer_init_label)
-        self._timer_label.add_css_class("caption")
-        timer_box.append(timer_icon)
-        timer_box.append(self._timer_label)
-        timer_btn = Gtk.Button()
-        timer_btn.set_child(timer_box)
-        self._register_tooltip(timer_btn, _("Capture timer"))
-        timer_btn.add_css_class("flat")
-        if saved_timer > 0:
-            timer_btn.add_css_class("timer-active")
-        timer_btn.set_action_name("win.cycle-timer")
-        self._timer_btn = timer_btn
-        top_bar.append(timer_btn)
 
         # Menu button
         top_menu_btn = Gtk.MenuButton()
@@ -474,6 +451,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         controls_center.set_halign(Gtk.Align.CENTER)
 
         capture_btn = Gtk.Button.new_from_icon_name("camera-photo-symbolic")
+        capture_btn.add_css_class("circular")
         capture_btn.add_css_class("capture-button")
         self._register_tooltip(capture_btn, _("Capture photo"))
         capture_btn.update_property(
@@ -533,6 +511,47 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._zoom_index = 0
         controls_end.append(zoom_btn)
 
+        # Grid toggle
+        grid_btn = Gtk.ToggleButton()
+        grid_icon = Gtk.Image.new_from_icon_name("view-grid-symbolic")
+        grid_icon.set_pixel_size(20)
+        grid_btn.set_child(grid_icon)
+        self._register_tooltip(grid_btn, _("Toggle grid overlay"))
+        grid_btn.add_css_class("bottom-circle-btn")
+        grid_btn.set_size_request(44, 44)
+        grid_btn.set_halign(Gtk.Align.CENTER)
+        grid_btn.set_valign(Gtk.Align.CENTER)
+        grid_btn.set_active(self._settings.get("grid_overlay"))
+        grid_btn.connect("toggled", self._on_grid_btn_toggled)
+        self._grid_btn = grid_btn
+        controls_end.append(grid_btn)
+
+        # Timer cycle button
+        timer_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+        timer_icon = Gtk.Image.new_from_icon_name("timer-symbolic")
+        timer_icon.set_pixel_size(20)
+        saved_timer = self._settings.get("capture-timer") or 0
+        if saved_timer > 0:
+            timer_init_label = f"{saved_timer}s"
+        else:
+            timer_init_label = _("Off")
+        self._timer_label = Gtk.Label(label=timer_init_label)
+        self._timer_label.add_css_class("caption")
+        timer_box.append(timer_icon)
+        timer_box.append(self._timer_label)
+        timer_btn = Gtk.Button()
+        timer_btn.set_child(timer_box)
+        self._register_tooltip(timer_btn, _("Capture timer"))
+        timer_btn.add_css_class("bottom-circle-btn")
+        timer_btn.set_size_request(44, 44)
+        timer_btn.set_halign(Gtk.Align.CENTER)
+        timer_btn.set_valign(Gtk.Align.CENTER)
+        if saved_timer > 0:
+            timer_btn.add_css_class("timer-active")
+        timer_btn.set_action_name("win.cycle-timer")
+        self._timer_btn = timer_btn
+        controls_end.append(timer_btn)
+
         fullscreen_btn = Gtk.Button()
         fs_icon = Gtk.Image.new_from_icon_name("view-fullscreen-symbolic")
         fs_icon.set_pixel_size(20)
@@ -545,17 +564,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         fullscreen_btn.connect("clicked", lambda _b: self._on_toggle_fullscreen_action())
         controls_end.append(fullscreen_btn)
 
-        sidebar_btn = Gtk.Button()
-        sidebar_icon = Gtk.Image.new_from_icon_name("sidebar-show-right-symbolic")
-        sidebar_icon.set_pixel_size(20)
-        sidebar_btn.set_child(sidebar_icon)
-        self._register_tooltip(sidebar_btn, _("Toggle sidebar"))
-        sidebar_btn.add_css_class("bottom-circle-btn")
-        sidebar_btn.set_size_request(44, 44)
-        sidebar_btn.set_halign(Gtk.Align.CENTER)
-        sidebar_btn.set_valign(Gtk.Align.CENTER)
-        sidebar_btn.connect("clicked", self._on_sidebar_toggle_clicked)
-        controls_end.append(sidebar_btn)
         controls_bar.set_end_widget(controls_end)
 
         bottom_zone.append(controls_bar)
@@ -575,7 +583,12 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Sidebar with drag handle + ViewStack + own header
         sidebar_outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
 
-        # Drag handle for sidebar resizing
+        sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        sidebar.add_css_class("sidebar-panel")
+        sidebar.set_hexpand(True)
+        sidebar_outer.append(sidebar)
+
+        # Drag handle for sidebar resizing (right edge since sidebar is on the left)
         drag_handle = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
         drag_handle.set_size_request(6, -1)
         drag_handle.set_cursor(Gdk.Cursor.new_from_name("col-resize"))
@@ -583,11 +596,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         drag_gesture = Gtk.GestureDrag()
         drag_gesture.connect("drag-update", self._on_sidebar_drag)
         drag_handle.add_controller(drag_gesture)
-        sidebar_outer.append(drag_handle)
-
-        sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        sidebar.add_css_class("sidebar-panel")
-        sidebar.set_hexpand(True)
 
         self._view_stack = Adw.ViewStack()
         self._view_stack.set_vexpand(True)
@@ -658,12 +666,24 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "configure",
         )
 
-        # Sidebar header with close button (no ViewSwitcher here)
+        # Sidebar header with BigCam icon + name + close button
         sidebar_header = Adw.HeaderBar()
         sidebar_header.add_css_class("flat")
-        sidebar_header.set_title_widget(Gtk.Label(label=""))
+        sidebar_header.add_css_class("sidebar-header")
         sidebar_header.set_show_start_title_buttons(False)
         sidebar_header.set_show_end_title_buttons(False)
+
+        # Title widget: icon + name
+        title_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        title_box.set_halign(Gtk.Align.CENTER)
+        app_icon = Gtk.Image.new_from_icon_name(APP_ICON)
+        app_icon.set_pixel_size(24)
+        title_box.append(app_icon)
+        title_label = Gtk.Label(label=APP_NAME)
+        title_label.add_css_class("heading")
+        title_box.append(title_label)
+        sidebar_header.set_title_widget(title_box)
+
         close_sidebar_btn = Gtk.Button.new_from_icon_name("window-close-symbolic")
         self._register_tooltip(close_sidebar_btn, _("Close sidebar"))
         close_sidebar_btn.add_css_class("flat")
@@ -714,7 +734,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         sidebar.append(Gtk.Separator())
         sidebar.append(tab_bar)
-        sidebar_outer.append(sidebar)
+        sidebar_outer.append(drag_handle)
 
         self._sidebar = sidebar_outer
         self._split_view.set_sidebar(sidebar_outer)
@@ -792,33 +812,30 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if path and os.path.isfile(path):
             is_video = path.lower().endswith((".mp4", ".mkv", ".webm", ".avi"))
             if is_video:
-                try:
-                    thumb_path = path + ".thumb.png"
-                    if not os.path.exists(thumb_path):
+                thumb_path = path + ".thumb.png"
+                if os.path.exists(thumb_path):
+                    self._set_video_thumbnail(thumb_path)
+                else:
+                    # Show placeholder immediately, generate thumbnail in background
+                    icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
+                    icon.set_pixel_size(24)
+                    self._last_photo_btn.set_child(icon)
+                    self._last_photo_btn.set_visible(True)
+
+                    def _gen_thumb() -> str | None:
                         subprocess.run(
                             ["ffmpeg", "-y", "-i", path, "-ss", "00:00:00",
                              "-vframes", "1", "-vf", "scale=40:40:force_original_aspect_ratio=increase,crop=40:40",
                              thumb_path],
                             capture_output=True, timeout=5,
                         )
-                    if os.path.exists(thumb_path):
-                        from gi.repository import GdkPixbuf
-                        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(thumb_path, 40, 40, True)
-                        texture = Gdk.Texture.new_for_pixbuf(pixbuf)
-                        image = Gtk.Image.new_from_paintable(texture)
-                        image.set_pixel_size(40)
-                        self._last_photo_btn.set_child(image)
-                        self._last_photo_btn.set_visible(True)
-                    else:
-                        icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
-                        icon.set_pixel_size(24)
-                        self._last_photo_btn.set_child(icon)
-                        self._last_photo_btn.set_visible(True)
-                except Exception:
-                    icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
-                    icon.set_pixel_size(24)
-                    self._last_photo_btn.set_child(icon)
-                    self._last_photo_btn.set_visible(True)
+                        return thumb_path if os.path.exists(thumb_path) else None
+
+                    def _on_thumb_done(result: str | None) -> None:
+                        if result:
+                            self._set_video_thumbnail(result)
+
+                    run_async(_gen_thumb, on_success=_on_thumb_done)
             else:
                 try:
                     from gi.repository import GdkPixbuf
@@ -833,6 +850,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         else:
             self._last_photo_btn.set_visible(False)
         return False
+
+    def _set_video_thumbnail(self, thumb_path: str) -> None:
+        try:
+            from gi.repository import GdkPixbuf
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(thumb_path, 40, 40, True)
+            texture = Gdk.Texture.new_for_pixbuf(pixbuf)
+            image = Gtk.Image.new_from_paintable(texture)
+            image.set_pixel_size(40)
+            self._last_photo_btn.set_child(image)
+            self._last_photo_btn.set_visible(True)
+        except Exception:
+            icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
+            icon.set_pixel_size(24)
+            self._last_photo_btn.set_child(icon)
+            self._last_photo_btn.set_visible(True)
 
     def _update_last_photo_thumbnail(self) -> None:
         """Refresh thumbnail — delegates to mode-aware method."""
@@ -875,7 +907,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _on_sidebar_drag(self, gesture: Gtk.GestureDrag, offset_x: float, _offset_y: float) -> None:
         """Resize the sidebar by dragging the handle."""
         current_width = self._split_view.get_max_sidebar_width()
-        new_width = max(280, min(500, current_width - offset_x))
+        new_width = max(280, min(500, current_width + offset_x))
         self._split_view.set_max_sidebar_width(new_width)
 
     def _on_sidebar_toggled(self, split_view: Adw.OverlaySplitView, _pspec: object) -> None:
@@ -993,36 +1025,40 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_always_on_top_toggled(self, btn: Gtk.ToggleButton) -> None:
         on_top = btn.get_active()
-        script = f'workspace.activeWindow.keepAbove = {"true" if on_top else "false"};'
-        script_path = '/tmp/kwin_bigcam_above.js'
-        plugin_name = 'bigcam_above'
-        try:
-            with open(script_path, 'w') as f:
-                f.write(script)
-            result = subprocess.run(
-                ['qdbus', 'org.kde.KWin', '/Scripting',
-                 'org.kde.kwin.Scripting.loadScript', script_path, plugin_name],
-                capture_output=True, text=True,
-            )
-            script_id = result.stdout.strip()
-            if script_id.isdigit():
+
+        def _apply_always_on_top() -> None:
+            script = f'workspace.activeWindow.keepAbove = {"true" if on_top else "false"};'
+            script_path = '/tmp/kwin_bigcam_above.js'
+            plugin_name = 'bigcam_above'
+            try:
+                with open(script_path, 'w') as f:
+                    f.write(script)
+                result = subprocess.run(
+                    ['qdbus', 'org.kde.KWin', '/Scripting',
+                     'org.kde.kwin.Scripting.loadScript', script_path, plugin_name],
+                    capture_output=True, text=True,
+                )
+                script_id = result.stdout.strip()
+                if script_id.isdigit():
+                    subprocess.run(
+                        ['qdbus', 'org.kde.KWin', f'/Scripting/Script{script_id}',
+                         'org.kde.kwin.Script.run'],
+                        capture_output=True,
+                    )
                 subprocess.run(
-                    ['qdbus', 'org.kde.KWin', f'/Scripting/Script{script_id}',
-                     'org.kde.kwin.Script.run'],
+                    ['qdbus', 'org.kde.KWin', '/Scripting',
+                     'org.kde.kwin.Scripting.unloadScript', plugin_name],
                     capture_output=True,
                 )
-            subprocess.run(
-                ['qdbus', 'org.kde.KWin', '/Scripting',
-                 'org.kde.kwin.Scripting.unloadScript', plugin_name],
-                capture_output=True,
-            )
-        except (FileNotFoundError, OSError):
-            pass
-        finally:
-            try:
-                os.unlink(script_path)
-            except OSError:
+            except (FileNotFoundError, OSError):
                 pass
+            finally:
+                try:
+                    os.unlink(script_path)
+                except OSError:
+                    pass
+
+        run_async(_apply_always_on_top)
 
     def _on_show_welcome_action(self, *_args) -> None:
         from ui.welcome_dialog import WelcomeDialog
@@ -1359,20 +1395,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._stream_engine.stop(stop_backend=False, keep_vcam=True)
 
             # For gphoto2 cameras (DSLRs/mirrorless), auto-enable virtual camera
-            # and pre-allocate v4l2loopback device on the main thread BEFORE
-            # the background thread calls start_streaming().
             if camera.backend == BackendType.GPHOTO2:
                 if not VirtualCamera.is_enabled():
                     VirtualCamera.set_enabled(True)
                     self._settings.set("virtual-camera-enabled", True)
                     log.info("Auto-enabled virtual camera for gphoto2 camera %s", camera.name)
-                vcam_dev = VirtualCamera.ensure_ready(
-                    card_label=camera.name,
-                    camera_id=camera.id,
-                )
-                if vcam_dev:
-                    camera.extra["vcam_device"] = vcam_dev
-                    log.info("Pre-allocated vcam %s for gphoto2 camera %s", vcam_dev, camera.name)
 
             self._preview.show_status(
                 _("Please wait…"),
@@ -1386,6 +1413,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                     log.debug("Lock already held, aborting")
                     return False, []
                 try:
+                    # Pre-allocate v4l2loopback device (subprocess calls)
+                    if camera.backend == BackendType.GPHOTO2:
+                        vcam_dev = VirtualCamera.ensure_ready(
+                            card_label=camera.name,
+                            camera_id=camera.id,
+                        )
+                        if vcam_dev:
+                            camera.extra["vcam_device"] = vcam_dev
+                            log.info("Pre-allocated vcam %s for gphoto2 camera %s", vcam_dev, camera.name)
+
                     controls = cached_controls
                     if controls is None:
                         log.debug("Fetching gPhoto2 controls before streaming...")
@@ -1835,6 +1872,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._phone_dot.queue_draw()
 
+        # When the server is stopped, immediately clean up the phone camera
+        # instead of waiting for the 5-second grace period timer.
+        if status == "stopped":
+            if hasattr(self, "_phone_disconnect_timer") and self._phone_disconnect_timer:
+                GLib.source_remove(self._phone_disconnect_timer)
+                self._phone_disconnect_timer = None
+            self._do_phone_disconnect()
+
     def _on_phone_camera(self, *_args) -> None:
         dialog = PhoneCameraDialog(self._phone_server)
         self._immersion.present_dialog(dialog, self)
@@ -1855,10 +1900,24 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if self._phone_server and self._phone_server.is_connected:
             return False
         self._phone_btn.remove_css_class("phone-connected")
-        if self._active_camera and self._active_camera.backend == BackendType.PHONE:
+        was_active = (
+            self._active_camera
+            and self._active_camera.backend == BackendType.PHONE
+        )
+        if was_active:
             self._stream_engine.stop()
             self._active_camera = None
         self._camera_manager.remove_phone_camera()
+        # If the phone was the active camera and no other cameras remain,
+        # explicitly reset the UI to "No camera" state right away.
+        if was_active and not self._camera_manager.cameras:
+            self._camera_selector.set_active_camera(None)
+            self._controls_page.set_camera(None)
+            self._preview.show_status(
+                _("No camera"),
+                _("Connect a camera or select one from the list above."),
+            )
+            self.set_title(APP_NAME)
         return False
 
     def _on_phone_connected(
@@ -1977,26 +2036,30 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         """Terminate processes using the device, then retry the camera."""
         import signal as sig
 
-        try:
-            result = subprocess.run(
-                ["fuser", device_path],
-                capture_output=True,
-                text=True,
-                timeout=3,
-            )
-            pids = result.stdout.strip().split()
-            for pid in pids:
-                pid = pid.strip().rstrip("m")
-                if pid.isdigit():
-                    try:
-                        os.kill(int(pid), sig.SIGTERM)
-                    except ProcessLookupError:
-                        pass
-        except Exception:
-            log.warning("Failed to kill processes on %s", device_path, exc_info=True)
+        def _kill_users() -> None:
+            try:
+                result = subprocess.run(
+                    ["fuser", device_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=3,
+                )
+                pids = result.stdout.strip().split()
+                for pid in pids:
+                    pid = pid.strip().rstrip("m")
+                    if pid.isdigit():
+                        try:
+                            os.kill(int(pid), sig.SIGTERM)
+                        except ProcessLookupError:
+                            pass
+            except Exception:
+                log.warning("Failed to kill processes on %s", device_path, exc_info=True)
 
-        # Retry after a short delay
-        GLib.timeout_add(2000, self._retry_after_force_close)
+        def _on_done(_result: None = None) -> None:
+            # Retry after a short delay
+            GLib.timeout_add(2000, self._retry_after_force_close)
+
+        run_async(_kill_users, on_success=_on_done)
 
     def _retry_after_force_close(self) -> bool:
         if self._active_camera:
@@ -2102,31 +2165,42 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _on_save_profile(self, *_args) -> None:
         if not self._active_camera:
             return
-        controls = self._camera_manager.get_controls(self._active_camera)
-        if not controls:
-            return
-        # Use camera name as default profile
-        name = "default"
-        camera_profiles.save_profile(self._active_camera, name, controls)
-        self._show_notification(_("Profile saved."), "success")
+        camera = self._active_camera
+
+        def _save() -> list:
+            controls = self._camera_manager.get_controls(camera)
+            if controls:
+                camera_profiles.save_profile(camera, "default", controls)
+            return controls
+
+        def _on_saved(controls: list) -> None:
+            if controls:
+                self._show_notification(_("Profile saved."), "success")
+
+        run_async(_save, on_success=_on_saved)
 
     def _on_load_profile(self, *_args) -> None:
         if not self._active_camera:
             return
-        profiles = camera_profiles.list_profiles(self._active_camera)
+        camera = self._active_camera
+        profiles = camera_profiles.list_profiles(camera)
         if not profiles:
             self._show_notification(_("No profiles found."), "info")
             return
-        # Load the first available profile (default)
         name = profiles[0]
-        values = camera_profiles.load_profile(self._active_camera, name)
-        for ctrl_id, value in values.items():
-            self._camera_manager.set_control(self._active_camera, ctrl_id, value)
-        # Refresh controls UI
-        self._controls_page.set_camera(self._active_camera)
-        self._show_notification(
-            _("Profile loaded: %s") % name, "success"
-        )
+        values = camera_profiles.load_profile(camera, name)
+
+        def _apply() -> None:
+            for ctrl_id, value in values.items():
+                self._camera_manager.set_control(camera, ctrl_id, value)
+
+        def _on_applied(_result: None = None) -> None:
+            self._controls_page.set_camera(camera)
+            self._show_notification(
+                _("Profile loaded: %s") % name, "success"
+            )
+
+        run_async(_apply, on_success=_on_applied)
 
     # -- auto-start preview --------------------------------------------------
 
@@ -2245,6 +2319,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._immersion.present_dialog(dialog, self)
             return True  # block close
 
+        # No active pipeline — hide immediately and clean up
+        self.set_visible(False)
         self._cleanup_and_close()
         return False
 
@@ -2252,6 +2328,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if response == "cancel":
             return
         if response == "stop":
+            # Hide window immediately so the user sees it close instantly
+            self.set_visible(False)
             self._cleanup_and_close()
             self.destroy()
         else:  # keep — hide window, keep pipeline alive
@@ -2269,16 +2347,25 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._stream_engine.stop()
         self._stream_engine.stop_all_bg_vcams()
         self._camera_manager.stop_hotplug()
-        VirtualCamera.stop()
-        # Stop all gphoto2 backend streaming processes
-        gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
-        if gp_backend and hasattr(gp_backend, "stop_streaming"):
-            gp_backend.stop_streaming()
-        if getattr(self, "_background_mode", False):
-            self._background_mode = False
-            app = self.get_application()
-            if app is not None:
-                app.release()
+
+        # Run slow blocking cleanup (subprocess timeouts, thread joins)
+        # in a background thread so the window can disappear instantly.
+        def _heavy_cleanup() -> None:
+            VirtualCamera.stop()
+            gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
+            if gp_backend and hasattr(gp_backend, "stop_streaming"):
+                gp_backend.stop_streaming()
+            if self._phone_server and self._phone_server.running:
+                self._phone_server.stop()
+
+        def _on_cleanup_done(_result=None) -> None:
+            if getattr(self, "_background_mode", False):
+                self._background_mode = False
+                app = self.get_application()
+                if app is not None:
+                    app.release()
+
+        run_async(_heavy_cleanup, on_success=_on_cleanup_done)
 
     # -- theme ---------------------------------------------------------------
 

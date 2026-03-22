@@ -92,72 +92,64 @@ window.bigcam {
         color: rgba(255, 255, 255, 0.75);
     }
     
-    /* --- Capture Button (64px Google Camera style) --- */
+/* --- Capture Button (circular, gray like source OSD style) --- */
     .capture-button {
-        min-width: 64px;
-        min-height: 64px;
+        min-width: 48px;
+            min-height: 48px;
         border-radius: 9999px;
-        border: 4px solid rgba(255, 255, 255, 0.9);
-        background-color: rgba(255, 255, 255, 0.85);
-        transition: all 150ms ease;
         padding: 0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        background-color: alpha(@headerbar_bg_color, 0.8);
+            color: white;
+            border: none;
+            box-shadow: none;
     }
     
     .capture-button:hover {
-        background-color: #ffffff;
-        border-color: #ffffff;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+        background-color: alpha(@headerbar_bg_color, 0.95);
     }
     
     .capture-button:active {
-        min-width: 58px;
-        min-height: 58px;
+        background-color: alpha(@headerbar_bg_color, 0.65);
     }
     
     .capture-button image {
         padding: 0;
         margin: 0;
-        -gtk-icon-size: 28px;
     }
     
-    /* Video mode: red button */
+/* Video mode: red background */
     .capture-button.video-mode {
         background-color: @error_color;
-        border-color: rgba(255, 255, 255, 0.9);
     }
     
-    /* During recording: square stop shape */
-    .capture-button.recording {
-    border-radius: 8px;
-    min-width: 36px;
-        min-height: 36px;
+        /* During recording: red pulsing, stays circular */
+        .capture-button.recording {
         background-color: @error_color;
         animation: rec-pulse 1.2s ease-in-out infinite;
     }
     
-    /* --- Record Button (circular, video mode) --- */
+                                /* --- Record Button (circular, white border + red dot) --- */
     button.record-button {
-        min-width: 44px;
-        min-height: 44px;
+        min-width: 40px;
+            min-height: 40px;
         border-radius: 9999px;
-        border: 2px solid rgba(255, 255, 255, 0.5);
-        background: rgba(255, 255, 255, 0.08);
+        border: 3px solid white;
+            background: transparent;
         padding: 0;
         margin: 0;
-        transition: all 150ms ease;
+        transition: all 300ms ease-in-out;
     }
     
     button.record-button:hover {
-        border-color: rgba(255, 255, 255, 0.5);
-        background: rgba(255, 255, 255, 0.1);
+        border-color: alpha(white, 0.7);
+            background: alpha(white, 0.1);
     }
     
     .rec-dot {
-        min-width: 20px;
-        min-height: 20px;
+        min-width: 16px;
+            min-height: 16px;
         border-radius: 9999px;
-        background-color: @error_color;
+        background-color: @error_bg_color;
         transition: all 300ms ease-in-out;
     }
     
@@ -460,8 +452,22 @@ box.immersion-active {
 }
 
 /* --- Sidebar panel overlay --- */
+/* Override OverlaySplitView internal opaque backgrounds */
+window.bigcam overlay-split-view> :not(.shade) {
+    background-color: transparent;
+}
 .sidebar-panel {
-    background-color: alpha(@window_bg_color, 0.95);
+    background-color: alpha(black, 0.92);
+    }
+    
+    /* --- Sidebar header (icon + app name) --- */
+    .sidebar-header {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .sidebar-header .heading {
+        color: #ffffff;
+        font-weight: 700;
 }
 
 /* --- Sidebar bottom tab bar --- */
@@ -473,6 +479,7 @@ box.immersion-active {
     padding: 6px 4px;
     border-radius: 8px;
     min-height: 48px;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .sidebar-tab-btn:checked {
@@ -480,6 +487,9 @@ box.immersion-active {
     color: @accent_color;
 }
 
+.sidebar-tab-btn:hover:not(:checked) {
+    color: rgba(255, 255, 255, 0.85);
+}
 .sidebar-tab-btn .caption {
     font-size: 0.75em;
     font-weight: 600;
@@ -488,9 +498,42 @@ box.immersion-active {
 /* --- Sidebar drag handle --- */
 .sidebar-drag-handle {
     min-width: 6px;
-    background: alpha(@borders, 0.3);
+    background: alpha(white, 0.08);
 }
 
 .sidebar-drag-handle:hover {
     background: alpha(@accent_color, 0.5);
+}
+/* --- Sidebar content: ensure readability on dark transparent bg --- */
+.sidebar-panel label,
+.sidebar-panel .heading {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-panel row {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.sidebar-panel button.flat {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-panel button.flat:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Controls toggle button (top-left sidebar opener) --- */
+.osd-bar.top-bar button.controls-toggle-btn {
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 9999px;
+    padding: 0;
+    margin: 0 4px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.osd-bar.top-bar button.controls-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
 }

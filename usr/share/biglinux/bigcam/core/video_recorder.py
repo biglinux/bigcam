@@ -136,7 +136,7 @@ class VideoRecorder:
             # audiomixer latency handles sync between sources
             audio_str = (
                 "audiomixer name=amix latency=500000000 ! "
-                "queue max-size-time=2000000000 ! audioconvert ! "
+                "queue max-size-time=2000000000 leaky=downstream ! audioconvert ! "
                 "audioresample ! audiorate ! opusenc ! mux. "
             )
 
@@ -147,7 +147,7 @@ class VideoRecorder:
                 "pulsesrc do-timestamp=true provide-clock=false "
                 "buffer-time=200000 latency-time=50000 "
                 "name=asrc_mic ! "
-                "queue max-size-time=1000000000 ! "
+                "queue max-size-time=1000000000 leaky=downstream ! "
                 "audioconvert ! audioresample ! "
                 f"volume name=avol_mic volume={mic_vol} ! amix. "
             )
