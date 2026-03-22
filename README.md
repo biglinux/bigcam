@@ -529,7 +529,7 @@ To add or update a translation:
 3. Compile with `msgfmt -o usr/share/locale/<lang>/LC_MESSAGES/bigcam.mo locale/<lang>.po`
 4. Submit a pull request
 
-Currently supported: bg, cs, da, de, el, en, es, et, fi, fr, he, hr, hu, is, it, ja, ko, nl, no, pl, pt, pt-BR, ro, ru, sk, sv, tr, uk, zh.
+Currently supported: bg, cs, da, de, el, en, es, et, fi, fr, he, hr, hu, is, it, ja, ko, nl, no, pl, pt, pt_BR, ro, ru, sk, sv, tr, uk, zh.
 
 ### Development
 

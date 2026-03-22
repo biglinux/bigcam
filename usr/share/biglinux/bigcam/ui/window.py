@@ -1169,7 +1169,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         section3.append(_("Add IP Camera…"), "win.add-ip")
         section3.append(_("Phone as Webcam…"), "win.phone-camera")
         section3.append(_("Refresh") + " (F5)", "win.refresh")
-        section3.append("Welcome Screen", "win.show-welcome")
+        section3.append(_("Welcome Screen"), "win.show-welcome")
         section3.append(_("About"), "win.about")
         menu.append_section(None, section3)
 
