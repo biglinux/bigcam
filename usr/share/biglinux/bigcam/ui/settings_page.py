@@ -25,6 +25,13 @@ try:
 except ImportError:
     _HAS_CV2 = False
 
+try:
+    import zbar
+
+    _HAS_ZBAR = True
+except ImportError:
+    _HAS_ZBAR = False
+
 _HAARCASCADES = "/usr/share/opencv4/haarcascades"
 
 
@@ -65,6 +72,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._qr_scanning = False
         self._qr_detector = None
         self._wechat_qr = None
+        self._zbar_scanner = None
         self._face_cascade = None
         self._smile_cascade = None
 
@@ -513,6 +521,14 @@ class SettingsPage(Gtk.ScrolledWindow):
             self._wechat_qr = cv2.wechat_qrcode.WeChatQRCode()
         except Exception:
             self._qr_detector = cv2.QRCodeDetector()
+        if self._zbar_scanner is None and _HAS_ZBAR:
+            try:
+                sc = zbar.ImageScanner()
+                sc.parse_config("enable")
+                sc.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 0)
+                self._zbar_scanner = sc
+            except Exception:
+                pass
 
     def _try_detect_qr(self, img):
         if self._wechat_qr is not None:
@@ -525,6 +541,19 @@ class SettingsPage(Gtk.ScrolledWindow):
             if data:
                 p = pts[0] if pts is not None and pts.ndim == 3 else pts
                 return data, p
+        # Barcode fallback via zbar
+        if self._zbar_scanner is not None:
+            try:
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
+                h, w = gray.shape
+                zimg = zbar.Image(w, h, "Y800", gray.tobytes())
+                self._zbar_scanner.scan(zimg)
+                for sym in zimg:
+                    if sym.data:
+                        loc = np.array(sym.location, dtype=np.float32)
+                        return f"barcode:{sym.data}", loc
+            except Exception:
+                pass
         return "", None
 
     def _scan_qr(self) -> bool:
