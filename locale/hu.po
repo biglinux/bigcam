@@ -728,7 +728,6 @@ msgstr "Indítsa el a párbeszédpanelt a rendszerindításkor."
 msgid "Let's Start"
 msgstr "Kezdjük el"
 <<<<<<< HEAD
-
 =======
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
@@ -1997,14 +1996,12 @@ msgstr "Kód"
 msgid "Copy Code"
 msgstr "Kód másolása"
 <<<<<<< HEAD
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1187
 =======
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1172
 >>>>>>> upstream/main
 msgid "Welcome Screen"
 msgstr "Üdvözlő képernyő"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
 msgid ""
 "The universal webcam control center for Linux.\n"
@@ -2014,64 +2011,50 @@ msgstr ""
 "A Linux univerzális webkamera vezérlőközpontja.\n"
 "\n"
 "A BigCam egy kis shell szkriptként született, hogy Rafael Ruscher a Canon Rebel T3-ját webkameraként használhassa BigLinuxról szóló élő közvetítések alatt. Ez az egyszerű hack, amelyet Rafael és Barnabé di Kartola írt, egy Bash híd volt a gPhoto2 és az FFmpeg között, és egy teljes GTK4/Adwaita alkalmazássá fejlődött élő előnézettel, több háttérrendszerű kamera támogatással (V4L2, gPhoto2, libcamera, PipeWire, IP kamerák, okostelefonok), valós idejű OpenCV effektekkel, virtuális kamera kimenettel, fotó- és videórögzítéssel, valamint 29 nyelven."
-
 #. Profile selector
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:328
 msgid "Profile"
 msgstr "Profil"
-
 #. Action buttons row
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:338
 msgid "Manage"
 msgstr "Kezelés"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:339
 msgid "Manage profiles"
 msgstr "Profilok kezelése"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:344
 msgid "Save current settings as new profile"
 msgstr "Jelenlegi beállítások mentése új profilként"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:347
 msgid "Save profile"
 msgstr "Profil mentése"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:353
 msgid "Delete selected profile"
 msgstr "Kijelölt profil törlése"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:356
 msgid "Delete profile"
 msgstr "Profil törlése"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 msgid "Reset all controls to hardware defaults"
 msgstr ""
 "Minden vezérlő alaphelyzetbe állítása hardver alapértelmezések szerint"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:367
 msgid "Hardware defaults"
 msgstr "Hardver alapértelmezések"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:426
 msgid "Enter a name for this profile:"
 msgstr "Adjon meg egy nevet ennek a profilnak:"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:430
 msgid "Save"
 msgstr "Mentés"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:435
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:438
 msgid "Profile name"
 msgstr "Profil neve"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:254
 msgid "Direct V4L2 access"
 msgstr "Közvetlen V4L2 hozzáférés"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:255
 msgid ""
 "Bypass PipeWire and access the camera directly. May fix flickering on some "
@@ -2079,27 +2062,21 @@ msgid ""
 msgstr ""
 "Kerülje meg a PipeWire-t és férjen hozzá közvetlenül a kamerához. Egyes "
 "webkamerák villogását javíthatja."
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:330
 msgid "Recording"
 msgstr "Felvétel"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:335
 msgid "Video Codec"
 msgstr "Videó kodek"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:354
 msgid "Audio Codec"
 msgstr "Hang kodek"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:373
 msgid "Container"
 msgstr "Konténer"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:398
 msgid "Video Bitrate (kbps)"
 msgstr "Videó bitráta (kbps)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #~ msgid "Universal webcam control center for Linux."
 #~ msgstr "Univerzális webkamera vezérlőközpont Linuxhoz."

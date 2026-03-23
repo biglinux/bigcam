@@ -721,7 +721,6 @@ msgstr "Vis dialog ved opstart"
 msgid "Let's Start"
 msgstr "Lad os starte"
 <<<<<<< HEAD
-
 =======
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
@@ -1986,14 +1985,12 @@ msgstr "Kode"
 msgid "Copy Code"
 msgstr "Kopiér kode"
 <<<<<<< HEAD
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1187
 =======
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1172
 >>>>>>> upstream/main
 msgid "Welcome Screen"
 msgstr "Velkomstskærm"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
 msgid ""
 "The universal webcam control center for Linux.\n"
@@ -2003,63 +2000,49 @@ msgstr ""
 "Det universelle webcam kontrolcenter til Linux.\n"
 "\n"
 "BigCam blev født som et lille shell-script, så Rafael Ruscher kunne bruge sit Canon Rebel T3 som webcam under live streams om BigLinux. Den ydmyge hack, skrevet af Rafael og Barnabé di Kartola, udviklede sig fra en Bash-bro mellem gPhoto2 og FFmpeg til en fuld GTK4/Adwaita-applikation med live preview, multi-backend kamerastøtte (V4L2, gPhoto2, libcamera, PipeWire, IP-kameraer, smartphones), realtids OpenCV-effekter, virtuel kameraoutput, foto- og videooptagelse samt 29 sprog."
-
 #. Profile selector
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:328
 msgid "Profile"
 msgstr "Profil"
-
 #. Action buttons row
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:338
 msgid "Manage"
 msgstr "Administrer"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:339
 msgid "Manage profiles"
 msgstr "Administrer profiler"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:344
 msgid "Save current settings as new profile"
 msgstr "Gem aktuelle indstillinger som ny profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:347
 msgid "Save profile"
 msgstr "Gem profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:353
 msgid "Delete selected profile"
 msgstr "Slet valgte profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:356
 msgid "Delete profile"
 msgstr "Slet profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 msgid "Reset all controls to hardware defaults"
 msgstr "Nulstil alle kontroller til hardwarestandarder"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:367
 msgid "Hardware defaults"
 msgstr "Hardwarestandarder"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:426
 msgid "Enter a name for this profile:"
 msgstr "Indtast et navn til denne profil:"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:430
 msgid "Save"
 msgstr "Gem"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:435
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:438
 msgid "Profile name"
 msgstr "Profilnavn"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:254
 msgid "Direct V4L2 access"
 msgstr "Direkte V4L2-adgang"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:255
 msgid ""
 "Bypass PipeWire and access the camera directly. May fix flickering on some "
@@ -2067,27 +2050,21 @@ msgid ""
 msgstr ""
 "Omgå PipeWire og få direkte adgang til kameraet. Kan løse flimren på nogle "
 "webcams."
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:330
 msgid "Recording"
 msgstr "Optagelse"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:335
 msgid "Video Codec"
 msgstr "Video Codec"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:354
 msgid "Audio Codec"
 msgstr "Lyd Codec"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:373
 msgid "Container"
 msgstr "Container"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:398
 msgid "Video Bitrate (kbps)"
 msgstr "Video Bitrate (kbps)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #~ msgid "Universal webcam control center for Linux."
 #~ msgstr "Universelt webcam kontrolcenter til Linux."

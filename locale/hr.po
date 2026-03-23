@@ -726,7 +726,6 @@ msgstr "Prikaži dijalog pri pokretanju"
 msgid "Let's Start"
 msgstr "Započnimo"
 <<<<<<< HEAD
-
 =======
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
@@ -1993,14 +1992,12 @@ msgstr "Kod"
 msgid "Copy Code"
 msgstr "Kopiraj kod"
 <<<<<<< HEAD
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1187
 =======
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1172
 >>>>>>> upstream/main
 msgid "Welcome Screen"
 msgstr "Početni zaslon"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
 msgid ""
 "The universal webcam control center for Linux.\n"
@@ -2010,63 +2007,49 @@ msgstr ""
 "Univerzalni centar za upravljanje web kamerama za Linux.\n"
 "\n"
 "BigCam je nastao kao mali shell skript kako bi Rafael Ruscher mogao koristiti svoj Canon Rebel T3 kao web kameru tijekom live streamova o BigLinuxu. Taj skromni hack, koji su napisali Rafael i Barnabé di Kartola, razvio se iz Bash mosta između gPhoto2 i FFmpeg u punu GTK4/Adwaita aplikaciju s pregledom uživo, podrškom za više kamera (V4L2, gPhoto2, libcamera, PipeWire, IP kamere, pametni telefoni), efektima u stvarnom vremenu putem OpenCV-a, virtualnim izlazom kamere, snimanjem fotografija i videa te 29 jezika."
-
 #. Profile selector
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:328
 msgid "Profile"
 msgstr "Profil"
-
 #. Action buttons row
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:338
 msgid "Manage"
 msgstr "Upravljanje"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:339
 msgid "Manage profiles"
 msgstr "Upravljanje profilima"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:344
 msgid "Save current settings as new profile"
 msgstr "Spremi trenutačne postavke kao novi profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:347
 msgid "Save profile"
 msgstr "Spremi profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:353
 msgid "Delete selected profile"
 msgstr "Izbriši odabrani profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:356
 msgid "Delete profile"
 msgstr "Izbriši profil"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 msgid "Reset all controls to hardware defaults"
 msgstr "Vrati sve kontrole na tvorničke postavke hardvera"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:367
 msgid "Hardware defaults"
 msgstr "Tvorničke postavke hardvera"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:426
 msgid "Enter a name for this profile:"
 msgstr "Unesite ime za ovaj profil:"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:430
 msgid "Save"
 msgstr "Spremi"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:435
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:438
 msgid "Profile name"
 msgstr "Ime profila"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:254
 msgid "Direct V4L2 access"
 msgstr "Izravan pristup V4L2-u"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:255
 msgid ""
 "Bypass PipeWire and access the camera directly. May fix flickering on some "
@@ -2074,27 +2057,21 @@ msgid ""
 msgstr ""
 "Zaobiđite PipeWire i pristupite kameri izravno. Može popraviti treperenje na"
 " nekim web kamerama."
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:330
 msgid "Recording"
 msgstr "Snimanje"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:335
 msgid "Video Codec"
 msgstr "Video kodek"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:354
 msgid "Audio Codec"
 msgstr "Audio kodek"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:373
 msgid "Container"
 msgstr "Kontejner"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:398
 msgid "Video Bitrate (kbps)"
 msgstr "Video bitrate (kbps)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #~ msgid "Universal webcam control center for Linux."
 #~ msgstr "Univerzalni centar za upravljanje web kamerom za Linux."

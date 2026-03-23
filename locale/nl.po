@@ -726,7 +726,6 @@ msgstr "Toon dialoog bij opstarten"
 msgid "Let's Start"
 msgstr "Laten we beginnen"
 <<<<<<< HEAD
-
 =======
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
@@ -1996,14 +1995,12 @@ msgstr "Code"
 msgid "Copy Code"
 msgstr "Code kopiëren"
 <<<<<<< HEAD
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1187
 =======
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1172
 >>>>>>> upstream/main
 msgid "Welcome Screen"
 msgstr "Welkomstscherm"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
 msgid ""
 "The universal webcam control center for Linux.\n"
@@ -2013,63 +2010,49 @@ msgstr ""
 "Het universele webcam-controlecentrum voor Linux.\n"
 "\n"
 "BigCam is ontstaan als een klein shellscript zodat Rafael Ruscher zijn Canon Rebel T3 als webcam kon gebruiken tijdens live streams over BigLinux. Die bescheiden hack, geschreven door Rafael en Barnabé di Kartola, ontwikkelde zich van een Bash-brug tussen gPhoto2 en FFmpeg tot een volledige GTK4/Adwaita-applicatie met live preview, multi-backend camera-ondersteuning (V4L2, gPhoto2, libcamera, PipeWire, IP-camera’s, smartphones), realtime OpenCV-effecten, virtuele camera-uitvoer, foto- en video-opname, en 29 talen."
-
 #. Profile selector
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:328
 msgid "Profile"
 msgstr "Profiel"
-
 #. Action buttons row
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:338
 msgid "Manage"
 msgstr "Beheren"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:339
 msgid "Manage profiles"
 msgstr "Profielen beheren"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:344
 msgid "Save current settings as new profile"
 msgstr "Huidige instellingen opslaan als nieuw profiel"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:347
 msgid "Save profile"
 msgstr "Profiel opslaan"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:353
 msgid "Delete selected profile"
 msgstr "Geselecteerd profiel verwijderen"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:356
 msgid "Delete profile"
 msgstr "Profiel verwijderen"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 msgid "Reset all controls to hardware defaults"
 msgstr "Alle bedieningselementen terugzetten naar hardware-standaarden"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:367
 msgid "Hardware defaults"
 msgstr "Hardware-standaarden"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:426
 msgid "Enter a name for this profile:"
 msgstr "Voer een naam in voor dit profiel:"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:430
 msgid "Save"
 msgstr "Opslaan"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:435
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:438
 msgid "Profile name"
 msgstr "Profielnaam"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:254
 msgid "Direct V4L2 access"
 msgstr "Directe V4L2-toegang"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:255
 msgid ""
 "Bypass PipeWire and access the camera directly. May fix flickering on some "
@@ -2077,27 +2060,21 @@ msgid ""
 msgstr ""
 "Omzeil PipeWire en krijg directe toegang tot de camera. Kan flikkeren op "
 "sommige webcams verhelpen."
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:330
 msgid "Recording"
 msgstr "Opname"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:335
 msgid "Video Codec"
 msgstr "Videocodec"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:354
 msgid "Audio Codec"
 msgstr "Audiocodec"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:373
 msgid "Container"
 msgstr "Container"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:398
 msgid "Video Bitrate (kbps)"
 msgstr "Videobitrate (kbps)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #~ msgid "Universal webcam control center for Linux."
 #~ msgstr "Universeel webcam bedieningscentrum voor Linux."

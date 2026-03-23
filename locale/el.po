@@ -728,7 +728,6 @@ msgstr "Εμφάνιση διαλόγου κατά την εκκίνηση"
 msgid "Let's Start"
 msgstr "Ας ξεκινήσουμε"
 <<<<<<< HEAD
-
 =======
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:35
@@ -1998,14 +1997,12 @@ msgstr "Κωδικός"
 msgid "Copy Code"
 msgstr "Αντιγραφή Κωδικού"
 <<<<<<< HEAD
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1187
 =======
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1172
 >>>>>>> upstream/main
 msgid "Welcome Screen"
 msgstr "Οθόνη Καλωσορίσματος"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
 msgid ""
 "The universal webcam control center for Linux.\n"
@@ -2015,63 +2012,49 @@ msgstr ""
 "Το καθολικό κέντρο ελέγχου webcam για Linux.\n"
 "\n"
 "Το BigCam γεννήθηκε ως ένα μικρό script κελύφους ώστε ο Rafael Ruscher να μπορεί να χρησιμοποιεί την Canon Rebel T3 του ως webcam κατά τη διάρκεια ζωντανών μεταδόσεων για το BigLinux. Αυτό το απλό hack, γραμμένο από τον Rafael και τον Barnabé di Kartola, εξελίχθηκε από μια γέφυρα Bash μεταξύ gPhoto2 και FFmpeg σε μια πλήρη εφαρμογή GTK4/Adwaita με ζωντανή προεπισκόπηση, υποστήριξη πολλαπλών backend κάμερας (V4L2, gPhoto2, libcamera, PipeWire, IP κάμερες, smartphones), εφέ OpenCV σε πραγματικό χρόνο, εικονική έξοδο κάμερας, λήψη φωτογραφιών και βίντεο, και 29 γλώσσες."
-
 #. Profile selector
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:328
 msgid "Profile"
 msgstr "Προφίλ"
-
 #. Action buttons row
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:338
 msgid "Manage"
 msgstr "Διαχείριση"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:339
 msgid "Manage profiles"
 msgstr "Διαχείριση προφίλ"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:344
 msgid "Save current settings as new profile"
 msgstr "Αποθήκευση τρεχουσών ρυθμίσεων ως νέο προφίλ"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:347
 msgid "Save profile"
 msgstr "Αποθήκευση προφίλ"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:353
 msgid "Delete selected profile"
 msgstr "Διαγραφή επιλεγμένου προφίλ"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:356
 msgid "Delete profile"
 msgstr "Διαγραφή προφίλ"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:363
 msgid "Reset all controls to hardware defaults"
 msgstr "Επαναφορά όλων των ρυθμίσεων στις προεπιλογές υλικού"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:367
 msgid "Hardware defaults"
 msgstr "Προεπιλογές υλικού"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:426
 msgid "Enter a name for this profile:"
 msgstr "Εισάγετε ένα όνομα για αυτό το προφίλ:"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:430
 msgid "Save"
 msgstr "Αποθήκευση"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:435
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:438
 msgid "Profile name"
 msgstr "Όνομα προφίλ"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:254
 msgid "Direct V4L2 access"
 msgstr "Άμεση πρόσβαση V4L2"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:255
 msgid ""
 "Bypass PipeWire and access the camera directly. May fix flickering on some "
@@ -2079,27 +2062,21 @@ msgid ""
 msgstr ""
 "Παράκαμψη του PipeWire και άμεση πρόσβαση στην κάμερα. Μπορεί να διορθώσει "
 "τρεμόπαιγμα σε ορισμένες webcams."
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:330
 msgid "Recording"
 msgstr "Εγγραφή"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:335
 msgid "Video Codec"
 msgstr "Κωδικοποιητής βίντεο"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:354
 msgid "Audio Codec"
 msgstr "Κωδικοποιητής ήχου"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:373
 msgid "Container"
 msgstr "Δοχείο"
-
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:398
 msgid "Video Bitrate (kbps)"
 msgstr "Ρυθμός μετάδοσης βίντεο (kbps)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 35
 #~ msgid "Universal webcam control center for Linux."
 #~ msgstr "Παγκόσμιο κέντρο ελέγχου webcam για Linux."
