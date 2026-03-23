@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.0</h1>
+<h1 align="center">BigCam 4.2.0</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.0-brightgreen.svg" alt="Version 4.0">
+  <img src="https://img.shields.io/badge/Version-4.2.0-brightgreen.svg" alt="Version 4.2.0">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -44,25 +44,39 @@
 
 **Version 4.0** was a complete UX overhaul — redesigned bottom bar with quick-access toggle buttons (QR scanner, smile capture, virtual camera, mirror), welcome screen dialog for first-time users, help-on-hover tooltips system, always-on-top window pin (Wayland-compatible via KWin D-Bus), fullscreen mode, capture timer with bi-directional sync between header and settings, window-level notification banner (Adw.Banner), mode-aware "last media" thumbnail (photo/video with ffmpeg preview), gPhoto2 capture flow improvements (mode dialog before timer), MediaPipe-powered background blur with real person segmentation (replacing the old Haar cascade face detection), zoom/pan/tilt/sharpness/backlight for gPhoto2 and IP camera pipelines, recording timer overlay, flash effect on capture, and a complete CSS restructuring.
 
-**Version 4.0** (current) consolidates all improvements into a single major release:
+**Version 4.0** consolidated all improvements into a single major release: barcode scanner (zbar), recording codec selector (H.264/H.265/VP9/MJPEG with HW acceleration), camera control profiles, control dependencies (auto-exposure/white-balance/focus), SpinButton on V4L2 integer controls, anti-flicker auto-set, effect pipeline optimizations, CSD window controls, and a full dependency audit.
 
-- **Barcode scanner**: Real-time 1D barcode detection via [zbar](https://github.com/mchehab/zbar) integrated alongside the existing QR code scanner. Supports EAN-13, EAN-8, UPC-A, UPC-E, Code 128, Code 39, Code 93, Codabar, ITF, ISBN-10, ISBN-13, DataBar, and PDF417.
-- **Recording codec selector**: Configurable video codec (H.264/H.265/VP9/MJPEG with hardware acceleration), audio codec (Opus/AAC/MP3/Vorbis), container format (MKV/WebM/MP4), and video bitrate (500–50000 kbps) in Settings.
-- **Camera control profiles**: Save, load, and delete named presets per camera. Hardware defaults reset button restores all V4L2 controls to factory values.
-- **Control dependencies**: Auto-exposure disables manual exposure controls, auto white balance disables temperature, auto focus disables manual focus — mirroring real hardware behavior.
-- **SpinButton on V4L2 controls**: Integer controls now show both a slider and a numeric SpinButton for precise value entry.
-- **Anti-flicker auto-set**: Automatically configures `power_line_frequency` based on timezone (60Hz for Americas, 50Hz elsewhere) when the camera has it disabled.
-- **Effect pipeline performance**: Beauty/Soft Skin and Denoise effects downscale frames > 480p before `bilateralFilter`, yielding ~4× throughput on 1080p.
-- **Full-range GaussianBlur**: Detail Enhance, Pencil Sketch, and Stylization use `GaussianBlur((0,0), sigmaX=sigma_s/6)` instead of capped kernel sizes.
-- **Phone camera portrait fix**: Embedded CSS constrains the video container in portrait orientation.
-- **CSD window controls**: Custom top bar with minimize/maximize/close buttons styled for the dark overlay, with CSS for hover states and close button highlight.
-- **Dependency audit**: PKGBUILD updated with complete dependency list.
+**Version 4.2.0** (current) focused on performance and stability:
+
+- **OpenCV V4L2 direct capture**: Replaced GStreamer pipeline with native OpenCV VideoCapture using V4L2 mmap backend for USB cameras. Eliminates the flickering, stuttering, and frame drops that plagued the GStreamer pipeline on USB 2.0 hardware. GStreamer remains as a fallback for non-V4L2 sources.
+- **Background capture thread**: Dedicated daemon thread handles blocking `cap.read()` calls, keeping the GTK main loop responsive. Render timer on the main thread picks up the latest frame at display refresh rate.
+- **Nix support**: Added `flake.nix`, `default.nix`, and `.envrc` for reproducible builds and development environments via Nix.
+- **About dialog**: Now features the project's origin story and credits the original authors (Rafael Ruscher and Barnabé di Kartola).
+- **CSD button fix**: Window control buttons (minimize, maximize, close) no longer show hover highlight artifacts.
+- **JPEG warning suppression**: Corrupt JPEG data warnings from libjpeg-turbo are silenced during capture. OpenCV internal log level set to ERROR.
+- **Project cleanup**: Removed 125+ unnecessary files (backup files, legacy artifacts, duplicate assets).
 
 We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.0
+## What's New in 4.2.0
+
+### OpenCV V4L2 Direct Capture
+
+The GStreamer pipeline for USB cameras has been replaced by native OpenCV VideoCapture with V4L2 mmap backend. This is the same approach used by guvcview — direct V4L2 buffer access without the complexity of GStreamer's push-based pipeline. The result is zero flickering, zero stuttering, and zero frame drops, even on USB 2.0 hardware sharing bandwidth with other devices.
+
+A dedicated background thread handles blocking `cap.read()` calls while a main-thread render timer picks up the latest frame at display refresh rate. GStreamer remains available as a fallback for non-V4L2 sources (gPhoto2, libcamera, PipeWire, IP cameras).
+
+### Nix Support
+
+BigCam now ships `flake.nix`, `default.nix`, and `.envrc` for reproducible builds and development environments via Nix. All runtime dependencies (GTK4, Adwaita, GStreamer, FFmpeg, OpenCV, v4l-utils, gPhoto2, PipeWire, zbar) are properly declared.
+
+### About Dialog
+
+The About dialog now tells BigCam's origin story and credits the original authors — Rafael Ruscher and Barnabé di Kartola.
+
+### Previous (4.0)
 
 ### Recording Codec & Container Selector
 

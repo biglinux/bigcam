@@ -1,5 +1,0 @@
-[lint]
-# E402: Module level import not at top of file — required for GTK apps
-# (gi.require_version must precede gi.repository imports)
-# F402: Import shadowed by loop variable — `_` used as both gettext and discard
-ignore = ["E402", "F402"]

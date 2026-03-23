@@ -470,6 +470,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
 
         def _apply():
             self._manager.reset_all_controls(self._camera, self._controls)
+            # Re-apply anti-flicker after reset (power_line_frequency defaults to 0)
+            self._manager.apply_anti_flicker(self._camera)
             GLib.idle_add(self._reload_controls)
 
         threading.Thread(target=_apply, daemon=True).start()
@@ -630,6 +632,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         if self._camera:
             self._resetting = True
             self._manager.reset_all_controls(self._camera, ctrls)
+            # Re-apply anti-flicker after reset (power_line_frequency defaults to 0)
+            self._manager.apply_anti_flicker(self._camera)
             for ctrl in ctrls:
                 ctrl.value = ctrl.default
                 entry = self._ctrl_widgets.get(ctrl.id)

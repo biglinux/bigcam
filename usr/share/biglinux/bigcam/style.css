@@ -65,15 +65,15 @@ window.bigcam {
         }
     
         .osd-bar.top-bar windowcontrols button:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: transparent;
         }
     
         .osd-bar.top-bar windowcontrols button:active {
-            background: rgba(255, 255, 255, 0.25);
+            background: transparent;
         }
     
         .osd-bar.top-bar windowcontrols button.close:hover {
-            background: rgba(224, 27, 36, 0.8);
+            background: transparent;
         }
     /* --- Bottom Controls Overlay (gradient edge-to-edge) --- */
     .osd-bar.bottom-bar {

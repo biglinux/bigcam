@@ -55,6 +55,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._camera_manager = CameraManager()
         self._stream_engine = StreamEngine(self._camera_manager)
         self._stream_engine.mirror = bool(self._settings.get("mirror_preview"))
+        self._stream_engine.prefer_v4l2 = bool(self._settings.get("prefer-v4l2"))
         self._photo_capture = PhotoCapture(self._camera_manager)
         self._video_recorder = VideoRecorder(self._camera_manager)
         self._video_recorder.configure(
@@ -1274,6 +1275,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._settings_page.connect("help-tooltips-changed", self._on_help_tooltips_changed)
         self._settings_page.connect("capture-timer-changed", self._on_capture_timer_changed)
         self._settings_page.connect("recording-config-changed", self._on_recording_config_changed)
+        self._settings_page.connect("prefer-v4l2-changed", self._on_prefer_v4l2_changed)
         self.connect("close-request", self._on_close)
         self.connect("map", self._on_window_mapped)
 
@@ -1549,6 +1551,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.set_mirror(mirror)
         self._mirror_btn.set_active(mirror)
         self._syncing_toggle = False
+
+    def _on_prefer_v4l2_changed(self, _page, prefer: bool) -> None:
+        self._stream_engine.prefer_v4l2 = prefer
 
     def _on_resolution_changed(self, _page, value: str) -> None:
         if self._active_camera:
@@ -2226,6 +2231,18 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Re-detect audio sources when USB devices change
         self._audio_monitor.detect_all()
 
+        # Stop background vcams for cameras that were disconnected
+        removed_ids = self._known_camera_ids - current_ids
+        for cam_id in removed_ids:
+            self._stream_engine._stop_bg_vcam(cam_id)
+            VirtualCamera.release_device(cam_id)
+            log.info("Released vcam for disconnected camera %s", cam_id)
+
+        # Start background virtual cameras for all detected V4L2 cameras
+        # (vcams persist until the app is closed)
+        for cam in self._camera_manager.cameras:
+            self._stream_engine.ensure_bg_vcam(cam)
+
         # Show toast for newly connected cameras
         for cam in self._camera_manager.cameras:
             if cam.id not in self._known_camera_ids:
@@ -2262,6 +2279,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             # All cameras disconnected — stop stream and reset UI
             log.info("All cameras removed — stopping stream and resetting UI")
             self._stream_engine.stop()
+            self._stream_engine.stop_all_bg_vcams()
             self._active_camera = None
             self._camera_selector.set_active_camera(None)
             self._controls_page.set_camera(None)
@@ -2303,7 +2321,12 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._camera_manager.start_hotplug()
 
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
-        if self._stream_engine.pipeline is not None:
+        has_active_stream = (
+            self._stream_engine.is_playing()
+            or self._stream_engine._bg_vcam_feeders
+            or self._stream_engine._bg_vcam_pipelines
+        )
+        if has_active_stream:
             # Build description with active camera name and virtual cam status
             cam_name = ""
             if self._active_camera:

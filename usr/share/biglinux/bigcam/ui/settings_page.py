@@ -52,6 +52,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         "help-tooltips-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "capture-timer-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "recording-config-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
+        "prefer-v4l2-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
     }
 
     def __init__(self, settings: SettingsManager, stream_engine=None) -> None:
@@ -248,6 +249,15 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._controls_opacity_scale.connect("value-changed", self._on_controls_opacity)
         controls_opacity_row.add_suffix(self._controls_opacity_scale)
         preview.add(controls_opacity_row)
+
+        v4l2_row = Adw.SwitchRow(
+            title=_("Direct V4L2 access"),
+            subtitle=_("Bypass PipeWire and access the camera directly. May fix flickering on some webcams."),
+        )
+        v4l2_row.add_prefix(Gtk.Image.new_from_icon_name("camera-video-symbolic"))
+        v4l2_row.set_active(self._settings.get("prefer-v4l2"))
+        v4l2_row.connect("notify::active", self._on_prefer_v4l2)
+        preview.add(v4l2_row)
 
         content.append(preview)
 
@@ -494,6 +504,11 @@ class SettingsPage(Gtk.ScrolledWindow):
         active = row.get_active()
         self._settings.set("mirror_preview", active)
         self.emit("mirror-changed", active)
+
+    def _on_prefer_v4l2(self, row: Adw.SwitchRow, _pspec) -> None:
+        active = row.get_active()
+        self._settings.set("prefer-v4l2", active)
+        self.emit("prefer-v4l2-changed", active)
 
     def _on_show_fps(self, row: Adw.SwitchRow, _pspec) -> None:
         active = row.get_active()

@@ -1,10 +1,29 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
-nohup.out
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Build artifacts
+*.so
+*.log
+*.tmp
+result
+
+# Backups & temp
 *.bak
 *.swp
 *~
-*.log
-*.tmp
+nohup.out
+
+# Tool caches
+.ruff_cache/
+.audit/
+.mypy_cache/
+.pytest_cache/
+
+# IDE / tool state
 .serena/
+.direnv/
+.venv/
+.env

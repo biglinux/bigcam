@@ -31,8 +31,21 @@ def create_about_dialog() -> Adw.AboutDialog:
     dialog.set_issue_url(APP_ISSUE_URL)
     dialog.set_copyright(APP_COPYRIGHT)
     dialog.set_license_type(Gtk.License.GPL_3_0)
-    dialog.set_developers(["BigLinux Team"])
-    dialog.set_comments(_("Universal webcam control center for Linux."))
+    dialog.set_developers([
+        "Rafael Ruscher <rruscher@gmail.com>",
+        "Barnabé di Kartola <barnabedikartola@gmail.com>",
+    ])
+    dialog.set_comments(_(
+        "The universal webcam control center for Linux.\n\n"
+        "BigCam was born as a small shell script so that Rafael Ruscher "
+        "could use his Canon Rebel T3 as a webcam during live streams "
+        "about BigLinux. That humble hack, written by Rafael and Barnabé "
+        "di Kartola, evolved from a Bash bridge between gPhoto2 and FFmpeg "
+        "into a full GTK4/Adwaita application with live preview, "
+        "multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, "
+        "IP cameras, smartphones), real-time OpenCV effects, virtual camera "
+        "output, photo and video capture, and 29 languages."
+    ))
     return dialog
 
 

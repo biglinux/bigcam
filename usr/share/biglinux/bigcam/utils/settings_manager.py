@@ -40,6 +40,8 @@ _DEFAULTS: dict[str, object] = {
     "last-camera-id": "",
     # Virtual camera
     "virtual-camera-enabled": True,
+    # Pipeline
+    "prefer-v4l2": True,
     # Recording
     "recording-video-codec": "h264",
     "recording-audio-codec": "opus",
