@@ -75,7 +75,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 
 /* Video */
 .video-wrap{flex:1 1 0;display:flex;align-items:center;justify-content:center;width:100%;
-  min-height:0;overflow:hidden;border-radius:var(--radius)}
+  min-height:0;max-height:50vh;overflow:hidden;border-radius:var(--radius)}
 video{width:100%;height:100%;object-fit:contain;background:#000;border-radius:var(--radius)}
 canvas{display:none}
 
@@ -107,7 +107,7 @@ button:active{transform:scale(.95);opacity:.85}
     gap:4px 10px;align-items:stretch}
 
   /* Video fills entire left column */
-  .video-wrap{grid-column:1;grid-row:1/-1;height:100%;border-radius:10px}
+  .video-wrap{grid-column:1;grid-row:1/-1;height:100%;max-height:none;border-radius:10px}
 
   /* Right column panel */
   .header{grid-column:2;grid-row:1;gap:8px;justify-content:center}

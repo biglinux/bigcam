@@ -5,11 +5,17 @@ pkgdesc="Universal webcam control center for BigLinux"
 depends=(
     'python'
     'python-gobject'
+    'python-opencv'
+    'python-numpy'
+    'python-aiohttp'
+    'python-qrcode'
     'gtk4'
     'libadwaita'
     'gstreamer'
     'gst-plugins-base'
     'gst-plugins-good'
+    'gst-plugins-bad-libs'
+    'gst-plugins-ugly'
     'gst-plugin-gtk4'
     'ffmpeg'
     'v4l-utils'
@@ -18,11 +24,9 @@ depends=(
     'x264'
     'pipewire'
     'polkit'
-)
-optdepends=(
-    'libcamera: CSI/ISP camera support (Raspberry Pi, Intel IPU6)'
-    'python-aiohttp: phone camera via WebSocket'
-    'python-qrcode: QR code generation for phone camera'
+    'libcamera'
+    'zbar'
+    'python-mediapipe-bin'
 )
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)

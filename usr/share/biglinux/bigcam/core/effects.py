@@ -109,21 +109,24 @@ def _apply_clahe(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 def _apply_detail_enhance(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 10), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.15), 0.0, 1.0)
-    # Use unsharp mask — much faster than cv2.detailEnhance with similar output
-    ksize = int(sigma_s) | 1  # ensure odd
-    ksize = min(ksize, 31)
     strength = 1.0 + sigma_r * 10
-    blurred = cv2.GaussianBlur(frame, (ksize, ksize), 0)
+    blurred = cv2.GaussianBlur(frame, (0, 0), sigmaX=sigma_s / 6)
     return cv2.addWeighted(frame, strength, blurred, 1.0 - strength, 0)
 
 
 def _apply_beauty(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.4), 0.0, 1.0)
-    # bilateralFilter: fast skin-smoothing with edge preservation
     d = max(5, int(sigma_s) // 10)
     sigma_color = sigma_r * 200
     sigma_space = sigma_s / 3
+    h, w = frame.shape[:2]
+    # Downscale for performance: bilateralFilter is O(d² * pixels)
+    scale = 0.5 if min(h, w) > 480 else 1.0
+    if scale < 1.0:
+        small = cv2.resize(frame, (w // 2, h // 2), interpolation=cv2.INTER_LINEAR)
+        smooth = cv2.bilateralFilter(small, d, sigma_color, sigma_space)
+        return cv2.resize(smooth, (w, h), interpolation=cv2.INTER_LINEAR)
     return cv2.bilateralFilter(frame, d, sigma_color, sigma_space)
 
 
@@ -147,9 +150,14 @@ def _apply_sharpen(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 def _apply_denoise(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     h_val = int(_clamp(params.get("strength", 10), 1, 30))
-    # bilateralFilter is ~40x faster than fastNlMeansDenoisingColored
     d = max(5, h_val // 2)
     sigma = h_val * 7.5
+    h, w = frame.shape[:2]
+    scale = 0.5 if min(h, w) > 480 else 1.0
+    if scale < 1.0:
+        small = cv2.resize(frame, (w // 2, h // 2), interpolation=cv2.INTER_LINEAR)
+        smooth = cv2.bilateralFilter(small, d, sigma, sigma)
+        return cv2.resize(smooth, (w, h), interpolation=cv2.INTER_LINEAR)
     return cv2.bilateralFilter(frame, d, sigma, sigma)
 
 
@@ -175,15 +183,19 @@ def _apply_negative(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 def _apply_pencil_sketch(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
+    sigma_r = _clamp(params.get("sigma_r", 0.07), 0.0, 1.0)
     shade = _clamp(params.get("shade_factor", 0.05), 0.0, 0.1)
-    # Fast pencil sketch: dodge-blend on inverted blur
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     inv = cv2.bitwise_not(gray)
-    ksize = int(sigma_s) | 1
-    ksize = min(ksize, 31)
-    blur = cv2.GaussianBlur(inv, (ksize, ksize), 0)
+    blur = cv2.GaussianBlur(inv, (0, 0), sigmaX=sigma_s / 6)
     sketch = cv2.divide(gray, cv2.bitwise_not(blur), scale=256)
-    # Apply shade factor
+    # Detail: blend sketch with original edges for more/less line detail
+    if sigma_r < 0.99:
+        edges = cv2.Canny(gray, 50, 150)
+        edge_strength = 1.0 - sigma_r
+        edge_layer = cv2.bitwise_not(edges)
+        sketch = cv2.addWeighted(sketch, sigma_r + 0.3, edge_layer, edge_strength * 0.7, 0)
+        sketch = np.clip(sketch, 0, 255).astype(np.uint8)
     if shade > 0.001:
         sketch = cv2.multiply(sketch, np.array([1.0 - shade * 5], dtype=np.float32))
         sketch = np.clip(sketch, 0, 255).astype(np.uint8)
@@ -193,18 +205,19 @@ def _apply_pencil_sketch(frame: np.ndarray, params: dict[str, float]) -> np.ndar
 def _apply_stylization(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
     sigma_r = _clamp(params.get("sigma_r", 0.45), 0.0, 1.0)
-    # Fast stylization: gaussian smooth + color quantize + edge overlay
-    ksize = int(sigma_s / 4) | 1
-    ksize = min(max(ksize, 3), 31)
-    smooth = cv2.GaussianBlur(frame, (ksize, ksize), 0)
+    smooth = cv2.GaussianBlur(frame, (0, 0), sigmaX=sigma_s / 6)
     # Quantize colors for painterly look
     div = max(8, int(64 * sigma_r))
     np.floor_divide(smooth, div, out=smooth)
     np.multiply(smooth, div, out=smooth)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Edge detection on smoothed image so higher smoothing produces softer edges
+    gray = cv2.cvtColor(smooth, cv2.COLOR_BGR2GRAY)
+    # Adaptive threshold block size scales with smoothing
+    block = max(5, int(sigma_s / 20) * 2 + 1)
+    block = min(block, 21)
     edges = cv2.adaptiveThreshold(
         cv2.medianBlur(gray, 5), 255,
-        cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 2
+        cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block, 2
     )
     return cv2.bitwise_and(smooth, smooth, mask=edges)
 
@@ -239,9 +252,8 @@ def _apply_colormap(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
 
 
 def _apply_vignette(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    strength = _clamp(params.get("strength", 0.5), 0.0, 1.0)
-    if strength < 0.01:
-        return frame
+    raw = _clamp(params.get("strength", 50), 10, 100)
+    strength = raw / 100.0
     h, w = frame.shape[:2]
     key = (w, h, round(strength, 2))
     if key not in _vignette_cache:
@@ -560,7 +572,7 @@ def _register_effects() -> None:
                 icon="camera-photo-symbolic",
                 category=EffectCategory.ARTISTIC,
                 params=[
-                    EffectParam("strength", _("Strength"), 0.0, 1.0, 0.5, 0.05),
+                    EffectParam("strength", _("Strength"), 10, 100, 50, 5),
                 ],
             ),
             _apply_vignette,

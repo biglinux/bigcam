@@ -34,6 +34,7 @@ class QrType(Enum):
     CRYPTO = auto()
     SOCIAL = auto()
     TOTP = auto()
+    BARCODE = auto()
 
 
 _SOCIAL_DOMAINS = (
@@ -285,6 +286,11 @@ def parse_qr(data: str) -> QrResult:
         # Generic URL
         return QrResult(QrType.URL, stripped, _("URL"), {"url": stripped})
 
+    # Barcode result (prefixed internally by _try_detect_qr)
+    if lower.startswith("barcode:"):
+        code = stripped[8:]
+        return QrResult(QrType.BARCODE, code, _("Barcode"), {"code": code})
+
     # Fallback: plain text
     return QrResult(QrType.TEXT, stripped, _("Text"), {"text": stripped})
 
@@ -306,6 +312,7 @@ _TYPE_ICONS = {
     QrType.CRYPTO: "emblem-money-symbolic",
     QrType.SOCIAL: "system-users-symbolic",
     QrType.TOTP: "channel-secure-symbolic",
+    QrType.BARCODE: "view-list-images",
 }
 
 
@@ -411,6 +418,7 @@ class QrDialog(Adw.Window):
             "issuer": _("Issuer"),
             "uri": _("URI"),
             "subject": _("Subject"),
+            "code": _("Code"),
         }
 
         for key, value in qr.details.items():
@@ -547,6 +555,15 @@ class QrDialog(Adw.Window):
                 _("Copy URI"),
                 "edit-copy-symbolic",
                 lambda _b: self._copy(qr.details.get("uri", "")),
+            )
+
+        elif t == QrType.BARCODE:
+            self._add_btn(
+                flow,
+                _("Copy Code"),
+                "edit-copy-symbolic",
+                lambda _b: self._copy(qr.details.get("code", "")),
+                "suggested-action",
             )
 
         # Always add "Copy Raw" and "Save" at the end

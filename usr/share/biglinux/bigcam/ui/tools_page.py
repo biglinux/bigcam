@@ -28,6 +28,13 @@ try:
 except ImportError:
     _HAS_CV2 = False
 
+try:
+    import zbar
+
+    _HAS_ZBAR = True
+except ImportError:
+    _HAS_ZBAR = False
+
 _HAARCASCADES = "/usr/share/opencv4/haarcascades"
 
 
@@ -55,6 +62,7 @@ class ToolsPage(Gtk.ScrolledWindow):
         # OpenCV detectors (lazy init)
         self._qr_detector = None
         self._wechat_qr = None
+        self._zbar_scanner = None
         self._face_cascade = None
         self._smile_cascade = None
 
@@ -140,7 +148,7 @@ class ToolsPage(Gtk.ScrolledWindow):
             self._engine.set_overlay_rects([])
 
     def _init_qr_detector(self) -> None:
-        """Initialize QR detector — prefer WeChatQRCode for better detection."""
+        """Initialize QR detector and barcode detector."""
         if self._wechat_qr is not None or self._qr_detector is not None:
             return
         try:
@@ -149,9 +157,19 @@ class ToolsPage(Gtk.ScrolledWindow):
         except Exception:
             self._qr_detector = cv2.QRCodeDetector()
             log.debug("Using basic QRCodeDetector")
+        if self._zbar_scanner is None and _HAS_ZBAR:
+            try:
+                sc = zbar.ImageScanner()
+                sc.parse_config('enable')
+                # Disable QR so it doesn't compete with WeChatQRCode
+                sc.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 0)
+                self._zbar_scanner = sc
+                log.debug("zbar ImageScanner initialized")
+            except Exception:
+                log.debug("zbar ImageScanner not available")
 
     def _try_detect_qr(self, img):
-        """Try QR detection on a single image, return (data, points) or ("", None)."""
+        """Try QR and barcode detection on a single image, return (data, points) or ("", None)."""
         if self._wechat_qr is not None:
             results, pts_list = self._wechat_qr.detectAndDecode(img)
             if results and results[0]:
@@ -162,6 +180,23 @@ class ToolsPage(Gtk.ScrolledWindow):
             if data:
                 p = pts[0] if pts is not None and pts.ndim == 3 else pts
                 return data, p
+        # Fallback: try barcode detection via zbar
+        if self._zbar_scanner is not None:
+            try:
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
+                h, w = gray.shape
+                zimg = zbar.Image(w, h, 'Y800', gray.tobytes())
+                n = self._zbar_scanner.scan(zimg)
+                log.debug("zbar scan: %d symbols found in %dx%d frame", n, w, h)
+                for sym in zimg:
+                    if sym.data:
+                        loc = np.array(sym.location, dtype=np.float32)
+                        log.debug("zbar hit: type=%s data=%s", sym.type, sym.data[:40])
+                        return f"barcode:{sym.data}", loc
+            except Exception as exc:
+                log.warning("zbar scan error: %s", exc)
+        else:
+            log.debug("zbar scanner is None, skipping barcode")
         return "", None
 
     def _scan_qr(self) -> bool:
