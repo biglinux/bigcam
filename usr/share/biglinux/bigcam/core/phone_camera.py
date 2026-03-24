@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import collections
 import logging
 import os
 import socket
@@ -15,8 +16,9 @@ from typing import Any, Callable, Optional
 import gi
 
 gi.require_version("GLib", "2.0")
+gi.require_version("Gst", "1.0")
 
-from gi.repository import GLib, GObject
+from gi.repository import GLib, GObject, Gst
 
 log = logging.getLogger(__name__)
 
@@ -202,6 +204,7 @@ button:active{transform:scale(.95);opacity:.85}
 <script>
 let stream=null,ws=null,timer=null,frameCount=0,lastStatTime=0,sending=false;
 let useHttp=false;
+let audioCtx=null,audioProcessor=null,audioSource=null;
 const video=document.getElementById('video'),
       canvas=document.getElementById('canvas'),
       ctx=canvas.getContext('2d');
@@ -211,7 +214,7 @@ function setStatus(t,c){const e=document.getElementById('status');e.textContent=
 function getConstraints(){
   const r=document.getElementById('resolution').value,
         f=document.getElementById('facing').value,
-        c={video:{facingMode:{ideal:f}},audio:false};
+        c={video:{facingMode:{ideal:f}},audio:true};
   if(r!=='auto'){const h=parseInt(r);c.video.height={ideal:h};c.video.width={ideal:Math.round(h*16/9)}}
   return c;
 }
@@ -236,6 +239,7 @@ async function start(){
 
     setStatus('Connected','connected');
     startCapture();
+    startAudioCapture();
     document.getElementById('btnStart').hidden=true;
     document.getElementById('btnStop').hidden=false;
     document.getElementById('btnSwitch').hidden=false;
@@ -287,6 +291,7 @@ function captureFrame(){
 
 function stopCapture(){
   if(timer){clearInterval(timer);timer=null}
+  stopAudioCapture();
   if(ws){ws.close();ws=null}
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
   video.srcObject=null;
@@ -294,6 +299,39 @@ function stopCapture(){
   document.getElementById('btnStop').hidden=true;
   document.getElementById('btnSwitch').hidden=true;
   document.getElementById('stats').textContent='';
+}
+
+function startAudioCapture(){
+  if(!stream||(!ws&&!useHttp))return;
+  const audioTracks=stream.getAudioTracks();
+  if(!audioTracks.length){console.warn('No audio tracks available');return}
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
+    audioSource=audioCtx.createMediaStreamSource(stream);
+    audioProcessor=audioCtx.createScriptProcessor(8192,1,1);
+    audioSource.connect(audioProcessor);
+    audioProcessor.connect(audioCtx.destination);
+    let audioQueue=[];
+    let sending=false;
+    audioProcessor.onaudioprocess=function(e){
+      if(!ws||ws.readyState!==1)return;
+      const pcm=e.inputBuffer.getChannelData(0);
+      const buf=new ArrayBuffer(1+pcm.length*2);
+      const view=new DataView(buf);
+      view.setUint8(0,0x01);
+      for(let i=0;i<pcm.length;i++){
+        view.setInt16(1+i*2,Math.max(-32768,Math.min(32767,pcm[i]*32768)),true);
+      }
+      if(ws.bufferedAmount<65536){ws.send(buf)}
+    };
+    console.log('Audio capture started at '+audioCtx.sampleRate+'Hz');
+  }catch(e){console.warn('Audio capture failed:',e)}
+}
+
+function stopAudioCapture(){
+  if(audioProcessor){audioProcessor.disconnect();audioProcessor=null}
+  if(audioSource){audioSource.disconnect();audioSource=null}
+  if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null}
 }
 
 function stop(){stopCapture();setStatus('Disconnected','disconnected')}
@@ -351,6 +389,15 @@ class PhoneCameraServer(GObject.Object):
         self._frame_callback: Optional[Callable] = None
         self._last_frame_time: float = 0.0
 
+        # Audio playback — runs as separate process for isolation
+        self._audio_proc: Optional[subprocess.Popen] = None
+        self._audio_started = False
+        self._desired_volume: float = 1.0
+        self._desired_muted: bool = False
+        self._audio_queue: collections.deque[bytes] = collections.deque(maxlen=120)
+        self._audio_drain_thread: Optional[threading.Thread] = None
+        self._audio_drain_stop = threading.Event()
+
     # -- public API ----------------------------------------------------------
 
     @staticmethod
@@ -383,6 +430,126 @@ class PhoneCameraServer(GObject.Object):
 
     def set_frame_callback(self, callback: Optional[Callable]) -> None:
         self._frame_callback = callback
+
+    def _start_audio_pipeline(self) -> None:
+        """Start a separate gst-launch-1.0 subprocess for audio playback.
+
+        Using a subprocess completely isolates audio playback from the
+        main application's CPU/thread contention when multiple cameras
+        are active.  Data flows through a kernel pipe, providing natural
+        jitter absorption independent of Python's GIL.
+        """
+        if self._audio_started:
+            return
+        try:
+            self._audio_proc = subprocess.Popen(
+                [
+                    "gst-launch-1.0", "-q",
+                    "fdsrc", "fd=0",
+                    "!", "audio/x-raw,format=S16LE,rate=16000,channels=1,layout=interleaved",
+                    "!", "queue", "max-size-time=5000000000",
+                    "!", "audioconvert",
+                    "!", "audioresample",
+                    "!", "autoaudiosink",
+                ],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except FileNotFoundError:
+            log.error("gst-launch-1.0 not found, audio disabled")
+            return
+        self._audio_started = True
+        log.info("Phone audio subprocess started (pid=%d)", self._audio_proc.pid)
+        # Start dedicated drain thread
+        self._audio_drain_stop.clear()
+        self._audio_drain_thread = threading.Thread(
+            target=self._audio_drain_loop, name="phone-audio-drain", daemon=True
+        )
+        self._audio_drain_thread.start()
+
+    def _stop_audio_pipeline(self) -> None:
+        """Stop the audio playback subprocess."""
+        self._audio_drain_stop.set()
+        if self._audio_drain_thread:
+            self._audio_drain_thread.join(timeout=2.0)
+            self._audio_drain_thread = None
+        proc = self._audio_proc
+        if proc:
+            try:
+                if proc.stdin:
+                    proc.stdin.close()
+                proc.terminate()
+                proc.wait(timeout=3)
+            except Exception:
+                proc.kill()
+            self._audio_proc = None
+        self._audio_started = False
+        self._audio_queue.clear()
+
+    @property
+    def audio_pid(self) -> Optional[int]:
+        """PID of the audio subprocess (for pactl volume control)."""
+        proc = self._audio_proc
+        return proc.pid if proc and proc.poll() is None else None
+
+    def set_audio_volume(self, value: float) -> None:
+        """Set audio volume (0.0 – 1.0)."""
+        self._desired_volume = max(0.0, min(value, 1.0))
+
+    def set_audio_muted(self, muted: bool) -> None:
+        """Mute or unmute audio."""
+        self._desired_muted = muted
+
+    def _push_audio_data(self, pcm_data: bytes) -> None:
+        """Enqueue PCM data for the drain thread.
+
+        Called from the asyncio thread.  Never touches GStreamer directly.
+        """
+        self._audio_queue.append(pcm_data)
+        if not self._audio_started:
+            log.info("First audio packet (%d bytes), starting audio subprocess", len(pcm_data))
+            GLib.idle_add(self._start_audio_pipeline)
+
+    def _audio_drain_loop(self) -> None:
+        """Dedicated thread that drains the audio queue into the subprocess stdin.
+
+        The kernel pipe buffer (~64KB = ~2s at 16kHz S16LE) provides natural
+        jitter absorption.  Volume/mute are applied in software to avoid
+        the complexity of pactl PID lookup during playback.
+        """
+        try:
+            import numpy as np
+            _has_np = True
+        except ImportError:
+            _has_np = False
+
+        while not self._audio_drain_stop.is_set():
+            try:
+                chunk = self._audio_queue.popleft()
+            except IndexError:
+                self._audio_drain_stop.wait(0.008)
+                continue
+
+            proc = self._audio_proc
+            if proc is None or proc.stdin is None or proc.poll() is not None:
+                continue
+
+            # Apply volume/mute in software
+            if self._desired_muted:
+                chunk = b"\x00" * len(chunk)
+            elif abs(self._desired_volume - 1.0) > 0.01 and _has_np:
+                samples = np.frombuffer(chunk, dtype=np.int16).astype(np.float32)
+                samples *= self._desired_volume
+                np.clip(samples, -32768, 32767, out=samples)
+                chunk = samples.astype(np.int16).tobytes()
+
+            try:
+                proc.stdin.write(chunk)
+                proc.stdin.flush()
+            except (BrokenPipeError, OSError):
+                log.warning("Audio subprocess pipe broken, stopping")
+                break
 
     def start(self, port: int = DEFAULT_PORT) -> bool:
         if not _HAS_AIOHTTP:
@@ -430,6 +597,7 @@ class PhoneCameraServer(GObject.Object):
         self._thread = None
         self._loop = None
         self._width = self._height = 0
+        self._stop_audio_pipeline()
         # Emit "disconnected" so the window cleans up the phone camera entry
         # even if the WebSocket handler's finally block didn't get a chance.
         if had_clients:
@@ -509,13 +677,26 @@ class PhoneCameraServer(GObject.Object):
             return ws
 
         first_frame = True
+        loop = asyncio.get_event_loop()
+
+        def _decode_jpeg(data: bytes):
+            arr = np.frombuffer(data, dtype=np.uint8)
+            return cv2.imdecode(arr, cv2.IMREAD_COLOR)
 
         try:
             async for msg in ws:
                 if msg.type == web.WSMsgType.BINARY:
-                    # Decode JPEG
-                    jpg_array = np.frombuffer(msg.data, dtype=np.uint8)
-                    bgr = cv2.imdecode(jpg_array, cv2.IMREAD_COLOR)
+                    data = msg.data
+                    if not data:
+                        continue
+
+                    # Audio packet: first byte is 0x01, rest is PCM S16LE
+                    if data[0] == 0x01:
+                        self._push_audio_data(bytes(data[1:]))
+                        continue
+
+                    # Video frame: decode JPEG in thread pool
+                    bgr = await loop.run_in_executor(None, _decode_jpeg, bytes(data))
                     if bgr is None:
                         continue
 
@@ -540,6 +721,7 @@ class PhoneCameraServer(GObject.Object):
         finally:
             self._ws_clients.discard(ws)
             self._width = self._height = 0
+            self._stop_audio_pipeline()
             GLib.idle_add(self.emit, "disconnected")
             GLib.idle_add(self.emit, "status-changed", "disconnected")
             log.info("Phone camera WebSocket disconnected")

@@ -35,6 +35,10 @@ from ui.immersion import ImmersionController
 from ui.ip_camera_dialog import IPCameraDialog
 from ui.phone_camera_dialog import PhoneCameraDialog
 from core.phone_camera import PhoneCameraServer
+from core.scrcpy_camera import ScrcpyCamera
+from core.airplay_receiver import AirPlayReceiver
+from core.resource_monitor import ResourceMonitor, FeatureDescriptor
+from ui.resource_warning_dialog import show_resource_warning, MONITOR_ENABLED_KEY
 from utils.settings_manager import SettingsManager
 from utils.async_worker import run_async
 from utils.i18n import _
@@ -75,6 +79,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._phone_server = PhoneCameraServer()
         self._phone_server.connect("connected", self._on_phone_connected)
         self._phone_server.connect("disconnected", self._on_phone_disconnected)
+        self._scrcpy_camera = ScrcpyCamera()
+        self._scrcpy_camera.connect("status-changed", self._on_scrcpy_status_dot)
+        self._airplay_receiver = AirPlayReceiver()
+        self._airplay_receiver.connect("status-changed", self._on_airplay_status_dot)
+        self._resource_monitor = ResourceMonitor()
 
         self._build_ui()
         self._setup_actions()
@@ -86,6 +95,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Apply initial tooltip state
         if not self._settings.get("show-help-tooltips"):
             self._set_tooltips_enabled(False)
+
+        # Resource monitor
+        self._setup_resource_monitor()
 
         # Initial camera detection
         GLib.idle_add(self._camera_manager.detect_cameras_async)
@@ -1858,7 +1870,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         run_async(_capture_in_thread, on_success=_on_done)
 
     def _on_refresh(self, *_args) -> None:
-        self._camera_manager.detect_cameras_async()
+        """Full camera reload: stop current stream, clear state, re-detect."""
+        self._stream_engine.stop()
+        self._active_camera = None
+        self._camera_manager.detect_cameras_async(force_emit=True)
 
     def _on_add_ip(self, *_args) -> None:
         dialog = IPCameraDialog()
@@ -1900,8 +1915,55 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 self._phone_disconnect_timer = None
             self._do_phone_disconnect()
 
+    def _on_scrcpy_status_dot(self, _scrcpy, status: str) -> None:
+        """Update the phone button dot for scrcpy events."""
+        colors = {
+            "starting": (1.0, 0.76, 0.03),
+            "connected": (0.16, 0.65, 0.27),
+            "stopped": (0.6, 0.6, 0.6),
+            "disconnected": (0.6, 0.6, 0.6),
+            "error": (0.85, 0.2, 0.2),
+        }
+        color = colors.get(status, (0.6, 0.6, 0.6))
+        visible = status not in ("stopped", "disconnected")
+        self._phone_status_color = color
+        self._phone_dot.set_visible(visible)
+        self._phone_dot.queue_draw()
+
+    def _on_airplay_status_dot(self, _receiver, status: str) -> None:
+        """Update the phone button dot for AirPlay events."""
+        lower = status.lower()
+        if "error" in lower:
+            color = (0.85, 0.2, 0.2)
+            visible = True
+        elif "connected" in lower and "disconnected" not in lower:
+            color = (0.16, 0.65, 0.27)
+            visible = True
+        elif "starting" in lower:
+            color = (1.0, 0.76, 0.03)
+            visible = True
+        elif "stopped" in lower or "disconnected" in lower:
+            color = (0.6, 0.6, 0.6)
+            visible = False
+        else:
+            color = (1.0, 0.76, 0.03)
+            visible = True
+        self._phone_status_color = color
+        self._phone_dot.set_visible(visible)
+        self._phone_dot.queue_draw()
+
     def _on_phone_camera(self, *_args) -> None:
-        dialog = PhoneCameraDialog(self._phone_server)
+        dialog = PhoneCameraDialog(
+            server=self._phone_server,
+            scrcpy=self._scrcpy_camera,
+            airplay=self._airplay_receiver,
+        )
+        dialog.connect("scrcpy-connected", self._on_scrcpy_connected)
+        dialog.connect("scrcpy-disconnected", self._on_scrcpy_disconnected)
+        dialog.connect("scrcpy-prepare", self._on_scrcpy_prepare)
+        dialog.connect("airplay-connected", self._on_airplay_connected)
+        dialog.connect("airplay-disconnected", self._on_airplay_disconnected)
+        dialog.connect("airplay-prepare", self._on_airplay_prepare)
         self._immersion.present_dialog(dialog, self)
 
     def _on_phone_disconnected(self, _server: PhoneCameraServer) -> None:
@@ -1919,10 +1981,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Check if phone reconnected during the delay
         if self._phone_server and self._phone_server.is_connected:
             return False
+        self._audio_monitor.remove_external_source("phone_browser")
         self._phone_btn.remove_css_class("phone-connected")
         was_active = (
             self._active_camera
-            and self._active_camera.backend == BackendType.PHONE
+            and self._active_camera.id.startswith("phone:")
         )
         if was_active:
             self._stream_engine.stop()
@@ -1961,6 +2024,114 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._camera_manager.add_phone_camera(phone_cam)
 
+        # Register phone mic audio as external source for volume control
+        self._audio_monitor.add_external_source(
+            "phone_browser",
+            _("Phone Mic (Browser)"),
+            volume_cb=self._phone_server.set_audio_volume,
+            mute_cb=self._phone_server.set_audio_muted,
+        )
+
+    # ── scrcpy (USB) handlers ────────────────────────────────────────
+
+    def _on_scrcpy_connected(
+        self, _dialog: PhoneCameraDialog, width: int, height: int
+    ) -> None:
+        """Register the scrcpy camera and auto-switch to it."""
+        self._stream_engine.stop()
+        self._stream_engine.stop_all_bg_vcams()
+        self._block_camera_select = True
+
+        v4l2_dev = self._scrcpy_camera.v4l2_device or "/dev/video11"
+
+        scrcpy_cam = CameraInfo(
+            id="phone:scrcpy",
+            name=_("BigCam Phone (scrcpy)"),
+            backend=BackendType.V4L2,
+            device_path=v4l2_dev,
+            capabilities=["video"],
+            extra={"scrcpy_camera": self._scrcpy_camera},
+        )
+        self._camera_manager.add_phone_camera(scrcpy_cam)
+        self._block_camera_select = False
+
+        def _start_scrcpy_pipeline() -> bool:
+            self._select_camera_by_id(scrcpy_cam.id)
+            # Register scrcpy mic audio as external source for volume control
+            pid = self._scrcpy_camera.pid
+            if pid is not None:
+                self._audio_monitor.add_external_source(
+                    "scrcpy", _("Phone Mic (scrcpy)"), pid
+                )
+            return False
+
+        GLib.timeout_add(800, _start_scrcpy_pipeline)
+
+    def _on_scrcpy_prepare(self, _dialog: PhoneCameraDialog) -> None:
+        """Stop current pipeline to free the v4l2loopback device for scrcpy."""
+        self._stream_engine.stop()
+        self._stream_engine.stop_all_bg_vcams()
+        self._active_camera = None
+        log.info("Pipeline stopped to prepare for scrcpy")
+
+    def _on_scrcpy_disconnected(self, _dialog: PhoneCameraDialog) -> None:
+        """Stop scrcpy pipeline and release resources."""
+        self._audio_monitor.remove_external_source("scrcpy")
+        if self._active_camera and self._active_camera.id.startswith("phone:scrcpy"):
+            self._stream_engine.stop()
+            self._active_camera = None
+        self._camera_manager.remove_phone_camera()
+
+    # ── AirPlay handlers ─────────────────────────────────────────────
+
+    def _on_airplay_connected(
+        self, _dialog: PhoneCameraDialog, width: int, height: int
+    ) -> None:
+        """Register the AirPlay camera and auto-switch to it."""
+        self._stream_engine.stop()
+        self._stream_engine.stop_all_bg_vcams()
+        self._block_camera_select = True
+
+        v4l2_dev = self._airplay_receiver.v4l2_device or "/dev/video12"
+
+        airplay_cam = CameraInfo(
+            id="phone:airplay",
+            name=_("BigCam Phone (AirPlay)"),
+            backend=BackendType.V4L2,
+            device_path=v4l2_dev,
+            capabilities=["video"],
+            extra={"airplay_receiver": self._airplay_receiver},
+        )
+        self._camera_manager.add_phone_camera(airplay_cam)
+        self._block_camera_select = False
+
+        def _start_airplay_pipeline() -> bool:
+            self._select_camera_by_id(airplay_cam.id)
+            # Register AirPlay audio as an external source for volume control
+            pid = self._airplay_receiver.pid
+            if pid is not None:
+                self._audio_monitor.add_external_source(
+                    "airplay", _("AirPlay Audio"), pid
+                )
+            return False
+
+        GLib.timeout_add(800, _start_airplay_pipeline)
+
+    def _on_airplay_prepare(self, _dialog: PhoneCameraDialog) -> None:
+        """Stop current pipeline to free the v4l2loopback device for AirPlay."""
+        self._stream_engine.stop()
+        self._stream_engine.stop_all_bg_vcams()
+        self._active_camera = None
+        log.info("Pipeline stopped to prepare for AirPlay")
+
+    def _on_airplay_disconnected(self, _dialog: PhoneCameraDialog) -> None:
+        """Clean up when AirPlay receiver stops."""
+        self._audio_monitor.remove_external_source("airplay")
+        if self._active_camera and self._active_camera.id == "phone:airplay":
+            self._stream_engine.stop()
+            self._active_camera = None
+        self._camera_manager.remove_phone_camera()
+
     def _on_ip_camera_added(self, _dialog: IPCameraDialog, name: str, url: str) -> None:
         ip_list = self._settings.get("ip_cameras")
         if not isinstance(ip_list, list):
@@ -1984,31 +2155,31 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         blocking_apps: list[str],
     ) -> None:
         """Show an informative dialog when another app holds the camera."""
-        camera_name = ""
-        if self._active_camera:
-            camera_name = self._active_camera.name
+        # Save the camera reference before clearing it
+        busy_camera = self._active_camera
+        camera_name = busy_camera.name if busy_camera else ""
+        # Clear active camera so 'Refresh cameras' can re-select it
+        self._active_camera = None
 
+        cam_label = camera_name or device_path
         if blocking_apps:
             apps_str = ", ".join(blocking_apps)
             body = _(
                 "The camera \"%(camera)s\" is being used by: %(apps)s.\n\n"
-                "The video preview cannot be displayed while another "
-                "application has exclusive access to this device.\n\n"
-                "Camera settings and controls will continue to work normally.\n\n"
-                "Tip: Enable the Virtual Camera to share the camera feed "
-                "with multiple applications simultaneously."
-            ) % {"camera": camera_name or device_path, "apps": apps_str}
+                "Close the other application or force-close it to free the camera."
+            ) % {"camera": cam_label, "apps": apps_str}
         else:
             body = _(
                 "The camera \"%s\" is being used by another application.\n\n"
-                "The video preview cannot be displayed while another "
-                "application has exclusive access to this device.\n\n"
-                "Camera settings and controls will continue to work normally.\n\n"
-                "Tip: Enable the Virtual Camera to share the camera feed "
-                "with multiple applications simultaneously."
-            ) % (camera_name or device_path)
+                "Close the other application to free the camera."
+            ) % cam_label
 
         dialog = Adw.AlertDialog.new(_("Camera in use"), body)
+
+        dialog.add_response("retry", _("Try again"))
+        dialog.set_response_appearance(
+            "retry", Adw.ResponseAppearance.SUGGESTED
+        )
 
         if blocking_apps:
             first_app = blocking_apps[0]
@@ -2020,14 +2191,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 "force-close", Adw.ResponseAppearance.DESTRUCTIVE
             )
 
-        if not VirtualCamera.is_enabled():
-            dialog.add_response("virtual-cam", _("Enable Virtual Camera"))
-            dialog.set_response_appearance(
-                "virtual-cam", Adw.ResponseAppearance.SUGGESTED
-            )
-
         dialog.add_response("close", _("Close"))
-        dialog.set_default_response("close")
+        dialog.set_default_response("retry")
         dialog.set_close_response("close")
 
         dialog.connect(
@@ -2035,6 +2200,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._on_device_busy_response,
             device_path,
             blocking_apps,
+            busy_camera,
         )
         self._immersion.present_dialog(dialog, self)
 
@@ -2044,14 +2210,26 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         response: str,
         device_path: str,
         blocking_apps: list[str],
+        camera: "CameraInfo | None",
     ) -> None:
         if response == "force-close":
-            self._force_close_device_users(device_path, blocking_apps)
-        elif response == "virtual-cam":
-            self._activate_virtual_camera_from_dialog()
+            self._force_close_device_users(device_path, blocking_apps, camera)
+        elif response == "retry":
+            self._retry_camera(camera)
+
+    def _retry_camera(self, camera: "CameraInfo | None") -> None:
+        """Force-retry the given camera, bypassing the 'already active' guard."""
+        if not camera:
+            return
+        # Ensure active is clear so _on_camera_selected doesn't skip
+        self._active_camera = None
+        self._on_camera_selected(self._camera_selector, camera)
 
     def _force_close_device_users(
-        self, device_path: str, blocking_apps: list[str]
+        self,
+        device_path: str,
+        blocking_apps: list[str],
+        camera: "CameraInfo | None" = None,
     ) -> None:
         """Terminate processes using the device, then retry the camera."""
         import signal as sig
@@ -2076,14 +2254,15 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 log.warning("Failed to kill processes on %s", device_path, exc_info=True)
 
         def _on_done(_result: None = None) -> None:
-            # Retry after a short delay
-            GLib.timeout_add(2000, self._retry_after_force_close)
+            GLib.timeout_add(2000, lambda: self._retry_camera(camera) or False)
 
         run_async(_kill_users, on_success=_on_done)
 
     def _retry_after_force_close(self) -> bool:
         if self._active_camera:
-            self._on_camera_selected(self._camera_selector, self._active_camera)
+            cam = self._active_camera
+            self._active_camera = None
+            self._on_camera_selected(self._camera_selector, cam)
         return False
 
     def _activate_virtual_camera_from_dialog(self) -> None:
@@ -2382,19 +2561,26 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._immersion.cleanup()
         self._video_recorder.stop()
         self._audio_monitor.stop_all()
+        self._audio_monitor.remove_external_source("airplay")
         self._stream_engine.stop()
         self._stream_engine.stop_all_bg_vcams()
         self._camera_manager.stop_hotplug()
 
-        # Run slow blocking cleanup (subprocess timeouts, thread joins)
-        # in a background thread so the window can disappear instantly.
+        # Stop phone/scrcpy/airplay SYNCHRONOUSLY before the app exits,
+        # otherwise the processes become orphans.
+        if self._scrcpy_camera:
+            self._scrcpy_camera.stop()
+        if self._airplay_receiver:
+            self._airplay_receiver.stop()
+        if self._phone_server and self._phone_server.running:
+            self._phone_server.stop()
+
+        # Run slow blocking cleanup in background (VirtualCamera, gphoto2).
         def _heavy_cleanup() -> None:
             VirtualCamera.stop()
             gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
             if gp_backend and hasattr(gp_backend, "stop_streaming"):
                 gp_backend.stop_streaming()
-            if self._phone_server and self._phone_server.running:
-                self._phone_server.stop()
 
         def _on_cleanup_done(_result=None) -> None:
             if getattr(self, "_background_mode", False):
@@ -2417,6 +2603,18 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         }
         style_manager.set_color_scheme(scheme_map.get(theme, Adw.ColorScheme.DEFAULT))
 
+    # -- resource monitor ----------------------------------------------------
+
+    def _on_high_resource(self, _monitor, snapshot, features) -> None:
+        """Show resource warning dialog when usage is high."""
+        show_resource_warning(
+            parent=self,
+            snapshot=snapshot,
+            features=features,
+            settings=self._settings,
+            present_fn=self._immersion.present_dialog,
+        )
+
     # -- immersion -----------------------------------------------------------
 
     def _setup_immersion(self) -> None:
@@ -2435,3 +2633,81 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Preview overlays that should fade
         for w in self._preview.immersion_widgets():
             self._immersion.add_fade_widget(w)
+
+    def _setup_resource_monitor(self) -> None:
+        """Register features and start the resource usage monitor."""
+        mon = self._resource_monitor
+        se = self._stream_engine
+
+        # Register monitorable features
+        mon.register_feature(FeatureDescriptor(
+            feature_id="effects",
+            label=_("Video effects"),
+            description=_("Real-time filters, background blur, artistic effects"),
+            is_active=lambda: se.effects.has_active_effects(),
+            disable=lambda: se.effects.reset_all(),
+            estimated_cpu=40.0,
+            estimated_ram_mb=150.0,
+        ))
+        mon.register_feature(FeatureDescriptor(
+            feature_id="virtual-camera",
+            label=_("Virtual camera"),
+            description=_("v4l2loopback output for video conferencing"),
+            is_active=lambda: bool(se._vcam_device),
+            disable=lambda: se._stop_vcam(),
+            estimated_cpu=20.0,
+            estimated_ram_mb=80.0,
+        ))
+        mon.register_feature(FeatureDescriptor(
+            feature_id="bg-vcam-feeders",
+            label=_("Background virtual cameras"),
+            description=_("Virtual camera feeds for inactive cameras"),
+            is_active=lambda: bool(se._bg_vcam_feeders),
+            disable=lambda: se.stop_all_bg_vcams(),
+            estimated_cpu=30.0,
+            estimated_ram_mb=100.0,
+        ))
+        mon.register_feature(FeatureDescriptor(
+            feature_id="recording",
+            label=_("Video recording"),
+            description=_("Active video recording with encoding"),
+            is_active=lambda: (
+                self._video_recorder is not None
+                and self._video_recorder.is_recording
+            ),
+            disable=lambda: self._on_record_toggle() if self._video_recorder.is_recording else None,
+            estimated_cpu=50.0,
+            estimated_ram_mb=150.0,
+        ))
+        mon.register_feature(FeatureDescriptor(
+            feature_id="phone-server",
+            label=_("Phone camera server"),
+            description=_("HTTPS/WebSocket server for phone camera"),
+            is_active=lambda: self._phone_server.running,
+            disable=lambda: self._phone_server.stop(),
+            estimated_cpu=15.0,
+            estimated_ram_mb=50.0,
+        ))
+        mon.register_feature(FeatureDescriptor(
+            feature_id="scrcpy",
+            label=_("Scrcpy (Android camera)"),
+            description=_("Android camera via USB/Wi-Fi ADB"),
+            is_active=lambda: self._scrcpy_camera.running,
+            disable=lambda: self._scrcpy_camera.stop(),
+            estimated_cpu=40.0,
+            estimated_ram_mb=200.0,
+        ))
+        mon.register_feature(FeatureDescriptor(
+            feature_id="airplay",
+            label=_("AirPlay receiver"),
+            description=_("Apple AirPlay screen mirroring via UxPlay"),
+            is_active=lambda: self._airplay_receiver.running,
+            disable=lambda: self._airplay_receiver.stop(),
+            estimated_cpu=40.0,
+            estimated_ram_mb=200.0,
+        ))
+
+        mon.connect("high-resource", self._on_high_resource)
+
+        if self._settings.get(MONITOR_ENABLED_KEY):
+            mon.start()

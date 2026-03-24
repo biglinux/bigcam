@@ -5,7 +5,7 @@ import os
 
 APP_ID = "br.com.biglinux.bigcam"
 APP_NAME = "BigCam"
-APP_VERSION = "4.2.0"
+APP_VERSION = "4.3.0"
 APP_ICON = "bigcam"
 APP_WEBSITE = "https://github.com/biglinux/bigcam"
 APP_ISSUE_URL = "https://github.com/biglinux/bigcam/issues"
@@ -21,6 +21,7 @@ class BackendType(enum.Enum):
     PIPEWIRE = "pipewire"
     IP = "ip"
     PHONE = "phone"
+    SCRCPY = "scrcpy"
 
 
 class ControlCategory(enum.Enum):

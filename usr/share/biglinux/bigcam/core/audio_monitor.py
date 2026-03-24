@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import threading
+from typing import Callable
 
 import gi
 
@@ -148,15 +149,21 @@ class AudioMonitor(GObject.Object):
         self._pipelines: dict[str, Gst.Pipeline] = {}
         self._volume_elements: dict[str, Gst.Element] = {}
         self._source_volumes: dict[str, float] = {}  # per-source volume
+        self._restart_counts: dict[str, int] = {}  # per-source restart counter
         self._volume: float = 0.5
         self._muted: bool = False
+        # External sources (e.g. AirPlay) controlled via pactl
+        self._external: dict[str, dict] = {}  # name → {label, pid, index, active}
 
     # -- public API ----------------------------------------------------------
 
     @property
     def sources(self) -> list[tuple[str, str]]:
         """Available audio sources as ``[(pulse_name, label), ...]``."""
-        return list(self._sources)
+        result = list(self._sources)
+        for name, info in self._external.items():
+            result.append((name, info["label"]))
+        return result
 
     @property
     def volume(self) -> float:
@@ -171,20 +178,35 @@ class AudioMonitor(GObject.Object):
         threading.Thread(target=self._detect_worker, daemon=True).start()
 
     def is_active(self, source_name: str) -> bool:
+        if source_name in self._external:
+            return self._external[source_name].get("active", True)
         return source_name in self._pipelines
 
     @property
     def active_source_names(self) -> list[str]:
         """Return PulseAudio device names of all currently active sources."""
-        return list(self._pipelines.keys())
+        result = list(self._pipelines.keys())
+        for name, info in self._external.items():
+            if info.get("active", True):
+                result.append(name)
+        return result
 
     @property
     def all_source_names(self) -> list[str]:
         """Return PulseAudio device names of all detected sources."""
-        return [s[0] for s in self._sources]
+        result = [s[0] for s in self._sources]
+        result.extend(self._external.keys())
+        return result
 
     def toggle_source(self, source_name: str) -> None:
         """Start or stop playback of a given source."""
+        if source_name in self._external:
+            info = self._external[source_name]
+            active = not info.get("active", True)
+            info["active"] = active
+            self._pactl_mute_external(source_name, not active)
+            self.emit("source-toggled", source_name, active)
+            return
         if source_name in self._pipelines:
             self._stop_source(source_name)
             self.emit("source-toggled", source_name, False)
@@ -202,15 +224,21 @@ class AudioMonitor(GObject.Object):
         for src, vol in self._volume_elements.items():
             vol.set_property("volume", self._volume)
             self._source_volumes[src] = self._volume
+        for name in self._external:
+            self._source_volumes[name] = self._volume
+            self._pactl_volume_external(name, self._volume)
         self.emit("volume-changed", self._volume)
 
     def set_source_volume(self, source_name: str, value: float) -> None:
         """Set volume for a specific source."""
         value = max(0.0, min(1.0, value))
         self._source_volumes[source_name] = value
-        vol_elem = self._volume_elements.get(source_name)
-        if vol_elem:
-            vol_elem.set_property("volume", value)
+        if source_name in self._external:
+            self._pactl_volume_external(source_name, value)
+        else:
+            vol_elem = self._volume_elements.get(source_name)
+            if vol_elem:
+                vol_elem.set_property("volume", value)
         self.emit("source-volume-changed", source_name, value)
 
     def get_source_volume(self, source_name: str) -> float:
@@ -221,10 +249,221 @@ class AudioMonitor(GObject.Object):
         self._muted = muted
         for vol in self._volume_elements.values():
             vol.set_property("mute", muted)
+        for name in self._external:
+            self._pactl_mute_external(name, muted)
         self.emit("mute-changed", muted)
 
     def toggle_mute(self) -> None:
         self.set_muted(not self._muted)
+
+    # -- external sources (e.g. AirPlay, controlled via pactl) ---------------
+
+    def add_external_source(
+        self,
+        name: str,
+        label: str,
+        pid: int = 0,
+        volume_cb: Callable[[float], None] | None = None,
+        mute_cb: Callable[[bool], None] | None = None,
+    ) -> None:
+        """Register an external audio source.
+
+        If *volume_cb* and *mute_cb* are provided, they are called directly
+        for volume/mute control (e.g. GStreamer volume element).
+        Otherwise, the sink-input is resolved by PID and controlled via pactl.
+        """
+        self._external[name] = {
+            "label": label,
+            "pid": pid,
+            "index": None,
+            "active": True,
+            "volume_cb": volume_cb,
+            "mute_cb": mute_cb,
+        }
+        self._source_volumes.setdefault(name, self._volume)
+        if volume_cb and mute_cb:
+            # Apply current volume/mute immediately
+            volume_cb(self._source_volumes.get(name, self._volume))
+            if self._muted:
+                mute_cb(True)
+        elif pid:
+            threading.Thread(
+                target=self._resolve_sink_input, args=(name, pid), daemon=True
+            ).start()
+        self.emit("sources-changed")
+
+    def remove_external_source(self, name: str) -> None:
+        """Unregister an external audio source."""
+        self._external.pop(name, None)
+        self._source_volumes.pop(name, None)
+        self.emit("sources-changed")
+
+    def _resolve_sink_input(self, name: str, pid: int) -> None:
+        """Find the PulseAudio sink-input index for a given PID (background)."""
+        for _attempt in range(15):
+            if name not in self._external:
+                return
+            idx = self._find_sink_input_by_pid(pid)
+            if idx is not None:
+                if name in self._external:
+                    self._external[name]["index"] = idx
+                    vol = self._source_volumes.get(name, self._volume)
+                    self._pactl_volume_external(name, vol)
+                    if self._muted:
+                        self._pactl_mute_external(name, True)
+                    log.info("Resolved sink-input #%d for external source %s (pid %d)", idx, name, pid)
+                return
+            import time
+            time.sleep(1)
+        log.warning("Could not find sink-input for external source %s (pid %d)", name, pid)
+
+    @staticmethod
+    def _find_sink_input_by_pid(pid: int) -> int | None:
+        """Query pactl for a sink-input owned by the given PID or its children.
+
+        Checks both ``application.process.id`` in sink-input properties
+        and ``pipewire.sec.pid`` in client properties (for SDL/PipeWire apps
+        that don't set ``application.process.id``).
+        """
+        # Collect the PID and its direct children (e.g. stdbuf → scrcpy)
+        pids_to_check: set[int] = {pid}
+        try:
+            child_result = subprocess.run(
+                ["pgrep", "--parent", str(pid)],
+                capture_output=True, text=True, timeout=3,
+            )
+            for cline in child_result.stdout.splitlines():
+                cline = cline.strip()
+                if cline:
+                    try:
+                        pids_to_check.add(int(cline))
+                    except ValueError:
+                        pass
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+        # --- Phase 1: check application.process.id in sink-inputs ----------
+        try:
+            result = subprocess.run(
+                ["pactl", "list", "sink-inputs"],
+                capture_output=True, text=True, timeout=5,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+        if result.returncode != 0:
+            return None
+
+        # Parse sink-inputs: collect (index, client_id) pairs
+        cur_index: int | None = None
+        cur_client: int | None = None
+        sink_inputs: list[tuple[int, int | None]] = []
+
+        for line in result.stdout.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("Sink Input #"):
+                if cur_index is not None:
+                    sink_inputs.append((cur_index, cur_client))
+                try:
+                    cur_index = int(stripped.split("#", 1)[1])
+                except ValueError:
+                    cur_index = None
+                cur_client = None
+            elif stripped.startswith("Client:") and cur_index is not None:
+                try:
+                    cur_client = int(stripped.split(":", 1)[1].strip())
+                except ValueError:
+                    pass
+            elif "application.process.id" in stripped and cur_index is not None:
+                val = stripped.split("=", 1)[1].strip().strip('"')
+                try:
+                    if int(val) in pids_to_check:
+                        return cur_index
+                except ValueError:
+                    pass
+        if cur_index is not None:
+            sink_inputs.append((cur_index, cur_client))
+
+        # --- Phase 2: check pipewire.sec.pid in clients --------------------
+        client_ids = {c for _, c in sink_inputs if c is not None}
+        if not client_ids:
+            return None
+
+        try:
+            cl_result = subprocess.run(
+                ["pactl", "list", "clients"],
+                capture_output=True, text=True, timeout=5,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return None
+        if cl_result.returncode != 0:
+            return None
+
+        # Map client_id → PID (from pipewire.sec.pid or application.process.id)
+        cl_id: int | None = None
+        matching_clients: set[int] = set()
+        for line in cl_result.stdout.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("Client #"):
+                try:
+                    cl_id = int(stripped.split("#", 1)[1])
+                except ValueError:
+                    cl_id = None
+            elif cl_id is not None and cl_id in client_ids:
+                for key in ("pipewire.sec.pid", "application.process.id"):
+                    if key in stripped:
+                        val = stripped.split("=", 1)[1].strip().strip('"')
+                        try:
+                            if int(val) in pids_to_check:
+                                matching_clients.add(cl_id)
+                        except ValueError:
+                            pass
+
+        # Return the first sink-input whose client matches
+        for si_index, si_client in sink_inputs:
+            if si_client in matching_clients:
+                return si_index
+
+        return None
+
+    def _pactl_volume_external(self, name: str, value: float) -> None:
+        """Set volume on an external source via callback or pactl."""
+        info = self._external.get(name)
+        if not info:
+            return
+        cb = info.get("volume_cb")
+        if cb:
+            cb(value)
+            return
+        if info.get("index") is None:
+            return
+        pct = int(round(value * 100))
+        try:
+            subprocess.run(
+                ["pactl", "set-sink-input-volume", str(info["index"]), f"{pct}%"],
+                capture_output=True, timeout=3,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+    def _pactl_mute_external(self, name: str, muted: bool) -> None:
+        """Mute/unmute an external source via callback or pactl."""
+        info = self._external.get(name)
+        if not info:
+            return
+        cb = info.get("mute_cb")
+        if cb:
+            cb(muted)
+            return
+        if info.get("index") is None:
+            return
+        try:
+            subprocess.run(
+                ["pactl", "set-sink-input-mute", str(info["index"]),
+                 "1" if muted else "0"],
+                capture_output=True, timeout=3,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
 
     # -- internal ------------------------------------------------------------
 
@@ -247,6 +486,7 @@ class AudioMonitor(GObject.Object):
     def _start_source(self, source: str) -> None:
         if source in self._pipelines:
             return
+        self._restart_counts.pop(source, None)  # reset restart counter on fresh start
         pipeline_str = (
             f'pulsesrc device="{source}" '
             "do-timestamp=true "
@@ -289,8 +529,15 @@ class AudioMonitor(GObject.Object):
     def _on_bus_eos(
         self, _bus: Gst.Bus, _msg: Gst.Message, source: str
     ) -> None:
-        log.warning("Audio pipeline EOS for %s – restarting", source)
-        GLib.timeout_add(500, self._restart_source, source)
+        count = self._restart_counts.get(source, 0) + 1
+        self._restart_counts[source] = count
+        if count > 5:
+            log.warning("Audio pipeline EOS for %s – too many restarts (%d), giving up", source, count)
+            self._stop_source(source)
+            return
+        delay = min(500 * count, 5000)  # backoff: 500ms, 1s, 1.5s, ... max 5s
+        log.warning("Audio pipeline EOS for %s – restarting (attempt %d, delay %dms)", source, count, delay)
+        GLib.timeout_add(delay, self._restart_source, source)
 
     def _on_bus_error(
         self, _bus: Gst.Bus, msg: Gst.Message, source: str

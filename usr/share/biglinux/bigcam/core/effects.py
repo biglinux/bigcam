@@ -257,6 +257,9 @@ def _apply_vignette(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     h, w = frame.shape[:2]
     key = (w, h, round(strength, 2))
     if key not in _vignette_cache:
+        # Cap cache size to prevent unbounded memory growth (~8MB per entry at 1080p)
+        if len(_vignette_cache) >= 4:
+            _vignette_cache.pop(next(iter(_vignette_cache)))
         x = np.arange(w, dtype=np.float32) - w / 2
         y = np.arange(h, dtype=np.float32) - h / 2
         xx, yy = np.meshgrid(x, y)
@@ -337,6 +340,20 @@ def _get_selfie_segmenter() -> Any:
     )
     _selfie_segmenter = vision.ImageSegmenter.create_from_options(options)
     return _selfie_segmenter
+
+
+def release_segmenter() -> None:
+    """Release the MediaPipe selfie segmenter and effect caches to free memory."""
+    global _selfie_segmenter
+    if _selfie_segmenter is not None:
+        try:
+            _selfie_segmenter.close()
+        except Exception:
+            pass
+        _selfie_segmenter = None
+    _vignette_cache.clear()
+    _gamma_lut_cache.clear()
+    _clahe_cache.clear()
 
 
 def _apply_bg_blur(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
@@ -648,6 +665,9 @@ class EffectPipeline:
             for p in info.params:
                 p.value = p.default
         self._active_count = 0
+        # Free cached data and MediaPipe model to reduce memory
+        release_segmenter()
+        _clahe_cache.clear()
 
     def has_active_effects(self) -> bool:
         return self._active_count > 0

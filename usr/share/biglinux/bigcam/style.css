@@ -572,3 +572,38 @@ window.bigcam overlay-split-view> :not(.shade) {
     background: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.7);
 }
+/* ── Phone Camera Dialog ─────────────────────────────── */
+
+.step-number {
+    font-weight: 700;
+    font-size: 13px;
+    border-radius: 50%;
+    min-width: 28px;
+    min-height: 28px;
+    background: @accent_bg_color;
+    color: @accent_fg_color;
+}
+
+.qr-container {
+    border-radius: 8px;
+    padding: 8px;
+    background: white;
+}
+
+.prereq-ok {
+    color: #2ec946;
+}
+
+.prereq-missing {
+    color: @warning_color;
+}
+
+.url-display {
+    font-family: monospace;
+}
+
+/* Footer status bar */
+.phone-dialog-footer {
+    border-top: 1px solid alpha(@borders, 0.5);
+    min-height: 32px;
+}

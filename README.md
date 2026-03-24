@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.2.0</h1>
+<h1 align="center">BigCam 4.3.0</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.2.0-brightgreen.svg" alt="Version 4.2.0">
+  <img src="https://img.shields.io/badge/Version-4.3.0-brightgreen.svg" alt="Version 4.3.0">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -46,35 +46,83 @@
 
 **Version 4.0** consolidated all improvements into a single major release: barcode scanner (zbar), recording codec selector (H.264/H.265/VP9/MJPEG with HW acceleration), camera control profiles, control dependencies (auto-exposure/white-balance/focus), SpinButton on V4L2 integer controls, anti-flicker auto-set, effect pipeline optimizations, CSD window controls, and a full dependency audit.
 
-**Version 4.2.0** (current) focused on performance and stability:
+**Version 4.2.0** focused on performance and stability: OpenCV V4L2 direct capture (replacing GStreamer for USB cameras), background capture thread, Nix support, About dialog, CSD button fix, JPEG warning suppression, and project cleanup.
 
-- **OpenCV V4L2 direct capture**: Replaced GStreamer pipeline with native OpenCV VideoCapture using V4L2 mmap backend for USB cameras. Eliminates the flickering, stuttering, and frame drops that plagued the GStreamer pipeline on USB 2.0 hardware. GStreamer remains as a fallback for non-V4L2 sources.
-- **Background capture thread**: Dedicated daemon thread handles blocking `cap.read()` calls, keeping the GTK main loop responsive. Render timer on the main thread picks up the latest frame at display refresh rate.
-- **Nix support**: Added `flake.nix`, `default.nix`, and `.envrc` for reproducible builds and development environments via Nix.
-- **About dialog**: Now features the project's origin story and credits the original authors (Rafael Ruscher and Barnabé di Kartola).
-- **CSD button fix**: Window control buttons (minimize, maximize, close) no longer show hover highlight artifacts.
-- **JPEG warning suppression**: Corrupt JPEG data warnings from libjpeg-turbo are silenced during capture. OpenCV internal log level set to ERROR.
-- **Project cleanup**: Removed 125+ unnecessary files (backup files, legacy artifacts, duplicate assets).
+**Version 4.3.0** (current) is the **phone connectivity overhaul** — a complete redesign of the smartphone camera system with four independent connection methods, full audio capture from every source, and virtual camera output for all phone modes:
+
+- **Redesigned Phone Camera dialog**: Complete UX/UI overhaul with `AdwViewSwitcher` tabs — four connection methods (Browser, Wi-Fi, USB, AirPlay) each with their own status, controls, and connection flow. Footer bar with connection status and action buttons.
+- **AirPlay receiver (UxPlay)**: iPhones and iPads can now stream directly to BigCam via AirPlay screen mirroring. No app needed — just select BigCam from the AirPlay menu. Supports rotation (left/right 90°) and full audio forwarding.
+- **scrcpy USB connection**: Android phones connect via USB cable with scrcpy, streaming the phone's camera directly to BigCam with microphone audio capture. No app installation required — just enable USB debugging.
+- **scrcpy Wi-Fi connection**: Android phones connect wirelessly via scrcpy over TCP/IP (ADB Wi-Fi pairing). Same features as USB but cable-free.
+- **Browser audio capture**: The browser-based phone camera now captures audio alongside video using the WebAudio API (ScriptProcessor → PCM S16LE 48000Hz mono), streamed in real-time via WebSocket and played back through a GStreamer pipeline.
+- **Unified audio volume control**: All phone sources (Browser, scrcpy, AirPlay) integrate with BigCam's AudioMonitor system. Volume and mute controls work seamlessly — using GStreamer callbacks for browser audio and PulseAudio/PipeWire sink-input control for scrcpy and AirPlay.
+- **BigCam Virtual for all phone sources**: Every phone connection method (Browser, Wi-Fi, USB, AirPlay) automatically creates a virtual camera device via v4l2loopback, making the phone feed available to Zoom, Teams, OBS, etc.
+- **Reliable process cleanup**: All external processes (UxPlay, scrcpy) use process groups (`start_new_session=True`) with `os.killpg()` for guaranteed cleanup. An `atexit` handler ensures processes are killed even on unexpected exits.
 
 We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.2.0
+## What's New in 4.3.0
 
-### OpenCV V4L2 Direct Capture
+### Redesigned Phone Camera Dialog
 
-The GStreamer pipeline for USB cameras has been replaced by native OpenCV VideoCapture with V4L2 mmap backend. This is the same approach used by guvcview — direct V4L2 buffer access without the complexity of GStreamer's push-based pipeline. The result is zero flickering, zero stuttering, and zero frame drops, even on USB 2.0 hardware sharing bandwidth with other devices.
+The phone camera dialog has been completely redesigned with an `AdwViewSwitcher` providing four independent connection tabs — **Browser**, **Wi-Fi** (scrcpy), **USB** (scrcpy), and **AirPlay** (UxPlay). Each tab has its own connection flow, status indicators, and controls. A footer bar shows real-time connection status with contextual action buttons.
 
-A dedicated background thread handles blocking `cap.read()` calls while a main-thread render timer picks up the latest frame at display refresh rate. GStreamer remains available as a fallback for non-V4L2 sources (gPhoto2, libcamera, PipeWire, IP cameras).
+### AirPlay Receiver
 
-### Nix Support
+iPhones and iPads can now stream directly to BigCam via AirPlay screen mirroring using [UxPlay](https://github.com/antimof/UxPlay). No app installation needed — just select "BigCam" from the AirPlay menu on your iOS device. Features:
 
-BigCam now ships `flake.nix`, `default.nix`, and `.envrc` for reproducible builds and development environments via Nix. All runtime dependencies (GTK4, Adwaita, GStreamer, FFmpeg, OpenCV, v4l-utils, gPhoto2, PipeWire, zbar) are properly declared.
+- **Zero setup**: Works out of the box on the local network
+- **Rotation**: Optional 90° left/right rotation for portrait-to-landscape conversion
+- **Full audio**: Audio from the iPhone is captured and played back on the computer
+- **Volume control**: Integrated with BigCam's audio mixer
 
-### About Dialog
+### scrcpy USB & Wi-Fi Connections
 
-The About dialog now tells BigCam's origin story and credits the original authors — Rafael Ruscher and Barnabé di Kartola.
+Android phones now have two additional connection methods via [scrcpy](https://github.com/Genymobile/scrcpy):
+
+- **USB**: Connect via USB cable — just enable USB debugging on the phone. Camera streams directly with near-zero latency.
+- **Wi-Fi**: Connect wirelessly via ADB TCP/IP pairing. Same quality as USB, but cable-free.
+
+Both modes capture the phone's **microphone audio** (`--audio-source=mic`) alongside video, with volume control integrated into BigCam's audio mixer via PulseAudio/PipeWire sink-input management.
+
+### Browser Audio Capture
+
+The browser-based phone camera (the original connection method from BigCam 3.0) now captures **audio** alongside video:
+
+- **WebAudio capture**: Uses the ScriptProcessor API to capture PCM audio at 48kHz mono from the phone's microphone
+- **Real-time streaming**: Audio is encoded as S16LE and sent via WebSocket alongside JPEG video frames (differentiated by a marker byte)
+- **GStreamer playback**: A dedicated `appsrc → audioconvert → audioresample → volume → autoaudiosink` pipeline handles low-latency playback
+- **Volume control**: Integrated with BigCam's audio mixer via direct GStreamer volume element callbacks
+
+### Unified Audio Volume Control
+
+All phone camera sources are now integrated with BigCam's AudioMonitor system. The audio mixer provides volume and mute controls for every active phone source:
+
+| Source | Control Method |
+|--------|---------------|
+| **Browser** | GStreamer volume element (callback-based) |
+| **scrcpy (USB/Wi-Fi)** | PulseAudio/PipeWire sink-input (pactl) |
+| **AirPlay** | PulseAudio/PipeWire sink-input (pactl) |
+
+The AudioMonitor uses a two-phase PID lookup for sink-input matching: first checking `application.process.id` in sink-inputs (works for UxPlay), then falling back to `pipewire.sec.pid` in PipeWire clients (works for SDL-based apps like scrcpy).
+
+### Virtual Camera for All Phone Sources
+
+Every phone connection method now automatically creates a BigCam Virtual camera device via v4l2loopback. The phone's camera feed (with all effects applied) appears as a regular `/dev/video*` device — usable in Zoom, Teams, Google Meet, OBS, Discord, or any V4L2-compatible application.
+
+### Reliable Process Cleanup
+
+External processes (UxPlay for AirPlay, scrcpy for USB/Wi-Fi) are launched in their own process groups (`start_new_session=True`) and terminated via `os.killpg()` with SIGTERM→wait→SIGKILL fallback. An `atexit` handler ensures all child processes are killed even on unexpected application exits.
+
+### Previous (4.2.0)
+
+- **OpenCV V4L2 direct capture**: Replaced GStreamer pipeline with native OpenCV VideoCapture using V4L2 mmap backend for USB cameras. Zero flickering, zero frame drops.
+- **Background capture thread**: Dedicated daemon thread for blocking `cap.read()` calls.
+- **Nix support**: `flake.nix`, `default.nix`, and `.envrc` for reproducible builds.
+- **About dialog**: Origin story and credits.
+- **CSD button fix**: No more hover highlight artifacts on window controls.
 
 ### Previous (4.0)
 
@@ -138,7 +186,7 @@ Most webcam tools on Linux are either too basic (just open the camera) or too co
 
 - **Zero cost, zero bloat**: Free, open source, no subscriptions, no telemetry. Runs natively on your desktop with GTK4 + Libadwaita.
 - **Works with everything**: USB webcams, DSLR/mirrorless cameras (2,500+ models), Raspberry Pi cameras, IP/network cameras, PipeWire virtual cameras, and now **your smartphone** — all from one app.
-- **Phone as webcam — for free**: No need to buy Camo, EpocCam, DroidCam, or iVCam. BigCam turns your Android or iPhone into a high-quality webcam using only the phone's built-in browser. No app to install, no account to create, just scan a QR code and start streaming.
+- **Phone as webcam — for free**: No need to buy Camo, EpocCam, DroidCam, or iVCam. BigCam turns your Android or iPhone into a high-quality webcam with four connection methods: browser (zero-install), scrcpy USB, scrcpy Wi-Fi, and AirPlay. Audio capture included in all modes.
 - **Professional controls**: Full V4L2 control panel with software fallbacks for zoom, pan/tilt, sharpness, and backlight compensation — so every camera gets the same capabilities regardless of hardware support.
 - **Real-time effects**: 17 OpenCV effects (filters, color grading, artistic styles, **background blur with AI segmentation**) applied live to the preview and virtual camera output.
 - **Virtual camera output**: Sends the processed feed to any video conferencing app (Zoom, Teams, Google Meet, OBS, Discord) via v4l2loopback.
@@ -188,47 +236,79 @@ Any camera with an RTSP or HTTP video stream URL — security cameras, action ca
 
 ### Smartphone Camera (Phone as Webcam)
 
-**The highlight of BigCam 3.0, refined in 4.0.** See the dedicated section below.
+**The highlight of BigCam 3.0, completely redesigned in 4.3.0 with four independent connection methods.** See the dedicated section below.
 
 ---
 
 ## Use Your Phone as a Webcam
 
-BigCam turns any smartphone (Android or iPhone) into a wireless webcam. Unlike commercial solutions like DroidCam, Camo, or EpocCam, BigCam:
+BigCam turns any smartphone (Android or iPhone) into a full webcam with **audio and video**. Unlike commercial solutions like DroidCam, Camo, or EpocCam, BigCam:
 
 - **Does NOT require installing any app** on your phone
 - **Does NOT require creating an account** or signing up for anything
 - **Does NOT require a paid subscription** for HD quality
-- **Works with any phone** that has a modern web browser (Chrome, Firefox, Safari, Edge)
-- **Works over WiFi** — phone and computer just need to be on the same network
+- **Works with any phone** — Android or iPhone
+- **Captures audio** — microphone from all connection methods
+- **Four connection methods** — Browser, Wi-Fi, USB, and AirPlay
 
-### How It Works
+### Connection Methods
+
+BigCam 4.3.0 offers four independent ways to connect your phone, each optimized for different scenarios:
+
+#### 1. Browser (Wi-Fi — any phone)
+
+The original zero-install method. Works with any phone that has a modern web browser.
 
 1. Click the **phone icon** in BigCam's header bar
-2. BigCam starts a secure local HTTPS server on your machine
-3. A **QR code** appears on screen — scan it with your phone's camera
-4. Your phone opens a web page in its browser
-5. Accept the camera permission and tap **Start**
-6. Your phone's camera feed streams directly to BigCam in real-time
+2. The **Browser** tab shows a QR code — scan it with your phone
+3. Accept camera + microphone permissions and tap **Start**
+4. Video and audio stream to BigCam in real-time via WebSocket
 
-That's it. No drivers, no USB cables, no third-party apps.
+**Technical**: HTTPS server with self-signed TLS. Video as JPEG frames via Canvas + `getUserMedia()`. Audio captured via WebAudio ScriptProcessor API (48kHz PCM S16LE mono), sent as binary WebSocket messages with marker byte differentiation. GStreamer `appsrc` pipeline handles audio playback.
 
-### Technical Details
+#### 2. Wi-Fi — scrcpy (Android)
 
-- **Protocol**: WebSocket Secure (WSS) over HTTPS with automatic HTTP POST fallback for browsers that reject self-signed certificates (Safari/iOS).
-- **Transport**: JPEG frames encoded in the phone's browser via HTML5 Canvas + WebRTC `getUserMedia()` API, sent as binary WebSocket messages.
-- **Security**: Self-signed TLS certificates generated on-demand, stored in `~/.cache/bigcam/`. Traffic is encrypted. Connection is LAN-only.
-- **Latency**: Real-time, limited only by your WiFi network quality.
+Wireless connection using [scrcpy](https://github.com/Genymobile/scrcpy) over TCP/IP.
+
+1. Enable **USB debugging** on your Android phone
+2. Open the **Wi-Fi** tab and follow the ADB pairing instructions
+3. scrcpy streams the phone's camera with microphone audio wirelessly
+
+**Technical**: ADB TCP/IP pairing → scrcpy with `--video-source=camera --audio-source=mic --v4l2-sink=<device>`. Audio routed through PulseAudio/PipeWire with sink-input volume control.
+
+#### 3. USB — scrcpy (Android)
+
+Wired connection with near-zero latency.
+
+1. Enable **USB debugging** on your Android phone
+2. Connect via USB cable
+3. Open the **USB** tab and click **Connect**
+
+**Technical**: Same as Wi-Fi method but over USB — lower latency, more reliable.
+
+#### 4. AirPlay (iPhone/iPad)
+
+Native AirPlay screen mirroring via [UxPlay](https://github.com/antimof/UxPlay).
+
+1. Open the **AirPlay** tab and click **Start Receiver**
+2. On your iPhone/iPad, open Control Center → Screen Mirroring → select "BigCam"
+3. The screen mirrors to BigCam with full audio
+
+**Technical**: UxPlay receiver with `-n BigCam`, video output to v4l2sink, optional rotation (`-r L/R`). Audio forwarded natively.
 
 ### Phone Camera Options
 
-| Feature | Options |
-|---------|---------|
-| **Camera** | Front (selfie) or Back (environment) — switchable mid-stream |
-| **Resolution** | Auto, 480p, 720p (default), 1080p |
-| **Quality** | Low (60%), Medium (75%, default), High (90%) JPEG compression |
-| **Frame rate** | 15, 24, or 30 fps |
-| **Orientation** | Automatic — detects portrait/landscape rotation |
+| Feature | Browser | scrcpy (USB/Wi-Fi) | AirPlay |
+|---------|---------|-------------------|---------|
+| **Platforms** | Any phone | Android | iPhone/iPad |
+| **App required** | None (browser only) | None (USB debug) | None (built-in) |
+| **Video** | JPEG over WebSocket | Native camera | Screen mirroring |
+| **Audio** | WebAudio → GStreamer | Mic → PulseAudio | Native → PulseAudio |
+| **Volume control** | GStreamer callback | pactl sink-input | pactl sink-input |
+| **Virtual camera** | Yes | Yes | Yes |
+| **Camera selection** | Front/Back | Front/Back | N/A |
+| **Resolution** | 480p–1080p | Device native | Device native |
+| **Rotation** | Automatic | Automatic | Optional 90° L/R |
 
 ### Connection Status
 
@@ -432,8 +512,11 @@ x264                  # H.264 codec for video recording
 
 **Phone camera & connectivity:**
 ```
-python-aiohttp        # WebSocket server for smartphone streaming
+python-aiohttp        # WebSocket server for browser smartphone streaming
 python-qrcode         # QR code generation for phone camera dialog
+scrcpy                # Android phone camera via USB/Wi-Fi (optional)
+android-tools         # ADB for scrcpy pairing and connection (optional)
+uxplay                # AirPlay receiver for iPhone/iPad streaming (optional)
 ```
 
 **Optional (not packaged in all distros):**
@@ -472,11 +555,13 @@ bigcam/
 │   │   ├── camera_profiles.py       # Save/load per-camera control presets (JSON in ~/.config/bigcam/profiles/)
 │   │   ├── stream_engine.py         # GStreamer pipeline lifecycle, OpenCV probe, software controls, vcam appsrc
 │   │   ├── effects.py               # EffectPipeline — 17 OpenCV effects + MediaPipe background blur
-│   │   ├── audio_monitor.py         # Audio device detection and playback for USB cameras via GStreamer level element
+│   │   ├── audio_monitor.py         # Audio device detection, playback monitoring, and external source volume control (pactl + callbacks)
 │   │   ├── photo_capture.py         # Photo capture orchestration (preview snapshot + gPhoto2 download)
 │   │   ├── video_recorder.py        # Multi-codec video recording (H.264/H.265/VP9/MJPEG, HW accel, MKV/WebM/MP4)
 │   │   ├── virtual_camera.py        # v4l2loopback management (modprobe, device enumeration, start/stop)
-│   │   ├── phone_camera.py          # HTTPS + WebSocket server for smartphone streaming (self-signed TLS)
+│   │   ├── phone_camera.py          # HTTPS + WebSocket server for smartphone streaming (self-signed TLS, video + audio)
+│   │   ├── scrcpy_camera.py        # scrcpy subprocess management (USB/Wi-Fi, camera + mic audio)
+│   │   ├── airplay_receiver.py     # UxPlay subprocess management (AirPlay receiver, rotation, audio)
 │   │   └── backends/                # One module per camera type
 │   │       ├── v4l2_backend.py      # V4L2: v4l2-ctl enumeration, pipewiresrc/v4l2src GStreamer elements
 │   │       ├── gphoto2_backend.py   # gPhoto2: PTP/MTP session, settings, FFmpeg MPEG-TS → appsink pipeline
@@ -497,7 +582,7 @@ bigcam/
 │   │   ├── photo_gallery.py         # Photo browser with lazy thumbnails and delete
 │   │   ├── video_gallery.py         # Video browser with system player integration
 │   │   ├── virtual_camera_page.py   # Virtual camera start/stop controls
-│   │   ├── phone_camera_dialog.py   # Phone camera connection dialog with QR code
+│   │   ├── phone_camera_dialog.py   # Phone camera dialog with 4 tabs (Browser, Wi-Fi, USB, AirPlay)
 │   │   ├── ip_camera_dialog.py      # IP camera URL configuration dialog
 │   │   ├── qr_dialog.py             # QR/barcode result display with contextual actions (URL, WiFi, vCard, Barcode copy)
 │   │   ├── about_dialog.py          # Adw.AboutDialog with app info
@@ -533,7 +618,10 @@ Camera Sources
     ├─ CSI Camera ──── libcamera ────────────────┤
     ├─ PipeWire ────── pw-cli ───────────────────┤
     ├─ IP Camera ───── RTSP/HTTP ──── UDP ───────┤
-    └─ Smartphone ──── WebSocket (HTTPS) ────────┘
+    └─ Smartphone ──┬─ Browser (WebSocket HTTPS) ┤
+                    ├─ scrcpy USB (v4l2sink) ─────┤
+                    ├─ scrcpy Wi-Fi (v4l2sink) ───┤
+                    └─ AirPlay/UxPlay (v4l2sink) ─┘
                                                   │
                               GStreamer Pipeline (tee)
                                       │
@@ -554,6 +642,15 @@ Camera Sources
             │               │
       Video Recorder   Photo Capture
       (x264 → MKV)    (JPEG → XDG dir)
+
+Phone Audio Sources
+    │
+    ├─ Browser ──── WebAudio ScriptProcessor → WebSocket → GStreamer appsrc
+    ├─ scrcpy ───── --audio-source=mic → PulseAudio/PipeWire sink-input
+    └─ AirPlay ──── UxPlay native audio → PulseAudio/PipeWire sink-input
+                    │
+              AudioMonitor
+              (volume + mute control)
 ```
 
 ### Key Design Decisions
@@ -563,7 +660,7 @@ Camera Sources
 - **Cascading detection pipeline**: QR/barcode scanning uses a three-stage fallback: WeChatQRCode (fastest, highest accuracy for 2D QR) → QRCodeDetector (OpenCV built-in fallback) → zbar ImageScanner (1D barcodes only, runs on the grayscale frame already computed for QR detection).
 - **Adaptive downscaling for bilateralFilter**: Beauty and Denoise effects detect frame dimensions and downscale to 50% before applying `bilateralFilter` (O(d² × pixels)) when the frame exceeds 480p. The result is upscaled back. This yields ~4× throughput on 1080p with negligible perceptual quality loss.
 - **Software control fallbacks**: When V4L2 controls are accepted by the kernel driver but not applied by PipeWire, software equivalents are transparently applied. The user sees the same slider; the effect just works.
-- **No heavy dependencies**: The phone camera feature uses `aiohttp` (async WebSocket server) + browser's native WebRTC — no Electron, no native mobile app, no proprietary SDKs.
+- **No heavy dependencies**: The phone camera features use lightweight system tools — `aiohttp` for browser streaming (WebSocket + browser's native WebRTC), `scrcpy` for Android (USB/Wi-Fi), and `uxplay` for AirPlay (iPhone/iPad). No Electron, no native mobile app, no proprietary SDKs.
 - **GStreamer element mapping**: The pipeline uses elements from multiple GStreamer plugin packages: `gst-plugins-base` (videoconvert, decodebin, audioconvert, audioresample, queue, tee, appsrc/appsink), `gst-plugins-good` (v4l2src/v4l2sink, rtspsrc, souphttpsrc, level), `gst-plugins-bad-libs` (tsdemux), `gst-plugins-ugly` (x264enc), and `gst-plugin-gtk4` (gtk4paintablesink).
 
 ---

@@ -100,9 +100,10 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "--version"],
                 capture_output=True,
                 check=True,
+                timeout=5,
             )
             return True
-        except (FileNotFoundError, subprocess.CalledProcessError):
+        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
             return False
 
     # -- detection -----------------------------------------------------------
@@ -114,6 +115,7 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "--list-devices"],
                 capture_output=True,
                 text=True,
+                timeout=5,
             )
             if result.returncode != 0:
                 return cameras
@@ -166,6 +168,7 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "-d", device, "--info"],
                 capture_output=True,
                 text=True,
+                timeout=5,
             )
             return "Video Capture" in result.stdout
         except Exception:
@@ -177,6 +180,7 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "-d", device, "--list-formats-ext"],
                 capture_output=True,
                 text=True,
+                timeout=5,
             )
             return self._parse_formats_ext(result.stdout)
         except Exception:
@@ -254,6 +258,7 @@ class V4L2Backend(CameraBackend):
                 ["v4l2-ctl", "-d", camera.device_path, "--list-ctrls-menus"],
                 capture_output=True,
                 text=True,
+                timeout=5,
             )
             controls = self._parse_controls(result.stdout)
         except Exception:
@@ -347,9 +352,10 @@ class V4L2Backend(CameraBackend):
                 ],
                 capture_output=True,
                 check=True,
+                timeout=5,
             )
             return True
-        except (subprocess.CalledProcessError, FileNotFoundError):
+        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
             return False
 
     def apply_anti_flicker(self, camera: CameraInfo) -> None:

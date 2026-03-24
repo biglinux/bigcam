@@ -109,8 +109,9 @@ class _BgVcamFeeder:
         self._h, self._w = frame.shape[:2]
         # Build appsrc → v4l2sink pipeline
         nthreads = min(os.cpu_count() or 2, 4)
+        max_bytes = self._w * self._h * 4 * 2  # 2 BGRA frames
         pipeline_str = (
-            "appsrc name=src emit-signals=false is-live=true format=time block=false max-bytes=0 "
+            f"appsrc name=src emit-signals=false is-live=true format=time block=false max-bytes={max_bytes} "
             f"caps=video/x-raw,format=BGRA,width={self._w},height={self._h},framerate=30/1 "
             f"! queue max-size-buffers=2 leaky=downstream silent=true "
             f"! videoconvert n-threads={nthreads} "
@@ -164,7 +165,10 @@ class _BgVcamFeeder:
                     bgra = cv2.resize(bgra, (self._w, self._h))
                 buf = Gst.Buffer.new_wrapped(bgra.tobytes())
                 if appsrc:
-                    appsrc.emit("push-buffer", buf)
+                    ret = appsrc.emit("push-buffer", buf)
+                    if ret != Gst.FlowReturn.OK:
+                        log.warning("BgVcamFeeder: push-buffer returned %s — stopping", ret)
+                        break
         finally:
             os.dup2(orig_stderr_fd, 2)
             os.close(devnull_fd)
@@ -226,6 +230,7 @@ class StreamEngine(GObject.Object):
         self._vcam_pipeline: Gst.Pipeline | None = None
         self._vcam_appsrc: Any = None
         self._vcam_device: str = ""
+        self._vcam_alloc_id: str = ""  # VirtualCamera allocation id for vcam device
         self._vcam_w: int = 0
         self._vcam_h: int = 0
         self._prefer_v4l2: bool = False  # bypass PipeWire, use v4l2src directly
@@ -334,17 +339,100 @@ class StreamEngine(GObject.Object):
         self._frame_count += 1
         return Gst.PadProbeReturn.OK
 
+    # -- shared frame processing ---------------------------------------------
+
+    def _apply_frame_processing(self, bgr: np.ndarray) -> np.ndarray:
+        """Apply all software effects to a BGR frame (effects, zoom, sharpness,
+        backlight compensation, QR overlay)."""
+        if self._effects.has_active_effects():
+            bgr = self._effects.apply(bgr)
+        # Digital zoom + pan/tilt
+        if self._zoom_level > 1.0 or self._pan != 0.0 or self._tilt != 0.0:
+            zh, zw = bgr.shape[:2]
+            zoom = self._zoom_level
+            if (self._pan != 0.0 or self._tilt != 0.0) and zoom < 1.5:
+                zoom = 1.5
+            crop_h = int(zh / zoom)
+            crop_w = int(zw / zoom)
+            cx = zw // 2 + int(self._pan * (zw - crop_w) / 2)
+            cy = zh // 2 + int(self._tilt * (zh - crop_h) / 2)
+            x0 = max(0, min(cx - crop_w // 2, zw - crop_w))
+            y0 = max(0, min(cy - crop_h // 2, zh - crop_h))
+            cropped = bgr[y0:y0 + crop_h, x0:x0 + crop_w]
+            bgr = cv2.resize(cropped, (zw, zh), interpolation=cv2.INTER_LINEAR)
+        # Software sharpness: unsharp mask
+        if self._sharpness > 0.0:
+            blurred = cv2.GaussianBlur(bgr, (0, 0), 3)
+            amount = self._sharpness * 2.0
+            bgr = cv2.addWeighted(bgr, 1.0 + amount, blurred, -amount, 0)
+        # Software backlight compensation: CLAHE on luminance
+        if self._backlight_comp > 0.0:
+            lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+            clip = 1.0 + self._backlight_comp * 3.0
+            clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
+            lab[:, :, 0] = clahe.apply(lab[:, :, 0])
+            bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+        # QR detection overlay
+        if self._overlay_rects:
+            overlay = bgr.copy()
+            overlay[:] = (overlay * 0.4).astype(np.uint8)
+            for rect in self._overlay_rects:
+                x, y, rw, rh = rect
+                overlay[y:y + rh, x:x + rw] = bgr[y:y + rh, x:x + rw]
+                cv2.rectangle(overlay, (x, y), (x + rw, y + rh), (0, 255, 0), 3)
+            bgr = overlay
+        elif self._qr_scan_active:
+            fh, fw = bgr.shape[:2]
+            side = min(fw, fh) * 2 // 3
+            cx, cy = fw // 2, fh // 2
+            x1, y1 = cx - side // 2, cy - side // 2
+            x2, y2 = x1 + side, y1 + side
+            corner_len = side // 5
+            self._qr_scan_tick += 1
+            overlay = bgr.copy()
+            mask = np.ones((fh, fw), dtype=np.uint8)
+            mask[y1:y2, x1:x2] = 0
+            overlay[mask == 1] = (overlay[mask == 1] * 0.4).astype(np.uint8)
+            scan_range = y2 - y1
+            scan_pos = y1 + int((self._qr_scan_tick % 60) / 60.0 * scan_range)
+            cv2.line(overlay, (x1 + 4, scan_pos), (x2 - 4, scan_pos), (0, 200, 255), 2)
+            color = (255, 255, 255)
+            t = 3
+            cv2.line(overlay, (x1, y1), (x1 + corner_len, y1), color, t)
+            cv2.line(overlay, (x1, y1), (x1, y1 + corner_len), color, t)
+            cv2.line(overlay, (x2, y1), (x2 - corner_len, y1), color, t)
+            cv2.line(overlay, (x2, y1), (x2, y1 + corner_len), color, t)
+            cv2.line(overlay, (x1, y2), (x1 + corner_len, y2), color, t)
+            cv2.line(overlay, (x1, y2), (x1, y2 - corner_len), color, t)
+            cv2.line(overlay, (x2, y2), (x2 - corner_len, y2), color, t)
+            cv2.line(overlay, (x2, y2), (x2, y2 - corner_len), color, t)
+            bgr = overlay
+        return bgr
+
+    def _distribute_processed_frame(self, bgr: np.ndarray, w: int, h: int) -> None:
+        """Store processed frame (with mirror) and feed to vcam/recorder."""
+        self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
+        if self._vcam_device and self._last_probe_bgr is not None:
+            vcam_bgra = cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA)
+            self._schedule_vcam_push(vcam_bgra.tobytes(), w, h)
+        if self._video_recorder and self._video_recorder.is_recording:
+            self._video_recorder.write_frame(self._last_probe_bgr)
+
+    def _has_processing_work(self) -> bool:
+        """Check if any frame processing is needed."""
+        return (self._effects.has_active_effects() or self._overlay_rects
+                or self._qr_scan_active
+                or self._zoom_level > 1.0 or self._sharpness > 0.0
+                or self._backlight_comp > 0.0
+                or self._pan != 0.0 or self._tilt != 0.0)
+
     def _on_paintable_probe(
         self, pad: Gst.Pad, info: Gst.PadProbeInfo
     ) -> Gst.PadProbeReturn:
         """Buffer probe on tee sink — applies OpenCV effects via buffer replacement."""
         self._frame_count += 1
 
-        has_work = (self._effects.has_active_effects() or self._overlay_rects
-                    or self._qr_scan_active
-                    or self._zoom_level > 1.0 or self._sharpness > 0.0
-                    or self._backlight_comp > 0.0
-                    or self._pan != 0.0 or self._tilt != 0.0)
+        has_work = self._has_processing_work()
         is_recording = self._video_recorder and self._video_recorder.is_recording
         # Fast path: no effects/overlays — only grab BGR every 10th frame for photos
         # BUT if virtual camera is active, process every frame for smooth output
@@ -391,107 +479,10 @@ class StreamEngine(GObject.Object):
                 yuv = raw_arr.reshape((h, w * 2))
                 bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_YUY2)
             if bgr is not None:
-                needs_replace = (
-                    self._effects.has_active_effects() or self._overlay_rects
-                    or self._qr_scan_active
-                    or self._zoom_level > 1.0 or self._sharpness > 0.0
-                    or self._backlight_comp > 0.0
-                    or self._pan != 0.0 or self._tilt != 0.0
-                )
-                if needs_replace:
+                if has_work:
                     # Single copy for processing; views become owned arrays
-                    processed = bgr.copy()
-                    if self._effects.has_active_effects():
-                        processed = self._effects.apply(processed)
-                    # Digital zoom + pan/tilt: crop with offset and resize back
-                    if self._zoom_level > 1.0 or self._pan != 0.0 or self._tilt != 0.0:
-                        zh, zw = processed.shape[:2]
-                        # Auto-zoom when pan/tilt is active to create movement room
-                        zoom = self._zoom_level
-                        if (self._pan != 0.0 or self._tilt != 0.0) and zoom < 1.5:
-                            zoom = 1.5
-                        crop_h = int(zh / zoom)
-                        crop_w = int(zw / zoom)
-                        # Center crop with pan/tilt offset
-                        cx = zw // 2 + int(self._pan * (zw - crop_w) / 2)
-                        cy = zh // 2 + int(self._tilt * (zh - crop_h) / 2)
-                        # Clamp to valid bounds
-                        x0 = max(0, min(cx - crop_w // 2, zw - crop_w))
-                        y0 = max(0, min(cy - crop_h // 2, zh - crop_h))
-                        cropped = processed[y0:y0 + crop_h, x0:x0 + crop_w]
-                        processed = cv2.resize(cropped, (zw, zh), interpolation=cv2.INTER_LINEAR)
-                    # Software sharpness: unsharp mask
-                    if self._sharpness > 0.0:
-                        blurred = cv2.GaussianBlur(processed, (0, 0), 3)
-                        amount = self._sharpness * 2.0  # 0.0-2.0 strength
-                        processed = cv2.addWeighted(processed, 1.0 + amount, blurred, -amount, 0)
-                    # Software backlight compensation: CLAHE on luminance
-                    if self._backlight_comp > 0.0:
-                        lab = cv2.cvtColor(processed, cv2.COLOR_BGR2LAB)
-                        clip = 1.0 + self._backlight_comp * 3.0  # clipLimit 1.0-4.0
-                        clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
-                        lab[:, :, 0] = clahe.apply(lab[:, :, 0])
-                        processed = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-                    if self._overlay_rects:
-                        # Darken area outside QR bounding box
-                        overlay = processed.copy()
-                        overlay[:] = (overlay * 0.4).astype(np.uint8)
-                        for rect in self._overlay_rects:
-                            x, y, rw, rh = rect
-                            # Restore bright area inside rect
-                            overlay[y:y+rh, x:x+rw] = processed[y:y+rh, x:x+rw]
-                            # Green border when detected
-                            cv2.rectangle(
-                                overlay, (x, y), (x + rw, y + rh), (0, 255, 0), 3
-                            )
-                        processed = overlay
-                    elif self._qr_scan_active:
-                        # Draw scanning guide: centered square with animated corners
-                        fh, fw = processed.shape[:2]
-                        side = min(fw, fh) * 2 // 3
-                        cx, cy = fw // 2, fh // 2
-                        x1, y1 = cx - side // 2, cy - side // 2
-                        x2, y2 = x1 + side, y1 + side
-                        corner_len = side // 5
-                        self._qr_scan_tick += 1
-                        # Darken outside the guide area
-                        overlay = processed.copy()
-                        mask = np.ones((fh, fw), dtype=np.uint8)
-                        mask[y1:y2, x1:x2] = 0
-                        overlay[mask == 1] = (overlay[mask == 1] * 0.4).astype(np.uint8)
-                        # Animated scanning line (moves up and down)
-                        scan_range = y2 - y1
-                        scan_pos = y1 + int((self._qr_scan_tick % 60) / 60.0 * scan_range)
-                        cv2.line(overlay, (x1 + 4, scan_pos), (x2 - 4, scan_pos), (0, 200, 255), 2)
-                        # Corner markers (white, thick)
-                        color = (255, 255, 255)
-                        t = 3
-                        # Top-left
-                        cv2.line(overlay, (x1, y1), (x1 + corner_len, y1), color, t)
-                        cv2.line(overlay, (x1, y1), (x1, y1 + corner_len), color, t)
-                        # Top-right
-                        cv2.line(overlay, (x2, y1), (x2 - corner_len, y1), color, t)
-                        cv2.line(overlay, (x2, y1), (x2, y1 + corner_len), color, t)
-                        # Bottom-left
-                        cv2.line(overlay, (x1, y2), (x1 + corner_len, y2), color, t)
-                        cv2.line(overlay, (x1, y2), (x1, y2 - corner_len), color, t)
-                        # Bottom-right
-                        cv2.line(overlay, (x2, y2), (x2 - corner_len, y2), color, t)
-                        cv2.line(overlay, (x2, y2), (x2, y2 - corner_len), color, t)
-                        processed = overlay
-                    # Store for snapshot/photo (mirror applied for consistency with preview)
-                    self._last_probe_bgr = (
-                        cv2.flip(processed, 1) if self._mirror else processed
-                    )
-                    # Feed effects-processed frame to virtual camera.
-                    # Use _last_probe_bgr which already has mirror applied.
-                    if self._vcam_device:
-                        vcam_bgra = cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA)
-                        self._schedule_vcam_push(vcam_bgra.tobytes(), w, h)
-                    
-                    # Push to video recorder
-                    if self._video_recorder and self._video_recorder.is_recording:
-                        self._video_recorder.write_frame(self._last_probe_bgr)
+                    processed = self._apply_frame_processing(bgr.copy())
+                    self._distribute_processed_frame(processed, w, h)
                     # Convert back to original GStreamer pipeline format
                     if fmt in ("BGRA", "BGRx"):
                         out = np.empty((h, w, 4), dtype=np.uint8)
@@ -524,17 +515,7 @@ class StreamEngine(GObject.Object):
                             ).tobytes()
                 else:
                     # No effects: store copy for photos (view invalidated on unmap)
-                    if self._mirror:
-                        self._last_probe_bgr = cv2.flip(bgr, 1)
-                    else:
-                        self._last_probe_bgr = bgr.copy()
-                    # Push to video recorder
-                    if is_recording:
-                        self._video_recorder.write_frame(self._last_probe_bgr)
-                    # Feed frame to virtual camera (with mirror applied).
-                    if self._vcam_device and self._last_probe_bgr is not None:
-                        vcam_bgra = cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA)
-                        self._schedule_vcam_push(vcam_bgra.tobytes(), w, h)
+                    self._distribute_processed_frame(bgr.copy(), w, h)
         except Exception as e:
             if self._probe_debug_count <= 5:
                 log.debug(f"paintable_probe error: {e}")
@@ -948,86 +929,8 @@ class StreamEngine(GObject.Object):
         h, w = frame.shape[:2]
         bgr = frame.copy()  # copy to avoid race with capture thread
 
-        # Apply effects
-        if self._effects.has_active_effects():
-            bgr = self._effects.apply(bgr)
-
-        # Digital zoom + pan/tilt
-        if self._zoom_level > 1.0 or self._pan != 0.0 or self._tilt != 0.0:
-            zh, zw = bgr.shape[:2]
-            zoom = self._zoom_level
-            if (self._pan != 0.0 or self._tilt != 0.0) and zoom < 1.5:
-                zoom = 1.5
-            crop_h = int(zh / zoom)
-            crop_w = int(zw / zoom)
-            cx = zw // 2 + int(self._pan * (zw - crop_w) / 2)
-            cy = zh // 2 + int(self._tilt * (zh - crop_h) / 2)
-            x0 = max(0, min(cx - crop_w // 2, zw - crop_w))
-            y0 = max(0, min(cy - crop_h // 2, zh - crop_h))
-            cropped = bgr[y0:y0 + crop_h, x0:x0 + crop_w]
-            bgr = cv2.resize(cropped, (zw, zh), interpolation=cv2.INTER_LINEAR)
-
-        # Software sharpness
-        if self._sharpness > 0.0:
-            blurred = cv2.GaussianBlur(bgr, (0, 0), 3)
-            amount = self._sharpness * 2.0
-            bgr = cv2.addWeighted(bgr, 1.0 + amount, blurred, -amount, 0)
-
-        # Software backlight compensation
-        if self._backlight_comp > 0.0:
-            lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
-            clip = 1.0 + self._backlight_comp * 3.0
-            clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
-            lab[:, :, 0] = clahe.apply(lab[:, :, 0])
-            bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-
-        # QR overlay
-        if self._overlay_rects:
-            overlay = bgr.copy()
-            overlay[:] = (overlay * 0.4).astype(np.uint8)
-            for rect in self._overlay_rects:
-                x, y, rw, rh = rect
-                overlay[y:y + rh, x:x + rw] = bgr[y:y + rh, x:x + rw]
-                cv2.rectangle(overlay, (x, y), (x + rw, y + rh), (0, 255, 0), 3)
-            bgr = overlay
-        elif self._qr_scan_active:
-            fh, fw = bgr.shape[:2]
-            side = min(fw, fh) * 2 // 3
-            cx, cy = fw // 2, fh // 2
-            x1, y1 = cx - side // 2, cy - side // 2
-            x2, y2 = x1 + side, y1 + side
-            corner_len = side // 5
-            self._qr_scan_tick += 1
-            overlay = bgr.copy()
-            mask = np.ones((fh, fw), dtype=np.uint8)
-            mask[y1:y2, x1:x2] = 0
-            overlay[mask == 1] = (overlay[mask == 1] * 0.4).astype(np.uint8)
-            scan_range = y2 - y1
-            scan_pos = y1 + int((self._qr_scan_tick % 60) / 60.0 * scan_range)
-            cv2.line(overlay, (x1 + 4, scan_pos), (x2 - 4, scan_pos), (0, 200, 255), 2)
-            color = (255, 255, 255)
-            t = 3
-            cv2.line(overlay, (x1, y1), (x1 + corner_len, y1), color, t)
-            cv2.line(overlay, (x1, y1), (x1, y1 + corner_len), color, t)
-            cv2.line(overlay, (x2, y1), (x2 - corner_len, y1), color, t)
-            cv2.line(overlay, (x2, y1), (x2, y1 + corner_len), color, t)
-            cv2.line(overlay, (x1, y2), (x1 + corner_len, y2), color, t)
-            cv2.line(overlay, (x1, y2), (x1, y2 - corner_len), color, t)
-            cv2.line(overlay, (x2, y2), (x2 - corner_len, y2), color, t)
-            cv2.line(overlay, (x2, y2), (x2, y2 - corner_len), color, t)
-            bgr = overlay
-
-        # Store for snapshot/photo
-        self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
-
-        # Feed to video recorder
-        if self._video_recorder and self._video_recorder.is_recording:
-            self._video_recorder.write_frame(self._last_probe_bgr)
-
-        # Feed to virtual camera
-        if self._vcam_device and self._last_probe_bgr is not None:
-            vcam_bgra = cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA)
-            self._schedule_vcam_push(vcam_bgra.tobytes(), w, h)
+        bgr = self._apply_frame_processing(bgr)
+        self._distribute_processed_frame(bgr, w, h)
 
         # Convert to BGRA for GdkTexture rendering
         # Mirror is handled by MirroredPicture in the GTK layer
@@ -1055,14 +958,17 @@ class StreamEngine(GObject.Object):
         # allocate one here.
         pre_allocated = self._current_camera and self._current_camera.extra.get("vcam_device")
         if pre_allocated:
-            log.info("Using pre-allocated vcam device %s for effects output", pre_allocated)
-            self._start_vcam(pre_allocated)
+            cam_path = self._current_camera.device_path if self._current_camera else ""
+            if pre_allocated != cam_path:
+                log.info("Using pre-allocated vcam device %s for effects output", pre_allocated)
+                self._start_vcam(pre_allocated)
         else:
             loopback_device = VirtualCamera.ensure_ready(
                 card_label=self._current_camera.name if self._current_camera else None,
                 camera_id=self._current_camera.id if self._current_camera else "",
             )
-            if loopback_device:
+            cam_path = self._current_camera.device_path if self._current_camera else ""
+            if loopback_device and loopback_device != cam_path:
                 self._start_vcam(loopback_device)
 
         # Wait 2s for ffmpeg to start producing frames, then try
@@ -1230,6 +1136,16 @@ class StreamEngine(GObject.Object):
             self._current_fmt = None
             self.emit("state-changed", "stopped")
 
+        # Release retained frame data to free memory
+        self._last_probe_bgr = None
+        self._last_texture = None
+        self._vcam_latest_frame = None
+        self._vcam_pending_frame = None
+
+        # Release MediaPipe segmenter to free TFLite model memory
+        from core.effects import release_segmenter
+        release_segmenter()
+
         # Stop main GStreamer pipeline FIRST — releases the device/UDP port
         # so that background vcam pipelines can bind to them.
         if self._pipeline is not None:
@@ -1249,14 +1165,18 @@ class StreamEngine(GObject.Object):
         # Done AFTER main pipeline is stopped so UDP port / device is free.
         if keep_vcam and camera:
             vcam_dev = self._vcam_device or VirtualCamera.get_device_for_camera(camera.id)
-            if vcam_dev:
+            # Don't promote to background if vcam device == camera source
+            # (phone cameras already stream to a v4l2loopback).
+            if vcam_dev and vcam_dev != camera.device_path:
                 self._vcam_device = vcam_dev
                 self._promote_vcam_to_background(camera)
             else:
                 self._stop_vcam()
+                self._release_vcam_device()
                 self._vcam_device = ""
         else:
             self._stop_vcam()
+            self._release_vcam_device()
             self._vcam_device = ""
 
         if camera and stop_backend:
@@ -1299,60 +1219,15 @@ class StreamEngine(GObject.Object):
             try:
                 bgra = np.frombuffer(data, dtype=np.uint8).reshape((h, w, 4))
                 bgr = bgra[:, :, :3].copy()
-                if self._effects.has_active_effects():
-                    bgr = self._effects.apply(bgr)
-                # Digital zoom + pan/tilt
-                if self._zoom_level > 1.0 or self._pan != 0.0 or self._tilt != 0.0:
-                    zh, zw = bgr.shape[:2]
-                    zoom = self._zoom_level
-                    if (self._pan != 0.0 or self._tilt != 0.0) and zoom < 1.5:
-                        zoom = 1.5
-                    crop_h = int(zh / zoom)
-                    crop_w = int(zw / zoom)
-                    cx = zw // 2 + int(self._pan * (zw - crop_w) / 2)
-                    cy = zh // 2 + int(self._tilt * (zh - crop_h) / 2)
-                    x0 = max(0, min(cx - crop_w // 2, zw - crop_w))
-                    y0 = max(0, min(cy - crop_h // 2, zh - crop_h))
-                    cropped = bgr[y0:y0 + crop_h, x0:x0 + crop_w]
-                    bgr = cv2.resize(cropped, (zw, zh), interpolation=cv2.INTER_LINEAR)
-                # Software sharpness
-                if self._sharpness > 0.0:
-                    blurred = cv2.GaussianBlur(bgr, (0, 0), 3)
-                    amount = self._sharpness * 2.0
-                    bgr = cv2.addWeighted(bgr, 1.0 + amount, blurred, -amount, 0)
-                # Software backlight compensation
-                if self._backlight_comp > 0.0:
-                    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
-                    clip = 1.0 + self._backlight_comp * 3.0
-                    clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
-                    lab[:, :, 0] = clahe.apply(lab[:, :, 0])
-                    bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-                # Mirror for snapshot/tools (flip when mirror ON)
-                self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
+                bgr = self._apply_frame_processing(bgr)
+                self._distribute_processed_frame(bgr, w, h)
             except Exception:
                 pass
             # Reconstruct BGRA from processed BGR for preview
-            needs_rebuild = (
-                self._effects.has_active_effects()
-                or self._zoom_level > 1.0
-                or self._sharpness > 0.0
-                or self._backlight_comp > 0.0
-                or self._pan != 0.0
-                or self._tilt != 0.0
-            )
-            if needs_rebuild and self._last_probe_bgr is not None:
+            if self._has_processing_work() and self._last_probe_bgr is not None:
                 display_bgr = cv2.flip(self._last_probe_bgr, 1) if self._mirror else self._last_probe_bgr
                 bgra_out = cv2.cvtColor(display_bgr, cv2.COLOR_BGR2BGRA)
                 data = bgra_out.tobytes()
-            # Feed frame to virtual camera (with mirror applied)
-            if self._vcam_device and self._last_probe_bgr is not None:
-                vcam_bgra = cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA)
-                self._schedule_vcam_push(vcam_bgra.tobytes(), w, h)
-            
-            # Feed to video recorder
-            if self._video_recorder and self._video_recorder.is_recording:
-                # Use reconstructed BGR frame (which has effects)
-                self._video_recorder.write_frame(self._last_probe_bgr)
             stride = len(data) // h
             glib_bytes = GLib.Bytes.new(data)
             GLib.idle_add(self._update_texture, w, h, stride, glib_bytes)
@@ -1394,16 +1269,33 @@ class StreamEngine(GObject.Object):
         if not camera:
             return
 
+        # Phone cameras (AirPlay/scrcpy) already occupy a v4l2loopback
+        # device as their source.  Use a separate allocation id so the
+        # BigCam Virtual output goes to a *different* device.
+        alloc_id = camera.id
+        if camera.id.startswith("phone:"):
+            alloc_id = f"vcam:{camera.id}"
+
         def _worker() -> str:
-            return VirtualCamera.ensure_ready(
+            device = VirtualCamera.ensure_ready(
                 card_label=camera.name,
-                camera_id=camera.id,
+                camera_id=alloc_id,
             )
+            # Prevent feedback loop: if the vcam device is the same device
+            # we're reading from, skip vcam.
+            if device and camera.device_path and device == camera.device_path:
+                log.warning(
+                    "vcam device %s is same as camera source — skipping to "
+                    "avoid feedback loop",
+                    device,
+                )
+                VirtualCamera.release_device(alloc_id)
+                return ""
+            return device
 
         def _on_done(device: str) -> None:
-            # Guard: camera may have changed while resolving (race condition).
-            # Only start the vcam if this camera is still the active one.
             if device and self._current_camera is camera and self.is_playing():
+                self._vcam_alloc_id = alloc_id
                 self._start_vcam(device)
 
         threading.Thread(
@@ -1451,8 +1343,11 @@ class StreamEngine(GObject.Object):
         device = self._vcam_device
         if not device:
             return
+        # Limit appsrc internal buffering to ~2 frames to prevent OOM if the
+        # downstream v4l2sink stalls or rejects frames.
+        max_bytes = w * h * 4 * 2  # 2 BGRA frames
         pipeline_str = (
-            "appsrc name=src emit-signals=false is-live=true format=time block=false max-bytes=0 "
+            f"appsrc name=src emit-signals=false is-live=true format=time block=false max-bytes={max_bytes} "
             f"caps=video/x-raw,format=BGRA,width={w},height={h},framerate=30/1 "
             f"! queue max-size-buffers=2 leaky=downstream silent=true "
             f"! videoconvert n-threads={min(os.cpu_count() or 2, 4)} "
@@ -1469,6 +1364,15 @@ class StreamEngine(GObject.Object):
         self._vcam_w = w
         self._vcam_h = h
         ret = self._vcam_pipeline.set_state(Gst.State.PLAYING)
+        if ret == Gst.StateChangeReturn.FAILURE:
+            log.error("vcam pipeline failed to start on %s — cleaning up", device)
+            self._vcam_pipeline.set_state(Gst.State.NULL)
+            self._vcam_pipeline = None
+            self._vcam_appsrc = None
+            self._vcam_w = 0
+            self._vcam_h = 0
+            self._vcam_device = ""
+            return
         log.info("Virtual camera started on %s (%dx%d) state=%s", device, w, h, ret)
         # Drain the frame that was queued while we were building
         pending = self._vcam_pending_frame
@@ -1490,6 +1394,12 @@ class StreamEngine(GObject.Object):
             self._vcam_appsrc = None
             self._vcam_w = 0
             self._vcam_h = 0
+
+    def _release_vcam_device(self) -> None:
+        """Release the VirtualCamera allocation for the vcam output."""
+        if self._vcam_alloc_id:
+            VirtualCamera.release_device(self._vcam_alloc_id)
+            self._vcam_alloc_id = ""
 
     def _schedule_vcam_push(self, bgra_bytes: bytes, w: int, h: int) -> None:
         """Store frame and schedule async push to vcam on the main thread.
@@ -1542,7 +1452,12 @@ class StreamEngine(GObject.Object):
             except Exception:
                 return
         buf = Gst.Buffer.new_wrapped(bgra_bytes)
-        appsrc.emit("push-buffer", buf)
+        ret = appsrc.emit("push-buffer", buf)
+        if ret != Gst.FlowReturn.OK:
+            log.warning("vcam push-buffer returned %s — stopping vcam", ret)
+            self._stop_vcam()
+            self._release_vcam_device()
+            self._vcam_device = ""
 
     def _promote_vcam_to_background(self, camera: CameraInfo) -> None:
         """Keep the virtual camera alive when switching away from this camera.
@@ -1556,6 +1471,7 @@ class StreamEngine(GObject.Object):
         device = self._vcam_device
         cam_id = camera.id
         self._stop_vcam()
+        self._release_vcam_device()
         self._vcam_device = ""
 
         if not device:
@@ -1699,6 +1615,9 @@ class StreamEngine(GObject.Object):
         if not VirtualCamera.is_enabled():
             return
         if camera.backend != BackendType.V4L2 or not camera.device_path:
+            return
+        # Skip phone cameras — their v4l2 device is an output sink, not a source
+        if camera.id.startswith("phone:"):
             return
         # Skip if this camera is already the active one (effects pipeline handles vcam)
         if self._current_camera and self._current_camera.id == camera.id:
@@ -1927,22 +1846,39 @@ class StreamEngine(GObject.Object):
             error_text = err.message if err else _("Unknown GStreamer error")
             log.error("GStreamer error: %s (debug: %s)", error_text, dbg)
 
-            busy = any(
-                kw in (error_text + (dbg or "")).lower()
-                for kw in ("resource busy", "busy", "ebusy", "cannot open")
+            # Save device_path before stop() clears _current_camera
+            dev_path = (
+                self._current_camera.device_path
+                if self._current_camera
+                else ""
             )
-            if busy and self._current_camera and self._current_camera.device_path:
-                users = _find_device_users(self._current_camera.device_path)
+
+            combined = (error_text + (dbg or "")).lower()
+            busy = any(
+                kw in combined
+                for kw in (
+                    "resource busy", "busy", "ebusy",
+                    "cannot open", "ocupado",
+                )
+            )
+            if busy and dev_path:
+                users = _find_device_users(dev_path)
                 self.stop()
-                if users:
-                    self.emit("device-busy", self._current_camera.device_path, users)
-                else:
-                    self.emit("device-busy", self._current_camera.device_path, [])
+                self.emit("device-busy", dev_path, users)
                 return
 
             # PipeWire async failure (e.g. unhandled format): retry with v4l2src
             if self._try_pw_fallback():
                 return
+
+            # Even without explicit busy keywords, check if the device is
+            # actually held by another process before reporting a generic error.
+            if dev_path:
+                users = _find_device_users(dev_path)
+                if users:
+                    self.stop()
+                    self.emit("device-busy", dev_path, users)
+                    return
 
             self.stop()
             self.emit("error", error_text)

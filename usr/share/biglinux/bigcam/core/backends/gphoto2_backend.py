@@ -7,6 +7,7 @@ import os
 import re
 import signal
 import subprocess
+import threading
 import time
 from typing import Any
 
@@ -27,6 +28,7 @@ class GPhoto2Backend(CameraBackend):
     # Track active streaming sessions per camera port
     # port -> {"udp_port": str, "launch_port": str}
     _active_streams: dict[str, dict[str, str]] = {}
+    _streams_lock = threading.Lock()
 
     def get_backend_type(self) -> BackendType:
         return BackendType.GPHOTO2
@@ -37,22 +39,27 @@ class GPhoto2Backend(CameraBackend):
         subprocess.run(
             ["systemctl", "--user", "stop", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
+            timeout=5,
         )
         subprocess.run(
             ["systemctl", "--user", "mask", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
+            timeout=5,
         )
         subprocess.run(
             ["pkill", "-9", "-f", "gvfs-gphoto2-volume-monitor"],
             capture_output=True,
+            timeout=5,
         )
         subprocess.run(
             ["pkill", "-9", "-f", "gvfsd-gphoto2"],
             capture_output=True,
+            timeout=5,
         )
         subprocess.run(
             ["gio", "mount", "-u", "gphoto2://"],
             capture_output=True,
+            timeout=5,
         )
 
     @staticmethod
@@ -173,9 +180,9 @@ class GPhoto2Backend(CameraBackend):
 
     def is_available(self) -> bool:
         try:
-            subprocess.run(["gphoto2", "--version"], capture_output=True, check=True)
+            subprocess.run(["gphoto2", "--version"], capture_output=True, check=True, timeout=5)
             return True
-        except (FileNotFoundError, subprocess.CalledProcessError):
+        except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
             return False
 
     # -- detection -----------------------------------------------------------
@@ -192,6 +199,7 @@ class GPhoto2Backend(CameraBackend):
                 subprocess.run(
                     ["pkill", "-f", "gvfs-gphoto2-volume-monitor"],
                     capture_output=True,
+                    timeout=5,
                 )
                 time.sleep(1)
 
@@ -269,10 +277,11 @@ class GPhoto2Backend(CameraBackend):
                     if port != old_port:
                         log.debug(f"Port changed: {old_port} -> {port}")
                         # Update _active_streams key if camera was streaming
-                        if old_port in cls._active_streams:
-                            stream_info = cls._active_streams.pop(old_port)
-                            cls._active_streams[port] = stream_info
-                            log.debug(f"Updated _active_streams: {old_port} -> {port}")
+                        with cls._streams_lock:
+                            if old_port in cls._active_streams:
+                                stream_info = cls._active_streams.pop(old_port)
+                                cls._active_streams[port] = stream_info
+                                log.debug(f"Updated _active_streams: {old_port} -> {port}")
                         camera.extra["port"] = port
                         camera.device_path = port
                         camera.id = f"gphoto2:{port}"
@@ -645,9 +654,10 @@ class GPhoto2Backend(CameraBackend):
         udp_port = str(camera.extra.get("udp_port", 5000))
 
         # If this camera is already streaming, just return success
-        if port in self._active_streams:
-            log.debug(f"Camera {camera.name} already streaming on port {port}")
-            return True
+        with self._streams_lock:
+            if port in self._active_streams:
+                log.debug(f"Camera {camera.name} already streaming on port {port}")
+                return True
 
         # Kill GVFS and release USB device before streaming
         self._kill_gvfs()
@@ -684,6 +694,7 @@ class GPhoto2Backend(CameraBackend):
                     [script, port_arg, udp_port, camera.name, v4l2_dev],
                     stdout=f,
                     stderr=subprocess.STDOUT,
+                    timeout=60,
                 )
                 f.seek(0)
                 raw = f.read()
@@ -695,18 +706,20 @@ class GPhoto2Backend(CameraBackend):
                     if line.startswith("SUCCESS:"):
                         dev = line.split("SUCCESS:")[1].strip()
                         log.info("GPhoto2 streaming started on %s", dev)
-                        self._active_streams[port] = {
-                            "udp_port": udp_port,
-                            "launch_port": port,
-                            "vcam_device": v4l2_dev,
-                        }
+                        with self._streams_lock:
+                            self._active_streams[port] = {
+                                "udp_port": udp_port,
+                                "launch_port": port,
+                                "vcam_device": v4l2_dev,
+                            }
                         return True
                 log.info("GPhoto2 script exited 0 (no explicit SUCCESS)")
-                self._active_streams[port] = {
-                    "udp_port": udp_port,
-                    "launch_port": port,
-                    "vcam_device": v4l2_dev,
-                }
+                with self._streams_lock:
+                    self._active_streams[port] = {
+                        "udp_port": udp_port,
+                        "launch_port": port,
+                        "vcam_device": v4l2_dev,
+                    }
                 return True
 
             log.error("GPhoto2 script failed (code %d): %s", res.returncode, output)
@@ -724,7 +737,8 @@ class GPhoto2Backend(CameraBackend):
             if camera:
                 port = camera.extra.get("port", camera.device_path)
                 udp_port = str(camera.extra.get("udp_port", 5000))
-                stream_info = self._active_streams.pop(port, None)
+                with self._streams_lock:
+                    stream_info = self._active_streams.pop(port, None)
                 launch_port = stream_info["launch_port"] if stream_info else port
 
                 safe_lp = re.escape(launch_port)
@@ -735,41 +749,48 @@ class GPhoto2Backend(CameraBackend):
                 subprocess.run(
                     ["pkill", "-f", f"gphoto2.*--port {safe_lp}"],
                     capture_output=True,
+                    timeout=5,
                 )
                 if launch_port != port:
                     subprocess.run(
                         ["pkill", "-f", f"gphoto2.*--port {safe_port}"],
                         capture_output=True,
+                        timeout=5,
                     )
                 subprocess.run(
                     ["pkill", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
                     capture_output=True,
+                    timeout=5,
                 )
                 time.sleep(2)
                 # Force-kill survivors
                 subprocess.run(
                     ["pkill", "-9", "-f", f"gphoto2.*--port {safe_lp}"],
                     capture_output=True,
+                    timeout=5,
                 )
                 if launch_port != port:
                     subprocess.run(
                         ["pkill", "-9", "-f", f"gphoto2.*--port {safe_port}"],
                         capture_output=True,
+                        timeout=5,
                     )
                 subprocess.run(
                     ["pkill", "-9", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
                     capture_output=True,
+                    timeout=5,
                 )
             else:
-                self._active_streams.clear()
-                subprocess.run(["pkill", "-f", "gphoto2 --"], capture_output=True)
+                with self._streams_lock:
+                    self._active_streams.clear()
+                subprocess.run(["pkill", "-f", "gphoto2 --"], capture_output=True, timeout=5)
                 time.sleep(1)
-                subprocess.run(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True)
+                subprocess.run(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True, timeout=5)
                 subprocess.run(
-                    ["pkill", "-9", "-f", "ffmpeg.*mpegts"], capture_output=True
+                    ["pkill", "-9", "-f", "ffmpeg.*mpegts"], capture_output=True, timeout=5
                 )
                 subprocess.run(
-                    ["pkill", "-9", "-f", "ffmpeg.*v4l2"], capture_output=True
+                    ["pkill", "-9", "-f", "ffmpeg.*v4l2"], capture_output=True, timeout=5
                 )
         except Exception:
             log.warning("stop_streaming cleanup error", exc_info=True)
@@ -786,10 +807,11 @@ class GPhoto2Backend(CameraBackend):
     def is_camera_streaming(self, camera: CameraInfo) -> bool:
         """Check if a specific camera already has an active streaming session."""
         port = camera.extra.get("port", camera.device_path)
-        if port not in self._active_streams:
-            return False
+        with self._streams_lock:
+            if port not in self._active_streams:
+                return False
+            stream_info = self._active_streams[port].copy()
         # Verify the process is actually alive using the launch port
-        stream_info = self._active_streams[port]
         launch_port = stream_info.get("launch_port", port)
         result = subprocess.run(
             ["pgrep", "-f", f"gphoto2.*--port {launch_port}"],
@@ -805,7 +827,8 @@ class GPhoto2Backend(CameraBackend):
                 if result.returncode == 0:
                     return True
             # Process died — clean up
-            self._active_streams.pop(port, None)
+            with self._streams_lock:
+                self._active_streams.pop(port, None)
             return False
         return True
 

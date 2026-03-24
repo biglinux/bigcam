@@ -179,6 +179,39 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._help_tooltips_row.connect("notify::active", self._on_help_tooltips)
         general.add(self._help_tooltips_row)
 
+        # Resource monitor
+        resource_row = Adw.SwitchRow(
+            title=_("Resource usage monitor"),
+            subtitle=_("Warn when CPU or memory usage is high."),
+        )
+        resource_row.add_prefix(
+            Gtk.Image.new_from_icon_name("utilities-system-monitor-symbolic")
+        )
+        resource_row.set_active(self._settings.get("resource-monitor-enabled"))
+        resource_row.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Resource usage monitor")]
+        )
+        resource_row.connect("notify::active", self._on_resource_monitor)
+        general.add(resource_row)
+
+        # Reset dismissed warnings
+        reset_warnings_row = Adw.ActionRow(
+            title=_("Reset resource warnings"),
+            subtitle=_("Re-enable all dismissed resource usage warnings."),
+        )
+        reset_warnings_row.add_prefix(
+            Gtk.Image.new_from_icon_name("view-refresh-symbolic")
+        )
+        reset_btn = Gtk.Button(label=_("Reset"))
+        reset_btn.set_valign(Gtk.Align.CENTER)
+        reset_btn.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Reset dismissed resource warnings")]
+        )
+        reset_btn.connect("clicked", self._on_reset_warnings)
+        reset_warnings_row.add_suffix(reset_btn)
+        reset_warnings_row.set_activatable_widget(reset_btn)
+        general.add(reset_warnings_row)
+
         content.append(general)
 
     def _build_preview(self, content: Gtk.Box) -> None:
@@ -523,6 +556,12 @@ class SettingsPage(Gtk.ScrolledWindow):
         active = row.get_active()
         self._settings.set("show-help-tooltips", active)
         self.emit("help-tooltips-changed", active)
+
+    def _on_resource_monitor(self, row: Adw.SwitchRow, _pspec) -> None:
+        self._settings.set("resource-monitor-enabled", row.get_active())
+
+    def _on_reset_warnings(self, _btn: Gtk.Button) -> None:
+        self._settings.set("resource-warnings-dismissed", [])
 
     def _on_resolution(self, row: Adw.ComboRow, _pspec) -> None:
         if getattr(self, '_updating_formats', False):

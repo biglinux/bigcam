@@ -48,6 +48,9 @@ class CameraManager(GObject.Object):
         self._debounce_timer: int | None = None
         # Lock to protect shared polling state across threads
         self._poll_lock = threading.Lock()
+        # Stop event for the polling thread
+        self._poll_stop_event = threading.Event()
+        self._poll_thread: threading.Thread | None = None
 
         self._register_backends()
 
@@ -84,11 +87,12 @@ class CameraManager(GObject.Object):
 
     # -- detection -----------------------------------------------------------
 
-    def detect_cameras_async(self) -> None:
+    def detect_cameras_async(self, force_emit: bool = False) -> None:
         """Run detection on all backends in a background thread."""
         if self._detecting:
             return
         self._detecting = True
+        self._force_emit = force_emit
 
         def _worker() -> None:
             all_cameras: list[CameraInfo] = []
@@ -134,7 +138,8 @@ class CameraManager(GObject.Object):
         old_ids = {c.id for c in self._cameras}
         new_ids = {c.id for c in cameras}
         self._cameras = cameras
-        changed = self._first_detection or old_ids != new_ids
+        changed = self._first_detection or old_ids != new_ids or getattr(self, "_force_emit", False)
+        self._force_emit = False
         log.info(
             "Detection done: %d cameras, old=%s, new=%s, first=%s, emit=%s",
             len(cameras),
@@ -160,15 +165,19 @@ class CameraManager(GObject.Object):
         self.emit("cameras-changed")
 
     def add_phone_camera(self, camera: CameraInfo) -> None:
-        """Register a phone camera source (WebRTC)."""
-        self._cameras = [c for c in self._cameras if c.backend != BackendType.PHONE]
+        """Register a phone camera source (WebRTC, scrcpy or AirPlay)."""
+        self._cameras = [
+            c for c in self._cameras if not c.id.startswith("phone:")
+        ]
         self._cameras.append(camera)
         self.emit("cameras-changed")
 
     def remove_phone_camera(self) -> None:
         """Remove phone camera from the list."""
-        had = any(c.backend == BackendType.PHONE for c in self._cameras)
-        self._cameras = [c for c in self._cameras if c.backend != BackendType.PHONE]
+        had = any(c.id.startswith("phone:") for c in self._cameras)
+        self._cameras = [
+            c for c in self._cameras if not c.id.startswith("phone:")
+        ]
         if had:
             self.emit("cameras-changed")
 
@@ -257,9 +266,16 @@ class CameraManager(GObject.Object):
             except Exception:
                 log.warning("Failed to start USB bus monitors", exc_info=True)
 
-        # Keep polling as a safety-net fallback
-        if self._hotplug_timer is None:
-            self._hotplug_timer = GLib.timeout_add(interval_ms, self._poll_hotplug)
+        # Keep polling as a safety-net fallback (single persistent thread)
+        if self._poll_thread is None or not self._poll_thread.is_alive():
+            self._poll_stop_event.clear()
+            self._poll_thread = threading.Thread(
+                target=self._poll_hotplug_loop,
+                args=(interval_ms / 1000.0,),
+                daemon=True,
+                name="bigcam-hotplug-poll",
+            )
+            self._poll_thread.start()
 
     def stop_hotplug(self) -> None:
         # Cancel pending debounce
@@ -270,6 +286,12 @@ class CameraManager(GObject.Object):
         if self._hotplug_timer is not None:
             GLib.source_remove(self._hotplug_timer)
             self._hotplug_timer = None
+
+        # Stop the polling thread
+        self._poll_stop_event.set()
+        if self._poll_thread is not None:
+            self._poll_thread.join(timeout=2.0)
+            self._poll_thread = None
 
         if self._dev_monitor is not None:
             self._dev_monitor.cancel()
@@ -350,12 +372,11 @@ class CameraManager(GObject.Object):
         self.detect_cameras_async()
         return False  # one-shot
 
-    def _poll_hotplug(self) -> bool:
-        """Safety-net polling fallback — runs at a longer interval."""
-        if self._detecting:
-            return True
-
-        def _check_changes() -> None:
+    def _poll_hotplug_loop(self, interval_s: float) -> None:
+        """Persistent polling thread — checks for USB/video device changes."""
+        while not self._poll_stop_event.wait(timeout=interval_s):
+            if self._detecting:
+                continue
             changed = False
             with self._poll_lock:
                 try:
@@ -377,6 +398,3 @@ class CameraManager(GObject.Object):
                     log.debug("Video device check failed", exc_info=True)
             if changed:
                 GLib.idle_add(self.detect_cameras_async)
-
-        threading.Thread(target=_check_changes, daemon=True).start()
-        return True

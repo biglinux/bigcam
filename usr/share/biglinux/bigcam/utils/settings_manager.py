@@ -49,6 +49,9 @@ _DEFAULTS: dict[str, object] = {
     "recording-video-bitrate": 8000,
     # IP Cameras (list serialised as JSON array)
     "ip_cameras": [],
+    # Resource monitor
+    "resource-monitor-enabled": True,
+    "resource-warnings-dismissed": [],
 }
 
 _BOOL_TRUE = {"true", "1", "yes"}

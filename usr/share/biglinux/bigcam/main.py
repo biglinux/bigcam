@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import sys
 import os
+import atexit
 import signal
+import subprocess
 import logging
 
 # Configure logging early
@@ -129,7 +131,22 @@ class BigDigicamApp(Adw.Application):
         self.set_accels_for_action("app.quit", ["<Primary>q"])
 
 
+def _kill_child_processes() -> None:
+    """Last-resort cleanup: kill any uxplay/scrcpy/gst-launch spawned by BigCam."""
+    for name in ("uxplay -n BigCam", "scrcpy", "gst-launch-1.0 -q fdsrc"):
+        try:
+            subprocess.run(
+                ["pkill", "-9", "-f", name],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=3,
+            )
+        except Exception:
+            pass
+
+
 def main() -> int:
+    atexit.register(_kill_child_processes)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     GLib.set_prgname(APP_ID)
     GLib.set_application_name(APP_NAME)

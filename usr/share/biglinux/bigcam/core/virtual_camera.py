@@ -6,6 +6,7 @@ import logging
 import os
 import shutil
 import subprocess
+import threading
 
 
 log = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ def _run_privileged(action: str) -> bool:
     result = subprocess.run(
         ["sudo", "-n", *cmd],
         capture_output=True,
+        timeout=15,
     )
     if result.returncode != 0:
         log.error(
@@ -67,6 +69,7 @@ class VirtualCamera:
 
     # camera_id → v4l2loopback device path
     _allocations: dict[str, str] = {}
+    _alloc_lock = threading.RLock()
 
     @staticmethod
     def is_available() -> bool:
@@ -117,7 +120,8 @@ class VirtualCamera:
     @classmethod
     def find_free_loopback_device(cls) -> str:
         """Return a v4l2loopback device not currently allocated to any camera."""
-        allocated = set(cls._allocations.values())
+        with cls._alloc_lock:
+            allocated = set(cls._allocations.values())
         devices = cls.find_all_loopback_devices()
         if not devices:
             # Try known paths directly
@@ -132,26 +136,29 @@ class VirtualCamera:
     @classmethod
     def allocate_device(cls, camera_id: str) -> str:
         """Allocate a v4l2loopback device for a camera. Returns device path."""
-        # Already allocated?
-        if camera_id in cls._allocations:
-            return cls._allocations[camera_id]
-        device = cls.find_free_loopback_device()
-        if device:
-            cls._allocations[camera_id] = device
-            log.debug("Allocated %s for camera %s", device, camera_id)
-        return device
+        with cls._alloc_lock:
+            # Already allocated?
+            if camera_id in cls._allocations:
+                return cls._allocations[camera_id]
+            device = cls.find_free_loopback_device()
+            if device:
+                cls._allocations[camera_id] = device
+                log.debug("Allocated %s for camera %s", device, camera_id)
+            return device
 
     @classmethod
     def release_device(cls, camera_id: str) -> None:
         """Release the v4l2loopback device allocated to a camera."""
-        dev = cls._allocations.pop(camera_id, None)
+        with cls._alloc_lock:
+            dev = cls._allocations.pop(camera_id, None)
         if dev:
             log.debug("Released %s from camera %s", dev, camera_id)
 
     @classmethod
     def get_device_for_camera(cls, camera_id: str) -> str:
         """Return the allocated device for a camera, or empty string."""
-        return cls._allocations.get(camera_id, "")
+        with cls._alloc_lock:
+            return cls._allocations.get(camera_id, "")
 
     @classmethod
     def load_module(cls, card_label: str | None = None) -> bool:
@@ -186,8 +193,8 @@ class VirtualCamera:
                     "v4l2sink",
                     f"device={device}",
                 ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
             return True
         except Exception:
