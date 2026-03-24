@@ -28,10 +28,12 @@ depends=(
     'libcamera'
     'zbar'
     'python-mediapipe-bin'
-    'scrcpy'
-    'android-tools'
     'qrencode'
-    'uxplay'
+)
+optdepends=(
+    'scrcpy: Android phone camera via USB/Wi-Fi'
+    'android-tools: ADB for scrcpy connections'
+    'uxplay: iPhone AirPlay screen mirroring'
 )
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)
