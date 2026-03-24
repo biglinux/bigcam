@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.3.0</h1>
+<h1 align="center">BigCam 4.3.1</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.3.0-brightgreen.svg" alt="Version 4.3.0">
+  <img src="https://img.shields.io/badge/Version-4.3.1-brightgreen.svg" alt="Version 4.3.1">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -40,15 +40,15 @@
 
 **Version 2.0** was the complete rewrite in Python with GTK4 and Libadwaita. It brought a proper GUI with live preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, IP cameras), real-time OpenCV effects, virtual camera output, photo/video capture, and a modular architecture with separated business logic and UI.
 
-**Version 3.0** introduced the smartphone camera feature — turning any phone into a wireless webcam using only a web browser, no app installation required — alongside software-based camera controls (digital zoom, pan/tilt, sharpness, backlight compensation), an improved QR scanner with visual overlays, smarter smile detection with consecutive frame validation, complete internationalization coverage (29 languages), and dozens of refinements across the board.
+**Version 3.0** introduced the smartphone camera feature — turning any phone into a wireless webcam using only a web browser, no app installation required — alongside software-based camera controls (digital zoom, pan/tilt, sharpness), an improved QR scanner with visual overlays, complete internationalization coverage (29 languages), and dozens of refinements across the board.
 
-**Version 4.0** was a complete UX overhaul — redesigned bottom bar with quick-access toggle buttons (QR scanner, smile capture, virtual camera, mirror), welcome screen dialog for first-time users, help-on-hover tooltips system, always-on-top window pin (Wayland-compatible via KWin D-Bus), fullscreen mode, capture timer with bi-directional sync between header and settings, window-level notification banner (Adw.Banner), mode-aware "last media" thumbnail (photo/video with ffmpeg preview), gPhoto2 capture flow improvements (mode dialog before timer), MediaPipe-powered background blur with real person segmentation (replacing the old Haar cascade face detection), zoom/pan/tilt/sharpness/backlight for gPhoto2 and IP camera pipelines, recording timer overlay, flash effect on capture, and a complete CSS restructuring.
+**Version 4.0** was a complete UX overhaul — redesigned bottom bar with quick-access toggle buttons (QR scanner, virtual camera, mirror), welcome screen dialog for first-time users, help-on-hover tooltips system, always-on-top window pin (Wayland-compatible via KWin D-Bus), fullscreen mode, capture timer with bi-directional sync between header and settings, window-level notification banner (Adw.Banner), mode-aware "last media" thumbnail (photo/video with ffmpeg preview), gPhoto2 capture flow improvements (mode dialog before timer), zoom/pan/tilt/sharpness/backlight for gPhoto2 and IP camera pipelines, recording timer overlay, flash effect on capture, and a complete CSS restructuring.
 
 **Version 4.0** consolidated all improvements into a single major release: barcode scanner (zbar), recording codec selector (H.264/H.265/VP9/MJPEG with HW acceleration), camera control profiles, control dependencies (auto-exposure/white-balance/focus), SpinButton on V4L2 integer controls, anti-flicker auto-set, effect pipeline optimizations, CSD window controls, and a full dependency audit.
 
 **Version 4.2.0** focused on performance and stability: OpenCV V4L2 direct capture (replacing GStreamer for USB cameras), background capture thread, Nix support, About dialog, CSD button fix, JPEG warning suppression, and project cleanup.
 
-**Version 4.3.0** (current) is the **phone connectivity overhaul** — a complete redesign of the smartphone camera system with four independent connection methods, full audio capture from every source, and virtual camera output for all phone modes:
+**Version 4.3.0** is the **phone connectivity overhaul** — a complete redesign of the smartphone camera system with four independent connection methods, full audio capture from every source, and virtual camera output for all phone modes:
 
 - **Redesigned Phone Camera dialog**: Complete UX/UI overhaul with `AdwViewSwitcher` tabs — four connection methods (Browser, Wi-Fi, USB, AirPlay) each with their own status, controls, and connection flow. Footer bar with connection status and action buttons.
 - **AirPlay receiver (UxPlay)**: iPhones and iPads can now stream directly to BigCam via AirPlay screen mirroring. No app needed — just select BigCam from the AirPlay menu. Supports rotation (left/right 90°) and full audio forwarding.
@@ -59,11 +59,52 @@
 - **BigCam Virtual for all phone sources**: Every phone connection method (Browser, Wi-Fi, USB, AirPlay) automatically creates a virtual camera device via v4l2loopback, making the phone feed available to Zoom, Teams, OBS, etc.
 - **Reliable process cleanup**: All external processes (UxPlay, scrcpy) use process groups (`start_new_session=True`) with `os.killpg()` for guaranteed cleanup. An `atexit` handler ensures processes are killed even on unexpected exits.
 
+**Version 4.3.1** (current) focuses on **performance, stability, and polish**:
+
+- **Performance optimizations**: Pre-allocated vcam BGRA buffer (saves ~8MB/frame allocation at 1080p), cached GStreamer probe format string, SIMD-optimized QR overlay via `cv2.convertScaleAbs()`, capped gamma/CLAHE caches with FIFO eviction, proper probe ID cleanup on stop.
+- **Signal architecture cleanup**: Replaced `_syncing_toggle` boolean flag with GObject `handler_block()`/`handler_unblock()` for mirror, QR, and virtual camera toggle sync — more robust and thread-safe.
+- **WebM recording fix**: WebM container now auto-corrects incompatible codec selections (forces VP9 + Opus/Vorbis). MP4 auto-corrects similarly. Both backend and UI validate codec/container compatibility.
+- **Theme system rework**: Light/Dark theme now only affects dialogs, windows, and menus. Camera overlays, status pages, and controls always use dark mode via CSS `color-scheme: dark` — no more invisible text on dark backgrounds.
+- **Window background transparency**: New slider in Preview settings to control window background opacity (0–100%), maintained even during immersion mode.
+- **Controls opacity fix**: Capture button and audio overlay now properly follow the controls opacity slider.
+- **Stronger vignette effect**: Vignette at 100% is now 3× more intense — borders go nearly black.
+- **Reset buttons**: All Settings groups (General, Preview, Camera, Recording) have reset-to-default buttons.
+- **Smile Capture removed**: Removed mediapipe-dependent smile detection feature entirely (code, README, translations).
+- **i18n verified**: All UI strings confirmed English and translation-ready across 29 languages.
+
 We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.3.0
+## What's New in 4.3.1
+
+### Performance
+
+- **Pre-allocated vcam BGRA buffer**: Virtual camera conversion reuses a pre-allocated numpy array instead of creating a new one per frame (~8MB saved per frame at 1080p).
+- **Cached probe format string**: GStreamer buffer probe caches the format string instead of parsing caps every frame.
+- **Optimized QR overlay**: Replaced manual `bgr.copy() * 0.4` with SIMD-optimized `cv2.convertScaleAbs()`.
+- **Bounded effect caches**: Gamma LUT and CLAHE caches capped at 8 entries with FIFO eviction.
+- **Probe cleanup**: Buffer probe IDs are now saved and properly removed in `stop()`.
+
+### Architecture
+
+- **Signal blocking**: Mirror, QR, and vcam toggle sync between toolbar and settings now uses GObject `handler_block()`/`handler_unblock()` instead of a shared boolean flag.
+
+### Fixes
+
+- **WebM recording**: Fixed WebM container not creating files when incompatible codecs were selected. Auto-correction in both backend and UI.
+- **Theme isolation**: Camera overlays always render in dark mode regardless of theme setting.
+- **Controls opacity**: Capture button (`.capture-button`) and audio overlay now included in the controls opacity slider.
+- **Immersion mode transparency**: Window background transparency is maintained during immersion mode.
+
+### UI
+
+- **Background transparency slider**: New control in Preview settings for adjustable window opacity.
+- **Stronger vignette**: 3× intensity multiplier — 100% now produces dramatically dark borders.
+- **Reset buttons**: Every Settings group has a reset-to-default button.
+- **Theme selector**: Simplified to Light/Dark only (removed System option).
+
+### Previous (4.3.0)
 
 ### Redesigned Phone Camera Dialog
 
@@ -187,8 +228,8 @@ Most webcam tools on Linux are either too basic (just open the camera) or too co
 - **Zero cost, zero bloat**: Free, open source, no subscriptions, no telemetry. Runs natively on your desktop with GTK4 + Libadwaita.
 - **Works with everything**: USB webcams, DSLR/mirrorless cameras (2,500+ models), Raspberry Pi cameras, IP/network cameras, PipeWire virtual cameras, and now **your smartphone** — all from one app.
 - **Phone as webcam — for free**: No need to buy Camo, EpocCam, DroidCam, or iVCam. BigCam turns your Android or iPhone into a high-quality webcam with four connection methods: browser (zero-install), scrcpy USB, scrcpy Wi-Fi, and AirPlay. Audio capture included in all modes.
-- **Professional controls**: Full V4L2 control panel with software fallbacks for zoom, pan/tilt, sharpness, and backlight compensation — so every camera gets the same capabilities regardless of hardware support.
-- **Real-time effects**: 17 OpenCV effects (filters, color grading, artistic styles, **background blur with AI segmentation**) applied live to the preview and virtual camera output.
+- **Professional controls**: Full V4L2 control panel with software fallbacks for zoom, pan/tilt, and sharpness — so every camera gets the same capabilities regardless of hardware support.
+- **Real-time effects**: 14 OpenCV effects (filters, color grading, artistic styles) applied live to the preview and virtual camera output.
 - **Virtual camera output**: Sends the processed feed to any video conferencing app (Zoom, Teams, Google Meet, OBS, Discord) via v4l2loopback.
 
 ---
@@ -339,7 +380,7 @@ Full per-camera control panel with sliders, switches, and menus — automaticall
 
 | Category | Controls |
 |----------|----------|
-| **Image** | Brightness, Contrast, Saturation, Hue, Gamma, Sharpness, Backlight Compensation |
+| **Image** | Brightness, Contrast, Saturation, Hue, Gamma, Sharpness |
 | **Exposure** | Auto/Manual Exposure, Exposure Time, Gain, ISO, Exposure Bias, Auto Priority |
 | **Focus** | Auto/Manual Focus, Focus Distance, Digital Zoom, Pan, Tilt |
 | **White Balance** | Auto/Manual, Color Temperature, WB Presets |
@@ -356,13 +397,12 @@ When the camera's V4L2 driver accepts a control value but PipeWire doesn't forwa
 | **Pan** | Horizontal offset of the crop area |
 | **Tilt** | Vertical offset of the crop area |
 | **Sharpness** | Unsharp mask (Gaussian blur + weighted blend) |
-| **Backlight Compensation** | CLAHE on LAB luminance channel (adaptive histogram equalization) |
 
 Pan and tilt automatically apply a minimum 1.5x zoom when activated to create movement room. When zoom is increased manually, the pan/tilt range increases proportionally.
 
 ### Real-Time Effects (OpenCV)
 
-17 effects organized in four categories, plus the AI-powered background blur, all combinable and adjustable in real-time with individual parameter sliders:
+14 effects organized in three categories, all combinable and adjustable in real-time with individual parameter sliders:
 
 | Category | Effects | Parameters | Implementation |
 |----------|---------|------------|----------------|
@@ -370,9 +410,7 @@ Pan and tilt automatically apply a minimum 1.5x zoom when activated to create mo
 | | Gamma Correction | Gamma (0.1 to 3.0) | LUT-based `pow(x/255, 1/gamma) * 255` |
 | | CLAHE (Adaptive Contrast) | Clip Limit (1.0 to 8.0), Grid Size (2 to 16) | `cv2.createCLAHE` on LAB L-channel |
 | | Auto White Balance | — | `cv2.xphoto.createSimpleWB()` |
-| **Filters** | Detail Enhance | Sigma S (0 to 200), Sigma R (0.0 to 1.0) | Unsharp mask via `GaussianBlur((0,0), sigmaX=sigma_s/6)` + weighted blend |
-| | Beauty / Soft Skin | Smoothing (1 to 25), Detail (0.0 to 1.0) | `bilateralFilter(d, sigma_color, sigma_space)` with 50% downscale above 480p |
-| | Sharpen | Kernel Size (1 to 31), Strength (0.0 to 5.0) | Gaussian unsharp mask with configurable kernel |
+| **Filters** | Sharpen | Kernel Size (1 to 31), Strength (0.0 to 5.0) | Gaussian unsharp mask with configurable kernel |
 | | Denoise | Strength (1 to 30), Color Strength (1 to 30) | `bilateralFilter` with 50% downscale above 480p |
 | **Artistic** | Grayscale, Sepia, Negative | — | `cvtColor` / fixed 3×3 kernel / `bitwise_not` |
 | | Pencil Sketch | Sigma S (0 to 200), Sigma R (0.0 to 1.0) | Dodge-blend on inverted `GaussianBlur((0,0), sigmaX=sigma_s/6)`. Sigma R controls Canny edge line blending intensity |
@@ -380,7 +418,6 @@ Pan and tilt automatically apply a minimum 1.5x zoom when activated to create mo
 | | Edge Detection | Low Threshold (0 to 200), High Threshold (0 to 400) | `cv2.Canny` |
 | | Color Map | 21 palettes (Autumn, Bone, Jet, Winter, Rainbow, Ocean, Summer, Spring, Cool, HSV, Pink, Hot, Parula, Magma, Inferno, Plasma, Viridis, Cividis, Twilight, Twilight Shifted, Turbo) | `cv2.applyColorMap` |
 | | Vignette | Strength (10 to 100) | Cached radial gradient mask via `np.meshgrid` with cosine falloff, normalized internally from integer range |
-| **Advanced** | Background Blur (AI) | Strength (1 to 51) | MediaPipe selfie segmentation (float16 TFLite model) for per-pixel person/background separation, `GaussianBlur` on masked region |
 
 Effects are applied in the GStreamer buffer probe before the frame reaches both the preview and the virtual camera output, so the processed feed is what external apps (Zoom, OBS, etc.) see.
 
@@ -405,8 +442,6 @@ Effects are applied in the GStreamer buffer probe before the frame reaches both 
 
   Detection pipeline: `WeChatQRCode.detectAndDecode()` → `QRCodeDetector.detectAndDecode()` → `zbar.ImageScanner.scan()`. The first successful result is emitted.
 
-- **Smile Capture**: Automatic photo trigger on smile detection using Haar cascade classifiers. Uses a 3-consecutive-frame validation algorithm to eliminate false positives — the camera only fires when a genuine smile is consistently detected across multiple frames. Configurable detection sensitivity and cooldown between captures.
-
 ### Photo & Video
 
 - **Photo capture**: single-click or timer-delayed capture. For gPhoto2 cameras, the photo is captured at the camera's native resolution (not the preview resolution) and automatically downloaded.
@@ -420,7 +455,7 @@ Effects are applied in the GStreamer buffer probe before the frame reaches both 
 - **GTK4 + Libadwaita**: modern, native GNOME/KDE look-and-feel with full dark/light/system theme support. Uses Adw.NavigationView, Adw.PreferencesGroup, Adw.SwitchRow, Adw.ComboRow, Adw.ActionRow for a consistent Adwaita experience.
 - **Paned layout**: resizable live preview + sidebar with tabbed pages (Controls, Effects, Tools, Settings, Photos, Videos).
 - **Welcome screen**: guided first-run dialog introducing the app's key features.
-- **Bottom bar**: quick-access toggle buttons for QR scanner, smile capture, virtual camera, and mirror — synced bidirectionally with Settings.
+- **Bottom bar**: quick-access toggle buttons for QR scanner, virtual camera, and mirror — synced bidirectionally with Settings.
 - **Always on Top**: window pin button (Wayland-compatible via KWin D-Bus scripting).
 - **Fullscreen mode**: toggle fullscreen via header button or keyboard shortcut.
 - **Capture timer**: configurable delay (3s, 5s, 10s) with countdown overlay, synced between header and Settings.
@@ -453,7 +488,6 @@ Effects are applied in the GStreamer buffer probe before the frame reaches both 
 | **Recording container** | MKV (default), WebM, MP4 |
 | **Recording bitrate** | 500–50,000 kbps (default: 8,000) |
 | **QR Scanner** | Enable/disable real-time QR code detection (synced with bottom bar button) |
-| **Smile Capture** | Enable/disable automatic smile-triggered photos (synced with bottom bar button) |
 | **Virtual Camera** | Start/stop v4l2loopback output (synced with bottom bar button) |
 | **Hotplug detection** | Automatically detect USB camera connect/disconnect |
 
@@ -497,7 +531,7 @@ pipewire  v4l-utils  ffmpeg  polkit
 
 **Image processing & scanning:**
 ```
-python-opencv         # Effects, QR scanner, smile capture, software controls
+python-opencv         # Effects, QR scanner, software controls
 python-numpy          # Frame array processing (also a dependency of python-opencv)
 zbar                  # 1D barcode scanning (EAN, UPC, Code 128, etc.)
 ```
@@ -517,13 +551,6 @@ python-qrcode         # QR code generation for phone camera dialog
 scrcpy                # Android phone camera via USB/Wi-Fi (optional)
 android-tools         # ADB for scrcpy pairing and connection (optional)
 uxplay                # AirPlay receiver for iPhone/iPad streaming (optional)
-```
-
-**Optional (not packaged in all distros):**
-```
-mediapipe             # Background blur AI segmentation (selfie segmenter)
-                      # Install via pip: pip install mediapipe
-                      # Not available in pacman/apt repos
 ```
 
 Then run:
@@ -554,7 +581,7 @@ bigcam/
 │   │   ├── camera_backend.py        # CameraInfo / VideoFormat / CameraControl data classes
 │   │   ├── camera_profiles.py       # Save/load per-camera control presets (JSON in ~/.config/bigcam/profiles/)
 │   │   ├── stream_engine.py         # GStreamer pipeline lifecycle, OpenCV probe, software controls, vcam appsrc
-│   │   ├── effects.py               # EffectPipeline — 17 OpenCV effects + MediaPipe background blur
+│   │   ├── effects.py               # EffectPipeline — 17 OpenCV effects
 │   │   ├── audio_monitor.py         # Audio device detection, playback monitoring, and external source volume control (pactl + callbacks)
 │   │   ├── photo_capture.py         # Photo capture orchestration (preview snapshot + gPhoto2 download)
 │   │   ├── video_recorder.py        # Multi-codec video recording (H.264/H.265/VP9/MJPEG, HW accel, MKV/WebM/MP4)
@@ -577,7 +604,7 @@ bigcam/
 │   │   ├── camera_selector.py       # Camera list dropdown with hotplug updates
 │   │   ├── camera_controls_page.py  # Dynamic V4L2/gPhoto2 control panel with software fallbacks
 │   │   ├── effects_page.py          # Effects toggle grid with parameter sliders
-│   │   ├── tools_page.py            # QR/barcode scanner, smile capture toggles
+│   │   ├── tools_page.py            # QR/barcode scanner toggles
 │   │   ├── settings_page.py         # App preferences + QR/barcode detection engine (WeChatQRCode + zbar)
 │   │   ├── photo_gallery.py         # Photo browser with lazy thumbnails and delete
 │   │   ├── video_gallery.py         # Video browser with system player integration
@@ -632,11 +659,11 @@ Camera Sources
                     │                                    │
             ┌───────┼───────┐                     Available to:
             │       │       │                     Zoom, Teams,
-         Effects  Zoom    QR/Barcode/            Meet, OBS, etc.
-         Pipeline Pan/Tilt Smile Detection
+         Effects  Zoom    QR/Barcode             Meet, OBS, etc.
+         Pipeline Pan/Tilt Detection
                   Sharpness    │
-                  Backlight    ├─ WeChatQRCode (2D)
-                  BG Blur (AI) ├─ QRCodeDetector (2D fallback)
+                               ├─ WeChatQRCode (2D)
+                               ├─ QRCodeDetector (2D fallback)
                     │          └─ zbar ImageScanner (1D barcodes)
             ┌───────┼───────┐
             │               │
@@ -656,7 +683,7 @@ Phone Audio Sources
 ### Key Design Decisions
 
 - **PipeWire-first**: V4L2 cameras are accessed through `pipewiresrc` (PipeWire node targeting) rather than `v4l2src` for better integration with the modern Linux audio/video stack. The v4l2src fallback is only used when PipeWire is unavailable.
-- **Single buffer probe, multiple passes**: All image processing (effects, zoom, pan/tilt, sharpness, backlight compensation, QR detection, barcode scanning, smile detection) happens in a single GStreamer buffer probe. The probe converts the buffer to a NumPy array, applies processing, converts back, and replaces the buffer — all in one pass per frame.
+- **Single buffer probe, multiple passes**: All image processing (effects, zoom, pan/tilt, sharpness, QR detection, barcode scanning) happens in a single GStreamer buffer probe. The probe converts the buffer to a NumPy array, applies processing, converts back, and replaces the buffer — all in one pass per frame.
 - **Cascading detection pipeline**: QR/barcode scanning uses a three-stage fallback: WeChatQRCode (fastest, highest accuracy for 2D QR) → QRCodeDetector (OpenCV built-in fallback) → zbar ImageScanner (1D barcodes only, runs on the grayscale frame already computed for QR detection).
 - **Adaptive downscaling for bilateralFilter**: Beauty and Denoise effects detect frame dimensions and downscale to 50% before applying `bilateralFilter` (O(d² × pixels)) when the frame exceeds 480p. The result is upscaled back. This yields ~4× throughput on 1080p with negligible perceptual quality loss.
 - **Software control fallbacks**: When V4L2 controls are accepted by the kernel driver but not applied by PipeWire, software equivalents are transparently applied. The user sees the same slider; the effect just works.
@@ -674,7 +701,7 @@ BigCam stores its configuration following the XDG Base Directory Specification:
 | `~/.config/bigcam/settings.json` | User preferences (theme, mirror, FPS, resolution, etc.) |
 | `~/Pictures/BigCam/` | Captured photos (uses system XDG directory) |
 | `~/Videos/BigCam/` | Recorded videos (uses system XDG directory) |
-| `~/.cache/bigcam/` | Temporary files, self-signed TLS certificates, MediaPipe selfie segmenter model |
+| `~/.cache/bigcam/` | Temporary files, self-signed TLS certificates |
 | `~/.config/bigcam/profiles/<camera>/` | Per-camera control presets (JSON profiles) |
 
 Photo and video directories automatically adapt to the system language. For example, a Portuguese (Brazil) system uses `~/Imagens/BigCam/` and `~/Vídeos/BigCam/`.

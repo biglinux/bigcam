@@ -101,11 +101,6 @@ class WelcomeDialog:
                 _("Scan QR codes and barcodes\ndirectly from the camera feed"),
             ),
             (
-                "face-smile-symbolic",
-                _("Capture on Smile"),
-                _("Automatic photo capture when\na smile is detected"),
-            ),
-            (
                 "camera-web-symbolic",
                 _("Virtual Camera"),
                 _("Create a virtual camera device\nfor use in video calls"),

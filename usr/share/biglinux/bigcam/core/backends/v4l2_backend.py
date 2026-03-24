@@ -35,7 +35,6 @@ _CONTROL_LABELS: dict[str, str] = {
     "zoom_absolute": _("Zoom"),
     "pan_absolute": _("Pan"),
     "tilt_absolute": _("Tilt"),
-    "backlight_compensation": _("Backlight Compensation"),
     "power_line_frequency": _("Power Line Frequency"),
     "auto_exposure_bias": _("Exposure Bias"),
     "white_balance_auto_preset": _("WB Preset"),
@@ -50,6 +49,7 @@ _CONTROL_LABELS: dict[str, str] = {
 
 # Controls hidden from the UI (too technical for end-users)
 _HIDDEN_CONTROLS: set[str] = {
+    "backlight_compensation",
     "region_of_interest_auto",
     "region_of_interest_area_left",
     "region_of_interest_area_top",
@@ -77,7 +77,6 @@ _CATEGORY_MAP: dict[str, ControlCategory] = {
     "zoom_absolute": ControlCategory.FOCUS,
     "pan_absolute": ControlCategory.ADVANCED,
     "tilt_absolute": ControlCategory.ADVANCED,
-    "backlight_compensation": ControlCategory.EXPOSURE,
     "power_line_frequency": ControlCategory.ADVANCED,
     "image_stabilization": ControlCategory.ADVANCED,
     "iso_sensitivity": ControlCategory.EXPOSURE,

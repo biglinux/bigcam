@@ -11,7 +11,8 @@ window.bigcam {
 
 .preview-area {
     background-color: #000000;
-        border-radius: 0;
+    border-radius: 0;
+    color-scheme: dark;
 }
 
 .preview-picture {
@@ -21,6 +22,7 @@ window.bigcam {
     
     /* --- Top Bar Overlay (gradient for legibility) --- */
     .osd-bar.top-bar {
+        color-scheme: dark;
         background: linear-gradient(to bottom,
                 rgba(0, 0, 0, 0.75) 0%,
                     rgba(0, 0, 0, 0.45) 70%,
@@ -77,6 +79,7 @@ window.bigcam {
         }
     /* --- Bottom Controls Overlay (gradient edge-to-edge) --- */
     .osd-bar.bottom-bar {
+        color-scheme: dark;
         background: linear-gradient(to top,
                 rgba(0, 0, 0, 0.75) 0%,
                     rgba(0, 0, 0, 0.45) 70%,
@@ -420,6 +423,7 @@ row.expander image.expander-row-arrow {
 
 /* --- Audio volume overlay (left side, centered, button-like) --- */
 .audio-overlay {
+    color-scheme: dark;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 16px;
     padding: 8px 12px;
@@ -462,15 +466,16 @@ row.expander image.expander-row-arrow {
     opacity: 0.3;
 }
 
-/* --- Status page (no camera) --- */
-.status-overlay statuspage {
-    background: transparent;
+/* --- Status page (no camera / alerts) --- */
+.status-overlay {
+    background: rgba(0, 0, 0, 0.7);
     color: rgba(255, 255, 255, 0.7);
+    color-scheme: dark;
 }
 
 /* --- Immersion mode (auto-hide chrome) --- */
 box.immersion-active {
-    background-color: #000000;
+    background-color: transparent;
 }
 
 /* --- Sidebar panel overlay --- */
@@ -557,6 +562,33 @@ window.bigcam overlay-split-view> :not(.shade) {
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* Fix: popover menus/dropdowns inherit forced white text from OSD
+   top-bar and sidebar, making them unreadable in light mode.
+   Reset to theme-adaptive popover colors. */
+.osd-bar.top-bar popover,
+.sidebar-panel popover {
+    color: @popover_fg_color;
+}
+
+.sidebar-panel popover label,
+.sidebar-panel popover row {
+    color: @popover_fg_color;
+}
+
+.osd-bar.top-bar popover button {
+    color: @popover_fg_color;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 0;
+}
+
+.osd-bar.top-bar popover button:hover {
+    background: alpha(@popover_fg_color, 0.08);
+}
+
+.osd-bar.top-bar popover button:active {
+    background: alpha(@popover_fg_color, 0.12);
+}
 /* --- Controls toggle button (top-left sidebar opener) --- */
 .osd-bar.top-bar button.controls-toggle-btn {
     min-width: 32px;

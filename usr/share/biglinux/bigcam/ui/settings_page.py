@@ -41,7 +41,6 @@ class SettingsPage(Gtk.ScrolledWindow):
     __gsignals__ = {
         "show-fps-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "mirror-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
-        "smile-captured": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "qr-detected": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "virtual-camera-toggled": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
@@ -49,10 +48,12 @@ class SettingsPage(Gtk.ScrolledWindow):
         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "overlay-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "controls-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
+        "window-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "help-tooltips-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "capture-timer-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "recording-config-changed": (GObject.SignalFlags.RUN_LAST, None, ()),
         "prefer-v4l2-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "resource-monitor-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
     }
 
     def __init__(self, settings: SettingsManager, stream_engine=None) -> None:
@@ -65,18 +66,13 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         # Tools state
         self._qr_active = False
-        self._smile_active = False
         self._qr_timer_id: int | None = None
-        self._smile_timer_id: int | None = None
-        self._smile_cooldown = False
-        self._smile_consecutive = 0
         self._last_qr_text = ""
         self._qr_scanning = False
         self._qr_detector = None
         self._wechat_qr = None
         self._zbar_scanner = None
         self._face_cascade = None
-        self._smile_cascade = None
 
         clamp = Adw.Clamp(maximum_size=600, tightening_threshold=400)
         content = Gtk.Box(
@@ -100,6 +96,9 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _build_general(self, content: Gtk.Box) -> None:
         general = Adw.PreferencesGroup(title=_("General"))
+        general.set_header_suffix(self._make_group_reset_button(
+            _("Reset general settings"), self._on_reset_general,
+        ))
 
         # Photo directory
         photo_row = Adw.ActionRow(
@@ -136,33 +135,33 @@ class SettingsPage(Gtk.ScrolledWindow):
         general.add(video_row)
 
         # Theme
-        theme_row = Adw.ComboRow(title=_("Theme"))
-        theme_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-desktop-appearance-symbolic"))
+        self._theme_row = Adw.ComboRow(title=_("Theme"))
+        self._theme_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-desktop-appearance-symbolic"))
         theme_model = Gtk.StringList()
-        for t in (_("System"), _("Light"), _("Dark")):
+        for t in (_("Light"), _("Dark")):
             theme_model.append(t)
-        theme_row.set_model(theme_model)
-        theme_idx = {"system": 0, "light": 1, "dark": 2}.get(
-            self._settings.get("theme"), 0
+        self._theme_row.set_model(theme_model)
+        theme_idx = {"light": 0, "dark": 1}.get(
+            self._settings.get("theme"), 1
         )
-        theme_row.set_selected(theme_idx)
-        theme_row.update_property(
+        self._theme_row.set_selected(theme_idx)
+        self._theme_row.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Application theme")]
         )
-        theme_row.connect("notify::selected", self._on_theme)
-        general.add(theme_row)
+        self._theme_row.connect("notify::selected", self._on_theme)
+        general.add(self._theme_row)
 
-        hotplug_row = Adw.SwitchRow(
+        self._hotplug_row = Adw.SwitchRow(
             title=_("USB hotplug detection"),
             subtitle=_("Automatically detect cameras when plugged or unplugged."),
         )
-        hotplug_row.add_prefix(Gtk.Image.new_from_icon_name("media-removable-symbolic"))
-        hotplug_row.set_active(self._settings.get("hotplug_enabled"))
-        hotplug_row.update_property(
+        self._hotplug_row.add_prefix(Gtk.Image.new_from_icon_name("media-removable-symbolic"))
+        self._hotplug_row.set_active(self._settings.get("hotplug_enabled"))
+        self._hotplug_row.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("USB hotplug detection")]
         )
-        hotplug_row.connect("notify::active", self._on_hotplug)
-        general.add(hotplug_row)
+        self._hotplug_row.connect("notify::active", self._on_hotplug)
+        general.add(self._hotplug_row)
 
         # Help tooltips
         self._help_tooltips_row = Adw.SwitchRow(
@@ -192,6 +191,7 @@ class SettingsPage(Gtk.ScrolledWindow):
             [Gtk.AccessibleProperty.LABEL], [_("Resource usage monitor")]
         )
         resource_row.connect("notify::active", self._on_resource_monitor)
+        self._resource_row = resource_row
         general.add(resource_row)
 
         # Reset dismissed warnings
@@ -216,6 +216,9 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _build_preview(self, content: Gtk.Box) -> None:
         preview = Adw.PreferencesGroup(title=_("Preview"))
+        preview.set_header_suffix(self._make_group_reset_button(
+            _("Reset preview settings"), self._on_reset_preview,
+        ))
 
         self._mirror_row = Adw.SwitchRow(
             title=_("Mirror preview"),
@@ -229,25 +232,42 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._mirror_row.connect("notify::active", self._on_mirror)
         preview.add(self._mirror_row)
 
-        show_fps_row = Adw.SwitchRow(
+        self._show_fps_row = Adw.SwitchRow(
             title=_("Show FPS counter"),
         )
-        show_fps_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-system-symbolic"))
-        show_fps_row.set_active(self._settings.get("show_fps"))
-        show_fps_row.update_property(
+        self._show_fps_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-system-symbolic"))
+        self._show_fps_row.set_active(self._settings.get("show_fps"))
+        self._show_fps_row.update_property(
             [Gtk.AccessibleProperty.LABEL], [_("Show FPS counter")]
         )
-        show_fps_row.connect("notify::active", self._on_show_fps)
-        preview.add(show_fps_row)
+        self._show_fps_row.connect("notify::active", self._on_show_fps)
+        preview.add(self._show_fps_row)
 
-        grid_row = Adw.SwitchRow(
+        self._grid_row = Adw.SwitchRow(
             title=_("Grid overlay"),
             subtitle=_("Show a rule-of-thirds grid over the preview."),
         )
-        grid_row.add_prefix(Gtk.Image.new_from_icon_name("view-grid-symbolic"))
-        grid_row.set_active(self._settings.get("grid_overlay"))
-        grid_row.connect("notify::active", self._on_grid_overlay)
-        preview.add(grid_row)
+        self._grid_row.add_prefix(Gtk.Image.new_from_icon_name("view-grid-symbolic"))
+        self._grid_row.set_active(self._settings.get("grid_overlay"))
+        self._grid_row.connect("notify::active", self._on_grid_overlay)
+        preview.add(self._grid_row)
+
+        # Window background opacity slider
+        window_opacity_row = Adw.ActionRow(
+            title=_("Background transparency"),
+            subtitle=_("Controls the window background transparency."),
+        )
+        window_opacity_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-desktop-wallpaper-symbolic"))
+        self._window_opacity_scale = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL, 0, 100, 5
+        )
+        self._window_opacity_scale.set_value(self._settings.get("window-opacity"))
+        self._window_opacity_scale.set_hexpand(True)
+        self._window_opacity_scale.set_valign(Gtk.Align.CENTER)
+        self._window_opacity_scale.set_size_request(180, -1)
+        self._window_opacity_scale.connect("value-changed", self._on_window_opacity)
+        window_opacity_row.add_suffix(self._window_opacity_scale)
+        preview.add(window_opacity_row)
 
         # Gradient overlay opacity slider
         opacity_row = Adw.ActionRow(
@@ -283,19 +303,22 @@ class SettingsPage(Gtk.ScrolledWindow):
         controls_opacity_row.add_suffix(self._controls_opacity_scale)
         preview.add(controls_opacity_row)
 
-        v4l2_row = Adw.SwitchRow(
+        self._v4l2_row = Adw.SwitchRow(
             title=_("Direct V4L2 access"),
             subtitle=_("Bypass PipeWire and access the camera directly. May fix flickering on some webcams."),
         )
-        v4l2_row.add_prefix(Gtk.Image.new_from_icon_name("camera-video-symbolic"))
-        v4l2_row.set_active(self._settings.get("prefer-v4l2"))
-        v4l2_row.connect("notify::active", self._on_prefer_v4l2)
-        preview.add(v4l2_row)
+        self._v4l2_row.add_prefix(Gtk.Image.new_from_icon_name("camera-video-symbolic"))
+        self._v4l2_row.set_active(self._settings.get("prefer-v4l2"))
+        self._v4l2_row.connect("notify::active", self._on_prefer_v4l2)
+        preview.add(self._v4l2_row)
 
         content.append(preview)
 
         # -- Camera group (resolution, FPS, timer) ---------------------------
         camera_group = Adw.PreferencesGroup(title=_("Camera"))
+        camera_group.set_header_suffix(self._make_group_reset_button(
+            _("Reset camera settings"), self._on_reset_camera,
+        ))
 
         # Resolution — fixed tiers, filtered per-camera
         self._res_combo = Adw.ComboRow(title=_("Resolution"))
@@ -361,6 +384,9 @@ class SettingsPage(Gtk.ScrolledWindow):
     def _build_recording(self, content: Gtk.Box) -> None:
         """Recording codec/container/bitrate settings."""
         group = Adw.PreferencesGroup(title=_("Recording"))
+        group.set_header_suffix(self._make_group_reset_button(
+            _("Reset recording settings"), self._on_reset_recording,
+        ))
 
         # Video codec
         vcodec_model = Gtk.StringList.new(["H.264", "H.265", "VP9", "MJPEG"])
@@ -413,7 +439,20 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         def _on_container(row, _pspec):
             idx = row.get_selected()
-            self._settings.set("recording-container", _container_keys[idx])
+            container = _container_keys[idx]
+            self._settings.set("recording-container", container)
+            # Auto-correct codecs incompatible with the chosen container
+            if container == "webm":
+                self._vcodec_row.set_selected(_vcodec_map["vp9"])
+                acodec = _acodec_keys[self._acodec_row.get_selected()]
+                if acodec not in ("opus", "vorbis"):
+                    self._acodec_row.set_selected(_acodec_map["opus"])
+            elif container == "mp4":
+                vcodec = _vcodec_keys[self._vcodec_row.get_selected()]
+                if vcodec in ("vp9", "mjpeg"):
+                    self._vcodec_row.set_selected(_vcodec_map["h264"])
+                if _acodec_keys[self._acodec_row.get_selected()] == "vorbis":
+                    self._acodec_row.set_selected(_acodec_map["aac"])
             self.emit("recording-config-changed")
 
         self._container_row.connect("notify::selected", _on_container)
@@ -462,36 +501,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         qr_group.add(self._qr_row)
         content.append(qr_group)
 
-        # --- Smile Capture ---
-        smile_group = Adw.PreferencesGroup(title=_("Smile Capture"))
-        self._smile_row = Adw.SwitchRow(
-            title=_("Capture on Smile"),
-            subtitle=_("Automatically take a photo when a smile is detected"),
-        )
-        self._smile_row.add_prefix(Gtk.Image.new_from_icon_name("face-smile-symbolic"))
-        self._smile_row.connect("notify::active", self._on_smile_toggled)
-        smile_group.add(self._smile_row)
-
-        self._sensitivity_row = Adw.ActionRow(title=_("Sensitivity"))
-        self._sensitivity_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-other-symbolic"))
-        self._sensitivity_scale = Gtk.Scale.new_with_range(
-            Gtk.Orientation.HORIZONTAL, 1, 10, 1
-        )
-        self._sensitivity_scale.set_value(5)
-        self._sensitivity_scale.set_hexpand(True)
-        self._sensitivity_scale.set_valign(Gtk.Align.CENTER)
-        self._sensitivity_row.add_suffix(self._sensitivity_scale)
-        smile_group.add(self._sensitivity_row)
-
-        self._smile_status = Gtk.Label(
-            label="",
-            xalign=0.5,
-            css_classes=["dim-label"],
-        )
-        self._smile_status.set_margin_top(4)
-        smile_group.add(self._smile_status)
-        content.append(smile_group)
-
     def _build_virtual_camera(self, content: Gtk.Box) -> None:
         vc_group = Adw.PreferencesGroup(title=_("Virtual Camera"))
 
@@ -523,15 +532,14 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _on_theme(self, row: Adw.ComboRow, _pspec) -> None:
         idx = row.get_selected()
-        value = {0: "system", 1: "light", 2: "dark"}.get(idx, "system")
+        value = {0: "light", 1: "dark"}.get(idx, "dark")
         self._settings.set("theme", value)
         style_manager = Adw.StyleManager.get_default()
         scheme_map = {
-            "system": Adw.ColorScheme.DEFAULT,
             "light": Adw.ColorScheme.FORCE_LIGHT,
             "dark": Adw.ColorScheme.FORCE_DARK,
         }
-        style_manager.set_color_scheme(scheme_map.get(value, Adw.ColorScheme.DEFAULT))
+        style_manager.set_color_scheme(scheme_map.get(value, Adw.ColorScheme.FORCE_DARK))
 
     def _on_mirror(self, row: Adw.SwitchRow, _pspec) -> None:
         active = row.get_active()
@@ -558,10 +566,14 @@ class SettingsPage(Gtk.ScrolledWindow):
         self.emit("help-tooltips-changed", active)
 
     def _on_resource_monitor(self, row: Adw.SwitchRow, _pspec) -> None:
-        self._settings.set("resource-monitor-enabled", row.get_active())
+        active = row.get_active()
+        self._settings.set("resource-monitor-enabled", active)
+        self.emit("resource-monitor-changed", active)
 
     def _on_reset_warnings(self, _btn: Gtk.Button) -> None:
         self._settings.set("resource-warnings-dismissed", [])
+        if not self._resource_row.get_active():
+            self._resource_row.set_active(True)
 
     def _on_resolution(self, row: Adw.ComboRow, _pspec) -> None:
         if getattr(self, '_updating_formats', False):
@@ -627,6 +639,11 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._settings.set("overlay-opacity", value)
         self.emit("overlay-opacity-changed", value)
 
+    def _on_window_opacity(self, scale: Gtk.Scale) -> None:
+        value = int(scale.get_value())
+        self._settings.set("window-opacity", value)
+        self.emit("window-opacity-changed", value)
+
     def _on_controls_opacity(self, scale: Gtk.Scale) -> None:
         value = int(scale.get_value())
         self._settings.set("controls-opacity", value)
@@ -638,6 +655,47 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         os.makedirs(path, exist_ok=True)
         subprocess.Popen(["xdg-open", path])
+
+    # -- Reset buttons -------------------------------------------------------
+
+    def _make_group_reset_button(
+        self, tooltip: str, callback
+    ) -> Gtk.Button:
+        btn = Gtk.Button.new_from_icon_name("edit-undo-symbolic")
+        btn.add_css_class("flat")
+        btn.set_tooltip_text(_("Reset to defaults"))
+        btn.update_property(
+            [Gtk.AccessibleProperty.LABEL],
+            [tooltip],
+        )
+        btn.connect("clicked", callback)
+        return btn
+
+    def _on_reset_general(self, _btn: Gtk.Button) -> None:
+        self._theme_row.set_selected(1)                # dark
+        self._hotplug_row.set_active(True)
+        self._help_tooltips_row.set_active(True)
+        self._resource_row.set_active(True)
+
+    def _on_reset_preview(self, _btn: Gtk.Button) -> None:
+        self._mirror_row.set_active(False)
+        self._show_fps_row.set_active(True)
+        self._grid_row.set_active(False)
+        self._window_opacity_scale.set_value(100)
+        self._opacity_scale.set_value(75)
+        self._controls_opacity_scale.set_value(90)
+        self._v4l2_row.set_active(True)
+
+    def _on_reset_camera(self, _btn: Gtk.Button) -> None:
+        self._res_combo.set_selected(0)                # Auto
+        self._fps_combo.set_selected(0)                # Auto
+        self._timer_row.set_selected(0)                # Off
+
+    def _on_reset_recording(self, _btn: Gtk.Button) -> None:
+        self._vcodec_row.set_selected(0)               # H.264
+        self._acodec_row.set_selected(0)               # Opus
+        self._container_row.set_selected(0)            # MKV
+        self._bitrate_row.get_adjustment().set_value(8000)
 
     # -- QR Code handlers ----------------------------------------------------
 
@@ -782,107 +840,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._last_qr_text = ""
         dialog.destroy()
         return True
-
-    # -- Smile handlers ------------------------------------------------------
-
-    def _on_smile_toggled(self, row: Adw.SwitchRow, _pspec) -> None:
-        self._smile_active = row.get_active()
-        if self._smile_active:
-            if self._face_cascade is None:
-                self._face_cascade = cv2.CascadeClassifier(
-                    os.path.join(_HAARCASCADES, "haarcascade_frontalface_default.xml")
-                )
-            if self._smile_cascade is None:
-                self._smile_cascade = cv2.CascadeClassifier(
-                    os.path.join(_HAARCASCADES, "haarcascade_smile.xml")
-                )
-            self._smile_cooldown = False
-            self._smile_consecutive = 0
-            self._smile_scanning = False
-            self._smile_status.set_text(_("Watching for smiles..."))
-            self._smile_timer_id = GLib.timeout_add(300, self._detect_smile)
-        else:
-            if self._smile_timer_id:
-                GLib.source_remove(self._smile_timer_id)
-                self._smile_timer_id = None
-            self._smile_status.set_text("")
-
-    def _detect_smile(self) -> bool:
-        if not self._smile_active:
-            return False
-        if self._smile_cooldown or self._smile_scanning:
-            return True
-        frame = self._engine.last_frame_bgr
-        if frame is None:
-            return True
-        self._smile_scanning = True
-        sensitivity = int(self._sensitivity_scale.get_value())
-        self._threading.Thread(
-            target=self._detect_smile_worker,
-            args=(frame.copy(), sensitivity),
-            daemon=True,
-        ).start()
-        return True
-
-    def _detect_smile_worker(self, frame, sensitivity: int) -> None:
-        smile_found = False
-        try:
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = self._face_cascade.detectMultiScale(
-                gray, scaleFactor=1.3, minNeighbors=5, minSize=(80, 80)
-            )
-            if len(faces) == 0:
-                GLib.idle_add(self._detect_smile_done, False)
-                return
-            min_neighbors = max(10, 55 - sensitivity * 5)
-            for x, y, fw, fh in faces:
-                roi_gray = gray[y : y + fh, x : x + fw]
-                lower_half = roi_gray[fh // 2 :, :]
-                min_w = max(30, fw // 5)
-                min_h = max(20, fh // 10)
-                smiles = self._smile_cascade.detectMultiScale(
-                    lower_half,
-                    scaleFactor=1.5,
-                    minNeighbors=min_neighbors,
-                    minSize=(min_w, min_h),
-                )
-                if len(smiles) > 0:
-                    smile_found = True
-                    break
-        except Exception:
-            pass
-        GLib.idle_add(self._detect_smile_done, smile_found)
-
-    def _detect_smile_done(self, smile_found: bool) -> bool:
-        self._smile_scanning = False
-        if smile_found:
-            self._smile_consecutive += 1
-            if self._smile_consecutive >= 3:
-                self._smile_consecutive = 0
-                self._trigger_smile_capture()
-        else:
-            self._smile_consecutive = 0
-        return False
-
-    def _trigger_smile_capture(self) -> bool:
-        if self._smile_cooldown:
-            return False
-        self._smile_cooldown = True
-        import time as _time
-
-        ts = _time.strftime("%Y%m%d_%H%M%S")
-        path = os.path.join(xdg.photos_dir(), f"smile_{ts}.jpg")
-        os.makedirs(xdg.photos_dir(), exist_ok=True)
-        frame = self._engine.last_frame_bgr
-        if frame is not None:
-            cv2.imwrite(path, frame)
-            self.emit("smile-captured", path)
-        GLib.timeout_add(3000, self._reset_smile_cooldown)
-        return False
-
-    def _reset_smile_cooldown(self) -> bool:
-        self._smile_cooldown = False
-        return False
 
     # -- Virtual Camera handlers ---------------------------------------------
 

@@ -82,6 +82,7 @@ class PreviewArea(Gtk.Overlay):
             title=_("No camera"),
             description=_("Connect a camera or select one from the list above."),
         )
+        self._status.add_css_class("status-overlay")
         self._status.set_hexpand(True)
         self._status.set_vexpand(True)
 

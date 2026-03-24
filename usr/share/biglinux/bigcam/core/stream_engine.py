@@ -216,6 +216,9 @@ class StreamEngine(GObject.Object):
         self._mirror: bool = False
         self._effects = EffectPipeline()
         self._probe_debug_count: int = 0
+        self._probe_cached_fmt: str = ""
+        self._probe_pad: Gst.Pad | None = None
+        self._probe_id: int = 0
         self._last_probe_bgr = None
         self._overlay_rects: list[tuple] = []  # [(x,y,w,h), ...] for QR overlay
         self._qr_scan_active: bool = False  # whether QR scanning mode is on
@@ -223,7 +226,6 @@ class StreamEngine(GObject.Object):
         self._video_recorder: Any = None  # set by window to enable phone recording
         self._zoom_level: float = 1.0  # 1.0 = no zoom, 2.0 = 2x zoom
         self._sharpness: float = 0.0  # 0.0 = off, positive = sharpen strength
-        self._backlight_comp: float = 0.0  # 0.0 = off, up to 1.0 = max compensation
         self._pan: float = 0.0   # -1.0 to 1.0 (left/right offset ratio)
         self._tilt: float = 0.0  # -1.0 to 1.0 (up/down offset ratio)
         # General virtual camera output (appsrc → v4l2sink)
@@ -233,6 +235,7 @@ class StreamEngine(GObject.Object):
         self._vcam_alloc_id: str = ""  # VirtualCamera allocation id for vcam device
         self._vcam_w: int = 0
         self._vcam_h: int = 0
+        self._vcam_bgra_buf: np.ndarray | None = None
         self._prefer_v4l2: bool = False  # bypass PipeWire, use v4l2src directly
         # OpenCV direct capture (like guvcview) — used when prefer_v4l2 is active
         self._cv_cap: Any = None  # cv2.VideoCapture or None
@@ -277,10 +280,6 @@ class StreamEngine(GObject.Object):
     def set_sharpness(self, level: float) -> None:
         """Set software sharpness (0.0 = off, up to 1.0 = max)."""
         self._sharpness = max(0.0, min(1.0, level))
-
-    def set_backlight_compensation(self, level: float) -> None:
-        """Set software backlight compensation (0.0 = off, up to 1.0 = max)."""
-        self._backlight_comp = max(0.0, min(1.0, level))
 
     def set_pan(self, value: float) -> None:
         """Set software pan offset (-1.0 left .. 1.0 right)."""
@@ -343,7 +342,7 @@ class StreamEngine(GObject.Object):
 
     def _apply_frame_processing(self, bgr: np.ndarray) -> np.ndarray:
         """Apply all software effects to a BGR frame (effects, zoom, sharpness,
-        backlight compensation, QR overlay)."""
+        QR overlay)."""
         if self._effects.has_active_effects():
             bgr = self._effects.apply(bgr)
         # Digital zoom + pan/tilt
@@ -365,17 +364,10 @@ class StreamEngine(GObject.Object):
             blurred = cv2.GaussianBlur(bgr, (0, 0), 3)
             amount = self._sharpness * 2.0
             bgr = cv2.addWeighted(bgr, 1.0 + amount, blurred, -amount, 0)
-        # Software backlight compensation: CLAHE on luminance
-        if self._backlight_comp > 0.0:
-            lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
-            clip = 1.0 + self._backlight_comp * 3.0
-            clahe = cv2.createCLAHE(clipLimit=clip, tileGridSize=(8, 8))
-            lab[:, :, 0] = clahe.apply(lab[:, :, 0])
-            bgr = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
         # QR detection overlay
         if self._overlay_rects:
-            overlay = bgr.copy()
-            overlay[:] = (overlay * 0.4).astype(np.uint8)
+            # Dim entire frame efficiently, then restore detected regions
+            overlay = cv2.convertScaleAbs(bgr, alpha=0.4)
             for rect in self._overlay_rects:
                 x, y, rw, rh = rect
                 overlay[y:y + rh, x:x + rw] = bgr[y:y + rh, x:x + rw]
@@ -389,10 +381,9 @@ class StreamEngine(GObject.Object):
             x2, y2 = x1 + side, y1 + side
             corner_len = side // 5
             self._qr_scan_tick += 1
-            overlay = bgr.copy()
-            mask = np.ones((fh, fw), dtype=np.uint8)
-            mask[y1:y2, x1:x2] = 0
-            overlay[mask == 1] = (overlay[mask == 1] * 0.4).astype(np.uint8)
+            # Dim frame, restore scan window
+            overlay = cv2.convertScaleAbs(bgr, alpha=0.4)
+            overlay[y1:y2, x1:x2] = bgr[y1:y2, x1:x2]
             scan_range = y2 - y1
             scan_pos = y1 + int((self._qr_scan_tick % 60) / 60.0 * scan_range)
             cv2.line(overlay, (x1 + 4, scan_pos), (x2 - 4, scan_pos), (0, 200, 255), 2)
@@ -413,8 +404,10 @@ class StreamEngine(GObject.Object):
         """Store processed frame (with mirror) and feed to vcam/recorder."""
         self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
         if self._vcam_device and self._last_probe_bgr is not None:
-            vcam_bgra = cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA)
-            self._schedule_vcam_push(vcam_bgra.tobytes(), w, h)
+            if self._vcam_bgra_buf is None or self._vcam_bgra_buf.shape[:2] != (h, w):
+                self._vcam_bgra_buf = np.empty((h, w, 4), dtype=np.uint8)
+            cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA, dst=self._vcam_bgra_buf)
+            self._schedule_vcam_push(self._vcam_bgra_buf.tobytes(), w, h)
         if self._video_recorder and self._video_recorder.is_recording:
             self._video_recorder.write_frame(self._last_probe_bgr)
 
@@ -423,7 +416,6 @@ class StreamEngine(GObject.Object):
         return (self._effects.has_active_effects() or self._overlay_rects
                 or self._qr_scan_active
                 or self._zoom_level > 1.0 or self._sharpness > 0.0
-                or self._backlight_comp > 0.0
                 or self._pan != 0.0 or self._tilt != 0.0)
 
     def _on_paintable_probe(
@@ -448,7 +440,10 @@ class StreamEngine(GObject.Object):
         s = caps.get_structure(0)
         w = s.get_value("width")
         h = s.get_value("height")
-        fmt = s.get_string("format")
+        # Cache format string — it never changes during a pipeline's lifetime
+        if not self._probe_cached_fmt:
+            self._probe_cached_fmt = s.get_string("format") or ""
+        fmt = self._probe_cached_fmt
         self._probe_debug_count += 1
         if self._probe_debug_count <= 3:
             log.debug(f"paintable_probe: fmt={fmt}, {w}x{h}")
@@ -810,7 +805,8 @@ class StreamEngine(GObject.Object):
             # Fallback: probe on the gtk4paintablesink (effects won't reach v4l2)
             probe_pad = gtksink.get_static_pad("sink")
         if probe_pad:
-            probe_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_paintable_probe)
+            self._probe_id = probe_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_paintable_probe)
+            self._probe_pad = probe_pad
         self._start_fps_counter()
         self.emit("state-changed", "playing")
 
@@ -1072,7 +1068,8 @@ class StreamEngine(GObject.Object):
                 # Install FPS probe on appsink
                 sink_pad = appsink.get_static_pad("sink")
                 if sink_pad:
-                    sink_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_frame_probe)
+                    self._probe_id = sink_pad.add_probe(Gst.PadProbeType.BUFFER, self._on_frame_probe)
+                    self._probe_pad = sink_pad
                 self._start_fps_counter()
                 self.emit("state-changed", "playing")
                 self._appsink_timer_id = None
@@ -1141,8 +1138,15 @@ class StreamEngine(GObject.Object):
         self._last_texture = None
         self._vcam_latest_frame = None
         self._vcam_pending_frame = None
+        self._vcam_bgra_buf = None
+        self._probe_cached_fmt = ""
+        # Remove buffer probe before pipeline teardown
+        if self._probe_pad is not None and self._probe_id:
+            self._probe_pad.remove_probe(self._probe_id)
+            self._probe_pad = None
+            self._probe_id = 0
 
-        # Release MediaPipe segmenter to free TFLite model memory
+        # Release effect caches to free memory
         from core.effects import release_segmenter
         release_segmenter()
 

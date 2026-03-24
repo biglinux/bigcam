@@ -127,6 +127,15 @@ class VideoRecorder:
         br = self._video_bitrate
         codec = self._video_codec
 
+        # WebM only supports VP8/VP9
+        if self._container == "webm" and codec != "vp9":
+            log.info("Container webm requires VP9; overriding codec %s", codec)
+            codec = "vp9"
+        # MP4 doesn't support VP9 or MJPEG
+        elif self._container == "mp4" and codec in ("vp9", "mjpeg"):
+            log.info("Container mp4 incompatible with %s; falling back to h264", codec)
+            codec = "h264"
+
         if codec == "h265":
             hw = [
                 ("vaapih265enc", f"rate-control=2 bitrate={br}"),
@@ -162,6 +171,16 @@ class VideoRecorder:
     def _pick_audio_encoder_str(self) -> str:
         """Return the audio encoder element string based on configured codec."""
         codec = self._audio_codec
+
+        # WebM only supports Opus/Vorbis
+        if self._container == "webm" and codec not in ("opus", "vorbis"):
+            log.info("Container webm requires Opus/Vorbis; overriding audio %s", codec)
+            codec = "opus"
+        # MP4 doesn't support Vorbis
+        elif self._container == "mp4" and codec == "vorbis":
+            log.info("Container mp4 incompatible with vorbis; falling back to opus")
+            codec = "opus"
+
         if codec == "aac":
             for name in ("fdkaacenc", "avenc_aac", "voaacenc"):
                 if Gst.ElementFactory.find(name):

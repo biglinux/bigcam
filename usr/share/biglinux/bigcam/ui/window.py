@@ -71,7 +71,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._stream_engine._video_recorder = self._video_recorder
 
         self._audio_monitor = AudioMonitor()
-        self._syncing_toggle = False
         self._tooltip_widgets: list[tuple[Gtk.Widget, str]] = []
         self._active_camera: CameraInfo | None = None
         self._known_camera_ids: set[str] = set()
@@ -195,6 +194,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.set_mirror(bool(self._settings.get("mirror_preview")))
         self._apply_overlay_opacity(self._settings.get("overlay-opacity"))
         self._apply_controls_opacity(self._settings.get("controls-opacity"))
+        self._apply_window_opacity(self._settings.get("window-opacity"))
         self._preview.set_audio_monitor(self._audio_monitor)
         self._audio_monitor.detect_all()
         self._audio_monitor.connect("source-toggled", self._on_audio_source_toggled)
@@ -416,7 +416,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         mirror_btn.set_halign(Gtk.Align.CENTER)
         mirror_btn.set_valign(Gtk.Align.CENTER)
         mirror_btn.set_active(bool(self._settings.get("mirror_preview")))
-        mirror_btn.connect("toggled", self._on_mirror_btn_toggled)
+        self._mirror_btn_handler_id = mirror_btn.connect("toggled", self._on_mirror_btn_toggled)
         self._mirror_btn = mirror_btn
         controls_start.append(mirror_btn)
 
@@ -430,23 +430,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         qr_btn.set_size_request(44, 44)
         qr_btn.set_halign(Gtk.Align.CENTER)
         qr_btn.set_valign(Gtk.Align.CENTER)
-        qr_btn.connect("toggled", self._on_qr_quick_toggled)
+        self._qr_btn_handler_id = qr_btn.connect("toggled", self._on_qr_quick_toggled)
         self._qr_quick_btn = qr_btn
         controls_start.append(qr_btn)
-
-        # Capture on Smile toggle
-        smile_btn = Gtk.ToggleButton()
-        smile_icon = Gtk.Image.new_from_icon_name("face-smile-symbolic")
-        smile_icon.set_pixel_size(20)
-        smile_btn.set_child(smile_icon)
-        self._register_tooltip(smile_btn, _("Capture on Smile"))
-        smile_btn.add_css_class("bottom-circle-btn")
-        smile_btn.set_size_request(44, 44)
-        smile_btn.set_halign(Gtk.Align.CENTER)
-        smile_btn.set_valign(Gtk.Align.CENTER)
-        smile_btn.connect("toggled", self._on_smile_quick_toggled)
-        self._smile_quick_btn = smile_btn
-        controls_start.append(smile_btn)
 
         # Virtual Camera toggle
         vcam_btn = Gtk.ToggleButton()
@@ -459,7 +445,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         vcam_btn.set_halign(Gtk.Align.CENTER)
         vcam_btn.set_valign(Gtk.Align.CENTER)
         vcam_btn.set_active(bool(self._settings.get("virtual-camera-enabled")))
-        vcam_btn.connect("toggled", self._on_vcam_quick_toggled)
+        self._vcam_btn_handler_id = vcam_btn.connect("toggled", self._on_vcam_quick_toggled)
         self._vcam_quick_btn = vcam_btn
         controls_start.append(vcam_btn)
 
@@ -657,7 +643,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         # Settings page (includes Tools and Virtual Camera)
         self._settings_page = SettingsPage(self._settings, self._stream_engine)
-        self._settings_page.connect("smile-captured", self._on_smile_captured)
         self._settings_page.connect("qr-detected", self._on_qr_detected)
         self._settings_page.connect(
             "virtual-camera-toggled", self._on_virtual_camera_toggled
@@ -672,6 +657,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._settings_page.connect(
             "controls-opacity-changed", self._on_controls_opacity_changed
+        )
+        self._settings_page.connect(
+            "window-opacity-changed", self._on_window_opacity_changed
         )
         # Restore virtual camera enabled state from settings
         if self._settings.get("virtual-camera-enabled"):
@@ -947,60 +935,36 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._settings.set("grid_overlay", visible)
 
     def _on_mirror_btn_toggled(self, btn: Gtk.ToggleButton) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
         new_val = btn.get_active()
         self._settings.set("mirror_preview", new_val)
         self._stream_engine.mirror = new_val
         self._preview.set_mirror(new_val)
+        self._settings_page.handler_block(self._mirror_settings_handler_id)
         self._settings_page._mirror_row.set_active(new_val)
-        self._syncing_toggle = False
+        self._settings_page.handler_unblock(self._mirror_settings_handler_id)
 
     def _on_mirror_btn_clicked(self, _btn: Gtk.Button) -> None:
         self._mirror_btn.set_active(not self._mirror_btn.get_active())
 
     def _on_qr_quick_toggled(self, btn: Gtk.ToggleButton) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
+        self._settings_page._qr_row.handler_block(self._qr_settings_handler_id)
         self._settings_page._qr_row.set_active(btn.get_active())
-        self._syncing_toggle = False
-
-    def _on_smile_quick_toggled(self, btn: Gtk.ToggleButton) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
-        self._settings_page._smile_row.set_active(btn.get_active())
-        self._syncing_toggle = False
+        self._settings_page._qr_row.handler_unblock(self._qr_settings_handler_id)
 
     def _on_vcam_quick_toggled(self, btn: Gtk.ToggleButton) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
+        self._settings_page._vc_toggle_row.handler_block(self._vcam_settings_handler_id)
         self._settings_page._vc_toggle_row.set_active(btn.get_active())
-        self._syncing_toggle = False
+        self._settings_page._vc_toggle_row.handler_unblock(self._vcam_settings_handler_id)
 
     def _on_settings_qr_changed(self, row: object, _pspec: object) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
+        self._qr_quick_btn.handler_block(self._qr_btn_handler_id)
         self._qr_quick_btn.set_active(row.get_active())
-        self._syncing_toggle = False
-
-    def _on_settings_smile_changed(self, row: object, _pspec: object) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
-        self._smile_quick_btn.set_active(row.get_active())
-        self._syncing_toggle = False
+        self._qr_quick_btn.handler_unblock(self._qr_btn_handler_id)
 
     def _on_settings_vcam_changed(self, row: object, _pspec: object) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
+        self._vcam_quick_btn.handler_block(self._vcam_btn_handler_id)
         self._vcam_quick_btn.set_active(row.get_active())
-        self._syncing_toggle = False
+        self._vcam_quick_btn.handler_unblock(self._vcam_btn_handler_id)
 
     def _on_help_tooltips_changed(self, _page: object, enabled: bool) -> None:
         self._set_tooltips_enabled(enabled)
@@ -1280,14 +1244,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._stream_engine.connect("device-busy", self._on_device_busy)
         self._settings_page.connect("show-fps-changed", self._on_show_fps_changed)
-        self._settings_page.connect("mirror-changed", self._on_mirror_changed)
-        self._settings_page._qr_row.connect("notify::active", self._on_settings_qr_changed)
-        self._settings_page._smile_row.connect("notify::active", self._on_settings_smile_changed)
-        self._settings_page._vc_toggle_row.connect("notify::active", self._on_settings_vcam_changed)
+        self._mirror_settings_handler_id = self._settings_page.connect("mirror-changed", self._on_mirror_changed)
+        self._qr_settings_handler_id = self._settings_page._qr_row.connect("notify::active", self._on_settings_qr_changed)
+        self._vcam_settings_handler_id = self._settings_page._vc_toggle_row.connect("notify::active", self._on_settings_vcam_changed)
         self._settings_page.connect("help-tooltips-changed", self._on_help_tooltips_changed)
         self._settings_page.connect("capture-timer-changed", self._on_capture_timer_changed)
         self._settings_page.connect("recording-config-changed", self._on_recording_config_changed)
         self._settings_page.connect("prefer-v4l2-changed", self._on_prefer_v4l2_changed)
+        self._settings_page.connect("resource-monitor-changed", self._on_resource_monitor_changed)
         self.connect("close-request", self._on_close)
         self.connect("map", self._on_window_mapped)
 
@@ -1556,13 +1520,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._preview.set_show_fps(show)
 
     def _on_mirror_changed(self, _page, mirror: bool) -> None:
-        if self._syncing_toggle:
-            return
-        self._syncing_toggle = True
         self._stream_engine.mirror = mirror
         self._preview.set_mirror(mirror)
+        self._mirror_btn.handler_block(self._mirror_btn_handler_id)
         self._mirror_btn.set_active(mirror)
-        self._syncing_toggle = False
+        self._mirror_btn.handler_unblock(self._mirror_btn_handler_id)
 
     def _on_prefer_v4l2_changed(self, _page, prefer: bool) -> None:
         self._stream_engine.prefer_v4l2 = prefer
@@ -1586,6 +1548,35 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_controls_opacity_changed(self, _page, value: int) -> None:
         self._apply_controls_opacity(value)
+
+    def _on_window_opacity_changed(self, _page, value: int) -> None:
+        self._apply_window_opacity(value)
+
+    def _apply_window_opacity(self, percent: int) -> None:
+        """Adjust the window background opacity (0 = fully transparent, 100 = opaque)."""
+        alpha = percent / 100.0
+        css = (
+            f"window.bigcam {{"
+            f"  background-color: rgba(0,0,0,{alpha:.2f});"
+            f"}}\n"
+            f".preview-area {{"
+            f"  background-color: rgba(0,0,0,{alpha:.2f});"
+            f"}}\n"
+            f".preview-picture {{"
+            f"  background-color: rgba(0,0,0,{alpha:.2f});"
+            f"}}\n"
+            f".video-bg {{"
+            f"  background-color: rgba(0,0,0,{alpha:.2f});"
+            f"}}"
+        )
+        if not hasattr(self, "_window_opacity_provider"):
+            self._window_opacity_provider = Gtk.CssProvider()
+            Gtk.StyleContext.add_provider_for_display(
+                Gdk.Display.get_default(),
+                self._window_opacity_provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION + 3,
+            )
+        self._window_opacity_provider.load_from_string(css)
 
     def _apply_overlay_opacity(self, percent: int) -> None:
         """Regenerate gradient CSS for the top/bottom OSD bars."""
@@ -1636,10 +1627,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             f".mode-switcher:hover {{"
             f"  opacity: 1.0;"
             f"}}\n"
-            f".capture-btn {{"
+            f".capture-button {{"
             f"  opacity: {alpha:.2f};"
             f"}}\n"
-            f".capture-btn:hover {{"
+            f".capture-button:hover {{"
+            f"  opacity: 1.0;"
+            f"}}\n"
+            f".audio-overlay {{"
+            f"  opacity: {alpha:.2f};"
+            f"}}\n"
+            f".audio-overlay:hover {{"
             f"  opacity: 1.0;"
             f"}}\n"
             f"button.zoom-btn {{"
@@ -1677,13 +1674,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._controls_css_provider.load_from_string(css)
 
     # -- Tools signals -------------------------------------------------------
-
-    def _on_smile_captured(self, _page: Any, path: str) -> None:
-        self._show_notification(
-            _("Smile captured! Photo saved."), "success", 3000
-        )
-        self._gallery.refresh()
-        self._update_last_media_thumbnail(path)
 
     def _on_qr_detected(self, _page: Any, text: str) -> None:
         self._show_notification(_("QR Code detected!"), "info", 2000)
@@ -2614,6 +2604,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             settings=self._settings,
             present_fn=self._immersion.present_dialog,
         )
+
+    def _on_resource_monitor_changed(self, _page, enabled: bool) -> None:
+        """Start or stop resource monitor when user toggles the setting."""
+        if enabled:
+            self._resource_monitor.start()
+        else:
+            self._resource_monitor.stop()
 
     # -- immersion -----------------------------------------------------------
 

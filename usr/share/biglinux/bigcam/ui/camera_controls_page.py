@@ -588,13 +588,6 @@ class CameraControlsPage(Gtk.ScrolledWindow):
                 rng = max(v4l_max - v4l_min, 1)
                 level = (int(value) - v4l_min) / rng  # 0.0-1.0
                 self._engine.set_sharpness(level)
-            # Apply software backlight compensation as fallback
-            if ctrl.id == "backlight_compensation" and self._engine is not None:
-                v4l_min = ctrl.minimum or 0
-                v4l_max = ctrl.maximum or 10
-                rng = max(v4l_max - v4l_min, 1)
-                level = (int(value) - v4l_min) / rng  # 0.0-1.0
-                self._engine.set_backlight_compensation(level)
             # Apply software pan as fallback
             if ctrl.id == "pan_absolute" and self._engine is not None:
                 v4l_min = ctrl.minimum or -201600
@@ -655,9 +648,6 @@ class CameraControlsPage(Gtk.ScrolledWindow):
                 # Reset software sharpness if sharpness control is reset
                 if ctrl.id == "sharpness" and self._engine is not None:
                     self._engine.set_sharpness(0.0)
-                # Reset software backlight compensation if control is reset
-                if ctrl.id == "backlight_compensation" and self._engine is not None:
-                    self._engine.set_backlight_compensation(0.0)
                 # Reset software pan if control is reset
                 if ctrl.id == "pan_absolute" and self._engine is not None:
                     self._engine.set_pan(0.0)

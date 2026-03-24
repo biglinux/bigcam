@@ -24,6 +24,7 @@ _DEFAULTS: dict[str, object] = {
     "grid_overlay": False,
     "overlay-opacity": 75,
     "controls-opacity": 90,
+    "window-opacity": 100,
     # Photo
     "photo-directory": "",
     "photo-format": "jpg",
@@ -34,7 +35,7 @@ _DEFAULTS: dict[str, object] = {
     "show-welcome": True,
     "show-help-tooltips": True,
     "show_fps": True,
-    "theme": "system",
+    "theme": "dark",
     "auto-start-preview": True,
     "hotplug_enabled": True,
     "last-camera-id": "",

@@ -27,7 +27,6 @@ depends=(
     'polkit'
     'libcamera'
     'zbar'
-    'python-mediapipe-bin'
     'qrencode'
 )
 optdepends=(
