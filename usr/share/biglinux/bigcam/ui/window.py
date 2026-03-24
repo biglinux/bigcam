@@ -2148,6 +2148,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Save the camera reference before clearing it
         busy_camera = self._active_camera
         camera_name = busy_camera.name if busy_camera else ""
+
+        # For phone cameras, the producer process (scrcpy, uxplay) is expected
+        # on the v4l2loopback device — it's the video source, not a blocker.
+        if busy_camera and busy_camera.id.startswith("phone:"):
+            expected = {"scrcpy", "uxplay"}
+            real_blockers = [a for a in blocking_apps if a not in expected]
+            if not real_blockers:
+                log.info(
+                    "device-busy on %s: only expected producers %s — auto-retrying",
+                    device_path, blocking_apps,
+                )
+                GLib.timeout_add(1500, lambda: self._retry_camera(busy_camera) or False)
+                return
+            blocking_apps = real_blockers
+
         # Clear active camera so 'Refresh cameras' can re-select it
         self._active_camera = None
 
@@ -2225,6 +2240,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         import signal as sig
 
         def _kill_users() -> None:
+            own_pid = str(os.getpid())
             try:
                 result = subprocess.run(
                     ["fuser", device_path],
@@ -2235,7 +2251,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 pids = result.stdout.strip().split()
                 for pid in pids:
                     pid = pid.strip().rstrip("m")
-                    if pid.isdigit():
+                    if pid.isdigit() and pid != own_pid:
                         try:
                             os.kill(int(pid), sig.SIGTERM)
                         except ProcessLookupError:
@@ -2603,7 +2619,19 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             features=features,
             settings=self._settings,
             present_fn=self._immersion.present_dialog,
+            on_optimized=self._sync_ui_after_optimize,
         )
+
+    def _sync_ui_after_optimize(self, disabled_ids: list[str]) -> None:
+        """Update UI widgets after the resource dialog disabled features."""
+        for fid in disabled_ids:
+            if fid == "effects":
+                self._effects_page.sync_ui()
+            elif fid == "virtual-camera":
+                self._settings_page.set_vc_toggle_active(False)
+                self._vcam_quick_btn.handler_block(self._vcam_btn_handler_id)
+                self._vcam_quick_btn.set_active(False)
+                self._vcam_quick_btn.handler_unblock(self._vcam_btn_handler_id)
 
     def _on_resource_monitor_changed(self, _page, enabled: bool) -> None:
         """Start or stop resource monitor when user toggles the setting."""
@@ -2681,27 +2709,30 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             label=_("Phone camera server"),
             description=_("HTTPS/WebSocket server for phone camera"),
             is_active=lambda: self._phone_server.running,
-            disable=lambda: self._phone_server.stop(),
+            disable=lambda: None,
             estimated_cpu=15.0,
             estimated_ram_mb=50.0,
+            disableable=False,
         ))
         mon.register_feature(FeatureDescriptor(
             feature_id="scrcpy",
             label=_("Scrcpy (Android camera)"),
             description=_("Android camera via USB/Wi-Fi ADB"),
             is_active=lambda: self._scrcpy_camera.running,
-            disable=lambda: self._scrcpy_camera.stop(),
+            disable=lambda: None,
             estimated_cpu=40.0,
             estimated_ram_mb=200.0,
+            disableable=False,
         ))
         mon.register_feature(FeatureDescriptor(
             feature_id="airplay",
             label=_("AirPlay receiver"),
             description=_("Apple AirPlay screen mirroring via UxPlay"),
             is_active=lambda: self._airplay_receiver.running,
-            disable=lambda: self._airplay_receiver.stop(),
+            disable=lambda: None,
             estimated_cpu=40.0,
             estimated_ram_mb=200.0,
+            disableable=False,
         ))
 
         mon.connect("high-resource", self._on_high_resource)

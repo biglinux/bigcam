@@ -45,6 +45,9 @@ class FeatureDescriptor:
     # Approximate overhead when active (used for suggestions)
     estimated_cpu: float = 0.0   # percent
     estimated_ram_mb: float = 0.0
+    # When False the feature is shown for informational purposes only
+    # and cannot be disabled (e.g. active camera sources).
+    disableable: bool = True
 
 
 # ---------------------------------------------------------------------------

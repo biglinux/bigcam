@@ -161,47 +161,6 @@ def _apply_negative(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     return cv2.bitwise_not(frame)
 
 
-def _apply_pencil_sketch(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
-    sigma_r = _clamp(params.get("sigma_r", 0.07), 0.0, 1.0)
-    shade = _clamp(params.get("shade_factor", 0.05), 0.0, 0.1)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    inv = cv2.bitwise_not(gray)
-    blur = cv2.GaussianBlur(inv, (0, 0), sigmaX=sigma_s / 6)
-    sketch = cv2.divide(gray, cv2.bitwise_not(blur), scale=256)
-    # Detail: blend sketch with original edges for more/less line detail
-    if sigma_r < 0.99:
-        edges = cv2.Canny(gray, 50, 150)
-        edge_strength = 1.0 - sigma_r
-        edge_layer = cv2.bitwise_not(edges)
-        sketch = cv2.addWeighted(sketch, sigma_r + 0.3, edge_layer, edge_strength * 0.7, 0)
-        sketch = np.clip(sketch, 0, 255).astype(np.uint8)
-    if shade > 0.001:
-        sketch = cv2.multiply(sketch, np.array([1.0 - shade * 5], dtype=np.float32))
-        sketch = np.clip(sketch, 0, 255).astype(np.uint8)
-    return cv2.merge([sketch, sketch, sketch])
-
-
-def _apply_stylization(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
-    sigma_s = _clamp(params.get("sigma_s", 60), 1, 200)
-    sigma_r = _clamp(params.get("sigma_r", 0.45), 0.0, 1.0)
-    smooth = cv2.GaussianBlur(frame, (0, 0), sigmaX=sigma_s / 6)
-    # Quantize colors for painterly look
-    div = max(8, int(64 * sigma_r))
-    np.floor_divide(smooth, div, out=smooth)
-    np.multiply(smooth, div, out=smooth)
-    # Edge detection on smoothed image so higher smoothing produces softer edges
-    gray = cv2.cvtColor(smooth, cv2.COLOR_BGR2GRAY)
-    # Adaptive threshold block size scales with smoothing
-    block = max(5, int(sigma_s / 20) * 2 + 1)
-    block = min(block, 21)
-    edges = cv2.adaptiveThreshold(
-        cv2.medianBlur(gray, 5), 255,
-        cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block, 2
-    )
-    return cv2.bitwise_and(smooth, smooth, mask=edges)
-
-
 def _apply_cartoon(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.medianBlur(gray, 5)
@@ -370,34 +329,6 @@ def _register_effects() -> None:
             ),
             _apply_negative,
         ),
-        (
-            EffectInfo(
-                effect_id="pencil_sketch",
-                name=_("Pencil Sketch"),
-                icon="edit-select-symbolic",
-                category=EffectCategory.ARTISTIC,
-                params=[
-                    EffectParam("sigma_s", _("Smoothing"), 1, 200, 60, 10),
-                    EffectParam("sigma_r", _("Detail"), 0.0, 1.0, 0.07, 0.01),
-                    EffectParam("shade_factor", _("Shade"), 0.0, 0.1, 0.05, 0.01),
-                ],
-            ),
-            _apply_pencil_sketch,
-        ),
-        (
-            EffectInfo(
-                effect_id="stylization",
-                name=_("Painting"),
-                icon="applications-graphics-symbolic",
-                category=EffectCategory.ARTISTIC,
-                params=[
-                    EffectParam("sigma_s", _("Smoothing"), 1, 200, 60, 10),
-                    EffectParam("sigma_r", _("Detail"), 0.0, 1.0, 0.45, 0.05),
-                ],
-            ),
-            _apply_stylization,
-        ),
-
         (
             EffectInfo(
                 effect_id="edge_detect",

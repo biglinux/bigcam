@@ -639,3 +639,7 @@ window.bigcam overlay-split-view> :not(.shade) {
     border-top: 1px solid alpha(@borders, 0.5);
     min-height: 32px;
 }
+/* Green dot for active phone camera tab */
+.phone-camera-dialog .needs-attention .badge {
+    background-color: #29a645;
+}

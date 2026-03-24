@@ -40,6 +40,7 @@ def show_resource_warning(
     settings: "SettingsManager",
     *,
     present_fn=None,
+    on_optimized: "Callable[[list[str]], None] | None" = None,
 ) -> None:
     """Present a resource-warning dialog to the user.
 
@@ -56,6 +57,9 @@ def show_resource_warning(
     present_fn : callable, optional
         Custom present function (e.g. ``immersion.present_dialog``).
         Falls back to ``dialog.present(parent)``.
+    on_optimized : callable, optional
+        Called after features are disabled, with the list of disabled
+        feature IDs so the caller can sync the UI.
     """
     # Filter out features the user chose to permanently ignore.
     dismissed: list = settings.get(DISMISSED_KEY, [])
@@ -65,6 +69,8 @@ def show_resource_warning(
     if not actionable:
         log.debug("All high-resource features dismissed by user – skipping dialog")
         return
+
+    can_disable = [f for f in actionable if f.disableable]
 
     # ── Build the dialog ─────────────────────────────────────────────
     title = _("High resource usage detected")
@@ -76,12 +82,19 @@ def show_resource_warning(
         _("Active features that may be causing this:"),
     ]
     for feat in actionable:
-        body_parts.append(f"  • {feat.label}")
+        suffix = "" if feat.disableable else f" ({_('active source')})"
+        body_parts.append(f"  • {feat.label}{suffix}")
     body_parts.append("")
-    body_parts.append(
-        _("You can optimize by disabling the heaviest features, "
-          "or continue if you understand the impact.")
-    )
+    if can_disable:
+        body_parts.append(
+            _("You can optimize by disabling the heaviest features, "
+              "or continue if you understand the impact.")
+        )
+    else:
+        body_parts.append(
+            _("No features can be disabled (active camera sources "
+              "cannot be stopped from here).")
+        )
     body = "\n".join(body_parts)
 
     dialog = Adw.AlertDialog.new(title, body)
@@ -97,11 +110,12 @@ def show_resource_warning(
 
     # ── Responses ────────────────────────────────────────────────────
     dialog.add_response("continue", _("I understand, continue"))
-    dialog.add_response("optimize", _("Optimize (disable heavy features)"))
-    dialog.set_response_appearance(
-        "optimize", Adw.ResponseAppearance.SUGGESTED
-    )
-    dialog.set_default_response("optimize")
+    if can_disable:
+        dialog.add_response("optimize", _("Optimize (disable heavy features)"))
+        dialog.set_response_appearance(
+            "optimize", Adw.ResponseAppearance.SUGGESTED
+        )
+        dialog.set_default_response("optimize")
     dialog.set_close_response("continue")
 
     def _on_response(_dlg: Adw.AlertDialog, response: str) -> None:
@@ -111,12 +125,16 @@ def show_resource_warning(
             settings.set(DISMISSED_KEY, new_dismissed)
 
         if response == "optimize":
-            for feat in actionable:
+            disabled_ids: list[str] = []
+            for feat in can_disable:
                 try:
                     feat.disable()
+                    disabled_ids.append(feat.feature_id)
                     log.info("Disabled feature '%s' to reduce resource usage", feat.feature_id)
                 except Exception:
                     log.exception("Failed to disable feature '%s'", feat.feature_id)
+            if on_optimized and disabled_ids:
+                on_optimized(disabled_ids)
 
     dialog.connect("response", _on_response)
 

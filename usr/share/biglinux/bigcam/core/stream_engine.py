@@ -42,7 +42,11 @@ _APPSINK_BACKENDS = {BackendType.GPHOTO2, BackendType.IP}
 
 
 def _find_device_users(device_path: str) -> list[str]:
-    """Return list of process names currently using a V4L2 device."""
+    """Return list of process names currently using a V4L2 device.
+
+    Filters out the current process (BigCam) so we only report *external*
+    applications holding the device.
+    """
     try:
         result = subprocess.run(
             ["fuser", device_path],
@@ -51,10 +55,13 @@ def _find_device_users(device_path: str) -> list[str]:
             timeout=3,
         )
         pids = result.stdout.strip().split()
+        own_pid = str(os.getpid())
         names: list[str] = []
         for pid in pids:
             pid = pid.strip().rstrip("m")
             if not pid.isdigit():
+                continue
+            if pid == own_pid:
                 continue
             comm = f"/proc/{pid}/comm"
             if os.path.exists(comm):
@@ -400,14 +407,24 @@ class StreamEngine(GObject.Object):
             bgr = overlay
         return bgr
 
-    def _distribute_processed_frame(self, bgr: np.ndarray, w: int, h: int) -> None:
-        """Store processed frame (with mirror) and feed to vcam/recorder."""
+    def _distribute_processed_frame(
+        self, bgr: np.ndarray, w: int, h: int,
+        bgra_direct: bytes | None = None,
+    ) -> None:
+        """Store processed frame (with mirror) and feed to vcam/recorder.
+
+        When *bgra_direct* is provided (fast path), push it straight to the
+        virtual camera without an extra BGR→BGRA conversion.
+        """
         self._last_probe_bgr = cv2.flip(bgr, 1) if self._mirror else bgr
         if self._vcam_device and self._last_probe_bgr is not None:
-            if self._vcam_bgra_buf is None or self._vcam_bgra_buf.shape[:2] != (h, w):
-                self._vcam_bgra_buf = np.empty((h, w, 4), dtype=np.uint8)
-            cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA, dst=self._vcam_bgra_buf)
-            self._schedule_vcam_push(self._vcam_bgra_buf.tobytes(), w, h)
+            if bgra_direct is not None and not self._mirror:
+                self._schedule_vcam_push(bgra_direct, w, h)
+            else:
+                if self._vcam_bgra_buf is None or self._vcam_bgra_buf.shape[:2] != (h, w):
+                    self._vcam_bgra_buf = np.empty((h, w, 4), dtype=np.uint8)
+                cv2.cvtColor(self._last_probe_bgr, cv2.COLOR_BGR2BGRA, dst=self._vcam_bgra_buf)
+                self._schedule_vcam_push(self._vcam_bgra_buf.tobytes(), w, h)
         if self._video_recorder and self._video_recorder.is_recording:
             self._video_recorder.write_frame(self._last_probe_bgr)
 
@@ -509,8 +526,25 @@ class StreamEngine(GObject.Object):
                                 processed, cv2.COLOR_BGR2YUV_YUY2
                             ).tobytes()
                 else:
-                    # No effects: store copy for photos (view invalidated on unmap)
-                    self._distribute_processed_frame(bgr.copy(), w, h)
+                    # No effects — fast path: minimise copies
+                    is_rec = self._video_recorder and self._video_recorder.is_recording
+                    need_bgr = is_rec or (self._frame_count % 10 == 0)
+                    bgr_copy = bgr.copy() if need_bgr else None
+                    if self._vcam_device and fmt in ("BGRA", "BGRx"):
+                        bgra_direct = bytes(map_info.data)
+                        if bgr_copy is not None:
+                            self._distribute_processed_frame(
+                                bgr_copy, w, h, bgra_direct=bgra_direct,
+                            )
+                        else:
+                            # Vcam only — skip BGR entirely
+                            if self._mirror:
+                                arr = np.frombuffer(bgra_direct, dtype=np.uint8).reshape((h, w, 4))
+                                self._schedule_vcam_push(cv2.flip(arr, 1).tobytes(), w, h)
+                            else:
+                                self._schedule_vcam_push(bgra_direct, w, h)
+                    elif bgr_copy is not None:
+                        self._distribute_processed_frame(bgr_copy, w, h)
         except Exception as e:
             if self._probe_debug_count <= 5:
                 log.debug(f"paintable_probe error: {e}")
@@ -1867,9 +1901,10 @@ class StreamEngine(GObject.Object):
             )
             if busy and dev_path:
                 users = _find_device_users(dev_path)
-                self.stop()
-                self.emit("device-busy", dev_path, users)
-                return
+                if users:
+                    self.stop()
+                    self.emit("device-busy", dev_path, users)
+                    return
 
             # PipeWire async failure (e.g. unhandled format): retry with v4l2src
             if self._try_pw_fallback():

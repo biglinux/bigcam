@@ -420,6 +420,8 @@ class ScrcpyCamera(GObject.Object):
             "--video-source=camera",
             "--no-window",
             "--audio-source=mic",
+            "--audio-buffer=80",
+            "--audio-output-buffer=50",
             f"--v4l2-sink={v4l2_device}",
             f"-b{bitrate}",
             f"--max-fps={fps}",

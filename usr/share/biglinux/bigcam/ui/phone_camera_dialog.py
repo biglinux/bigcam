@@ -57,6 +57,7 @@ class PhoneCameraDialog(Adw.Dialog):
         self.set_title(_("Phone as Webcam"))
         self.set_content_width(660)
         self.set_content_height(640)
+        self.add_css_class("phone-camera-dialog")
 
         self._server = server
         self._scrcpy = scrcpy or ScrcpyCamera()
@@ -856,12 +857,11 @@ class PhoneCameraDialog(Adw.Dialog):
             not airplay_locked and self._airplay_all_ok
         )
 
-        # Badge on active tab (green dot indicator)
+        # Attention dot on active tab (green indicator)
         for tab_id, page in self._tab_pages.items():
-            if active_mode and tab_id == active_mode:
-                page.set_badge_number(1)
-            else:
-                page.set_badge_number(0)
+            page.set_needs_attention(
+                active_mode is not None and tab_id == active_mode
+            )
 
     # ══════════════════════════════════════════════════════════════════
     #  DRAWING

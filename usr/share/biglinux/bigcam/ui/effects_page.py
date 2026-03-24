@@ -273,6 +273,29 @@ class EffectsPage(Gtk.ScrolledWindow):
         self._resetting = False
         self.emit("effect-changed")
 
+    def sync_ui(self) -> None:
+        """Sync all switch/slider widgets to match the current model state."""
+        self._resetting = True
+        for eid, widgets in self._effect_widgets.items():
+            info = next(
+                (i for i, _ in self._pipeline._effects if i.effect_id == eid),
+                None,
+            )
+            if info is None:
+                continue
+            toggle = widgets.get("toggle")
+            switch = widgets.get("switch")
+            if toggle:
+                toggle.set_active(info.enabled)
+            if switch:
+                switch.set_active(info.enabled)
+            for pname, adj in widgets.get("params", {}).items():
+                for param in info.params:
+                    if param.name == pname:
+                        adj.set_value(param.value)
+                        break
+        self._resetting = False
+
     def _rebuild(self) -> None:
         child = self._content.get_first_child()
         while child:

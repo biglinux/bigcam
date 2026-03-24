@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.3.1</h1>
+<h1 align="center">BigCam 4.3.2</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.3.1-brightgreen.svg" alt="Version 4.3.1">
+  <img src="https://img.shields.io/badge/Version-4.3.2-brightgreen.svg" alt="Version 4.3.2">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -59,7 +59,7 @@
 - **BigCam Virtual for all phone sources**: Every phone connection method (Browser, Wi-Fi, USB, AirPlay) automatically creates a virtual camera device via v4l2loopback, making the phone feed available to Zoom, Teams, OBS, etc.
 - **Reliable process cleanup**: All external processes (UxPlay, scrcpy) use process groups (`start_new_session=True`) with `os.killpg()` for guaranteed cleanup. An `atexit` handler ensures processes are killed even on unexpected exits.
 
-**Version 4.3.1** (current) focuses on **performance, stability, and polish**:
+**Version 4.3.2** (current) focuses on **performance, stability, and polish**:
 
 - **Performance optimizations**: Pre-allocated vcam BGRA buffer (saves ~8MB/frame allocation at 1080p), cached GStreamer probe format string, SIMD-optimized QR overlay via `cv2.convertScaleAbs()`, capped gamma/CLAHE caches with FIFO eviction, proper probe ID cleanup on stop.
 - **Signal architecture cleanup**: Replaced `_syncing_toggle` boolean flag with GObject `handler_block()`/`handler_unblock()` for mirror, QR, and virtual camera toggle sync — more robust and thread-safe.
@@ -76,7 +76,7 @@ We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.3.1
+## What's New in 4.3.2
 
 ### Performance
 
@@ -413,8 +413,6 @@ Pan and tilt automatically apply a minimum 1.5x zoom when activated to create mo
 | **Filters** | Sharpen | Kernel Size (1 to 31), Strength (0.0 to 5.0) | Gaussian unsharp mask with configurable kernel |
 | | Denoise | Strength (1 to 30), Color Strength (1 to 30) | `bilateralFilter` with 50% downscale above 480p |
 | **Artistic** | Grayscale, Sepia, Negative | — | `cvtColor` / fixed 3×3 kernel / `bitwise_not` |
-| | Pencil Sketch | Sigma S (0 to 200), Sigma R (0.0 to 1.0) | Dodge-blend on inverted `GaussianBlur((0,0), sigmaX=sigma_s/6)`. Sigma R controls Canny edge line blending intensity |
-| | Painting / Stylization | Sigma S (0 to 200), Sigma R (0.0 to 1.0) | `GaussianBlur((0,0), sigmaX=sigma_s/6)` + color quantization + `adaptiveThreshold` on smoothed frame with scaling block size |
 | | Edge Detection | Low Threshold (0 to 200), High Threshold (0 to 400) | `cv2.Canny` |
 | | Color Map | 21 palettes (Autumn, Bone, Jet, Winter, Rainbow, Ocean, Summer, Spring, Cool, HSV, Pink, Hot, Parula, Magma, Inferno, Plasma, Viridis, Cividis, Twilight, Twilight Shifted, Turbo) | `cv2.applyColorMap` |
 | | Vignette | Strength (10 to 100) | Cached radial gradient mask via `np.meshgrid` with cosine falloff, normalized internally from integer range |

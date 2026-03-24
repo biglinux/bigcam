@@ -28,11 +28,9 @@ depends=(
     'libcamera'
     'zbar'
     'qrencode'
-)
-optdepends=(
-    'scrcpy: Android phone camera via USB/Wi-Fi'
-    'android-tools: ADB for scrcpy connections'
-    'uxplay: iPhone AirPlay screen mirroring'
+    'scrcpy'
+    'android-tools'
+    'uxplay'
 )
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)
