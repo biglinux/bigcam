@@ -71,6 +71,8 @@ class PhoneCameraDialog(Adw.Dialog):
         self._active_mode: str | None = None
         # Track which tab started scrcpy (USB or Wi-Fi)
         self._scrcpy_tab: str | None = None
+        # Guard against widget access after dialog destroyed
+        self._closed: bool = False
 
         self._build_ui()
         self._connect_backend_signals()
@@ -1627,38 +1629,42 @@ class PhoneCameraDialog(Adw.Dialog):
     def _on_scrcpy_connected(
         self, _scrcpy: ScrcpyCamera, w: int, h: int
     ) -> None:
-        self._set_dot_color(0.2, 0.78, 0.35)
-        if self._scrcpy_tab == _TAB_USB:
-            self._set_status(_("Connected via USB"))
-        else:
-            self._set_status(_("Connected via Wi-Fi"))
-        self._set_resolution(w, h)
+        if not self._closed:
+            self._set_dot_color(0.2, 0.78, 0.35)
+            if self._scrcpy_tab == _TAB_USB:
+                self._set_status(_("Connected via USB"))
+            else:
+                self._set_status(_("Connected via Wi-Fi"))
+            self._set_resolution(w, h)
         self.emit("scrcpy-connected", w, h)
 
     def _on_scrcpy_disconnected(self, _scrcpy: ScrcpyCamera) -> None:
-        self._set_dot_color(0.85, 0.2, 0.2)
-        self._set_status(_("Disconnected"))
-        self._set_resolution(0, 0)
-        # Reset only the tab that started scrcpy
-        if self._scrcpy_tab == _TAB_USB:
-            self._usb_start_btn.set_visible(True)
-            self._usb_stop_btn.set_visible(False)
-        elif self._scrcpy_tab == _TAB_WIFI_ADV:
-            self._scrcpy_start_btn.set_visible(True)
-            self._scrcpy_stop_btn.set_visible(False)
-        else:
-            # Unknown source — reset both
-            self._scrcpy_start_btn.set_visible(True)
-            self._scrcpy_stop_btn.set_visible(False)
-            self._usb_start_btn.set_visible(True)
-            self._usb_stop_btn.set_visible(False)
-        self._scrcpy_tab = None
-        self._set_mode_lock(None)
+        if not self._closed:
+            self._set_dot_color(0.85, 0.2, 0.2)
+            self._set_status(_("Disconnected"))
+            self._set_resolution(0, 0)
+            # Reset only the tab that started scrcpy
+            if self._scrcpy_tab == _TAB_USB:
+                self._usb_start_btn.set_visible(True)
+                self._usb_stop_btn.set_visible(False)
+            elif self._scrcpy_tab == _TAB_WIFI_ADV:
+                self._scrcpy_start_btn.set_visible(True)
+                self._scrcpy_stop_btn.set_visible(False)
+            else:
+                # Unknown source — reset both
+                self._scrcpy_start_btn.set_visible(True)
+                self._scrcpy_stop_btn.set_visible(False)
+                self._usb_start_btn.set_visible(True)
+                self._usb_stop_btn.set_visible(False)
+            self._scrcpy_tab = None
+            self._set_mode_lock(None)
         self.emit("scrcpy-disconnected")
 
     def _on_scrcpy_status_changed(
         self, _scrcpy: ScrcpyCamera, status: str
     ) -> None:
+        if self._closed:
+            return
         if status == "starting":
             self._set_dot_color(1.0, 0.76, 0.03)
             self._set_status(_("Starting…"))
@@ -1752,9 +1758,10 @@ class PhoneCameraDialog(Adw.Dialog):
     def _on_airplay_connected(
         self, _receiver: AirPlayReceiver, w: int, h: int
     ) -> None:
-        self._set_dot_color(0.2, 0.78, 0.35)
-        self._set_status(_("AirPlay connected"))
-        self._set_resolution(w, h)
+        if not self._closed:
+            self._set_dot_color(0.2, 0.78, 0.35)
+            self._set_status(_("AirPlay connected"))
+            self._set_resolution(w, h)
         self.emit("airplay-connected", w, h)
 
     def _on_airplay_disconnected(
@@ -1763,39 +1770,48 @@ class PhoneCameraDialog(Adw.Dialog):
         if not self._airplay.running:
             # UxPlay process died — full cleanup
             VirtualCamera.release_device("phone:airplay")
-            self._airplay_start_btn.set_visible(True)
-            self._airplay_stop_btn.set_visible(False)
-            self._set_dot_color(0.6, 0.6, 0.6)
-            self._set_status(_("AirPlay stopped unexpectedly"))
-            self._set_resolution(0, 0)
-            self._set_mode_lock(None)
+            if not self._closed:
+                self._airplay_start_btn.set_visible(True)
+                self._airplay_stop_btn.set_visible(False)
+                self._set_dot_color(0.6, 0.6, 0.6)
+                self._set_status(_("AirPlay stopped unexpectedly"))
+                self._set_resolution(0, 0)
+                self._set_mode_lock(None)
             self.emit("airplay-disconnected")
         else:
             # Client disconnected but UxPlay still running (can reconnect)
-            self._set_dot_color(1.0, 0.76, 0.03)
-            self._set_status(_("Waiting for AirPlay connection…"))
-            self._set_resolution(0, 0)
+            if not self._closed:
+                self._set_dot_color(1.0, 0.76, 0.03)
+                self._set_status(_("Waiting for AirPlay connection…"))
+                self._set_resolution(0, 0)
+            # Tell window to restore previous camera while waiting
+            self.emit("airplay-disconnected")
 
     def _on_airplay_status_changed(
         self, _receiver: AirPlayReceiver, status: str
     ) -> None:
-        self._set_status(status)
+        if not self._closed:
+            self._set_status(status)
 
     # ══════════════════════════════════════════════════════════════════
     #  DIALOG LIFECYCLE
     # ══════════════════════════════════════════════════════════════════
 
     def _on_dialog_closed(self, _dialog: Adw.Dialog) -> None:
+        self._closed = True
         if self._usb_poll_id:
             GLib.source_remove(self._usb_poll_id)
             self._usb_poll_id = 0
         for sid in self._server_sig_ids:
             self._server.disconnect(sid)
         self._server_sig_ids.clear()
-        for sid in self._scrcpy_sig_ids:
-            self._scrcpy.disconnect(sid)
-        self._scrcpy_sig_ids.clear()
-        if self._airplay:
+        # Only disconnect scrcpy signals if scrcpy is NOT running
+        if not self._scrcpy.running:
+            for sid in self._scrcpy_sig_ids:
+                self._scrcpy.disconnect(sid)
+            self._scrcpy_sig_ids.clear()
+        # Only disconnect airplay signals if airplay is NOT running
+        if self._airplay and not self._airplay.running:
             for sid in self._airplay_sig_ids:
                 self._airplay.disconnect(sid)
             self._airplay_sig_ids.clear()

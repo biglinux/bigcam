@@ -731,7 +731,9 @@ class StreamEngine(GObject.Object):
         (bypasses GStreamer's internal queue/timing, like guvcview).
         """
         # Radical anti-flicker: use appsink (like guvcview) instead of paintable sink
-        if self._prefer_v4l2 and "v4l2src" in gst_source:
+        # Skip for phone cameras — v4l2loopback + OpenCV mmap causes SIGBUS/SIGSEGV
+        is_phone = self._current_camera and self._current_camera.id.startswith("phone:")
+        if self._prefer_v4l2 and "v4l2src" in gst_source and not is_phone:
             if self._build_direct_pipeline(gst_source, target_fps):
                 return True
 
@@ -865,14 +867,18 @@ class StreamEngine(GObject.Object):
             return False
 
         # Configure format to match what BigCam normally uses
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('M', 'J', 'P', 'G'))
+        # For phone cameras (v4l2loopback), skip MJPG — the writer sets the
+        # raw format (YUY2/NV12) and forcing MJPG can cause SIGBUS/SIGSEGV.
+        is_phone = camera.id.startswith("phone:")
+        if not is_phone:
+            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('M', 'J', 'P', 'G'))
         fmt = self._current_fmt
         if fmt:
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, fmt.width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, fmt.height)
             if fmt.fps:
                 cap.set(cv2.CAP_PROP_FPS, max(fmt.fps))
-        else:
+        elif not is_phone:
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
             cap.set(cv2.CAP_PROP_FPS, 30)

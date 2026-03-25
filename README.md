@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.4.0</h1>
+<h1 align="center">BigCam 4.4.1</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.4.0-brightgreen.svg" alt="Version 4.4.0">
+  <img src="https://img.shields.io/badge/Version-4.4.1-brightgreen.svg" alt="Version 4.4.1">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -72,7 +72,7 @@
 - **Smile Capture removed**: Removed mediapipe-dependent smile detection feature entirely (code, README, translations).
 - **i18n verified**: All UI strings confirmed English and translation-ready across 29 languages.
 
-**Version 4.4.0** (current) is the **reliability and gallery UX overhaul**:
+**Version 4.4.1** (current) is the **phone camera & audio reliability update**:
 
 - **Redesigned Photo & Video galleries**: Grid/List view toggle, file metadata display (size, date, duration), selection mode with "Select All" and bulk delete with confirmation dialog, individual item delete with trash icon overlay. List view uses `AdwActionRow` with thumbnail prefix and formatted metadata subtitle.
 - **AirPlay stability fix**: When UxPlay dies unexpectedly (signal loss, crash), the disconnect handler now performs full cleanup — releases v4l2loopback device, resets UI, and emits the disconnect signal to the window. Previously, only the status label changed, leaving the stream engine locked and causing cascading failures on reconnect.
@@ -87,9 +87,31 @@ We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.4.0
+## What's New in 4.4.1
 
-### Photo & Video Galleries
+### Phone Camera Notifications
+
+- **Toast notification on connect**: AirPlay, scrcpy, and browser phone cameras now show a notification toast with a **"Show"** button instead of switching immediately. The current camera preview continues until the user chooses to switch.
+
+### Audio Reliability
+
+- **PipeWire stream-restore override**: BigCam now resets both mute and volume on its sink-inputs after pipeline start, overriding stale states saved by PipeWire's `module-stream-restore`.
+- **External source mute isolation**: Unmuting internal pipelines no longer inadvertently unmutes external sources (e.g. AirPlay audio) that the user intentionally deactivated via checkbox.
+- **Checkbox rebuild guard**: Audio source UI rebuilds (triggered by device changes) no longer fire spurious toggle signals.
+
+### Crash Fixes
+
+- **SIGSEGV on v4l2loopback**: Phone cameras (scrcpy/AirPlay) now use GStreamer instead of OpenCV direct capture for v4l2loopback devices, eliminating mmap-related SIGBUS/SIGSEGV crashes.
+- **SIGBUS on dialog close**: Phone camera dialog handlers now guard all widget access with a `_closed` flag, preventing access to destroyed GTK widgets after dialog dismissal.
+
+### Hotplug & Camera Persistence
+
+- **Phone cameras preserved across hotplug**: scrcpy and AirPlay cameras (using V4L2 backend) are no longer dropped from the camera list during hotplug detection scans.
+- **Resource cleanup on phone connect**: Background virtual cameras and hotplug monitoring are paused when a phone connects, freeing CPU and USB bandwidth.
+
+### Previous (4.4.0)
+
+#### Photo & Video Galleries
 
 - **Grid/List toggle**: Switch between thumbnail grid and detailed list view with a single click. View preference persists per-tab.
 - **List view metadata**: Each item shows a small thumbnail prefix, filename as title, and a formatted subtitle with file size, creation date, and duration (videos only).

@@ -80,8 +80,12 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._phone_server.connect("disconnected", self._on_phone_disconnected)
         self._scrcpy_camera = ScrcpyCamera()
         self._scrcpy_camera.connect("status-changed", self._on_scrcpy_status_dot)
+        self._scrcpy_camera.connect("connected", self._on_scrcpy_receiver_connected)
+        self._scrcpy_camera.connect("disconnected", self._on_scrcpy_receiver_disconnected)
         self._airplay_receiver = AirPlayReceiver()
         self._airplay_receiver.connect("status-changed", self._on_airplay_status_dot)
+        self._airplay_receiver.connect("connected", self._on_airplay_receiver_connected)
+        self._airplay_receiver.connect("disconnected", self._on_airplay_receiver_disconnected)
         self._resource_monitor = ResourceMonitor()
 
         self._build_ui()
@@ -1941,8 +1945,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             color = (1.0, 0.76, 0.03)
             visible = True
         elif "stopped" in lower or "disconnected" in lower:
-            color = (0.6, 0.6, 0.6)
-            visible = False
+            # If UxPlay is still running, show yellow (waiting for reconnect)
+            if self._airplay_receiver and self._airplay_receiver.running:
+                color = (1.0, 0.76, 0.03)
+                visible = True
+            else:
+                color = (0.6, 0.6, 0.6)
+                visible = False
         else:
             color = (1.0, 0.76, 0.03)
             visible = True
@@ -1952,7 +1961,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if "connected" in lower and "disconnected" not in lower:
             self._phone_btn.add_css_class("phone-connected")
         elif "stopped" in lower or "disconnected" in lower:
-            self._phone_btn.remove_css_class("phone-connected")
+            if not (self._airplay_receiver and self._airplay_receiver.running):
+                self._phone_btn.remove_css_class("phone-connected")
+            else:
+                self._phone_btn.remove_css_class("phone-connected")
 
     def _on_phone_camera(self, *_args) -> None:
         dialog = PhoneCameraDialog(
@@ -2034,70 +2046,54 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             mute_cb=self._phone_server.set_audio_muted,
         )
 
+        toast = Adw.Toast.new(f"📱  {phone_cam.name}")
+        toast.set_timeout(6)
+        toast.set_button_label(_("Show"))
+        toast.connect(
+            "button-clicked",
+            lambda _t: self._switch_to_phone_camera(phone_cam.id),
+        )
+        self._toast_overlay.add_toast(toast)
+
     # ── scrcpy (USB) handlers ────────────────────────────────────────
 
     def _on_scrcpy_connected(
         self, _dialog: PhoneCameraDialog, width: int, height: int
     ) -> None:
-        """Register the scrcpy camera and auto-switch to it."""
-        self._stream_engine.stop()
-        self._stream_engine.stop_all_bg_vcams()
-        self._block_camera_select = True
-
-        v4l2_dev = self._scrcpy_camera.v4l2_device or "/dev/video11"
-
-        scrcpy_cam = CameraInfo(
-            id="phone:scrcpy",
-            name=_("BigCam Phone (scrcpy)"),
-            backend=BackendType.V4L2,
-            device_path=v4l2_dev,
-            capabilities=["video"],
-            extra={"scrcpy_camera": self._scrcpy_camera},
-        )
-        self._camera_manager.add_phone_camera(scrcpy_cam)
-
-        def _start_scrcpy_pipeline() -> bool:
-            self._select_camera_by_id(scrcpy_cam.id)
-            # Register scrcpy mic audio as external source for volume control
-            pid = self._scrcpy_camera.pid
-            if pid is not None:
-                self._audio_monitor.add_external_source(
-                    "scrcpy", _("Phone Mic (scrcpy)"), pid
-                )
-            # Re-enable hotplug and camera selection now that scrcpy is active
-            self._block_camera_select = False
-            if self._settings.get("hotplug_enabled"):
-                self._camera_manager.start_hotplug()
-            return False
-
-        GLib.timeout_add(800, _start_scrcpy_pipeline)
+        """Dialog signal — redundant with receiver direct signal, kept for compat."""
+        pass
 
     def _on_scrcpy_prepare(self, _dialog: PhoneCameraDialog) -> None:
-        """Stop current pipeline to free the v4l2loopback device for scrcpy."""
-        self._block_camera_select = True
-        self._camera_manager.stop_hotplug()
-        self._stream_engine.stop()
-        self._stream_engine.stop_all_bg_vcams()
-        self._active_camera = None
-        log.info("Pipeline stopped to prepare for scrcpy")
+        """scrcpy is about to start — keep current camera running until connected."""
+        log.info("scrcpy receiver starting (camera pipeline preserved)")
 
     def _on_scrcpy_disconnected(self, _dialog: PhoneCameraDialog) -> None:
-        """Stop scrcpy pipeline and release resources."""
-        self._audio_monitor.remove_external_source("scrcpy")
-        if self._active_camera and self._active_camera.id.startswith("phone:scrcpy"):
-            self._stream_engine.stop()
-            self._active_camera = None
-        self._camera_manager.remove_phone_camera()
+        """Clean up when scrcpy disconnects (via dialog signal)."""
+        self._do_scrcpy_cleanup()
 
     # ── AirPlay handlers ─────────────────────────────────────────────
 
     def _on_airplay_connected(
         self, _dialog: PhoneCameraDialog, width: int, height: int
     ) -> None:
-        """Register the AirPlay camera and auto-switch to it."""
-        self._stream_engine.stop()
+        """Dialog signal — redundant with receiver direct signal, kept for compat."""
+        pass
+
+    def _on_airplay_prepare(self, _dialog: PhoneCameraDialog) -> None:
+        """AirPlay receiver is about to start — keep current camera running until connected."""
+        log.info("AirPlay receiver starting (camera pipeline preserved)")
+
+    def _on_airplay_disconnected(self, _dialog: PhoneCameraDialog) -> None:
+        """Clean up when AirPlay receiver stops (via dialog signal)."""
+        self._do_airplay_cleanup()
+
+    def _on_airplay_receiver_connected(
+        self, _receiver: AirPlayReceiver, width: int, height: int
+    ) -> None:
+        """Direct signal from AirPlayReceiver — register camera and notify."""
+        # Free resources while keeping current preview running
+        self._camera_manager.stop_hotplug()
         self._stream_engine.stop_all_bg_vcams()
-        self._block_camera_select = True
 
         v4l2_dev = self._airplay_receiver.v4l2_device or "/dev/video12"
 
@@ -2111,38 +2107,102 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._camera_manager.add_phone_camera(airplay_cam)
 
-        def _start_airplay_pipeline() -> bool:
-            self._select_camera_by_id(airplay_cam.id)
-            # Register AirPlay audio as an external source for volume control
-            pid = self._airplay_receiver.pid
-            if pid is not None:
-                self._audio_monitor.add_external_source(
-                    "airplay", _("AirPlay Audio"), pid
-                )
-            # Re-enable hotplug and camera selection now that AirPlay is active
-            self._block_camera_select = False
-            if self._settings.get("hotplug_enabled"):
-                self._camera_manager.start_hotplug()
-            return False
+        pid = self._airplay_receiver.pid
+        if pid is not None:
+            self._audio_monitor.add_external_source(
+                "airplay", _("AirPlay Audio"), pid
+            )
 
-        GLib.timeout_add(800, _start_airplay_pipeline)
+        toast = Adw.Toast.new(f"📱  {airplay_cam.name}")
+        toast.set_timeout(6)
+        toast.set_button_label(_("Show"))
+        toast.connect(
+            "button-clicked",
+            lambda _t: self._switch_to_phone_camera(airplay_cam.id),
+        )
+        self._toast_overlay.add_toast(toast)
 
-    def _on_airplay_prepare(self, _dialog: PhoneCameraDialog) -> None:
-        """Stop current pipeline to free the v4l2loopback device for AirPlay."""
-        self._block_camera_select = True
-        self._camera_manager.stop_hotplug()
-        self._stream_engine.stop()
+    def _switch_to_phone_camera(self, camera_id: str) -> None:
+        """Switch to a phone camera source (called from toast button)."""
         self._stream_engine.stop_all_bg_vcams()
-        self._active_camera = None
-        log.info("Pipeline stopped to prepare for AirPlay")
+        self._select_camera_by_id(camera_id)
+        if self._settings.get("hotplug_enabled"):
+            self._camera_manager.start_hotplug()
 
-    def _on_airplay_disconnected(self, _dialog: PhoneCameraDialog) -> None:
-        """Clean up when AirPlay receiver stops."""
+    def _on_airplay_receiver_disconnected(self, _receiver: AirPlayReceiver) -> None:
+        """Direct signal from AirPlayReceiver — device disconnected."""
+        self._do_airplay_cleanup()
+
+    def _do_airplay_cleanup(self) -> None:
+        """Shared cleanup for AirPlay disconnection (idempotent)."""
         self._audio_monitor.remove_external_source("airplay")
         if self._active_camera and self._active_camera.id == "phone:airplay":
             self._stream_engine.stop()
             self._active_camera = None
-        self._camera_manager.remove_phone_camera()
+            self._camera_manager.remove_phone_camera()
+            self._block_camera_select = False
+            if self._settings.get("hotplug_enabled"):
+                self._camera_manager.start_hotplug()
+            self._camera_manager.detect_cameras_async(force_emit=True)
+        else:
+            # Already cleaned up (or never switched) — just ensure state is sane
+            self._camera_manager.remove_phone_camera()
+            self._block_camera_select = False
+
+    def _on_scrcpy_receiver_connected(
+        self, _camera: ScrcpyCamera, width: int, height: int
+    ) -> None:
+        """Direct signal from ScrcpyCamera — register camera and notify."""
+        # Free resources while keeping current preview running
+        self._camera_manager.stop_hotplug()
+        self._stream_engine.stop_all_bg_vcams()
+
+        v4l2_dev = self._scrcpy_camera.v4l2_device or "/dev/video11"
+
+        scrcpy_cam = CameraInfo(
+            id="phone:scrcpy",
+            name=_("BigCam Phone (scrcpy)"),
+            backend=BackendType.V4L2,
+            device_path=v4l2_dev,
+            capabilities=["video"],
+            extra={"scrcpy_camera": self._scrcpy_camera},
+        )
+        self._camera_manager.add_phone_camera(scrcpy_cam)
+
+        pid = self._scrcpy_camera.pid
+        if pid is not None:
+            self._audio_monitor.add_external_source(
+                "scrcpy", _("Phone Mic (scrcpy)"), pid
+            )
+
+        toast = Adw.Toast.new(f"📱  {scrcpy_cam.name}")
+        toast.set_timeout(6)
+        toast.set_button_label(_("Show"))
+        toast.connect(
+            "button-clicked",
+            lambda _t: self._switch_to_phone_camera(scrcpy_cam.id),
+        )
+        self._toast_overlay.add_toast(toast)
+
+    def _on_scrcpy_receiver_disconnected(self, _camera: ScrcpyCamera) -> None:
+        """Direct signal from ScrcpyCamera — device disconnected."""
+        self._do_scrcpy_cleanup()
+
+    def _do_scrcpy_cleanup(self) -> None:
+        """Shared cleanup for scrcpy disconnection (idempotent)."""
+        self._audio_monitor.remove_external_source("scrcpy")
+        if self._active_camera and self._active_camera.id.startswith("phone:scrcpy"):
+            self._stream_engine.stop()
+            self._active_camera = None
+            self._camera_manager.remove_phone_camera()
+            self._block_camera_select = False
+            if self._settings.get("hotplug_enabled"):
+                self._camera_manager.start_hotplug()
+            self._camera_manager.detect_cameras_async(force_emit=True)
+        else:
+            # Already cleaned up — just ensure state is sane
+            self._camera_manager.remove_phone_camera()
+            self._block_camera_select = False
 
     def _on_ip_camera_added(self, _dialog: IPCameraDialog, name: str, url: str) -> None:
         ip_list = self._settings.get("ip_cameras")

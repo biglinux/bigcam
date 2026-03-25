@@ -129,7 +129,10 @@ class CameraManager(GObject.Object):
     def _on_detection_done(self, cameras: list[CameraInfo]) -> bool:
         # Preserve manually-added cameras (IP, phone) across hotplug scans
         manual_backends = {BackendType.IP, BackendType.PHONE}
-        manual_cameras = [c for c in self._cameras if c.backend in manual_backends]
+        manual_cameras = [
+            c for c in self._cameras
+            if c.backend in manual_backends or c.id.startswith("phone:")
+        ]
         seen_ids = {c.id for c in cameras}
         for mc in manual_cameras:
             if mc.id not in seen_ids:

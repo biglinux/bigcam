@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -334,6 +333,8 @@ class PreviewArea(Gtk.Overlay):
             self._audio_box.set_visible(False)
 
     def _on_sources_changed(self, mon: AudioMonitor) -> None:
+        # Block toggle handler during UI rebuild
+        self._audio_rebuilding = True
         # Clear old checkboxes
         while True:
             child = self._audio_checks_box.get_first_child()
@@ -354,6 +355,7 @@ class PreviewArea(Gtk.Overlay):
         sources = mon.sources
         if not sources:
             self._audio_box.set_visible(False)
+            self._audio_rebuilding = False
             return
 
         for idx, (src_name, label) in enumerate(sources, start=1):
@@ -424,6 +426,7 @@ class PreviewArea(Gtk.Overlay):
             self._audio_box.add_controller(self._audio_hover_ctrl)
 
         self._audio_box.set_visible(True)
+        self._audio_rebuilding = False
 
     def _on_audio_hover_enter(self, *_args) -> None:
         """Show volume sliders when mouse enters the audio overlay."""
@@ -437,7 +440,7 @@ class PreviewArea(Gtk.Overlay):
     def _on_audio_check_toggled(
         self, check: Gtk.CheckButton, source_name: str
     ) -> None:
-        if not self._audio_monitor:
+        if not self._audio_monitor or getattr(self, '_audio_rebuilding', False):
             return
         is_active = self._audio_monitor.is_active(source_name)
         want_active = check.get_active()

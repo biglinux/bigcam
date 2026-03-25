@@ -520,11 +520,65 @@ class AudioMonitor(GObject.Object):
         if vol_elem:
             self._volume_elements[source] = vol_elem
 
+        # Override PipeWire's stream-restore mute state
+        if not self._muted:
+            GLib.timeout_add(300, self._ensure_sink_inputs_unmuted)
+
     def _stop_source(self, source: str) -> None:
         pipeline = self._pipelines.pop(source, None)
         self._volume_elements.pop(source, None)
         if pipeline:
             pipeline.set_state(Gst.State.NULL)
+
+    def _ensure_sink_inputs_unmuted(self) -> bool:
+        """Override PipeWire's module-stream-restore mute for BigCam sinks."""
+        try:
+            result = subprocess.run(
+                ["pactl", "list", "sink-inputs"],
+                capture_output=True, text=True, timeout=3,
+            )
+            if result.returncode != 0:
+                return GLib.SOURCE_REMOVE
+            cur_idx: int | None = None
+            is_bigcam = False
+            for line in result.stdout.splitlines():
+                stripped = line.strip()
+                if stripped.startswith("Sink Input #"):
+                    if is_bigcam and cur_idx is not None:
+                        subprocess.run(
+                            ["pactl", "set-sink-input-mute", str(cur_idx), "0"],
+                            capture_output=True, timeout=3,
+                        )
+                        subprocess.run(
+                            ["pactl", "set-sink-input-volume", str(cur_idx), "100%"],
+                            capture_output=True, timeout=3,
+                        )
+                    try:
+                        cur_idx = int(stripped.split("#", 1)[1])
+                    except ValueError:
+                        cur_idx = None
+                    is_bigcam = False
+                elif 'application.name = "BigCam"' in stripped:
+                    is_bigcam = True
+            # Handle last entry
+            if is_bigcam and cur_idx is not None:
+                subprocess.run(
+                    ["pactl", "set-sink-input-mute", str(cur_idx), "0"],
+                    capture_output=True, timeout=3,
+                )
+                subprocess.run(
+                    ["pactl", "set-sink-input-volume", str(cur_idx), "100%"],
+                    capture_output=True, timeout=3,
+                )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+        # Re-mute external sources that the user intentionally deactivated
+        for name, info in self._external.items():
+            if not info.get("active", True):
+                self._pactl_mute_external(name, True)
+
+        return GLib.SOURCE_REMOVE
 
     def _on_bus_eos(
         self, _bus: Gst.Bus, _msg: Gst.Message, source: str
