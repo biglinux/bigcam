@@ -1897,9 +1897,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         )
         self._phone_dot.queue_draw()
 
+        if status == "connected":
+            self._phone_btn.add_css_class("phone-connected")
+
         # When the server is stopped, immediately clean up the phone camera
         # instead of waiting for the 5-second grace period timer.
         if status == "stopped":
+            self._phone_btn.remove_css_class("phone-connected")
             if hasattr(self, "_phone_disconnect_timer") and self._phone_disconnect_timer:
                 GLib.source_remove(self._phone_disconnect_timer)
                 self._phone_disconnect_timer = None
@@ -1919,6 +1923,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._phone_status_color = color
         self._phone_dot.set_visible(visible)
         self._phone_dot.queue_draw()
+        if status == "connected":
+            self._phone_btn.add_css_class("phone-connected")
+        elif status in ("stopped", "disconnected"):
+            self._phone_btn.remove_css_class("phone-connected")
 
     def _on_airplay_status_dot(self, _receiver, status: str) -> None:
         """Update the phone button dot for AirPlay events."""
@@ -1941,6 +1949,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._phone_status_color = color
         self._phone_dot.set_visible(visible)
         self._phone_dot.queue_draw()
+        if "connected" in lower and "disconnected" not in lower:
+            self._phone_btn.add_css_class("phone-connected")
+        elif "stopped" in lower or "disconnected" in lower:
+            self._phone_btn.remove_css_class("phone-connected")
 
     def _on_phone_camera(self, *_args) -> None:
         dialog = PhoneCameraDialog(
@@ -2043,7 +2055,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             extra={"scrcpy_camera": self._scrcpy_camera},
         )
         self._camera_manager.add_phone_camera(scrcpy_cam)
-        self._block_camera_select = False
 
         def _start_scrcpy_pipeline() -> bool:
             self._select_camera_by_id(scrcpy_cam.id)
@@ -2053,12 +2064,18 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 self._audio_monitor.add_external_source(
                     "scrcpy", _("Phone Mic (scrcpy)"), pid
                 )
+            # Re-enable hotplug and camera selection now that scrcpy is active
+            self._block_camera_select = False
+            if self._settings.get("hotplug_enabled"):
+                self._camera_manager.start_hotplug()
             return False
 
         GLib.timeout_add(800, _start_scrcpy_pipeline)
 
     def _on_scrcpy_prepare(self, _dialog: PhoneCameraDialog) -> None:
         """Stop current pipeline to free the v4l2loopback device for scrcpy."""
+        self._block_camera_select = True
+        self._camera_manager.stop_hotplug()
         self._stream_engine.stop()
         self._stream_engine.stop_all_bg_vcams()
         self._active_camera = None
@@ -2093,7 +2110,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             extra={"airplay_receiver": self._airplay_receiver},
         )
         self._camera_manager.add_phone_camera(airplay_cam)
-        self._block_camera_select = False
 
         def _start_airplay_pipeline() -> bool:
             self._select_camera_by_id(airplay_cam.id)
@@ -2103,12 +2119,18 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 self._audio_monitor.add_external_source(
                     "airplay", _("AirPlay Audio"), pid
                 )
+            # Re-enable hotplug and camera selection now that AirPlay is active
+            self._block_camera_select = False
+            if self._settings.get("hotplug_enabled"):
+                self._camera_manager.start_hotplug()
             return False
 
         GLib.timeout_add(800, _start_airplay_pipeline)
 
     def _on_airplay_prepare(self, _dialog: PhoneCameraDialog) -> None:
         """Stop current pipeline to free the v4l2loopback device for AirPlay."""
+        self._block_camera_select = True
+        self._camera_manager.stop_hotplug()
         self._stream_engine.stop()
         self._stream_engine.stop_all_bg_vcams()
         self._active_camera = None
@@ -2411,6 +2433,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _on_cameras_changed_auto_start(self, _manager: CameraManager) -> None:
         """Auto-start preview with the last used camera, or the first available."""
+        # Skip auto-start while phone/scrcpy camera setup is in progress
+        if getattr(self, "_block_camera_select", False):
+            return
+
         current_ids = {c.id for c in self._camera_manager.cameras}
 
         # Re-detect audio sources when USB devices change
@@ -2482,6 +2508,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             # Active camera was disconnected but others remain — switch to first available
             log.info("Active camera %s disconnected, switching to %s",
                       self._active_camera.name, self._camera_manager.cameras[0].name)
+            # Stop old camera's backend (kills gphoto2/ffmpeg processes)
+            self._stream_engine.stop()
             self._active_camera = None
             cam = self._camera_manager.cameras[0]
             cameras = self._camera_manager.cameras

@@ -94,6 +94,8 @@ class SettingsManager:
                 return float(value)
             except (ValueError, TypeError):
                 return fallback
+        if isinstance(fallback, list):
+            return value if isinstance(value, list) else fallback
         return str(value) if value is not None else ""
 
     def set(self, key: str, value: object) -> None:

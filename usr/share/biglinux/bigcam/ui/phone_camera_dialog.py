@@ -82,6 +82,17 @@ class PhoneCameraDialog(Adw.Dialog):
     # ══════════════════════════════════════════════════════════════════
 
     def _build_ui(self) -> None:
+        # Dynamic CSS for needs-attention indicator color (matches status dot)
+        self._tab_dot_css = Gtk.CssProvider()
+        self._tab_dot_css.load_from_string(
+            "viewswitcher indicator { background: rgba(153,153,153,1); }"
+        )
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            self._tab_dot_css,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+        )
+
         toolbar_view = Adw.ToolbarView()
 
         # ── Header bar with ViewSwitcher ─────────────────────────────
@@ -294,8 +305,17 @@ class PhoneCameraDialog(Adw.Dialog):
         adv_group.add(self._usb_adv_expander)
         content.append(adv_group)
 
-        # ── Spacer + Start button ────────────────────────────────────
+        # ── Spacer + Inline status + Start button ────────────────────
         content.append(Gtk.Box(vexpand=True))  # push button down
+
+        self._usb_inline_status = Gtk.Label()
+        self._usb_inline_status.set_halign(Gtk.Align.CENTER)
+        self._usb_inline_status.set_wrap(True)
+        self._usb_inline_status.set_wrap_mode(2)  # PANGO_WRAP_WORD_CHAR
+        self._usb_inline_status.add_css_class("caption")
+        self._usb_inline_status.set_visible(False)
+        content.append(self._usb_inline_status)
+
         content.append(self._build_start_stop_pair(
             start_label=_("Start"),
             stop_label=_("Stop"),
@@ -489,6 +509,16 @@ class PhoneCameraDialog(Adw.Dialog):
 
         # ── Spacer + Start ───────────────────────────────────────────
         content.append(Gtk.Box(vexpand=True))
+
+        # Inline status feedback above Start button
+        self._scrcpy_inline_status = Gtk.Label()
+        self._scrcpy_inline_status.set_halign(Gtk.Align.CENTER)
+        self._scrcpy_inline_status.set_wrap(True)
+        self._scrcpy_inline_status.set_wrap_mode(2)  # PANGO_WRAP_WORD_CHAR
+        self._scrcpy_inline_status.add_css_class("caption")
+        self._scrcpy_inline_status.set_visible(False)
+        content.append(self._scrcpy_inline_status)
+
         content.append(self._build_start_stop_pair(
             start_label=_("Start"),
             stop_label=_("Stop"),
@@ -681,6 +711,16 @@ class PhoneCameraDialog(Adw.Dialog):
 
         # ── Spacer + Start ───────────────────────────────────────────
         content.append(Gtk.Box(vexpand=True))
+
+        # Inline status feedback above Start button
+        self._wifi_inline_status = Gtk.Label()
+        self._wifi_inline_status.set_halign(Gtk.Align.CENTER)
+        self._wifi_inline_status.set_wrap(True)
+        self._wifi_inline_status.set_wrap_mode(2)  # PANGO_WRAP_WORD_CHAR
+        self._wifi_inline_status.add_css_class("caption")
+        self._wifi_inline_status.set_visible(False)
+        content.append(self._wifi_inline_status)
+
         content.append(self._build_start_stop_pair(
             start_label=_("Start"),
             stop_label=_("Stop"),
@@ -876,6 +916,11 @@ class PhoneCameraDialog(Adw.Dialog):
     def _set_dot_color(self, r: float, g: float, b: float) -> None:
         self._dot_color = (r, g, b)
         self._status_dot.queue_draw()
+        # Sync the tab needs-attention indicator color
+        ri, gi, bi = int(r * 255), int(g * 255), int(b * 255)
+        self._tab_dot_css.load_from_string(
+            f"viewswitcher indicator {{ background: rgb({ri},{gi},{bi}); }}"
+        )
 
     def _set_status(self, text: str) -> None:
         self._status_label.set_label(text)
@@ -1010,20 +1055,52 @@ class PhoneCameraDialog(Adw.Dialog):
 
     def _on_wifi_start(self, _btn: Gtk.Button) -> None:
         port = int(self._port_row.get_value())
-        ok = self._server.start(port=port)
-        if ok:
-            self._wifi_start_btn.set_visible(False)
-            self._wifi_stop_btn.set_visible(True)
-            self._set_dot_color(1.0, 0.76, 0.03)
-            self._set_status(_("Waiting for connection…"))
-            self._update_wifi_urls()
-            self._usb_poll_id = GLib.timeout_add_seconds(
-                3, self._check_usb_tethering
-            )
-            self._set_mode_lock(_TAB_BROWSER)
-        else:
-            self._set_dot_color(0.85, 0.2, 0.2)
-            self._set_status(_("Failed to start server"))
+        self._wifi_inline_status.remove_css_class("error")
+        self._wifi_inline_status.remove_css_class("success")
+        self._wifi_inline_status.add_css_class("dim-label")
+        self._wifi_inline_status.set_label(_("Starting server…"))
+        self._wifi_inline_status.set_visible(True)
+        self._wifi_start_btn.set_sensitive(False)
+
+        def _do_start() -> tuple[bool, str]:
+            return self._server.start(port=port)
+
+        def _on_result(result: tuple[bool, str]) -> None:
+            ok, msg = result
+            if ok:
+                self._wifi_start_btn.set_visible(False)
+                self._wifi_stop_btn.set_visible(True)
+                self._wifi_inline_status.remove_css_class("dim-label")
+                self._wifi_inline_status.add_css_class("success")
+                self._wifi_inline_status.set_label(
+                    _("Server listening on port %d") % port
+                )
+                self._set_dot_color(1.0, 0.76, 0.03)
+                self._set_status(_("Waiting for connection…"))
+                self._update_wifi_urls()
+                self._usb_poll_id = GLib.timeout_add_seconds(
+                    3, self._check_usb_tethering
+                )
+                self._set_mode_lock(_TAB_BROWSER)
+                # Auto-hide success message after 5s
+                GLib.timeout_add_seconds(
+                    5, lambda: self._wifi_inline_status.set_visible(False) or False
+                )
+            else:
+                self._wifi_start_btn.set_sensitive(True)
+                self._wifi_inline_status.remove_css_class("dim-label")
+                self._wifi_inline_status.add_css_class("error")
+                self._wifi_inline_status.set_label(
+                    msg or _("Failed to start server")
+                )
+                self._set_dot_color(0.85, 0.2, 0.2)
+                self._set_status(_("Failed to start server"))
+
+        def _start_thread() -> None:
+            result = _do_start()
+            GLib.idle_add(_on_result, result)
+
+        threading.Thread(target=_start_thread, daemon=True).start()
 
     def _on_wifi_stop(self, _btn: Gtk.Button) -> None:
         if self._usb_poll_id:
@@ -1032,6 +1109,7 @@ class PhoneCameraDialog(Adw.Dialog):
         self._server.stop()
         self._wifi_start_btn.set_visible(True)
         self._wifi_stop_btn.set_visible(False)
+        self._wifi_inline_status.set_visible(False)
         self._set_dot_color(0.6, 0.6, 0.6)
         self._set_status(_("Idle"))
         self._set_resolution(0, 0)
@@ -1161,13 +1239,27 @@ class PhoneCameraDialog(Adw.Dialog):
         threading.Thread(target=_thread, daemon=True).start()
 
     def _on_usb_start(self, _btn: Gtk.Button) -> None:
+        self._usb_inline_status.remove_css_class("success")
         if not self._usb_only_devices:
             self._set_dot_color(0.85, 0.2, 0.2)
             self._set_status(_("No USB device connected"))
+            self._usb_inline_status.remove_css_class("dim-label")
+            self._usb_inline_status.add_css_class("error")
+            self._usb_inline_status.set_label(
+                _("No device found. Connect via USB cable and enable USB Debugging, then tap 'Refresh'.")
+            )
+            self._usb_inline_status.set_visible(True)
             return
         idx = self._usb_device_row.get_selected()
         if idx >= len(self._usb_only_devices):
+            self._usb_inline_status.remove_css_class("dim-label")
+            self._usb_inline_status.add_css_class("error")
+            self._usb_inline_status.set_label(
+                _("Selected device is no longer available. Tap 'Refresh' to update.")
+            )
+            self._usb_inline_status.set_visible(True)
             return
+        self._usb_inline_status.set_visible(False)
 
         device = self._usb_only_devices[idx]
         facing = (
@@ -1224,6 +1316,7 @@ class PhoneCameraDialog(Adw.Dialog):
         VirtualCamera.release_device("phone:scrcpy")
         self._usb_start_btn.set_visible(True)
         self._usb_stop_btn.set_visible(False)
+        self._usb_inline_status.set_visible(False)
         self._set_dot_color(0.6, 0.6, 0.6)
         self._set_status(_("Idle"))
         self._set_resolution(0, 0)
@@ -1450,11 +1543,25 @@ class PhoneCameraDialog(Adw.Dialog):
         threading.Thread(target=_thread, daemon=True).start()
 
     def _on_scrcpy_start(self, _btn: Gtk.Button) -> None:
+        self._scrcpy_inline_status.remove_css_class("success")
         if not self._devices:
+            self._scrcpy_inline_status.remove_css_class("dim-label")
+            self._scrcpy_inline_status.add_css_class("error")
+            self._scrcpy_inline_status.set_label(
+                _("No device found. Pair a device first, then tap 'Scan'.")
+            )
+            self._scrcpy_inline_status.set_visible(True)
             return
         idx = self._device_row.get_selected()
         if idx >= len(self._devices):
+            self._scrcpy_inline_status.remove_css_class("dim-label")
+            self._scrcpy_inline_status.add_css_class("error")
+            self._scrcpy_inline_status.set_label(
+                _("Selected device is no longer available. Tap 'Scan' to refresh.")
+            )
+            self._scrcpy_inline_status.set_visible(True)
             return
+        self._scrcpy_inline_status.set_visible(False)
 
         device = self._devices[idx]
         facing = (
@@ -1653,9 +1760,21 @@ class PhoneCameraDialog(Adw.Dialog):
     def _on_airplay_disconnected(
         self, _receiver: AirPlayReceiver
     ) -> None:
-        self._set_dot_color(1.0, 0.76, 0.03)
-        self._set_status(_("Waiting for AirPlay connection…"))
-        self._set_resolution(0, 0)
+        if not self._airplay.running:
+            # UxPlay process died — full cleanup
+            VirtualCamera.release_device("phone:airplay")
+            self._airplay_start_btn.set_visible(True)
+            self._airplay_stop_btn.set_visible(False)
+            self._set_dot_color(0.6, 0.6, 0.6)
+            self._set_status(_("AirPlay stopped unexpectedly"))
+            self._set_resolution(0, 0)
+            self._set_mode_lock(None)
+            self.emit("airplay-disconnected")
+        else:
+            # Client disconnected but UxPlay still running (can reconnect)
+            self._set_dot_color(1.0, 0.76, 0.03)
+            self._set_status(_("Waiting for AirPlay connection…"))
+            self._set_resolution(0, 0)
 
     def _on_airplay_status_changed(
         self, _receiver: AirPlayReceiver, status: str

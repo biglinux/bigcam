@@ -20,6 +20,8 @@ gi.require_version("Gst", "1.0")
 
 from gi.repository import GLib, GObject, Gst
 
+from utils.i18n import _
+
 log = logging.getLogger(__name__)
 
 try:
@@ -551,23 +553,40 @@ class PhoneCameraServer(GObject.Object):
                 log.warning("Audio subprocess pipe broken, stopping")
                 break
 
-    def start(self, port: int = DEFAULT_PORT) -> bool:
+    def start(self, port: int = DEFAULT_PORT) -> tuple[bool, str]:
+        """Start the HTTPS server. Returns (success, message)."""
         if not _HAS_AIOHTTP:
             log.error("python-aiohttp not installed")
-            return False
+            return False, _("python-aiohttp is not installed")
         if self._running:
-            return True
+            return True, ""
 
         self._port = port
+        self._start_error: str = ""
+        self._start_event = threading.Event()
 
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(
             target=self._run_loop, name="phone-cam", daemon=True
         )
         self._thread.start()
+
+        # Wait up to 5s for the server to confirm it's listening
+        if not self._start_event.wait(timeout=5):
+            log.error("Phone camera server failed to start within timeout")
+            self._loop = None
+            self._thread = None
+            return False, _("Server did not start in time")
+
+        if self._start_error:
+            msg = self._start_error
+            self._loop = None
+            self._thread = None
+            return False, msg
+
         self._running = True
         GLib.idle_add(self.emit, "status-changed", "listening")
-        return True
+        return True, ""
 
     def stop(self) -> None:
         if not self._running:
@@ -607,10 +626,23 @@ class PhoneCameraServer(GObject.Object):
     # -- asyncio server ------------------------------------------------------
 
     def _run_loop(self) -> None:
-        _ensure_cert()
-        asyncio.set_event_loop(self._loop)
-        self._loop.run_until_complete(self._start_server())
-        self._loop.run_forever()
+        try:
+            _ensure_cert()
+            asyncio.set_event_loop(self._loop)
+            self._loop.run_until_complete(self._start_server())
+            self._start_event.set()
+            self._loop.run_forever()
+        except OSError as exc:
+            log.error("Phone camera server failed: %s", exc)
+            if "address already in use" in str(exc).lower() or getattr(exc, 'errno', 0) == 98:
+                self._start_error = _("Port %d is already in use") % self._port
+            else:
+                self._start_error = str(exc)
+            self._start_event.set()
+        except Exception as exc:
+            log.error("Phone camera server failed: %s", exc, exc_info=True)
+            self._start_error = str(exc)
+            self._start_event.set()
 
     async def _start_server(self) -> None:
         app = web.Application(client_max_size=10 * 1024 * 1024)

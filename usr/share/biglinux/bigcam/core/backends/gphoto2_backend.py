@@ -244,7 +244,22 @@ class GPhoto2Backend(CameraBackend):
             self._last_detected = cameras
         elif self._streaming_active:
             # Fallback: if --auto-detect failed during streaming, keep previous
-            return self._last_detected
+            # BUT verify the USB device still physically exists first
+            still_connected = False
+            for cam in self._last_detected:
+                port = cam.extra.get("port", cam.device_path)
+                m = re.match(r"usb:(\d+),(\d+)", port)
+                if m:
+                    usb_path = f"/dev/bus/usb/{m.group(1)}/{m.group(2)}"
+                    if os.path.exists(usb_path):
+                        still_connected = True
+                        break
+            if still_connected:
+                return self._last_detected
+            # USB device gone — camera was physically disconnected
+            log.info("gphoto2 camera USB device removed, clearing streaming state")
+            self._streaming_active = False
+            self._last_detected = []
         return cameras
 
     # -- controls ------------------------------------------------------------

@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.3.2</h1>
+<h1 align="center">BigCam 4.4.0</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.3.2-brightgreen.svg" alt="Version 4.3.2">
+  <img src="https://img.shields.io/badge/Version-4.4.0-brightgreen.svg" alt="Version 4.4.0">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -59,7 +59,7 @@
 - **BigCam Virtual for all phone sources**: Every phone connection method (Browser, Wi-Fi, USB, AirPlay) automatically creates a virtual camera device via v4l2loopback, making the phone feed available to Zoom, Teams, OBS, etc.
 - **Reliable process cleanup**: All external processes (UxPlay, scrcpy) use process groups (`start_new_session=True`) with `os.killpg()` for guaranteed cleanup. An `atexit` handler ensures processes are killed even on unexpected exits.
 
-**Version 4.3.2** (current) focuses on **performance, stability, and polish**:
+**Version 4.3.2** focused on **performance, stability, and polish**:
 
 - **Performance optimizations**: Pre-allocated vcam BGRA buffer (saves ~8MB/frame allocation at 1080p), cached GStreamer probe format string, SIMD-optimized QR overlay via `cv2.convertScaleAbs()`, capped gamma/CLAHE caches with FIFO eviction, proper probe ID cleanup on stop.
 - **Signal architecture cleanup**: Replaced `_syncing_toggle` boolean flag with GObject `handler_block()`/`handler_unblock()` for mirror, QR, and virtual camera toggle sync — more robust and thread-safe.
@@ -72,13 +72,51 @@
 - **Smile Capture removed**: Removed mediapipe-dependent smile detection feature entirely (code, README, translations).
 - **i18n verified**: All UI strings confirmed English and translation-ready across 29 languages.
 
+**Version 4.4.0** (current) is the **reliability and gallery UX overhaul**:
+
+- **Redesigned Photo & Video galleries**: Grid/List view toggle, file metadata display (size, date, duration), selection mode with "Select All" and bulk delete with confirmation dialog, individual item delete with trash icon overlay. List view uses `AdwActionRow` with thumbnail prefix and formatted metadata subtitle.
+- **AirPlay stability fix**: When UxPlay dies unexpectedly (signal loss, crash), the disconnect handler now performs full cleanup — releases v4l2loopback device, resets UI, and emits the disconnect signal to the window. Previously, only the status label changed, leaving the stream engine locked and causing cascading failures on reconnect.
+- **Camera disconnect handling**: Canon EOS and other gPhoto2 cameras no longer stay in the camera list after USB disconnect. Detection now verifies USB device existence before reporting cameras.
+- **Phone camera inline feedback**: Browser, Wi-Fi, and USB tabs now show inline status labels with real-time connection progress ("Connecting...", "Pairing...", error messages) instead of relying solely on the tab dot indicator.
+- **Dynamic tab dot colors**: The `AdwViewSwitcher` needs-attention indicator now changes color to match the connection status (gray = idle, yellow = waiting, green = connected, red = error) using a dynamically updated CSS provider.
+- **Phone button border for all tabs**: The green border on the phone toolbar button now activates for all four connection methods (Browser, Wi-Fi, USB, AirPlay), not just Browser.
+- **Hotplug guard for scrcpy**: Camera hotplug detection is paused during scrcpy/AirPlay transitions to prevent false re-detection of physical cameras, which caused the wrong camera to be selected.
+- **Python 3.14 compatibility**: Fixed gettext `.po` file parsing crash caused by missing `charset=UTF-8` in Content-Type headers across all 29 language files.
+
 We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.3.2
+## What's New in 4.4.0
 
-### Performance
+### Photo & Video Galleries
+
+- **Grid/List toggle**: Switch between thumbnail grid and detailed list view with a single click. View preference persists per-tab.
+- **List view metadata**: Each item shows a small thumbnail prefix, filename as title, and a formatted subtitle with file size, creation date, and duration (videos only).
+- **Selection mode**: Toggle selection mode to show checkboxes on all items. Click items or checkboxes to select. Action bar appears with "Select All" and "Delete" buttons.
+- **Bulk delete**: Delete multiple selected items at once with a destructive confirmation dialog (`AdwAlertDialog`). Cached thumbnails are also cleaned up.
+- **Individual delete**: Trash icon overlay on each grid item and suffix button on each list row for single-item deletion with confirmation.
+- **Async video thumbnails**: Video thumbnails are generated in a background thread via `run_async` + ffmpeg, with duration extracted via ffprobe. Grid items show a play icon overlay and duration badge.
+
+### Stability
+
+- **AirPlay disconnect recovery**: Full cleanup on UxPlay unexpected death — v4l2loopback device release, stream engine stop, UI reset. No more cascading failures on reconnect.
+- **Camera disconnect detection**: gPhoto2 cameras verified against USB device existence, preventing phantom cameras in the list.
+- **Hotplug isolation**: Camera monitoring paused during phone camera transitions to prevent cross-detection.
+
+### Phone Camera UX
+
+- **Inline status labels**: Wi-Fi and USB tabs show contextual feedback during connection attempts (pairing progress, errors, timeouts).
+- **Dynamic status dot colors**: Tab dots change color per connection state (idle/waiting/connected/error) via CSS provider.
+- **Unified phone button border**: Green border on the phone toolbar button for all connection types.
+
+### Compatibility
+
+- **Python 3.14 gettext**: All `.po` files now include `charset=UTF-8` in Content-Type headers — required by Python 3.14's strict gettext parser.
+
+### Previous (4.3.2)
+
+#### Performance
 
 - **Pre-allocated vcam BGRA buffer**: Virtual camera conversion reuses a pre-allocated numpy array instead of creating a new one per frame (~8MB saved per frame at 1080p).
 - **Cached probe format string**: GStreamer buffer probe caches the format string instead of parsing caps every frame.
@@ -86,18 +124,18 @@ We are grateful to Rafael and Barnabé for starting this journey.
 - **Bounded effect caches**: Gamma LUT and CLAHE caches capped at 8 entries with FIFO eviction.
 - **Probe cleanup**: Buffer probe IDs are now saved and properly removed in `stop()`.
 
-### Architecture
+#### Architecture
 
 - **Signal blocking**: Mirror, QR, and vcam toggle sync between toolbar and settings now uses GObject `handler_block()`/`handler_unblock()` instead of a shared boolean flag.
 
-### Fixes
+#### Fixes
 
 - **WebM recording**: Fixed WebM container not creating files when incompatible codecs were selected. Auto-correction in both backend and UI.
 - **Theme isolation**: Camera overlays always render in dark mode regardless of theme setting.
 - **Controls opacity**: Capture button (`.capture-button`) and audio overlay now included in the controls opacity slider.
 - **Immersion mode transparency**: Window background transparency is maintained during immersion mode.
 
-### UI
+#### UI
 
 - **Background transparency slider**: New control in Preview settings for adjustable window opacity.
 - **Stronger vignette**: 3× intensity multiplier — 100% now produces dramatically dark borders.
@@ -106,11 +144,11 @@ We are grateful to Rafael and Barnabé for starting this journey.
 
 ### Previous (4.3.0)
 
-### Redesigned Phone Camera Dialog
+#### Redesigned Phone Camera Dialog
 
 The phone camera dialog has been completely redesigned with an `AdwViewSwitcher` providing four independent connection tabs — **Browser**, **Wi-Fi** (scrcpy), **USB** (scrcpy), and **AirPlay** (UxPlay). Each tab has its own connection flow, status indicators, and controls. A footer bar shows real-time connection status with contextual action buttons.
 
-### AirPlay Receiver
+#### AirPlay Receiver
 
 iPhones and iPads can now stream directly to BigCam via AirPlay screen mirroring using [UxPlay](https://github.com/antimof/UxPlay). No app installation needed — just select "BigCam" from the AirPlay menu on your iOS device. Features:
 
@@ -119,7 +157,7 @@ iPhones and iPads can now stream directly to BigCam via AirPlay screen mirroring
 - **Full audio**: Audio from the iPhone is captured and played back on the computer
 - **Volume control**: Integrated with BigCam's audio mixer
 
-### scrcpy USB & Wi-Fi Connections
+#### scrcpy USB & Wi-Fi Connections
 
 Android phones now have two additional connection methods via [scrcpy](https://github.com/Genymobile/scrcpy):
 
@@ -128,7 +166,7 @@ Android phones now have two additional connection methods via [scrcpy](https://g
 
 Both modes capture the phone's **microphone audio** (`--audio-source=mic`) alongside video, with volume control integrated into BigCam's audio mixer via PulseAudio/PipeWire sink-input management.
 
-### Browser Audio Capture
+#### Browser Audio Capture
 
 The browser-based phone camera (the original connection method from BigCam 3.0) now captures **audio** alongside video:
 
@@ -137,7 +175,7 @@ The browser-based phone camera (the original connection method from BigCam 3.0) 
 - **GStreamer playback**: A dedicated `appsrc → audioconvert → audioresample → volume → autoaudiosink` pipeline handles low-latency playback
 - **Volume control**: Integrated with BigCam's audio mixer via direct GStreamer volume element callbacks
 
-### Unified Audio Volume Control
+#### Unified Audio Volume Control
 
 All phone camera sources are now integrated with BigCam's AudioMonitor system. The audio mixer provides volume and mute controls for every active phone source:
 
@@ -149,11 +187,11 @@ All phone camera sources are now integrated with BigCam's AudioMonitor system. T
 
 The AudioMonitor uses a two-phase PID lookup for sink-input matching: first checking `application.process.id` in sink-inputs (works for UxPlay), then falling back to `pipewire.sec.pid` in PipeWire clients (works for SDL-based apps like scrcpy).
 
-### Virtual Camera for All Phone Sources
+#### Virtual Camera for All Phone Sources
 
 Every phone connection method now automatically creates a BigCam Virtual camera device via v4l2loopback. The phone's camera feed (with all effects applied) appears as a regular `/dev/video*` device — usable in Zoom, Teams, Google Meet, OBS, Discord, or any V4L2-compatible application.
 
-### Reliable Process Cleanup
+#### Reliable Process Cleanup
 
 External processes (UxPlay for AirPlay, scrcpy for USB/Wi-Fi) are launched in their own process groups (`start_new_session=True`) and terminated via `os.killpg()` with SIGTERM→wait→SIGKILL fallback. An `atexit` handler ensures all child processes are killed even on unexpected application exits.
 
@@ -167,7 +205,7 @@ External processes (UxPlay for AirPlay, scrcpy for USB/Wi-Fi) are launched in th
 
 ### Previous (4.0)
 
-### Recording Codec & Container Selector
+#### Recording Codec & Container Selector
 
 Full control over recording format, accessible in Settings → Recording:
 
@@ -180,7 +218,7 @@ Full control over recording format, accessible in Settings → Recording:
 
 Hardware-accelerated encoders (VA-API/VA) are preferred automatically, with software fallbacks (x264enc, x265enc) when unavailable. Settings are persisted and applied in real-time — no restart required.
 
-### Camera Control Profiles
+#### Camera Control Profiles
 
 Save and restore per-camera V4L2 control presets:
 
@@ -191,7 +229,7 @@ Save and restore per-camera V4L2 control presets:
 
 Profiles are stored per-camera in `~/.config/bigcam/profiles/<camera_name>/`.
 
-### Control Dependencies
+#### Control Dependencies
 
 Controls that depend on auto modes are now properly disabled/enabled:
 
@@ -199,19 +237,19 @@ Controls that depend on auto modes are now properly disabled/enabled:
 - `white_balance_automatic` → disables `white_balance_temperature` when enabled
 - `focus_auto` → disables `focus_absolute` when enabled
 
-### SpinButton on Integer Controls
+#### SpinButton on Integer Controls
 
 V4L2 integer controls now display both a slider (for quick adjustment) and a numeric SpinButton (for precise value entry) side by side.
 
-### Anti-Flicker Auto-Set
+#### Anti-Flicker Auto-Set
 
 Automatically sets `power_line_frequency` based on the system timezone when the camera has it disabled (value 0). Americas → 60Hz, rest of world → 50Hz. Does not override manual user settings.
 
-### Barcode Scanner
+#### Barcode Scanner
 
 Real-time 1D barcode detection via [zbar](https://github.com/mchehab/zbar). Supports EAN-13/8, UPC-A/E, Code 128/39/93, Codabar, ITF, ISBN, DataBar, and PDF417. Detected barcodes open a contextual dialog with copy action.
 
-### Effect Pipeline Optimizations
+#### Effect Pipeline Optimizations
 
 - Beauty/Denoise: 50% downscale above 480p (~4× throughput on 1080p)
 - GaussianBlur: `sigmaX` instead of capped kernel size (full 0–200 range)
@@ -444,8 +482,8 @@ Effects are applied in the GStreamer buffer probe before the frame reaches both 
 
 - **Photo capture**: single-click or timer-delayed capture. For gPhoto2 cameras, the photo is captured at the camera's native resolution (not the preview resolution) and automatically downloaded.
 - **Video recording**: records from the GStreamer pipeline with configurable codecs (H.264/H.265/VP9/MJPEG), audio codecs (Opus/AAC/MP3/Vorbis), and containers (MKV/WebM/MP4). Hardware-accelerated encoding when available. Recording continues while the preview remains active.
-- **Photo gallery**: browse captured images with lazy-loaded thumbnails. Delete photos directly from the gallery with confirmation dialog.
-- **Video gallery**: browse and play recorded videos with the system's default player.
+- **Photo gallery**: browse captured images with grid/list toggle, file metadata (size, date), selection mode with bulk delete, and individual item delete with confirmation dialog.
+- **Video gallery**: browse recorded videos with grid/list toggle, metadata display (duration, size, date), async-generated thumbnails, selection mode with bulk delete, and one-click playback with the system's default player.
 - **XDG-compliant paths**: photos and videos are saved to the system's configured Pictures and Videos directories (e.g., `~/Imagens/BigCam/` on Portuguese systems, `~/Pictures/BigCam/` on English systems) using `xdg-user-dir`.
 
 ### Interface
@@ -604,8 +642,8 @@ bigcam/
 │   │   ├── effects_page.py          # Effects toggle grid with parameter sliders
 │   │   ├── tools_page.py            # QR/barcode scanner toggles
 │   │   ├── settings_page.py         # App preferences + QR/barcode detection engine (WeChatQRCode + zbar)
-│   │   ├── photo_gallery.py         # Photo browser with lazy thumbnails and delete
-│   │   ├── video_gallery.py         # Video browser with system player integration
+│   │   ├── photo_gallery.py         # Photo browser with grid/list views, selection mode, bulk delete
+│   │   ├── video_gallery.py         # Video browser with grid/list views, async thumbnails, selection mode
 │   │   ├── virtual_camera_page.py   # Virtual camera start/stop controls
 │   │   ├── phone_camera_dialog.py   # Phone camera dialog with 4 tabs (Browser, Wi-Fi, USB, AirPlay)
 │   │   ├── ip_camera_dialog.py      # IP camera URL configuration dialog
