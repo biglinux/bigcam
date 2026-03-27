@@ -236,7 +236,7 @@ class PhoneCameraDialog(Adw.Dialog):
         # ── Availability check ───────────────────────────────────────
         scrcpy_ok = shutil.which("scrcpy") is not None
         adb_ok = shutil.which("adb") is not None
-        v4l2_ok = any(os.path.exists(f"/dev/video{n}") for n in (10, 11, 12, 13))
+        v4l2_ok = VirtualCamera.is_available()
         self._usb_all_ok = scrcpy_ok and adb_ok and v4l2_ok
 
         if not self._usb_all_ok:
@@ -359,7 +359,7 @@ class PhoneCameraDialog(Adw.Dialog):
         # ── Availability check ───────────────────────────────────────
         scrcpy_ok = shutil.which("scrcpy") is not None
         adb_ok = shutil.which("adb") is not None
-        v4l2_ok = any(os.path.exists(f"/dev/video{n}") for n in (10, 11, 12, 13))
+        v4l2_ok = VirtualCamera.is_available()
         self._wadv_all_ok = scrcpy_ok and adb_ok and v4l2_ok
 
         if not self._wadv_all_ok:
@@ -561,7 +561,7 @@ class PhoneCameraDialog(Adw.Dialog):
 
         # ── Availability check ───────────────────────────────────────
         uxplay_ok = AirPlayReceiver.is_available()
-        v4l2_ok = any(os.path.exists(f"/dev/video{n}") for n in (10, 11, 12, 13))
+        v4l2_ok = VirtualCamera.is_available()
         self._airplay_all_ok = uxplay_ok and v4l2_ok
 
         if not self._airplay_all_ok:
