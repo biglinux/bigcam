@@ -441,7 +441,7 @@ class V4L2Backend(CameraBackend):
                 if fmt.fps:
                     best_fps = int(max(fmt.fps))
                     caps += f",framerate={best_fps}/1"
-                return f"{src} ! {caps} ! jpegdec"
+                return f"{src} ! {caps} ! jpegdec max-errors=-1"
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:
                 best_fps = int(max(fmt.fps))
@@ -466,7 +466,7 @@ class V4L2Backend(CameraBackend):
                 if fmt.fps:
                     best_fps = int(max(fmt.fps))
                     caps += f",framerate={best_fps}/1"
-                return f"{src} ! {caps} ! jpegdec"
+                return f"{src} ! {caps} ! jpegdec max-errors=-1"
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:
                 best_fps = int(max(fmt.fps))

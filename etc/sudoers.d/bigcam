@@ -4,3 +4,8 @@
 %wheel ALL=(root) NOPASSWD: /usr/bin/modprobe -r v4l2loopback
 %wheel ALL=(root) NOPASSWD: /usr/sbin/modprobe v4l2loopback *
 %wheel ALL=(root) NOPASSWD: /usr/sbin/modprobe -r v4l2loopback
+# Allow dynamic v4l2loopback device management (add/delete)
+%wheel ALL=(root) NOPASSWD: /usr/sbin/v4l2loopback-ctl add *
+%wheel ALL=(root) NOPASSWD: /usr/sbin/v4l2loopback-ctl delete *
+%wheel ALL=(root) NOPASSWD: /usr/bin/v4l2loopback-ctl add *
+%wheel ALL=(root) NOPASSWD: /usr/bin/v4l2loopback-ctl delete *

@@ -269,7 +269,7 @@ class StreamEngine(GObject.Object):
         self._vcam_w: int = 0
         self._vcam_h: int = 0
         self._vcam_bgra_buf: np.ndarray | None = None
-        self._prefer_v4l2: bool = False  # bypass PipeWire, use v4l2src directly
+        self._prefer_v4l2: bool = True  # bypass PipeWire, use v4l2src directly
         # OpenCV direct capture (like guvcview) — used when prefer_v4l2 is active
         self._cv_cap: Any = None  # cv2.VideoCapture or None
         self._cv_timer_id: int | None = None  # GLib.timeout_add ID for frame poll
@@ -286,6 +286,9 @@ class StreamEngine(GObject.Object):
         self._bg_vcam_pipelines: dict[str, Gst.Pipeline] = {}
         # Background OpenCV-based vcam feeders (camera_id → _BgVcamFeeder)
         self._bg_vcam_feeders: dict[str, _BgVcamFeeder] = {}
+        # USB autosuspend: saved original power/control value
+        self._usb_power_control_path: str = ""
+        self._usb_power_control_orig: str = ""
 
 
     @property
@@ -470,9 +473,13 @@ class StreamEngine(GObject.Object):
         has_work = self._has_processing_work()
         is_recording = self._video_recorder and self._video_recorder.is_recording
         # Fast path: no effects/overlays — only grab BGR every 10th frame for photos
-        # BUT if virtual camera is active, process every frame for smooth output
-        if not has_work and not is_recording and not self._vcam_device and self._frame_count % 10 != 0:
-            return Gst.PadProbeReturn.OK
+        # If virtual camera is active but no effects, process every 2nd frame
+        # to reduce memory pressure (~108 MB/s → ~54 MB/s of temp allocations).
+        if not has_work and not is_recording:
+            if not self._vcam_device and self._frame_count % 10 != 0:
+                return Gst.PadProbeReturn.OK
+            if self._vcam_device and self._frame_count % 2 != 0 and self._frame_count % 10 != 0:
+                return Gst.PadProbeReturn.OK
 
         buf = info.get_buffer()
         if buf is None:
@@ -664,6 +671,7 @@ class StreamEngine(GObject.Object):
         self.stop(stop_backend=False, keep_vcam=True)
         self._current_camera = camera
         self._current_fmt = fmt
+        self._play_busy_retries = 0
         # If this camera had a background vcam (GStreamer or OpenCV feeder),
         # stop it — we'll create a new effects-aware one. The bg source holds
         # an exclusive lock on the device; after stopping, allow the kernel a
@@ -674,8 +682,9 @@ class StreamEngine(GObject.Object):
         )
         self._stop_bg_vcam(camera.id)
         if had_bg_vcam:
-            # Device needs a moment to be fully released — defer the rest
-            GLib.timeout_add(300, self._play_continue, camera, fmt, streaming_ready)
+            # Device needs a moment to be fully released — defer the rest.
+            # 500ms is conservative but avoids "device busy" on slower systems.
+            GLib.timeout_add(500, self._play_continue, camera, fmt, streaming_ready)
             return True
         return self._play_continue(camera, fmt, streaming_ready)
 
@@ -753,29 +762,23 @@ class StreamEngine(GObject.Object):
         Virtual camera output uses a separate appsrc → v4l2sink pipeline fed
         from the probe callback, ensuring OpenCV effects are applied.
 
-        When prefer_v4l2 is active, use appsink for flicker-free rendering
-        (bypasses GStreamer's internal queue/timing, like guvcview).
+        When prefer_v4l2 is active, use v4l2src (bypassing PipeWire) for
+        lower-latency access, but still render via gtk4paintablesink for
+        GPU-accelerated display.
         """
-        # Radical anti-flicker: use appsink (like guvcview) instead of paintable sink
-        # Skip for phone cameras — v4l2loopback + OpenCV mmap causes SIGBUS/SIGSEGV
+        # NOTE: The old OpenCV direct capture (_build_direct_pipeline) is kept
+        # as fallback but no longer attempted first — gtk4paintablesink with
+        # v4l2src provides smoother rendering via GPU texture uploads rather
+        # than CPU-side GdkMemoryTexture copies (~25 MB/frame).
         is_phone = self._current_camera and self._current_camera.id.startswith("phone:")
-        if self._prefer_v4l2 and "v4l2src" in gst_source and not is_phone:
-            if self._build_direct_pipeline(gst_source, target_fps):
-                return True
-
-        rate_limiter = ""
-        if target_fps > 0:
-            rate_limiter = f"videorate drop-only=true ! video/x-raw,framerate={target_fps}/1 ! "
 
         n_threads = min(os.cpu_count() or 2, 4)
         suffix = (
-            f"queue max-size-buffers=2 leaky=downstream silent=true ! "
-            f"{rate_limiter}"
             f"videoconvert n-threads={n_threads} name=conv ! "
             f"video/x-raw,format=BGRA ! "
             f"tee name=t ! "
-            f"queue max-size-buffers=1 leaky=downstream silent=true ! "
-            f"gtk4paintablesink sync=true"
+            f"queue max-size-buffers=4 leaky=downstream silent=true ! "
+            f"gtk4paintablesink sync=true max-lateness=-1 qos=false"
         )
 
         base_pipeline = f"{gst_source} ! {suffix}"
@@ -783,6 +786,9 @@ class StreamEngine(GObject.Object):
         if self._try_start_paintable(base_pipeline):
             # Apply anti-flicker defaults (e.g. power_line_frequency) in background
             self._apply_anti_flicker_async()
+            # Disable USB autosuspend to prevent frame drops
+            if self._current_camera and self._current_camera.device_path:
+                self._disable_usb_autosuspend(self._current_camera.device_path)
             # Resolve vcam device in background to avoid blocking the UI
             self._resolve_vcam_async()
             return True
@@ -804,6 +810,8 @@ class StreamEngine(GObject.Object):
                 fallback_pipeline = f"{v4l2_source} ! {suffix}"
                 if self._try_start_paintable(fallback_pipeline):
                     self._apply_anti_flicker_async()
+                    if camera.device_path:
+                        self._disable_usb_autosuspend(camera.device_path)
                     self._resolve_vcam_async()
                     return True
 
@@ -947,6 +955,8 @@ class StreamEngine(GObject.Object):
 
         self._start_fps_counter()
         self._apply_anti_flicker_async()
+        if camera.device_path:
+            self._disable_usb_autosuspend(camera.device_path)
         self._resolve_vcam_async()
         self.emit("state-changed", "playing")
         log.info("Direct OpenCV V4L2 preview started (no GStreamer)")
@@ -1161,6 +1171,7 @@ class StreamEngine(GObject.Object):
     def stop(self, stop_backend: bool = True, keep_vcam: bool = False) -> None:
         camera = self._current_camera
         self._stop_fps_counter()
+        self._restore_usb_autosuspend()
 
         # Stop OpenCV direct capture if active
         if hasattr(self, '_cv_stop_event') and self._cv_stop_event is not None:
@@ -1182,13 +1193,21 @@ class StreamEngine(GObject.Object):
             GLib.source_remove(self._appsink_timer_id)
             self._appsink_timer_id = None
 
-        # Disconnect phone camera callback
+        # Phone camera: keep forwarding frames to vcam when keep_vcam is active,
+        # otherwise disconnect completely.
         if self._phone_server_ref is not None:
-            self._phone_server_ref.set_frame_callback(None)
+            if keep_vcam and camera and self._phone_v4l2_device:
+                # Detach from preview rendering but keep vcam v4l2 output alive.
+                # Switch callback to background-only mode (no texture updates).
+                self._phone_server_ref.set_frame_callback(self._on_phone_frame_bg)
+                self._bg_phone_server_ref = self._phone_server_ref
+                self._bg_phone_cam_id = camera.id
+            else:
+                self._phone_server_ref.set_frame_callback(None)
+                self._stop_phone_v4l2()
+                self._phone_v4l2_device = ""
             self._phone_server_ref = None
             self._phone_frame_pending = False
-            self._stop_phone_v4l2()
-            self._phone_v4l2_device = ""
             self._current_camera = None
             self._current_fmt = None
             self.emit("state-changed", "stopped")
@@ -1326,6 +1345,41 @@ class StreamEngine(GObject.Object):
             daemon=True,
         ).start()
 
+    def _disable_usb_autosuspend(self, device_path: str) -> None:
+        """Disable USB autosuspend for the camera device to prevent frame drops."""
+        try:
+            dev_name = os.path.basename(device_path)
+            sysfs_if = os.path.realpath(f"/sys/class/video4linux/{dev_name}/device")
+            usb_dev = os.path.dirname(sysfs_if)
+            power_path = os.path.join(usb_dev, "power", "control")
+            if not os.path.exists(power_path):
+                return
+            with open(power_path) as f:
+                orig = f.read().strip()
+            if orig == "on":
+                return  # already disabled
+            self._usb_power_control_path = power_path
+            self._usb_power_control_orig = orig
+            with open(power_path, "w") as f:
+                f.write("on")
+            log.info("USB autosuspend disabled: %s (was %s)", power_path, orig)
+        except OSError as exc:
+            log.debug("Cannot set USB power control: %s", exc)
+
+    def _restore_usb_autosuspend(self) -> None:
+        """Restore USB autosuspend to original value after stopping."""
+        if not self._usb_power_control_path or not self._usb_power_control_orig:
+            return
+        try:
+            with open(self._usb_power_control_path, "w") as f:
+                f.write(self._usb_power_control_orig)
+            log.info("USB autosuspend restored: %s → %s",
+                     self._usb_power_control_path, self._usb_power_control_orig)
+        except OSError as exc:
+            log.debug("Cannot restore USB power control: %s", exc)
+        self._usb_power_control_path = ""
+        self._usb_power_control_orig = ""
+
     def _resolve_vcam_async(self) -> None:
         """Resolve the virtual camera device in a background thread,
         then start the vcam pipeline on the main thread."""
@@ -1358,7 +1412,11 @@ class StreamEngine(GObject.Object):
             return device
 
         def _on_done(device: str) -> None:
-            if device and self._current_camera is camera and self.is_playing():
+            # Guard: only start vcam if the camera hasn't changed.
+            # Don't check is_playing() — the GStreamer pipeline may still be
+            # in ASYNC state transition (PAUSED → PLAYING) and get_state(0)
+            # would return False even though playback is about to start.
+            if device and self._current_camera is camera:
                 self._vcam_alloc_id = alloc_id
                 self._start_vcam(device)
 
@@ -1534,8 +1592,10 @@ class StreamEngine(GObject.Object):
         """
         device = self._vcam_device
         cam_id = camera.id
+        # Stop the foreground vcam pipeline but keep the device allocation
+        # — the background feeder/pipeline will reuse the same device.
         self._stop_vcam()
-        self._release_vcam_device()
+        self._vcam_alloc_id = ""
         self._vcam_device = ""
 
         if not device:
@@ -1569,6 +1629,36 @@ class StreamEngine(GObject.Object):
                     log.info("Background vcam (gphoto2) active for %s on %s", camera.name, device)
             except GLib.Error as e:
                 log.error("Failed to create gphoto2 background vcam: %s", e)
+            return
+
+        # IP cameras: create a pipeline reading the RTSP/HTTP stream
+        if camera.backend == BackendType.IP and camera.device_path:
+            self._stop_bg_vcam(cam_id)
+            backend = self._manager.get_backend(BackendType.IP)
+            if backend and hasattr(backend, "get_gst_source"):
+                source = backend.get_gst_source(camera)
+            else:
+                url = camera.extra.get("url", camera.device_path)
+                source = f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
+            nthreads = min(os.cpu_count() or 2, 4)
+            pipeline_str = (
+                f"{source} ! "
+                f"videoconvert n-threads={nthreads} ! "
+                f"video/x-raw,format=YUY2 ! "
+                f"v4l2sink device={device} sync=false"
+            )
+            log.info("Creating background vcam for IP %s → %s", camera.name, device)
+            try:
+                pipe = Gst.parse_launch(pipeline_str)
+                ret = pipe.set_state(Gst.State.PLAYING)
+                if ret == Gst.StateChangeReturn.FAILURE:
+                    log.warning("Background vcam (IP) failed for %s", cam_id)
+                    pipe.set_state(Gst.State.NULL)
+                else:
+                    self._bg_vcam_pipelines[cam_id] = pipe
+                    log.info("Background vcam (IP) active for %s on %s", camera.name, device)
+            except GLib.Error as e:
+                log.error("Failed to create IP background vcam: %s", e)
             return
 
         if camera.backend != BackendType.V4L2 or not camera.device_path:
@@ -1669,6 +1759,8 @@ class StreamEngine(GObject.Object):
             if feeder:
                 feeder.stop()
         self._bg_vcam_feeders.clear()
+        # Also stop background phone vcam forwarding
+        self._stop_bg_phone_vcam()
 
     def has_active_bg_vcams(self) -> bool:
         """Return True if any background virtual cameras are running."""
@@ -1688,15 +1780,12 @@ class StreamEngine(GObject.Object):
     def ensure_bg_vcam(self, camera: CameraInfo) -> None:
         """Ensure a background vcam feeder exists for the given camera.
 
-        Called at detection time for each V4L2 camera. Skips cameras that
-        are already feeding or are the current active camera.
+        Called at detection time for each camera. Creates backend-specific
+        background virtual camera pipelines for V4L2, IP, and phone cameras
+        (scrcpy/airplay). gPhoto2 and WebSocket phone cameras get the device
+        allocated (visible in apps) but streaming starts only when selected.
         """
         if not VirtualCamera.is_enabled():
-            return
-        if camera.backend != BackendType.V4L2 or not camera.device_path:
-            return
-        # Skip phone cameras — their v4l2 device is an output sink, not a source
-        if camera.id.startswith("phone:"):
             return
         # Skip if this camera is already the active one (effects pipeline handles vcam)
         if self._current_camera and self._current_camera.id == camera.id:
@@ -1704,6 +1793,29 @@ class StreamEngine(GObject.Object):
         # Skip if already has a background feeder or pipeline
         if camera.id in self._bg_vcam_feeders or camera.id in self._bg_vcam_pipelines:
             return
+        # Skip if bg phone vcam is already forwarding for this camera
+        if self._bg_phone_cam_id == camera.id:
+            return
+        # Skip if device is already allocated for this camera
+        if VirtualCamera.get_device_for_camera(camera.id):
+            return
+
+        # gPhoto2 and WebSocket phone cameras: allocate device at detection
+        # so it shows up in apps, but don't start streaming (requires user selection).
+        if camera.backend == BackendType.GPHOTO2 or camera.backend == BackendType.PHONE:
+            device = VirtualCamera.ensure_ready(
+                card_label=camera.name, camera_id=camera.id,
+            )
+            if device:
+                log.info("Pre-allocated vcam %s for %s %s (streaming starts on selection)",
+                         device, camera.backend.name, camera.name)
+            return
+
+        if not camera.device_path:
+            # IP cameras without device_path need their URL
+            if camera.backend != BackendType.IP:
+                return
+
         # Allocate a v4l2loopback device
         device = VirtualCamera.ensure_ready(
             card_label=camera.name, camera_id=camera.id,
@@ -1711,16 +1823,49 @@ class StreamEngine(GObject.Object):
         if not device:
             log.debug("ensure_bg_vcam: no loopback device for %s", camera.name)
             return
-        # Start the background feeder
-        if _HAS_CV2:
-            feeder = _BgVcamFeeder(camera.device_path, device, camera.name)
-            if feeder.start():
-                self._bg_vcam_feeders[camera.id] = feeder
-                log.info("Background vcam started at detection for %s on %s", camera.name, device)
-                return
-            log.warning("OpenCV bg vcam failed at detection for %s", camera.name)
-        # Fallback: GStreamer v4l2src pipeline
-        self._create_bg_vcam_pipeline(camera.id, camera, device)
+
+        # IP cameras: create a GStreamer pipeline reading the stream
+        if camera.backend == BackendType.IP:
+            backend = self._manager.get_backend(BackendType.IP)
+            if backend and hasattr(backend, "get_gst_source"):
+                source = backend.get_gst_source(camera)
+            else:
+                url = camera.extra.get("url", camera.device_path)
+                source = f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
+            nthreads = min(os.cpu_count() or 2, 4)
+            pipeline_str = (
+                f"{source} ! "
+                f"videoconvert n-threads={nthreads} ! "
+                f"video/x-raw,format=YUY2 ! "
+                f"v4l2sink device={device} sync=false"
+            )
+            log.info("Background vcam for IP %s → %s", camera.name, device)
+            try:
+                pipe = Gst.parse_launch(pipeline_str)
+                ret = pipe.set_state(Gst.State.PLAYING)
+                if ret == Gst.StateChangeReturn.FAILURE:
+                    log.warning("Background vcam (IP) failed for %s", camera.id)
+                    pipe.set_state(Gst.State.NULL)
+                else:
+                    self._bg_vcam_pipelines[camera.id] = pipe
+                    log.info("Background vcam (IP) active for %s on %s", camera.name, device)
+            except GLib.Error as e:
+                log.error("Failed to create IP background vcam: %s", e)
+            return
+
+        # V4L2 cameras (including scrcpy/airplay phone cameras whose
+        # v4l2loopback device is readable)
+        if camera.backend == BackendType.V4L2 and camera.device_path:
+            # Start the background feeder
+            if _HAS_CV2:
+                feeder = _BgVcamFeeder(camera.device_path, device, camera.name)
+                if feeder.start():
+                    self._bg_vcam_feeders[camera.id] = feeder
+                    log.info("Background vcam started at detection for %s on %s", camera.name, device)
+                    return
+                log.warning("OpenCV bg vcam failed at detection for %s", camera.name)
+            # Fallback: GStreamer v4l2src pipeline
+            self._create_bg_vcam_pipeline(camera.id, camera, device)
 
     # -- phone camera --------------------------------------------------------
 
@@ -1735,12 +1880,22 @@ class StreamEngine(GObject.Object):
     _phone_v4l2_building: bool = False
     _phone_v4l2_pending_frame: Any = None  # (bgr_ndarray, w, h) or None
 
+    # Background phone vcam forwarding (when phone camera is not active but
+    # virtual camera should keep outputting frames)
+    _bg_phone_server_ref: Any = None
+    _bg_phone_cam_id: str = ""
+
     def _start_phone_camera(self, camera: CameraInfo) -> bool:
         """Receive frames from the phone camera WebSocket server."""
         server = camera.extra.get("phone_server")
         if not server:
             self.emit("error", _("Phone camera server not available."))
             return False
+        # Transition from background to foreground: clear bg state.
+        # The set_frame_callback below replaces the bg callback on the server.
+        if self._bg_phone_server_ref is server:
+            self._bg_phone_server_ref = None
+            self._bg_phone_cam_id = ""
         self._use_appsink = True  # use texture-based rendering
         self._phone_server_ref = server
         server.set_frame_callback(self._on_phone_frame)
@@ -1914,6 +2069,23 @@ class StreamEngine(GObject.Object):
             pass
         return False
 
+    def _on_phone_frame_bg(self, bgr: Any) -> None:
+        """Background-only phone frame handler — feeds v4l2 vcam without preview."""
+        if not self._phone_v4l2_device:
+            return
+        h, w = bgr.shape[:2]
+        self._push_phone_v4l2(bgr, w, h)
+
+    def _stop_bg_phone_vcam(self) -> None:
+        """Stop background phone virtual camera forwarding."""
+        if self._bg_phone_server_ref is not None:
+            self._bg_phone_server_ref.set_frame_callback(None)
+            self._bg_phone_server_ref = None
+        if self._bg_phone_cam_id:
+            self._stop_phone_v4l2()
+            self._phone_v4l2_device = ""
+            self._bg_phone_cam_id = ""
+
     # -- bus handling --------------------------------------------------------
 
     def _on_bus_message(self, _bus: Gst.Bus, msg: Gst.Message) -> None:
@@ -1941,6 +2113,20 @@ class StreamEngine(GObject.Object):
                 )
             )
             if busy and dev_path:
+                # If the device was just released from a bg vcam, retry once
+                # after additional delay instead of giving up immediately.
+                retry = getattr(self, "_play_busy_retries", 0)
+                if retry < 2 and self._current_camera:
+                    self._play_busy_retries = retry + 1
+                    cam = self._current_camera
+                    fmt = self._current_fmt
+                    log.info("Device %s busy — retry %d/2 in 500ms", dev_path, retry + 1)
+                    self.stop(stop_backend=False)
+                    self._current_camera = cam
+                    self._current_fmt = fmt
+                    GLib.timeout_add(500, self._play_continue, cam, fmt, False)
+                    return
+                self._play_busy_retries = 0
                 users = _find_device_users(dev_path)
                 if users:
                     self.stop()
@@ -2015,16 +2201,17 @@ class StreamEngine(GObject.Object):
         )
         n_threads = min(os.cpu_count() or 2, 4)
         suffix = (
-            f"queue max-size-buffers=2 leaky=downstream silent=true ! "
             f"videoconvert n-threads={n_threads} name=conv ! "
             f"video/x-raw,format=BGRA ! "
             f"tee name=t ! "
-            f"queue max-size-buffers=1 leaky=downstream silent=true ! "
-            f"gtk4paintablesink sync=true"
+            f"queue max-size-buffers=4 leaky=downstream silent=true ! "
+            f"gtk4paintablesink sync=true max-lateness=-1 qos=false"
         )
         fallback_pipeline = f"{v4l2_source} ! {suffix}"
         if self._try_start_paintable(fallback_pipeline):
             self._current_camera = camera
+            if camera.device_path:
+                self._disable_usb_autosuspend(camera.device_path)
             if loopback_device:
                 self._start_vcam(loopback_device)
             return True

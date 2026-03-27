@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import subprocess
 import threading
 from typing import Any
@@ -94,9 +95,14 @@ class CameraManager(GObject.Object):
         self._detecting = True
         self._force_emit = force_emit
 
+        def _normalize_name(name: str) -> str:
+            """Strip non-alphanumeric chars for duplicate detection."""
+            return re.sub(r"[^a-z0-9 ]", "", name.lower()).strip()
+
         def _worker() -> None:
             all_cameras: list[CameraInfo] = []
             seen_ids: set[str] = set()
+            seen_norm: list[str] = []
             try:
                 for b in self._backends:
                     if b.get_backend_type() == BackendType.IP:
@@ -115,9 +121,21 @@ class CameraManager(GObject.Object):
                                 if c.backend == b.get_backend_type()
                             ]
                         for cam in found:
-                            if cam.id not in seen_ids:
-                                seen_ids.add(cam.id)
-                                all_cameras.append(cam)
+                            if cam.id in seen_ids:
+                                continue
+                            # Skip if another backend already detected the
+                            # same physical camera (normalized substring match).
+                            norm = _normalize_name(cam.name)
+                            dup = False
+                            for sn in seen_norm:
+                                if sn in norm or norm in sn:
+                                    dup = True
+                                    break
+                            if dup:
+                                continue
+                            seen_ids.add(cam.id)
+                            seen_norm.append(norm)
+                            all_cameras.append(cam)
                     except Exception as exc:
                         GLib.idle_add(self.emit, "camera-error", str(exc))
             finally:

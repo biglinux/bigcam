@@ -671,6 +671,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if self._settings.get("virtual-camera-enabled"):
             VirtualCamera.set_enabled(True)
             self._settings_page.set_vc_toggle_active(True)
+        VirtualCamera.set_max_devices(self._settings.get("vcam-max-devices"))
+        VirtualCamera.set_name_template(self._settings.get("vcam-name-template"))
 
         self._view_stack.add_titled_with_icon(
             self._settings_page,
@@ -2095,7 +2097,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         """Direct signal from AirPlayReceiver — register camera and notify."""
         # Free resources while keeping current preview running
         self._camera_manager.stop_hotplug()
-        self._stream_engine.stop_all_bg_vcams()
+        # Only stop the bg vcam for this specific phone camera, keep others alive
+        self._stream_engine._stop_bg_vcam("phone:airplay")
 
         v4l2_dev = self._airplay_receiver.v4l2_device or "/dev/video12"
 
@@ -2154,7 +2157,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _switch_to_phone_camera(self, camera_id: str) -> None:
         """Switch to a phone camera source (called from toast button)."""
-        self._stream_engine.stop_all_bg_vcams()
+        # Only stop the bg vcam for this specific phone camera
+        self._stream_engine._stop_bg_vcam(camera_id)
+        self._stream_engine._stop_bg_phone_vcam()
         self._select_camera_by_id(camera_id)
         if self._settings.get("hotplug_enabled"):
             self._camera_manager.start_hotplug()
@@ -2185,7 +2190,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         """Direct signal from ScrcpyCamera — register camera and notify."""
         # Free resources while keeping current preview running
         self._camera_manager.stop_hotplug()
-        self._stream_engine.stop_all_bg_vcams()
+        # Only stop the bg vcam for this specific phone camera, keep others alive
+        self._stream_engine._stop_bg_vcam("phone:scrcpy")
 
         v4l2_dev = self._scrcpy_camera.v4l2_device or "/dev/video11"
 
@@ -2717,6 +2723,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Run slow blocking cleanup in background (VirtualCamera, gphoto2).
         def _heavy_cleanup() -> None:
             VirtualCamera.stop()
+            VirtualCamera.cleanup_dynamic_devices()
             gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
             if gp_backend and hasattr(gp_backend, "stop_streaming"):
                 gp_backend.stop_streaming()

@@ -524,6 +524,32 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._vc_toggle_row.connect("notify::active", self._on_vc_toggle)
         vc_group.add(self._vc_toggle_row)
 
+        # Max virtual cameras
+        max_adj = Gtk.Adjustment(
+            value=self._settings.get("vcam-max-devices"),
+            lower=1, upper=20, step_increment=1,
+        )
+        self._vc_max_row = Adw.SpinRow(
+            title=_("Maximum virtual cameras"),
+            subtitle=_("How many virtual camera devices to create (one per camera)."),
+            adjustment=max_adj,
+        )
+        self._vc_max_row.add_prefix(Gtk.Image.new_from_icon_name("view-grid-symbolic"))
+        self._vc_max_row.connect("notify::value", self._on_vcam_max_changed)
+        vc_group.add(self._vc_max_row)
+
+        # Name template
+        self._vc_name_row = Adw.EntryRow(
+            title=_("Device name"),
+        )
+        self._vc_name_row.set_text(self._settings.get("vcam-name-template"))
+        self._vc_name_row.add_prefix(Gtk.Image.new_from_icon_name("document-edit-symbolic"))
+        self._vc_name_row.set_tooltip_text(
+            _("Name template for virtual cameras. Devices will be named '<name> 1', '<name> 2', etc.")
+        )
+        self._vc_name_row.connect("changed", self._on_vcam_name_changed)
+        vc_group.add(self._vc_name_row)
+
         content.append(vc_group)
         self._vc_updating = False
         self._refresh_vc_status()
@@ -891,6 +917,17 @@ class SettingsPage(Gtk.ScrolledWindow):
         VirtualCamera.set_enabled(active)
         self.emit("virtual-camera-toggled", active)
         GLib.timeout_add(500, lambda: (self._refresh_vc_status(), False)[-1])
+
+    def _on_vcam_max_changed(self, row: Adw.SpinRow, _pspec) -> None:
+        value = int(row.get_value())
+        self._settings.set("vcam-max-devices", value)
+        VirtualCamera.set_max_devices(value)
+
+    def _on_vcam_name_changed(self, row: Adw.EntryRow) -> None:
+        text = row.get_text().strip()
+        if text:
+            self._settings.set("vcam-name-template", text)
+            VirtualCamera.set_name_template(text)
 
     def set_vc_toggle_active(self, active: bool) -> None:
         self._vc_updating = True

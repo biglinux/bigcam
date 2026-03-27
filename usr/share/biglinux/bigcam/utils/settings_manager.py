@@ -41,6 +41,8 @@ _DEFAULTS: dict[str, object] = {
     "last-camera-id": "",
     # Virtual camera
     "virtual-camera-enabled": True,
+    "vcam-max-devices": 5,
+    "vcam-name-template": "BigCam Virtual",
     # Pipeline
     "prefer-v4l2": True,
     # Recording

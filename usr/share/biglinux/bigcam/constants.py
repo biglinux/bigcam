@@ -5,7 +5,7 @@ import os
 
 APP_ID = "br.com.biglinux.bigcam"
 APP_NAME = "BigCam"
-APP_VERSION = "4.4.2"
+APP_VERSION = "4.4.3"
 APP_ICON = "bigcam"
 APP_WEBSITE = "https://github.com/biglinux/bigcam"
 APP_ISSUE_URL = "https://github.com/biglinux/bigcam/issues"
