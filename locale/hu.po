@@ -2,7 +2,7 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -14,17 +14,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 59
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/notification.py:59
 msgid "Dismiss"
 msgstr "Elvetés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 62
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/notification.py:62
 msgid "Dismiss notification"
 msgstr "Értesítés elvetése"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 81
@@ -35,7 +32,6 @@ msgstr "Értesítés elvetése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2636
 msgid "No camera"
 msgstr "Nincs kamera"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 82
@@ -46,21 +42,19 @@ msgstr "Nincs kamera"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2637
 msgid "Connect a camera or select one from the list above."
 msgstr "Csatlakoztasson egy kamerát, vagy válasszon egyet a fenti listából."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 89
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 95
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1743
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2296
-#. Retry button (hidden by default)
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:89
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:95
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1769
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2326
+#. Retry button (hidden by default)
 msgid "Try again"
 msgstr "Próbáld újra"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 223
@@ -75,7 +69,6 @@ msgstr "Próbáld újra"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:791
 msgid "Capture photo"
 msgstr "Fénykép készítése"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 247
@@ -86,7 +79,6 @@ msgstr "Fénykép készítése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:494
 msgid "Record video (Ctrl+R)"
 msgstr "Videó rögzítése (Ctrl+R)"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 249
@@ -95,7 +87,6 @@ msgstr "Videó rögzítése (Ctrl+R)"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:496
 msgid "Record video"
 msgstr "Videó rögzítése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 295
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 297
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 459
@@ -104,12 +95,10 @@ msgstr "Videó rögzítése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:459
 msgid "Mute"
 msgstr "Némítás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 456
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:456
 msgid "Unmute"
 msgstr "Némítás feloldása"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 579
@@ -124,24 +113,20 @@ msgstr "Némítás feloldása"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1884
 msgid "Please wait…"
 msgstr "Kérlek, várj…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 647
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:647
 msgid "Camera in use by:"
 msgstr "Kamera használatban:"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 648
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 651
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:648
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:651
 msgid "Camera busy"
 msgstr "Kamera foglalt"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 650
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:650
 msgid "Camera is being used"
 msgstr "A kamera használatban van"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 654
@@ -150,14 +135,10 @@ msgstr "A kamera használatban van"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1623
 msgid "Connection failed"
 msgstr "Kapcsolódás sikertelen"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 657
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:657
 msgid "Could not connect to the camera. Check the connection and try again."
-msgstr ""
-"Nem sikerült csatlakozni a kamerához. Ellenőrizd a kapcsolatot, és próbáld "
-"újra."
-
+msgstr "Nem sikerült csatlakozni a kamerához. Ellenőrizd a kapcsolatot, és próbáld újra."
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 676
@@ -166,7 +147,6 @@ msgstr ""
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2500
 msgid "Stop recording"
 msgstr "Felvétel leállítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 725
 # File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 736
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:725
@@ -174,22 +154,18 @@ msgstr "Felvétel leállítása"
 #, python-brace-format
 msgid "{n} seconds remaining"
 msgstr "{n} másodperc maradt"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 98
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:98
 msgid "General"
 msgstr "Általános"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 100
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:100
 msgid "Reset general settings"
 msgstr "Általános beállítások alaphelyzetbe állítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 105
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:105
 msgid "Photo directory"
 msgstr "Fotók mappája"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 111
@@ -198,12 +174,10 @@ msgstr "Fotók mappája"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:111
 msgid "Open photos folder"
 msgstr "Fotók mappájának megnyitása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 122
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:122
 msgid "Video directory"
 msgstr "Videómappa"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 128
@@ -212,96 +186,77 @@ msgstr "Videómappa"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:128
 msgid "Open videos folder"
 msgstr "Videók mappájának megnyitása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 138
-#. Theme
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:138
+#. Theme
 msgid "Theme"
 msgstr "Téma"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 141
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:141
 msgid "Light"
 msgstr "Világos"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 141
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:141
 msgid "Dark"
 msgstr "Sötét"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 149
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:149
 msgid "Application theme"
 msgstr "Alkalmazás téma"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 155
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 161
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:155
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:161
 msgid "USB hotplug detection"
 msgstr "USB hotplug észlelés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 156
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:156
 msgid "Automatically detect cameras when plugged or unplugged."
-msgstr ""
-"Kamerák automatikus felismerése csatlakoztatáskor vagy leválasztáskor."
-
+msgstr "Kamerák automatikus felismerése csatlakoztatáskor vagy leválasztáskor."
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 168
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 176
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:168
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:176
 msgid "Show help on hover"
 msgstr "Súgó megjelenítése lebegtetéskor"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 169
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:169
 msgid "Show tooltip hints when hovering over buttons."
 msgstr "Eszköztipp megjelenítése gombok fölé húzáskor."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 183
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 191
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:183
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:191
 msgid "Resource usage monitor"
 msgstr "Erőforrás-használat figyelő"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 184
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:184
 msgid "Warn when CPU or memory usage is high."
 msgstr "Figyelmeztetés magas CPU vagy memóriahasználat esetén."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 199
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:199
 msgid "Reset resource warnings"
 msgstr "Erőforrás figyelmeztetések visszaállítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 200
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:200
 msgid "Re-enable all dismissed resource usage warnings."
-msgstr ""
-"Minden elutasított erőforrás-használati figyelmeztetés újbóli engedélyezése."
-
+msgstr "Minden elutasított erőforrás-használati figyelmeztetés újbóli engedélyezése."
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 205
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:205
 msgid "Reset"
 msgstr "Visszaállítás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 208
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:208
 msgid "Reset dismissed resource warnings"
 msgstr "Elutasított erőforrás figyelmeztetések visszaállítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 218
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:218
 msgid "Preview"
 msgstr "Előnézet"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 220
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:220
 msgid "Reset preview settings"
 msgstr "Előnézet beállításainak visszaállítása"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 224
@@ -312,111 +267,83 @@ msgstr "Előnézet beállításainak visszaállítása"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:419
 msgid "Mirror preview"
 msgstr "Előnézet tükrözése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 225
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:225
 msgid "Flip the preview horizontally like a mirror."
-msgstr ""
-"Az előnézet vízszintes tükrözése, mint egy tükörben.|NEXT|||[5] FPS számláló"
-" megjelenítése"
-
+msgstr "Az előnézet vízszintes tükrözése, mint egy tükörben.|NEXT|||[5] FPS számláló megjelenítése"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 236
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 241
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:236
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:241
 msgid "Show FPS counter"
 msgstr "Rács átfedés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 247
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:247
 msgid "Grid overlay"
 msgstr "Rácsvonal fedvény"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 248
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:248
 msgid "Show a rule-of-thirds grid over the preview."
-msgstr ""
-"Az ablak háttérének átlátszóságának szabályozása.|NEXT|||[10] Átfedés "
-"átlátszósága"
-
+msgstr "Az ablak háttérének átlátszóságának szabályozása.|NEXT|||[10] Átfedés átlátszósága"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:257
 msgid "Background transparency"
-msgstr ""
-"Az eszköztár háttérének sötétségének szabályozása.|NEXT|||[12] Átlátszóság "
-"szabályozása"
-
+msgstr "Az eszköztár háttérének sötétségének szabályozása.|NEXT|||[12] Átlátszóság szabályozása"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 258
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:258
 msgid "Controls the window background transparency."
-msgstr ""
-"Az előnézet fölötti gombok átlátszósága.|NEXT|||[14] Közvetlen V4L2 "
-"hozzáférés"
-
+msgstr "Az előnézet fölötti gombok átlátszósága.|NEXT|||[14] Közvetlen V4L2 hozzáférés"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 274
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:274
 msgid "Overlay opacity"
 msgstr "Átfedés átlátszósága"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 275
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:275
 msgid "Controls bar background darkness."
 msgstr "A vezérlősáv háttérsötétítése."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 291
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:291
 msgid "Controls opacity"
 msgstr "Átlátszóság vezérlése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 292
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:292
 msgid "Transparency of the buttons over the preview."
 msgstr "A gombok átlátszósága az előnézet felett."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 307
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:307
 msgid "Direct V4L2 access"
 msgstr "Közvetlen V4L2 hozzáférés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 308
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:308
-msgid ""
-"Bypass PipeWire and access the camera directly. May fix flickering on some "
-"webcams."
+msgid "Bypass PipeWire and access the camera directly. May fix flickering on some webcams."
 msgstr ""
-"Kerülje meg a PipeWire-t, és férjen hozzá közvetlenül a kamerához. Egyes "
-"webkamerák esetén javíthatja a villogást."
-
+"Kerülje meg a PipeWire-t, és férjen hozzá közvetlenül a kamerához. Egyes webkamerák esetén "
+"javíthatja a villogást."
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 318
-#. -- Camera group (resolution, FPS, timer) ---------------------------
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:318
+#. -- Camera group (resolution, FPS, timer) ---------------------------
 msgid "Camera"
 msgstr "Kamera"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 320
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:320
 msgid "Reset camera settings"
 msgstr "Kamera beállításainak visszaállítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 324
-#. Resolution — fixed tiers, filtered per-camera
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:324
+#. Resolution — fixed tiers, filtered per-camera
 msgid "Resolution"
 msgstr "Felbontás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 327
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 350
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:350
 msgid "Auto"
 msgstr "Automatikus"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 347
-#. FPS limit
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:347
+#. FPS limit
 msgid "FPS limit"
 msgstr "FPS korlát"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 365
@@ -425,12 +352,10 @@ msgstr "FPS korlát"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:555
 msgid "Capture timer"
 msgstr "Felvétel időzítő"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 366
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:366
 msgid "Countdown before taking a photo."
 msgstr "Visszaszámlálás a fénykép készítése előtt."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 370
@@ -443,37 +368,30 @@ msgstr "Visszaszámlálás a fénykép készítése előtt."
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1107
 msgid "Off"
 msgstr "Ki"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 386
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:386
 msgid "Recording"
 msgstr "Felvétel"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 388
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:388
 msgid "Reset recording settings"
 msgstr "Felvételi beállítások visszaállítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 394
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:394
 msgid "Video Codec"
 msgstr "Videó kodek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 413
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:413
 msgid "Audio Codec"
 msgstr "Hang kodek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 432
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:432
 msgid "Container"
 msgstr "Konténer"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 470
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:470
 msgid "Video Bitrate (kbps)"
 msgstr "Videó bitráta (kbps)"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -481,13 +399,12 @@ msgstr "Videó bitráta (kbps)"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 494
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 93
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 100
-#. --- QR Code Scanner ---
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:79
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:93
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:494
+#. --- QR Code Scanner ---
 msgid "QR Code Scanner"
 msgstr "QR-kód olvasó"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -500,7 +417,6 @@ msgstr "QR-kód olvasó"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:434
 msgid "Scan QR Codes"
 msgstr "QR-kódok beolvasása"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 497
@@ -509,7 +425,6 @@ msgstr "QR-kódok beolvasása"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:497
 msgid "Detect QR codes in the camera feed"
 msgstr "QR-kódok felismerése a kamera képében"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -517,13 +432,12 @@ msgstr "QR-kódok felismerése a kamera képében"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 505
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 40
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 105
-#. Status group with ExpanderRow
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:40
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:87
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:505
+#. Status group with ExpanderRow
 msgid "Virtual Camera"
 msgstr "Virtuális kamera"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -536,7 +450,6 @@ msgstr "Virtuális kamera"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:507
 msgid "Status"
 msgstr "Állapot"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -551,7 +464,6 @@ msgstr "Állapot"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:513
 msgid "Device"
 msgstr "Eszköz"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 514
@@ -559,15 +471,14 @@ msgstr "Eszköz"
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 60
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 154
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 155
-#. gray
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:60
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:154
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:155
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:514
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:906
+#. gray
 msgid "Not loaded"
 msgstr "Nem betöltve"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 520
@@ -578,7 +489,6 @@ msgstr "Nem betöltve"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:520
 msgid "Enable virtual camera"
 msgstr "Virtuális kamera engedélyezése"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 521
@@ -586,9 +496,31 @@ msgstr "Virtuális kamera engedélyezése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:84
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:521
 msgid "Create a virtual camera output for video calls and streaming."
+msgstr "Hozzon létre virtuális kamera kimenetet videóhívásokhoz és streameléshez."
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 533
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:533
+msgid "Maximum virtual cameras"
+msgstr "Maximális virtuális kamerák száma"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 534
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:534
+msgid "How many virtual camera devices to create (one per camera)."
+msgstr "Hány virtuális kamerát hozzon létre (egy kameránként)."
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 543
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:543
+msgid "Device name"
+msgstr "Eszköz neve"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 548
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:548
+msgid ""
+"Name template for virtual cameras. Devices will be named '<name> 1', '<name> 2', etc.\n"
+"Press Enter or click ✓ to apply."
 msgstr ""
-"Hozzon létre virtuális kamera kimenetet videóhívásokhoz és streameléshez."
-
+"Név sablon a virtuális kamerákhoz. Az eszközök neve '<name> 1', '<name> 2' stb. lesz.\n"
+"Nyomd meg az Entert vagy kattints a ✓-re az alkalmazáshoz."
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -601,7 +533,6 @@ msgstr ""
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:696
 msgid "Reset to defaults"
 msgstr "Alapértékek visszaállítása"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 862
@@ -610,7 +541,6 @@ msgstr "Alapértékek visszaállítása"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:889
 msgid "v4l2loopback not available"
 msgstr "v4l2loopback nem elérhető"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 867
@@ -619,7 +549,6 @@ msgstr "v4l2loopback nem elérhető"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:894
 msgid "Active"
 msgstr "Aktív"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 872
@@ -628,7 +557,6 @@ msgstr "Aktív"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:899
 msgid "Module loaded"
 msgstr "Modul betöltve"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 877
@@ -637,66 +565,55 @@ msgstr "Modul betöltve"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:904
 msgid "Module not loaded"
 msgstr "Modul nincs betöltve"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 53
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:53
 msgid "Virtual camera status"
 msgstr "Virtuális kamera állapota"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 68
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:68
 msgid "Module"
 msgstr "Modul"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 69
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:69
 msgid "v4l2loopback"
 msgstr "v4l2loopback"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 80
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 362
-#. Actions group
-#. Action buttons (FlowBox for side-by-side layout)
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:80
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:362
+#. Actions group
+#. Action buttons (FlowBox for side-by-side layout)
 msgid "Actions"
 msgstr "Műveletek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 99
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
 msgid "Usage"
 msgstr "Használat"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 101
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:101
 msgid ""
-"When enabled, the active camera preview is sent to a virtual camera device "
-"that applications like OBS Studio, Google Meet, and Zoom can use."
+"When enabled, the active camera preview is sent to a virtual camera device that applications like "
+"OBS Studio, Google Meet, and Zoom can use."
 msgstr ""
-"Ha engedélyezve van, az aktív kamera előnézete egy virtuális kamera eszközre"
-" kerül, amelyet olyan alkalmazások használhatnak, mint az OBS Studio, Google"
-" Meet és Zoom."
-
+"Ha engedélyezve van, az aktív kamera előnézete egy virtuális kamera eszközre kerül, amelyet olyan "
+"alkalmazások használhatnak, mint az OBS Studio, Google Meet és Zoom."
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 131
-#. red
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
+#. red
 msgid "Not installed"
 msgstr "Nincs telepítve"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 132
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:132
 msgid "—"
 msgstr "—"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 143
 # File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 149
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:143
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:149
 msgid "Loaded"
 msgstr "Betöltve"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 76
@@ -705,46 +622,38 @@ msgstr "Betöltve"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:68
 msgid "OpenCV not available"
 msgstr "OpenCV nem elérhető"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 77
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:77
 msgid "Install python-opencv to use tools."
 msgstr "Telepítse a python-opencv csomagot az eszközök használatához."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 104
-#. --- Smile Capture ---
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:104
+#. --- Smile Capture ---
 msgid "Smile Capture"
 msgstr "Mosolyfelvétel"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 108
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:108
 msgid "Capture on Smile"
 msgstr "Felvétel mosolynál"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 109
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:109
 msgid "Automatically take a photo when a smile is detected"
 msgstr "Automatikusan készít fényképet, amikor mosolyt észlel"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 115
-#. Sensitivity slider
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:115
+#. Sensitivity slider
 msgid "Sensitivity"
 msgstr "Érzékenység"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 324
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 408
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:324
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:408
 msgid "Watching for smiles..."
 msgstr "Mosolyra várakozás..."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 384
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:384
 msgid "Smile detected! Capturing..."
 msgstr "Mosoly észlelve! Kép készítése..."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 396
@@ -755,17 +664,14 @@ msgstr "Mosoly észlelve! Kép készítése..."
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1874
 msgid "Photo saved!"
 msgstr "Fotó elmentve!"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 399
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:399
 msgid "Capture failed."
 msgstr "Kép készítése sikertelen."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 56
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:56
 msgid "Captured Photos"
 msgstr "Készített képek"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 63
@@ -774,7 +680,6 @@ msgstr "Készített képek"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:82
 msgid "Grid view"
 msgstr "Rács nézet"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 66
@@ -783,7 +688,6 @@ msgstr "Rács nézet"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:85
 msgid "List view"
 msgstr "Lista nézet"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 78
@@ -792,7 +696,6 @@ msgstr "Lista nézet"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:97
 msgid "Select items"
 msgstr "Elem kiválasztása"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -811,17 +714,14 @@ msgstr "Elem kiválasztása"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1182
 msgid "Refresh"
 msgstr "Frissítés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 136
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:136
 msgid "No photos yet"
 msgstr "Még nincs fotó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 137
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:137
 msgid "Captured photos will appear here."
 msgstr "A készített fotók itt jelennek meg."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 146
@@ -834,7 +734,6 @@ msgstr "A készített fotók itt jelennek meg."
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:199
 msgid "0 selected"
 msgstr "0 kiválasztva"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 149
@@ -843,7 +742,6 @@ msgstr "0 kiválasztva"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:168
 msgid "Select All"
 msgstr "Összes kijelölése"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 153
@@ -868,7 +766,6 @@ msgstr "Összes kijelölése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:524
 msgid "Delete"
 msgstr "Törlés"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 180
@@ -878,18 +775,15 @@ msgstr "Törlés"
 #, python-format
 msgid "%d selected"
 msgstr "%d kiválasztva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 383
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:383
 #, python-format
 msgid "Delete %d photos?"
 msgstr "Törli a %d fotót?"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 384
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:384
 msgid "These photos will be permanently deleted."
 msgstr "Ezek a fotók véglegesen törlődnek."
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -910,12 +804,10 @@ msgstr "Ezek a fotók véglegesen törlődnek."
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2701
 msgid "Cancel"
 msgstr "Mégse"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 419
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:419
 msgid "Delete photo?"
 msgstr "Fotó törlése?"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 420
@@ -925,22 +817,18 @@ msgstr "Fotó törlése?"
 #, python-format
 msgid "\"%s\" will be permanently deleted."
 msgstr "A(z) \"%s\" véglegesen törlésre kerül."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 47
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:47
 msgid "Welcome to BigCam"
 msgstr "Üdvözlünk a BigCam alkalmazásban"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 55
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:55
 msgid "Your universal webcam control center for Linux"
 msgstr "Az univerzális webkameravezérlő központod Linuxhoz"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 72
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:68
 msgid "Photo & Video Capture"
 msgstr "Fotó- és videórögzítés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 73
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:69
 msgid ""
@@ -949,12 +837,22 @@ msgid ""
 msgstr ""
 "Készíts fényképeket és vegyél fel videókat\n"
 "időzítő és visszaszámlálás támogatással"
-
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 95
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:71
+msgid "Multiple Cameras"
+msgstr "Több kamera"
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 96
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:72
+msgid ""
+"Switch between USB, IP, and\n"
+"virtual cameras with hotplug support"
+msgstr ""
+"Váltás USB, IP és\n"
+"virtuális kamerák között hotplug támogatással"
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 77
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:76
 msgid "Mirror Preview"
 msgstr "Tükör előnézet"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 78
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:77
 msgid ""
@@ -963,12 +861,18 @@ msgid ""
 msgstr ""
 "Fordítsd meg a kamera előnézetét\n"
 "vízszintesen, mint egy tükör"
-
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 101
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:80
+msgid ""
+"Scan QR codes and barcodes\n"
+"directly from the camera feed"
+msgstr ""
+"QR-kódok és vonalkódok beolvasása\n"
+"közvetlenül a kamera képéből"
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 82
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:84
 msgid "Real-Time Effects"
 msgstr "Valós idejű effektek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 83
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:85
 msgid ""
@@ -977,7 +881,14 @@ msgid ""
 msgstr ""
 "Alkalmazz fényerő, kontraszt, elmosás,\n"
 "szépia, vignetta és további effekteket élőben"
-
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 106
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:88
+msgid ""
+"Create a virtual camera device\n"
+"for use in video calls"
+msgstr ""
+"Virtuális kameraeszköz létrehozása\n"
+"videóhívásokhoz"
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -990,7 +901,6 @@ msgstr ""
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:155
 msgid "Phone as Webcam"
 msgstr "Telefon webkameraként"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 88
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:93
 msgid ""
@@ -999,109 +909,93 @@ msgid ""
 msgstr ""
 "Használd okostelefonod kameráját\n"
 "vezeték nélkül webkameraként"
-
+# 
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 95
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:71
-msgid "Multiple Cameras"
-msgstr "Több kamera"
-
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
+msgid "Advanced Controls"
+msgstr "Speciális vezérlők"
+# 
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 96
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:72
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
 msgid ""
-"Switch between USB, IP, and\n"
-"virtual cameras with hotplug support"
+"Fine-tune exposure, white balance\n"
+"and save per-camera profiles"
 msgstr ""
-"Váltás USB, IP és\n"
-"virtuális kamerák között hotplug támogatással"
-
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 101
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:80
-msgid ""
-"Scan QR codes and barcodes\n"
-"directly from the camera feed"
-msgstr ""
-"QR-kódok és vonalkódok beolvasása\n"
-"közvetlenül a kamera képéből"
-
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 106
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:88
-msgid ""
-"Create a virtual camera device\n"
-"for use in video calls"
-msgstr ""
-"Virtuális kameraeszköz létrehozása\n"
-"videóhívásokhoz"
-
+"Finomhangold az expozíciót, a fehéregyensúlyt\n"
+"és ments kameránkénti profilokat"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 122
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:122
+msgid "Tip: Press Ctrl+P to capture, Ctrl+R to record, Tab to toggle sidebar"
+msgstr "Tipp: Nyomd meg a Ctrl+P-t a képrögzítéshez, Ctrl+R-t a felvételhez, Tabot az oldalsáv váltásához"
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 149
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:143
 msgid "Show dialog on startup"
 msgstr "Párbeszédablak megjelenítése indításkor"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 160
-#. Button on right
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:154
+#. Button on right
 msgid "Let's Start"
 msgstr "Kezdjük"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 39
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
 msgid ""
 "The universal webcam control center for Linux.\n"
 "\n"
-"BigCam was born as a small shell script so that Rafael Ruscher could use his Canon Rebel T3 as a webcam during live streams about BigLinux. That humble hack, written by Rafael and Barnabé di Kartola, evolved from a Bash bridge between gPhoto2 and FFmpeg into a full GTK4/Adwaita application with live preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, IP cameras, smartphones), real-time OpenCV effects, virtual camera output, photo and video capture, and 29 languages."
+"BigCam was born as a small shell script so that Rafael Ruscher could use his Canon Rebel T3 as a "
+"webcam during live streams about BigLinux. That humble hack, written by Rafael and Barnabé di "
+"Kartola, evolved from a Bash bridge between gPhoto2 and FFmpeg into a full GTK4/Adwaita application "
+"with live preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, IP cameras, "
+"smartphones), real-time OpenCV effects, virtual camera output, photo and video capture, and 29 "
+"languages."
 msgstr ""
 "A Linux univerzális webkamera vezérlőközpontja.\n"
 "\n"
-"A BigCam egy kis shell szkriptként született, hogy Rafael Ruscher a Canon Rebel T3-ját webkameraként használhassa BigLinuxról szóló élő közvetítések során. Ez az egyszerű hack, amelyet Rafael és Barnabé di Kartola írt, egy Bash-hídból a gPhoto2 és FFmpeg között egy teljes GTK4/Adwaita alkalmazássá fejlődött élő előnézettel, több háttérrendszerű kamera támogatással (V4L2, gPhoto2, libcamera, PipeWire, IP kamerák, okostelefonok), valós idejű OpenCV effektekkel, virtuális kamera kimenettel, fotó- és videórögzítéssel, valamint 29 nyelven."
-
+"A BigCam egy kis shell szkriptként született, hogy Rafael Ruscher a Canon Rebel T3-ját "
+"webkameraként használhassa BigLinuxról szóló élő közvetítések során. Ez az egyszerű hack, amelyet "
+"Rafael és Barnabé di Kartola írt, egy Bash-hídból a gPhoto2 és FFmpeg között egy teljes "
+"GTK4/Adwaita alkalmazássá fejlődött élő előnézettel, több háttérrendszerű kamera támogatással "
+"(V4L2, gPhoto2, libcamera, PipeWire, IP kamerák, okostelefonok), valós idejű OpenCV effektekkel, "
+"virtuális kamera kimenettel, fotó- és videórögzítéssel, valamint 29 nyelven."
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 75
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:75
 msgid "Recorded Videos"
 msgstr "Felvett videók"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 155
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:155
 msgid "No videos yet"
 msgstr "Még nincs videó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 156
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:156
 msgid "Recorded videos will appear here."
 msgstr "A felvett videók itt jelennek meg."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 425
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:425
 #, python-format
 msgid "Delete %d videos?"
 msgstr "Törli a(z) %d videót?"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 426
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:426
 msgid "These videos will be permanently deleted."
 msgstr "Ezek a videók véglegesen törlésre kerülnek."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 520
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:520
 msgid "Delete video?"
 msgstr "Videó törlése?"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 109
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:109
 msgid "About connection methods"
 msgstr "A csatlakozási módokról"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 112
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:112
 msgid "Information about connection methods"
 msgstr "Információk a csatlakozási módokról"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 126
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 931
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:126
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:931
 msgid "Browser"
 msgstr "Böngésző"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 134
@@ -1112,21 +1006,18 @@ msgstr "Böngésző"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:976
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 142
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1008
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:142
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1008
 msgid "USB"
 msgstr "USB"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 150
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1038
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:150
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1038
 msgid "AirPlay"
 msgstr "AirPlay"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 195
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1311
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1357
@@ -1145,7 +1036,6 @@ msgstr "AirPlay"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2020
 msgid "Idle"
 msgstr "Tétlen"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 249
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 372
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1629
@@ -1154,28 +1044,24 @@ msgstr "Tétlen"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1629
 msgid "Searching…"
 msgstr "Keresés…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 269
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 488
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:269
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:488
 msgid "Lens"
 msgstr "Lencse"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 271
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 490
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:271
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:490
 msgid "Rear camera"
 msgstr "Hátsó kamera"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 271
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 490
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:271
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:490
 msgid "Front camera"
 msgstr "Első kamera"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 278
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 494
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 595
@@ -1184,14 +1070,12 @@ msgstr "Első kamera"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:595
 msgid "Quality"
 msgstr "Minőség"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 280
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 496
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:280
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:496
 msgid "Maximum"
 msgstr "Maximum"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -1206,7 +1090,6 @@ msgstr "Maximum"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:481
 msgid "Advanced"
 msgstr "Haladó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 299
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 501
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 605
@@ -1215,14 +1098,12 @@ msgstr "Haladó"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:605
 msgid "FPS"
 msgstr "FPS"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 303
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 505
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:303
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:505
 msgid "Bitrate"
 msgstr "Bitráta"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 325
@@ -1237,7 +1118,6 @@ msgstr "Bitráta"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:742
 msgid "Start"
 msgstr "Indítás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 326
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 529
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 632
@@ -1248,22 +1128,18 @@ msgstr "Indítás"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:743
 msgid "Stop"
 msgstr "Leállítás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 381
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:381
 msgid "Switch device to Wi-Fi mode"
 msgstr "Eszköz váltása Wi-Fi módra"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 402
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:402
 msgid "Find wireless devices"
 msgstr "Vezeték nélküli eszközök keresése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 403
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:403
 msgid "Detect paired devices on your network"
 msgstr "Párosított eszközök keresése a hálózatodon"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 411
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1581
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1615
@@ -1272,104 +1148,82 @@ msgstr "Párosított eszközök keresése a hálózatodon"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1615
 msgid "Scan"
 msgstr "Beolvasás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 426
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:426
 msgid "Pair new device"
 msgstr "Új eszköz párosítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 427
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:427
 msgid "Only needed once per device"
 msgstr "Csak egyszer szükséges eszközönként"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 436
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:436
 msgid "6-digit code (shown on phone screen)"
 msgstr "6 jegyű kód (a telefon képernyőjén látható)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 442
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:442
 msgid "IP:Port (shown on phone screen)"
 msgstr "IP:Port (a telefon képernyőjén látható)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 448
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:448
 msgid "Pair"
 msgstr "Párosítás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 459
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:459
 msgid "Auto-fill IP:Port"
 msgstr "IP:Port automatikus kitöltése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 461
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:461
-msgid ""
-"Detects the address automatically. Requires 'Pair with code' (not QR) open "
-"on the phone."
+msgid "Detects the address automatically. Requires 'Pair with code' (not QR) open on the phone."
 msgstr ""
-"Automatikusan felismeri a címet. Megköveteli, hogy a telefonon a 'Párosítás "
-"kóddal' (nem QR) legyen megnyitva."
-
+"Automatikusan felismeri a címet. Megköveteli, hogy a telefonon a 'Párosítás kóddal' (nem QR) legyen "
+"megnyitva."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 466
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1637
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:466
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1637
 msgid "Find"
 msgstr "Keresés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 578
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:578
 msgid ""
-"AirPlay mirrors the iPhone screen. Open the Camera app on your iPhone after "
-"connecting to use it as a webcam."
+"AirPlay mirrors the iPhone screen. Open the Camera app on your iPhone after connecting to use it as "
+"a webcam."
 msgstr ""
-"Az AirPlay tükrözi az iPhone képernyőjét. Csatlakozás után nyisd meg az "
-"iPhone Kamera alkalmazását, hogy webkameraként használd."
-
+"Az AirPlay tükrözi az iPhone képernyőjét. Csatlakozás után nyisd meg az iPhone Kamera alkalmazását, "
+"hogy webkameraként használd."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 584
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:584
 msgid "Visible name"
 msgstr "Látható név"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 612
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:612
 msgid "Rotation"
 msgstr "Forgatás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 615
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:615
 msgid "None"
 msgstr "Nincs"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 616
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:616
 msgid "90° Right"
 msgstr "90° jobbra"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 617
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:617
 msgid "90° Left"
 msgstr "90° balra"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 618
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:618
 msgid "180°"
 msgstr "180°"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 672
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:672
 msgid "Open this URL in any phone browser to stream the camera"
-msgstr ""
-"Nyisd meg ezt az URL-t bármelyik telefon böngészőjében a kamera "
-"streameléséhez"
-
+msgstr "Nyisd meg ezt az URL-t bármelyik telefon böngészőjében a kamera streameléséhez"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 685
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:685
 msgid "QR Code — scan with your phone"
 msgstr "QR-kód — olvasd be a telefonoddal"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -1378,245 +1232,186 @@ msgstr "QR-kód — olvasd be a telefonoddal"
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 287
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 393
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 50
-#. Generic URL
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:287
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:393
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:696
+#. Generic URL
 msgid "URL"
 msgstr "URL"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 697
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1313
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:697
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1313
 msgid "Start to see the address"
 msgstr "Indítsd el a cím megjelenítését"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 704
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:704
 msgid "Copy URL"
 msgstr "URL másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 710
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:710
 msgid "Copy URL to clipboard"
 msgstr "URL másolása a vágólapra"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 721
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:721
 msgid "Port"
 msgstr "Port"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 814
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:814
 #, python-format
 msgid "Install required: %s"
 msgstr "Szükséges telepítés: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 835
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:835
 msgid "How to connect your phone"
 msgstr "Hogyan csatlakoztathatod a telefonodat"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 916
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:916
 msgid "Browser (Android / iPhone)"
 msgstr "Böngésző (Android / iPhone)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 917
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:917
 msgid "Works with any phone, no app required."
 msgstr "Bármilyen telefonnal működik, nincs szükség alkalmazásra."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 921
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:921
 msgid "Connect both devices to the same Wi-Fi network"
 msgstr "Csatlakoztasd mindkét eszközt ugyanarra a Wi-Fi hálózatra"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 922
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:922
 msgid "Click 'Start' on the Browser tab"
 msgstr "Kattints a 'Start' gombra a Böngésző fülön"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 923
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:923
 msgid "Scan the QR code with your phone or type the URL"
 msgstr "Olvasd be a QR-kódot a telefonoddal, vagy írd be az URL-t"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 924
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:924
 msgid "Accept the security warning in the browser"
 msgstr "Fogadd el a biztonsági figyelmeztetést a böngészőben"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 925
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:925
 msgid "Tap 'Start' on the phone's browser page"
 msgstr "Érintsd meg a 'Start' gombot a telefon böngésző oldalán"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 947
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:947
 msgid "Wi-Fi (Android 11+)"
 msgstr "Wi-Fi (Android 11+)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 948
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:948
 msgid "No cable needed after the first setup."
 msgstr "Az első beállítás után nincs szükség kábelre."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 951
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:951
 msgid "Quick method"
 msgstr "Gyors módszer"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 953
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:953
-msgid ""
-"If connected via USB, use the wireless icon on the device selector to switch"
-" to Wi-Fi instantly."
+msgid "If connected via USB, use the wireless icon on the device selector to switch to Wi-Fi instantly."
 msgstr ""
-"Ha USB-n keresztül csatlakozol, használd a vezeték nélküli ikont az "
-"eszközválasztón a Wi-Fi-re való azonnali váltáshoz."
-
+"Ha USB-n keresztül csatlakozol, használd a vezeték nélküli ikont az eszközválasztón a Wi-Fi-re való "
+"azonnali váltáshoz."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 959
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:959
 msgid "First-time pairing (without USB)"
 msgstr "Első párosítás (USB nélkül)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 961
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:961
 msgid "Enable Developer Options (same steps as USB above)"
-msgstr ""
-"Engedélyezd a Fejlesztői beállításokat (ugyanazok a lépések, mint az USB "
-"esetén)"
-
+msgstr "Engedélyezd a Fejlesztői beállításokat (ugyanazok a lépések, mint az USB esetén)"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 962
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:962
 msgid "Go to Settings → Developer Options → Wireless Debugging"
-msgstr ""
-"Menj a Beállítások → Fejlesztői beállítások → Vezeték nélküli hibakeresés "
-"menüponthoz"
-
+msgstr "Menj a Beállítások → Fejlesztői beállítások → Vezeték nélküli hibakeresés menüponthoz"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 963
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:963
 msgid "Tap 'Pair device with pairing code'"
 msgstr "Érintse meg a 'Párosítás kóddal' lehetőséget"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 964
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:964
 msgid "Use 'pairing CODE', NOT 'QR Code'"
 msgstr "Használja a 'párosítási KÓDOT', NE a 'QR-kódot'"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 965
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:965
 msgid "Note the IP:Port and 6-digit code shown on the phone"
 msgstr "Jegyezze fel a telefonon megjelenő IP:Port és 6 jegyű kódot"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 966
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:966
 msgid "On the Wi-Fi tab, expand 'Pair new device'"
 msgstr "A Wi-Fi fülön bontsa ki az 'Új eszköz párosítása' részt"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 967
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:967
 msgid "Type the IP:Port and code, then tap 'Pair'"
-msgstr ""
-"Írja be az IP:Portot és a kódot, majd érintse meg a 'Párosítás' gombot"
-
+msgstr "Írja be az IP:Portot és a kódot, majd érintse meg a 'Párosítás' gombot"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 968
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:968
 msgid "Or tap 'Find' to auto-fill the IP:Port"
-msgstr ""
-"Vagy érintse meg a 'Keresés' gombot az IP:Port automatikus kitöltéséhez"
-
+msgstr "Vagy érintse meg a 'Keresés' gombot az IP:Port automatikus kitöltéséhez"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 969
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:969
 msgid "After pairing, tap 'Scan' to find the device"
-msgstr ""
-"Párosítás után érintse meg a 'Beolvasás' gombot az eszköz megtalálásához"
-
+msgstr "Párosítás után érintse meg a 'Beolvasás' gombot az eszköz megtalálásához"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 970
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:970
 msgid "Click 'Start' on the Wi-Fi tab"
 msgstr "Kattintson a 'Indítás' gombra a Wi-Fi fülön"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 992
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:992
 msgid "USB (Android)"
 msgstr "USB (Android)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 993
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:993
 msgid "The easiest and fastest method."
 msgstr "A legegyszerűbb és leggyorsabb módszer."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 997
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:997
 msgid "On your Android phone, go to Settings → About Phone"
 msgstr "Android telefonján lépjen a Beállítások → Telefon névjegye menüpontra"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 998
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:998
 msgid "Tap 'Build Number' 7 times to unlock Developer Options"
-msgstr ""
-"Érintse meg hétszer a 'Build szám' opciót a Fejlesztői beállítások "
-"feloldásához"
-
+msgstr "Érintse meg hétszer a 'Build szám' opciót a Fejlesztői beállítások feloldásához"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 999
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:999
 msgid "Go to Settings → Developer Options → enable 'USB Debugging'"
-msgstr ""
-"Lépjen a Beállítások → Fejlesztői beállítások menübe, és engedélyezze az "
-"'USB hibakeresést'"
-
+msgstr "Lépjen a Beállítások → Fejlesztői beállítások menübe, és engedélyezze az 'USB hibakeresést'"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1000
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1000
 msgid "Connect the USB cable to the computer"
 msgstr "Csatlakoztassa az USB-kábelt a számítógéphez"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1001
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1001
 msgid "Accept the USB Debugging prompt on the phone screen"
 msgstr "Fogadja el az USB hibakeresés engedélyezését a telefon képernyőjén"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1002
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1002
 msgid "Click 'Start' on the USB tab"
 msgstr "Kattintson a 'Start' gombra az USB fülön"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1024
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1024
 msgid "AirPlay (iPhone / iPad)"
 msgstr "AirPlay (iPhone / iPad)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1025
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1025
 msgid "Mirrors the entire screen (not just the camera)."
 msgstr "Az egész képernyőt tükrözi (nem csak a kamerát)."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1029
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1029
 msgid "Make sure both devices are on the same Wi-Fi network"
-msgstr ""
-"Győződjön meg róla, hogy mindkét eszköz ugyanazon a Wi-Fi hálózaton van"
-
+msgstr "Győződjön meg róla, hogy mindkét eszköz ugyanazon a Wi-Fi hálózaton van"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1030
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1030
 msgid "Click 'Start' on the AirPlay tab"
 msgstr "Kattintson a 'Start' gombra az AirPlay fülön"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1031
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1031
 msgid "On your iPhone, open Control Center (swipe down from top-right)"
-msgstr ""
-"iPhone-ján nyissa meg a Vezérlőközpontot (húzza le a jobb felső sarokból)"
-
+msgstr "iPhone-ján nyissa meg a Vezérlőközpontot (húzza le a jobb felső sarokból)"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1032
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1032
 msgid "Tap 'Screen Mirroring' and select 'BigCam'"
-msgstr ""
-"Érintse meg a 'Képernyőtükrözés' lehetőséget, majd válassza a 'BigCam'-et"
-
+msgstr "Érintse meg a 'Képernyőtükrözés' lehetőséget, majd válassza a 'BigCam'-et"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1209
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1347
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1369
@@ -1625,7 +1420,6 @@ msgstr ""
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1369
 msgid "Connected via browser"
 msgstr "Böngészőn keresztül csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1214
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1276
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1354
@@ -1636,58 +1430,45 @@ msgstr "Böngészőn keresztül csatlakoztatva"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1366
 msgid "Waiting for connection…"
 msgstr "Kapcsolódásra vár…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1241
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1241
 msgid "Connected"
 msgstr "Csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1246
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 2030
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1246
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2030
 msgid "AirPlay connected"
 msgstr "AirPlay csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1258
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1258
 msgid "Starting server…"
 msgstr "Szerver indítása…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1273
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1273
 #, python-format
 msgid "Server listening on port %d"
 msgstr "A szerver a(z) %d porton figyel"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1291
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1294
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1291
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1294
 msgid "Failed to start server"
 msgstr "A szerver indítása sikertelen"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1442
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1442
 msgid "No USB device connected"
 msgstr "Nincs USB-eszköz csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1446
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1446
-msgid ""
-"No device found. Connect via USB cable and enable USB Debugging, then tap "
-"'Refresh'."
+msgid "No device found. Connect via USB cable and enable USB Debugging, then tap 'Refresh'."
 msgstr ""
-"Nem található eszköz. Csatlakoztassa USB-kábellel és engedélyezze az USB "
-"hibakeresést, majd koppintson a 'Frissítés' gombra."
-
+"Nem található eszköz. Csatlakoztassa USB-kábellel és engedélyezze az USB hibakeresést, majd "
+"koppintson a 'Frissítés' gombra."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1455
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1455
 msgid "Selected device is no longer available. Tap 'Refresh' to update."
-msgstr ""
-"A kiválasztott eszköz már nem elérhető. Koppintson a 'Frissítés' gombra a "
-"frissítéshez."
-
+msgstr "A kiválasztott eszköz már nem elérhető. Koppintson a 'Frissítés' gombra a frissítéshez."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1485
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1859
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1962
@@ -1696,7 +1477,6 @@ msgstr ""
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1962
 msgid "No v4l2loopback device"
 msgstr "Nincs v4l2loopback eszköz"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1492
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1866
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1937
@@ -1705,36 +1485,29 @@ msgstr "Nincs v4l2loopback eszköz"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1937
 msgid "Starting…"
 msgstr "Indítás…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1569
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1569
 msgid "Scanning…"
 msgstr "Keresés…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1571
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1571
 msgid "Scanning network…"
 msgstr "Hálózat keresése…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1583
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1804
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1583
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1804
 msgid "No devices found"
 msgstr "Nem található eszköz"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1585
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1585
 msgid "No devices found. Try 'Pair new device'."
-msgstr ""
-"Nem található eszköz. Próbálja meg az 'Új eszköz párosítása' lehetőséget."
-
+msgstr "Nem található eszköz. Próbálja meg az 'Új eszköz párosítása' lehetőséget."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1591
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1591
 #, python-format
 msgid "Found: %s"
 msgstr "Találat: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1593
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1702
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1593
@@ -1742,144 +1515,114 @@ msgstr "Találat: %s"
 #, python-format
 msgid "Connecting to %s…"
 msgstr "Kapcsolódás ide: %s…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1618
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1618
 #, python-format
 msgid "Connected to %s"
 msgstr "Csatlakozva ide: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1619
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1619
 msgid "Ready to start camera"
 msgstr "Kamera indításra kész"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1642
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1642
 #, python-format
 msgid "Found %s — enter the 6-digit code below"
 msgstr "Találat %s — írja be az alábbi 6 jegyű kódot"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1648
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1648
 msgid ""
-"Not found. Make sure you tapped 'Pair with pairing code' (not QR Code) and "
-"that the code screen is still open. You can also type the IP:Port manually."
+"Not found. Make sure you tapped 'Pair with pairing code' (not QR Code) and that the code screen is "
+"still open. You can also type the IP:Port manually."
 msgstr ""
-"Nem található. Győződjön meg róla, hogy a 'Párosítás párosító kóddal' (nem "
-"QR-kóddal) lehetőséget választotta, és hogy a kód képernyő még nyitva van. "
-"Az IP:Portot manuálisan is beírhatja."
-
+"Nem található. Győződjön meg róla, hogy a 'Párosítás párosító kóddal' (nem QR-kóddal) lehetőséget "
+"választotta, és hogy a kód képernyő még nyitva van. Az IP:Portot manuálisan is beírhatja."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1662
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1662
 msgid "Enter IP:Port and pairing code"
 msgstr "Adja meg az IP:Portot és a párosító kódot"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1667
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1667
 msgid "Pairing…"
 msgstr "Párosítás…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1689
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1689
 msgid "Scanning for paired device…"
 msgstr "Párosított eszköz keresése…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1698
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1698
 msgid "No devices found after pairing"
 msgstr "Nem található eszköz a párosítás után"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1725
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1725
 #, python-format
 msgid "Connected to %s — starting camera…"
 msgstr "Csatlakozva a %s-hez — kamera indítása…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1735
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1735
 msgid "Connection failed after pairing"
 msgstr "A kapcsolat sikertelen volt a párosítás után"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1752
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1752
 msgid "No device available to start"
 msgstr "Nincs elérhető eszköz az indításhoz"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1770
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1770
 msgid "Switching to Wi-Fi…"
 msgstr "Váltás Wi-Fi-re…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1781
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1781
 #, python-format
 msgid "Wi-Fi: %s (unplug USB)"
 msgstr "Wi-Fi: %s (USB kihúzva)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1786
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1786
 msgid "Wi-Fi switch failed"
 msgstr "A Wi-Fi kapcsoló sikertelen"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1820
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1820
 msgid "No device found. Pair a device first, then tap 'Scan'."
-msgstr ""
-"Nem található eszköz. Először párosíts egy eszközt, majd koppints a "
-"'Keresés'-re."
-
+msgstr "Nem található eszköz. Először párosíts egy eszközt, majd koppints a 'Keresés'-re."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1829
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1829
 msgid "Selected device is no longer available. Tap 'Scan' to refresh."
-msgstr ""
-"A kiválasztott eszköz már nem elérhető. Koppints a 'Keresés'-re a "
-"frissítéshez."
-
+msgstr "A kiválasztott eszköz már nem elérhető. Koppints a 'Keresés'-re a frissítéshez."
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1902
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1941
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1902
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1941
 msgid "Connected via USB"
 msgstr "USB-n keresztül csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1904
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1943
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1904
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1943
 msgid "Connected via Wi-Fi"
 msgstr "Wi-Fi-n keresztül csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1911
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1911
 msgid "Disconnected"
 msgstr "Kapcsolat bontva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1949
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1949
 msgid "Error"
 msgstr "Hiba"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1991
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1991
 msgid "Starting AirPlay…"
 msgstr "AirPlay indítása…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 2007
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2007
 msgid "Failed to start AirPlay. Try again."
 msgstr "Az AirPlay indítása sikertelen. Próbáld újra."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 2044
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2044
 msgid "AirPlay stopped unexpectedly"
 msgstr "Az AirPlay váratlanul leállt"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 2052
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2052
 msgid "Waiting for AirPlay connection…"
 msgstr "Várakozás az AirPlay kapcsolatra…"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 84
@@ -1890,12 +1633,10 @@ msgstr "Várakozás az AirPlay kapcsolatra…"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:146
 msgid "Phone"
 msgstr "Telefon"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 93
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:93
 msgid "SMS"
 msgstr "SMS"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 106
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 135
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 400
@@ -1904,79 +1645,65 @@ msgstr "SMS"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:400
 msgid "E-mail"
 msgstr "E-mail"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 165
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 413
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:165
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:413
 msgid "Location"
 msgstr "Hely"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 179
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:179
 msgid "Calendar Event"
 msgstr "Naptári esemény"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 211
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 231
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:211
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:231
 msgid "Contact Card"
 msgstr "Kapcsolati kártya"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 236
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:236
 msgid "Payment (PIX)"
 msgstr "Fizetés (PIX)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 263
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:263
 msgid "Authentication (TOTP)"
 msgstr "Hitelesítés (TOTP)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 276
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:276
 msgid "App Store"
 msgstr "App Store"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 283
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:283
 msgid "Social Network"
 msgstr "Közösségi hálózat"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 292
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:292
 msgid "Barcode"
 msgstr "Vonalkód"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 295
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 394
-#. Fallback: plain text
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:295
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:394
+#. Fallback: plain text
 msgid "Text"
 msgstr "Szöveg"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 327
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:327
 msgid "QR Code Detected"
 msgstr "QR-kód észlelve"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 395
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:395
 msgid "Number"
 msgstr "Szám"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 396
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:396
 msgid "Message"
 msgstr "Üzenet"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 397
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:397
 msgid "Address"
 msgstr "Cím"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 398
@@ -1985,253 +1712,204 @@ msgstr "Cím"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:398
 msgid "Name"
 msgstr "Név"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 401
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:401
 msgid "Organization"
 msgstr "Szervezet"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 402
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:402
 msgid "Title"
 msgstr "Cím"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 403
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:403
 msgid "Network (SSID)"
 msgstr "Hálózat (SSID)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 404
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:404
 msgid "Password"
 msgstr "Jelszó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 405
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:405
 msgid "Security"
 msgstr "Biztonság"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 406
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:406
 msgid "Hidden"
 msgstr "Rejtett"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 407
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:407
 msgid "Latitude"
 msgstr "Szélességi fok"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 408
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:408
 msgid "Longitude"
 msgstr "Hosszúság"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 409
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:409
 msgid "Coordinates"
 msgstr "Koordináták"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 410
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:410
 msgid "Summary"
 msgstr "Összefoglaló"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 412
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:412
 msgid "End"
 msgstr "Befejezés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 414
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:414
 msgid "Payload"
 msgstr "Hasznos teher"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 415
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:415
 msgid "Currency"
 msgstr "Pénznem"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 416
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:416
 msgid "Account"
 msgstr "Fiók"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 417
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:417
 msgid "Secret"
 msgstr "Titok"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 418
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:418
 msgid "Issuer"
 msgstr "Kibocsátó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 419
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:419
 msgid "URI"
 msgstr "URI"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 420
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:420
 msgid "Subject"
 msgstr "Tárgy"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 421
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:421
 msgid "Code"
 msgstr "Kód"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 432
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:432
 msgid "Copy"
 msgstr "Másolás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 444
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:444
 msgid "Open in Browser"
 msgstr "Megnyitás böngészőben"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 453
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 461
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:453
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:461
 msgid "Copy Number"
 msgstr "Szám másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 468
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:468
 msgid "Copy Message"
 msgstr "Üzenet másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 472
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:472
 msgid "WhatsApp"
 msgstr "WhatsApp"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 477
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:477
 msgid "Open E-mail Client"
 msgstr "E-mail kliens megnyitása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 487
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:487
 msgid "Copy Password"
 msgstr "Jelszó másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 495
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:495
 msgid "Copy SSID"
 msgstr "SSID másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 503
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:503
 msgid "Open in Maps"
 msgstr "Megnyitás a Térképen"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 512
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:512
 msgid "Save .ics File"
 msgstr ".ics fájl mentése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 521
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:521
 msgid "Save Contact"
 msgstr "Névjegy mentése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 530
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:530
 msgid "Copy PIX"
 msgstr "PIX másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 539
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:539
 msgid "Copy Address"
 msgstr "Cím másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 548
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:548
 msgid "Copy Secret"
 msgstr "Titok másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 555
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:555
 msgid "Copy URI"
 msgstr "URI másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 563
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:563
 msgid "Copy Code"
 msgstr "Kód másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 571
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:571
 msgid "Copy Raw"
 msgstr "Nyers adat másolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 574
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:574
 msgid "Save to File"
 msgstr "Mentés fájlba"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 607
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:607
 msgid "Copied!"
 msgstr "Másolva!"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 643
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:643
 msgid "iCalendar Files"
 msgstr "iCalendar fájlok"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 669
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:669
 msgid "vCard Files"
 msgstr "vCard fájlok"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 674
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:674
 msgid "Text Files"
 msgstr "Szövegfájlok"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 689
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:689
 msgid "All Files"
 msgstr "Minden fájl"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 705
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:705
 #, python-format
 msgid "Saved: %s"
 msgstr "Mentve: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 709
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:709
 #, python-format
 msgid "Error: %s"
 msgstr "Hiba: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 64
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:64
 msgid "Select camera"
 msgstr "Kamera kiválasztása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 66
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:66
 msgid "Camera selector"
 msgstr "Kamera kiválasztó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 153
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:153
 msgid "Use your phone as a webcam"
 msgstr "Használd a telefonodat webkameraként"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 172
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1901
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:172
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1927
 msgid "Phone camera status"
 msgstr "Telefon kamera állapota"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 255
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 619
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 718
@@ -2240,46 +1918,38 @@ msgstr "Telefon kamera állapota"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:722
 msgid "Controls"
 msgstr "Vezérlők"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 265
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:265
 msgid "Always on Top"
 msgstr "Mindig felülre"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 310
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:310
 msgid "Refresh cameras"
 msgstr "Kamerák frissítése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 312
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:312
 msgid "Refresh camera list"
 msgstr "Kamera lista frissítése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 322
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:322
 msgid "Menu"
 msgstr "Menü"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 324
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:324
 msgid "Main menu"
 msgstr "Főmenü"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 368
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 370
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:368
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:370
 msgid "Photo mode"
 msgstr "Fényképező mód"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 377
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 379
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:377
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:379
 msgid "Video mode"
 msgstr "Videó mód"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 406
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 817
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 823
@@ -2288,91 +1958,76 @@ msgstr "Videó mód"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:827
 msgid "Last photo"
 msgstr "Utolsó fénykép"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 408
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:408
 msgid "Open last photo"
 msgstr "Utolsó fénykép megnyitása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 448
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:448
 msgid "Enable Virtual Camera"
 msgstr "Virtuális kamera engedélyezése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 515
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:515
 msgid "Zoom level"
 msgstr "Nagyítás szintje"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 517
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:517
 msgid "Change zoom level"
 msgstr "Nagyítás szintjének módosítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 530
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:530
 msgid "Toggle grid overlay"
 msgstr "Rács átfedés be-/kikapcsolása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 570
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:570
 msgid "Fullscreen (F11)"
 msgstr "Teljes képernyő (F11)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 628
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 719
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:628
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:723
 msgid "Effects"
 msgstr "Effektek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 637
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 720
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:637
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:724
 msgid "Photos"
 msgstr "Fényképek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 646
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 721
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:646
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:725
 msgid "Videos"
 msgstr "Videók"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 678
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 722
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:682
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:726
 msgid "Settings"
 msgstr "Beállítások"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 701
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:705
 msgid "Close sidebar"
 msgstr "Oldalsáv bezárása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 781
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2433
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:785
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2465
 msgid "Start recording"
 msgstr "Felvétel indítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 815
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 820
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:819
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:824
 msgid "Last video"
 msgstr "Utolsó videó"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 982
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1096
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:986
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1109
 msgid "Capture timer: Off"
 msgstr "Képrögzítő időzítő: Ki"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 986
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1100
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:990
@@ -2380,17 +2035,14 @@ msgstr "Képrögzítő időzítő: Ki"
 #, python-format
 msgid "Capture timer: %ds"
 msgstr "Képrögzítő időzítő: %d mp"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1157
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1170
 msgid "Capture Photo"
 msgstr "Fénykép készítése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1158
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1171
 msgid "Record Video"
 msgstr "Videó rögzítése"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1162
@@ -2399,12 +2051,10 @@ msgstr "Videó rögzítése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1175
 msgid "Save Profile"
 msgstr "Profil mentése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1163
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1176
 msgid "Load Profile"
 msgstr "Profil betöltése"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1164
@@ -2413,155 +2063,130 @@ msgstr "Profil betöltése"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1177
 msgid "Profiles"
 msgstr "Profilok"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1167
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1180
 msgid "Add IP Camera…"
 msgstr "IP kamera hozzáadása…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1168
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1181
 msgid "Phone as Webcam…"
 msgstr "Telefon webkameraként…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1170
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1183
 msgid "Welcome Screen"
 msgstr "Üdvözlő képernyő"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1171
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1184
 msgid "About"
 msgstr "Névjegy"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1175
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1188
 msgid "Quit"
 msgstr "Kilépés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1404
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1475
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1420
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1491
 msgid "Starting camera stream…"
 msgstr "Kamera stream indítása…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1441
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1457
 msgid "Camera streaming started!"
 msgstr "Kamera stream elindult!"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1461
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1477
 msgid "Failed to start camera streaming."
 msgstr "Nem sikerült elindítani a kamera közvetítést."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1504
-#. Show a simple notice instead of a blocking dialog
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1520
+#. Show a simple notice instead of a blocking dialog
 #, python-brace-format
 msgid "Virtual Camera: {vcam_device} Created!"
 msgstr "Virtuális kamera: {vcam_device} Létrehozva!"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1684
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1710
 msgid "QR Code detected!"
 msgstr "QR-kód észlelve!"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1690
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2444
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1716
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2476
 msgid "No camera selected."
 msgstr "Nincs kamera kiválasztva."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1698
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1724
 msgid "Choose capture mode"
 msgstr "Válasszon rögzítési módot"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1700
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1726
 msgid ""
-"You can take a screenshot from the current preview or capture a full-"
-"resolution photo directly from the camera."
+"You can take a screenshot from the current preview or capture a full-resolution photo directly from "
+"the camera."
 msgstr ""
-"Készíthet képernyőképet az aktuális előnézetről, vagy közvetlenül a "
-"kamerából teljes felbontású fotót."
-
+"Készíthet képernyőképet az aktuális előnézetről, vagy közvetlenül a kamerából teljes felbontású "
+"fotót."
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1704
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1730
 msgid "Preview screenshot"
 msgstr "Előnézeti képernyőkép"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1705
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1731
 msgid "Camera photo (full resolution)"
 msgstr "Kamera fotó (teljes felbontás)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1733
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1759
 msgid "Camera in video mode"
 msgstr "Kamera videó módban"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1735
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1761
 msgid ""
 "Your camera is set to Video/Movie mode. Some cameras cannot take photos in this mode.\n"
 "\n"
-"Switch the mode dial on your camera to a photo mode (P, Av, Tv, M or Auto) and try again, or capture a frame from the current preview."
+"Switch the mode dial on your camera to a photo mode (P, Av, Tv, M or Auto) and try again, or "
+"capture a frame from the current preview."
 msgstr ""
 "A kamerája videó/film módra van állítva. Egyes kamerák nem tudnak fotót készíteni ebben a módban.\n"
 "\n"
-"Állítsa a kamera módválasztóját fotó módra (P, Av, Tv, M vagy Auto), és próbálja újra, vagy készítsen képkockát az aktuális előnézetből."
-
+"Állítsa a kamera módválasztóját fotó módra (P, Av, Tv, M vagy Auto), és próbálja újra, vagy "
+"készítsen képkockát az aktuális előnézetből."
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1742
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1768
 msgid "Capture preview frame"
 msgstr "Előnézeti képkocka rögzítése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1763
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1789
 msgid "Capturing photo…"
 msgstr "Fotó készítése…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1780
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1853
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1806
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1879
 msgid "Failed to capture photo."
 msgstr "Nem sikerült a fotó elkészítése."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1793
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1819
 msgid "Switching to photography mode."
 msgstr "Átváltás fényképező módra."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1859
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1885
 msgid "Resuming camera streaming…"
 msgstr "Kamera közvetítés folytatása…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1895
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1921
 msgid "Phone camera: waiting"
 msgstr "Telefonkamera: várakozás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1896
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1922
 msgid "Phone camera: connected"
 msgstr "Telefonkamera: csatlakoztatva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1897
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1923
 msgid "Phone camera: stopped"
 msgstr "Telefonkamera: leállítva"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2045
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2071
 msgid "Phone Mic (Browser)"
 msgstr "Telefon mikrofon (Böngésző)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2053
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2148
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2210
@@ -2572,27 +2197,22 @@ msgstr "Telefon mikrofon (Böngésző)"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2600
 msgid "Show"
 msgstr "Megjelenítés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2104
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2131
 msgid "BigCam Phone (AirPlay)"
 msgstr "BigCam Phone (AirPlay)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2140
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2167
 msgid "AirPlay Audio"
 msgstr "AirPlay hang"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2194
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2224
 msgid "BigCam Phone (scrcpy)"
 msgstr "BigCam Phone (scrcpy)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2205
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2235
 msgid "Phone Mic (scrcpy)"
 msgstr "Telefon mikrofon (scrcpy)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2285
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2315
 #, python-format
@@ -2604,7 +2224,6 @@ msgstr ""
 "A \"%(camera)s\" kamera használatban van: %(apps)s.\n"
 "\n"
 "Zárd be a másik alkalmazást, vagy kényszerítsd a bezárását a kamera felszabadításához."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2290
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2320
 #, python-format
@@ -2616,433 +2235,342 @@ msgstr ""
 "A \"%s\" kamera egy másik alkalmazás által van használatban.\n"
 "\n"
 "Zárd be a másik alkalmazást a kamera felszabadításához."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2294
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2324
 msgid "Camera in use"
 msgstr "Kamera használatban"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2305
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2335
 #, python-format
 msgid "Force close %s"
 msgstr "Kényszerített bezárás: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2311
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2341
 msgid "Close"
 msgstr "Bezárás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2408
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2438
 msgid "Virtual Camera enabled. Other applications can use /dev/video10."
-msgstr ""
-"Virtuális kamera engedélyezve. Más alkalmazások használhatják a "
-"/dev/video10-et."
-
+msgstr "Virtuális kamera engedélyezve. Más alkalmazások használhatják a /dev/video10-et."
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2436
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2468
 #, python-format
 msgid "Video saved: %s"
 msgstr "Videó mentve: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2470
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2502
 msgid "Recording…"
 msgstr "Felvétel…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2474
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2506
 msgid "Failed to start recording."
 msgstr "A felvétel indítása sikertelen."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2511
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2543
 msgid "Profile saved."
 msgstr "Profil mentve."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2521
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2553
 msgid "No profiles found."
 msgstr "Nincsenek profilok."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2533
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2565
 #, python-format
 msgid "Profile loaded: %s"
 msgstr "Betöltött profil: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2655
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2687
 #, python-format
 msgid "Active camera: %s"
 msgstr "Aktív kamera: %s"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2657
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2689
 msgid "Virtual Camera is enabled (other apps may depend on it)."
-msgstr ""
-"A virtuális kamera engedélyezve van (más alkalmazások is használhatják)."
-
+msgstr "A virtuális kamera engedélyezve van (más alkalmazások is használhatják)."
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2660
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2692
-msgid ""
-"If you choose to keep it running, the camera will remain on after closing "
-"the application."
-msgstr ""
-"Ha úgy dönt, hogy futtatja tovább, a kamera a program bezárása után is "
-"bekapcsolva marad."
-
+msgid "If you choose to keep it running, the camera will remain on after closing the application."
+msgstr "Ha úgy dönt, hogy futtatja tovább, a kamera a program bezárása után is bekapcsolva marad."
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2666
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2698
 msgid "Camera is active"
 msgstr "A kamera aktív"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2667
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2699
 msgid "Stop camera and close"
 msgstr "Kamera leállítása és bezárás"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2668
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2700
 msgid "Keep camera on"
 msgstr "Kamera bekapcsolva tartása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2803
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2836
 msgid "Video effects"
 msgstr "Videóeffektek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2804
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2837
 msgid "Real-time filters, background blur, artistic effects"
 msgstr "Valós idejű szűrők, háttér elmosás, művészi effektek"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2812
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2845
 msgid "Virtual camera"
 msgstr "Virtuális kamera"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2813
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2846
 msgid "v4l2loopback output for video conferencing"
 msgstr "v4l2loopback kimenet videókonferenciához"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2821
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2854
 msgid "Background virtual cameras"
 msgstr "Háttér virtuális kamerák"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2822
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2855
 msgid "Virtual camera feeds for inactive cameras"
 msgstr "Virtuális kamera adások inaktív kamerákhoz"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2830
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2863
 msgid "Video recording"
 msgstr "Videófelvétel"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2831
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2864
 msgid "Active video recording with encoding"
 msgstr "Aktív videófelvétel kódolással"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2842
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2875
 msgid "Phone camera server"
 msgstr "Telefon kamera szerver"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2843
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2876
 msgid "HTTPS/WebSocket server for phone camera"
 msgstr "HTTPS/WebSocket szerver telefon kamerához"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2852
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2885
 msgid "Scrcpy (Android camera)"
 msgstr "Scrcpy (Android kamera)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2853
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2886
 msgid "Android camera via USB/Wi-Fi ADB"
 msgstr "Android kamera USB/Wi-Fi ADB-n keresztül"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2862
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2895
 msgid "AirPlay receiver"
 msgstr "AirPlay vevő"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2863
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2896
 msgid "Apple AirPlay screen mirroring via UxPlay"
 msgstr "Apple AirPlay képernyőtükrözés UxPlay segítségével"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 22
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:22
 msgid "Adjustments"
 msgstr "Beállítások"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 23
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:23
 msgid "Filters"
 msgstr "Szűrők"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 24
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:24
 msgid "Artistic"
 msgstr "Művészi"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 69
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:69
 msgid "Install python-opencv to enable video effects."
 msgstr "Telepítse a python-opencv csomagot a videóeffektek engedélyezéséhez."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 110
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:110
 #, python-format
 msgid "Reset %s effects"
 msgstr "%s effektek alaphelyzetbe állítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 76
-#. ── Build the dialog ─────────────────────────────────────────────
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:76
+#. ── Build the dialog ─────────────────────────────────────────────
 msgid "High resource usage detected"
 msgstr "Magas erőforrás-használat észlelve"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 80
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:80
 #, python-format
 msgid "The application is using %s and %s."
 msgstr "Az alkalmazás %s és %s használatával működik."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 82
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:82
 msgid "Active features that may be causing this:"
 msgstr "Aktív funkciók, amelyek ezt okozhatják:"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 90
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:90
-msgid ""
-"You can optimize by disabling the heaviest features, or continue if you "
-"understand the impact."
+msgid "You can optimize by disabling the heaviest features, or continue if you understand the impact."
 msgstr ""
-"Optimalizálhatod a legnagyobb erőforrás-igényű funkciók letiltásával, vagy "
-"folytathatod, ha érted a hatását."
-
+"Optimalizálhatod a legnagyobb erőforrás-igényű funkciók letiltásával, vagy folytathatod, ha érted a "
+"hatását."
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 95
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:95
-msgid ""
-"No features can be disabled (active camera sources cannot be stopped from "
-"here)."
-msgstr ""
-"Nincs olyan funkció, amit le lehetne tiltani (az aktív kameraforrásokat "
-"innen nem lehet leállítani)."
-
+msgid "No features can be disabled (active camera sources cannot be stopped from here)."
+msgstr "Nincs olyan funkció, amit le lehetne tiltani (az aktív kameraforrásokat innen nem lehet leállítani)."
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 103
-#. ── Checkbox: "Don't show again" ─────────────────────────────────
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:103
+#. ── Checkbox: "Don't show again" ─────────────────────────────────
 msgid "Don't show this warning again"
 msgstr "Ne mutassa újra ezt a figyelmeztetést"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 107
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:107
 msgid "Suppress resource usage warnings permanently"
 msgstr "Erőforrás-használati figyelmeztetések végleges elnyomása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 112
-#. ── Responses ────────────────────────────────────────────────────
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:112
+#. ── Responses ────────────────────────────────────────────────────
 msgid "I understand, continue"
 msgstr "Értem, folytatom"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 114
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:114
 msgid "Optimize (disable heavy features)"
 msgstr "Optimalizálás (nagy erőforrás-igényű funkciók letiltása)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 24
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
 msgid "Add IP Camera"
 msgstr "IP kamera hozzáadása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 42
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
 msgid "Camera Details"
 msgstr "Kamera adatai"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 46
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
 msgid "Camera name"
 msgstr "Kamera neve"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 53
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
 msgid "Camera URL (RTSP or HTTP)"
 msgstr "Kamera URL (RTSP vagy HTTP)"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 60
-#. Action button
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
+#. Action button
 msgid "Add Camera"
 msgstr "Kamera hozzáadása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 64
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
 msgid "Add IP camera"
 msgstr "IP kamera hozzáadása"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
 msgid "Image"
 msgstr "Kép"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 23
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
 msgid "Exposure"
 msgstr "Expozíció"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 24
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
 msgid "Focus"
 msgstr "Fókusz"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 25
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
 msgid "White Balance"
 msgstr "Fehéregyensúly"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 26
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
 msgid "Capture"
 msgstr "Rögzítés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 91
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:91
 msgid "No camera selected"
 msgstr "Nincs kiválasztott kamera"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 92
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:92
 msgid "Select a camera to see its controls."
 msgstr "Válassz egy kamerát a vezérlők megtekintéséhez."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 125
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:125
 msgid "Loading controls…"
 msgstr "Vezérlők betöltése…"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 164
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:164
 msgid "Phone camera"
 msgstr "Telefon kamera"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 166
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:166
 msgid ""
-"Adjust resolution, quality, and FPS directly on the phone's browser page. "
-"Use the Effects tab for brightness, contrast, and other adjustments."
+"Adjust resolution, quality, and FPS directly on the phone's browser page. Use the Effects tab for "
+"brightness, contrast, and other adjustments."
 msgstr ""
-"Állítsa be a felbontást, minőséget és FPS-t közvetlenül a telefon böngésző "
-"oldalán. Használja az Effektek fület a fényerő, kontraszt és egyéb "
-"beállításokhoz."
-
+"Állítsa be a felbontást, minőséget és FPS-t közvetlenül a telefon böngésző oldalán. Használja az "
+"Effektek fület a fényerő, kontraszt és egyéb beállításokhoz."
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 173
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:173
 msgid "No adjustable controls"
 msgstr "Nincsenek állítható vezérlők"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 174
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:174
 msgid "This camera does not expose any controls."
 msgstr "Ez a kamera nem tesz elérhetővé vezérlőket."
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 329
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 330
-#. Profile selector
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:329
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:330
+#. Profile selector
 msgid "Profile"
 msgstr "Profil"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
-#. Action buttons row
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:340
+#. Action buttons row
 msgid "Manage"
 msgstr "Kezelés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 341
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:341
 msgid "Manage profiles"
 msgstr "Profilok kezelése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 346
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:346
 msgid "Save current settings as new profile"
 msgstr "Jelenlegi beállítások mentése új profilként"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 349
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:349
 msgid "Save profile"
 msgstr "Profil mentése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 355
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:355
 msgid "Delete selected profile"
 msgstr "Kijelölt profil törlése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 358
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:358
 msgid "Delete profile"
 msgstr "Profil törlése"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 365
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:365
 msgid "Reset all controls to hardware defaults"
 msgstr "Minden vezérlő visszaállítása hardver alapértelmezettre"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 369
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:369
 msgid "Hardware defaults"
 msgstr "Hardver alapértelmezések"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:428
 msgid "Enter a name for this profile:"
 msgstr "Adjon nevet ennek a profilnak:"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 432
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:432
 msgid "Save"
 msgstr "Mentés"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 437
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 440
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:437
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:440
 msgid "Profile name"
 msgstr "Profil neve"
-
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 621
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:621
 #, python-format
 msgid "Reset %s controls"
 msgstr "%s vezérlők visszaállítása"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 247
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:247
 msgid "Brightness / Contrast"
 msgstr "Fényerő / Kontraszt"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -3057,7 +2585,6 @@ msgstr "Fényerő / Kontraszt"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
 msgid "Brightness"
 msgstr "Fényerő"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -3072,12 +2599,10 @@ msgstr "Fényerő"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
 msgid "Contrast"
 msgstr "Kontraszt"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 260
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:260
 msgid "Gamma Correction"
 msgstr "Gamma korrekció"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 264
@@ -3087,22 +2612,18 @@ msgstr "Gamma korrekció"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
 msgid "Gamma"
 msgstr "Gamma"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 272
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:272
 msgid "CLAHE (Adaptive Contrast)"
 msgstr "CLAHE (Adaptív kontraszt)"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 276
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:276
 msgid "Clip Limit"
 msgstr "Vágási korlát"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 277
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:277
 msgid "Grid Size"
 msgstr "Rácsméret"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -3117,12 +2638,10 @@ msgstr "Rácsméret"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
 msgid "Auto White Balance"
 msgstr "Automatikus fehéregyensúly"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 295
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:295
 msgid "Sharpen"
 msgstr "Élesítés"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 299
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 311
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 376
@@ -3131,111 +2650,91 @@ msgstr "Élesítés"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:376
 msgid "Strength"
 msgstr "Erősség"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 307
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:307
 msgid "Denoise"
 msgstr "Zajcsökkentés"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 320
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:320
 msgid "Grayscale"
 msgstr "Szürkeárnyalatos"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 329
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:329
 msgid "Sepia"
 msgstr "Szépia"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 338
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:338
 msgid "Negative"
 msgstr "Negatív"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 347
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:347
 msgid "Edge Detection"
 msgstr "Éldetektálás"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 351
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:351
 msgid "Threshold 1"
 msgstr "Küszöbérték 1"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 352
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:352
 msgid "Threshold 2"
 msgstr "Küszöbérték 2"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 360
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:360
 msgid "Color Map"
 msgstr "Színtérkép"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 364
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:364
 msgid "Style"
 msgstr "Stílus"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 372
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:372
 msgid "Vignette"
 msgstr "Vignetta"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 560
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:560
 msgid "python-aiohttp is not installed"
 msgstr "a python-aiohttp nincs telepítve"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 579
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:579
 msgid "Server did not start in time"
 msgstr "A szerver nem indult el időben"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 638
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:638
 #, python-format
 msgid "Port %d is already in use"
 msgstr "A(z) %d port már használatban van"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 718
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:727
 msgid "Failed to start camera streaming process."
 msgstr "Nem sikerült elindítani a kamera streamelési folyamatát."
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 732
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:741
 msgid "Failed to obtain GStreamer source for this camera."
 msgstr "Nem sikerült beszerezni a GStreamer forrást ehhez a kamerához."
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 815
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1143
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1154
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1379
-#. retry in 500ms
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:823
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1153
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1164
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1437
+#. retry in 500ms
 msgid "Failed to start camera stream."
 msgstr "Nem sikerült elindítani a kamera streamet."
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1742
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1892
 msgid "Phone camera server not available."
 msgstr "Telefon kamera szerver nem elérhető."
-
 # File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1925
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:2097
 msgid "Unknown GStreamer error"
 msgstr "Ismeretlen GStreamer hiba"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,
 # line: 232
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:232
 msgid "Generic Camera"
 msgstr "Általános kamera"
-
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
@@ -3246,37 +2745,31 @@ msgstr "Általános kamera"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
 msgid "Saturation"
 msgstr "Telítettség"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 23
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
 msgid "Hue"
 msgstr "Színárnyalat"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 24
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
 msgid "Sharpness"
 msgstr "Élesség"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 27
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
 msgid "White Balance Temperature"
 msgstr "Fehéregyensúly hőmérséklet"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 28
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
 msgid "Gain"
 msgstr "Erősítés"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 29
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
 msgid "Auto Exposure"
 msgstr "Automatikus expozíció"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 30
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
@@ -3285,153 +2778,88 @@ msgstr "Automatikus expozíció"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
 msgid "Exposure Time"
 msgstr "Expozíciós idő"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 32
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
 msgid "Exposure Auto Priority"
 msgstr "Expozíció automatikus prioritás"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 33
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
 msgid "Auto Focus"
 msgstr "Automatikus fókusz"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 34
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
 msgid "Focus Distance"
 msgstr "Fókusztávolság"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 35
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
 msgid "Zoom"
 msgstr "Zoom"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 36
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
 msgid "Pan"
 msgstr "Panorámázás"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 37
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
 msgid "Tilt"
 msgstr "Dőlés"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 38
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
 msgid "Power Line Frequency"
 msgstr "Hálózati frekvencia"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 39
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
 msgid "Exposure Bias"
 msgstr "Expozíciós eltérés"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 40
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
 msgid "WB Preset"
 msgstr "Fehéregyensúly előbeállítás"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 41
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
 msgid "Image Stabilization"
 msgstr "Képstabilizálás"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 42
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
 msgid "ISO Sensitivity"
 msgstr "ISO érzékenység"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 43
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
 msgid "Auto ISO"
 msgstr "Automatikus ISO"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 44
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
 msgid "Scene Mode"
 msgstr "Jelenet mód"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 45
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
 msgid "3A Lock"
 msgstr "3A zárolás"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 46
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
 msgid "LED Mode"
 msgstr "LED mód"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line:
 # 47
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
 msgid "LED Frequency"
 msgstr "LED frekvencia"
-
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py,
 # line: 127
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
 msgid "Exposure Mode"
 msgstr "Expozíciós mód"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
-msgid "Advanced Controls"
-msgstr "Speciális vezérlők"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
-msgid ""
-"Fine-tune exposure, white balance\n"
-"and save per-camera profiles"
-msgstr ""
-"Finomhangold az expozíciót, a fehéregyensúlyt\n"
-"és ments kameránkénti profilokat"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:122
-msgid "Tip: Press Ctrl+P to capture, Ctrl+R to record, Tab to toggle sidebar"
-msgstr ""
-"Tipp: Nyomd meg a Ctrl+P-t a képrögzítéshez, Ctrl+R-t a felvételhez, Tabot "
-"az oldalsáv váltásához"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:85
-msgid "active source"
-msgstr "aktív forrás"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:533
-msgid "Maximum virtual cameras"
-msgstr "Maximális virtuális kamerák száma"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:534
-msgid "How many virtual camera devices to create (one per camera)."
-msgstr "Hány virtuális kamerát hozzon létre (egy kameránként)."
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:543
-msgid "Device name"
-msgstr "Eszköz neve"
-
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:548
-msgid ""
-"Name template for virtual cameras. Devices will be named '<name> 1', '<name> 2', etc.\n"
-"Press Enter or click ✓ to apply."
-msgstr ""
-"Név sablon a virtuális kamerákhoz. Az eszközök neve '<name> 1', '<name> 2' stb. lesz.\n"
-"Nyomd meg az Entert vagy kattints a ✓-re az alkalmazáshoz."
-
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 128
-#~ msgid "Tip: Press Space to capture, Ctrl+R to record, Tab to toggle sidebar"
-#~ msgstr ""
-#~ "Tipp: Nyomd meg a Szóközt a kép rögzítéséhez, Ctrl+R a felvételhez, Tab a "
-#~ "oldalsáv váltásához"
