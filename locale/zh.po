@@ -15,163 +15,844 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: attranslate\n"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 59
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/notification.py:59
-msgid "Dismiss"
-msgstr "关闭"
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 718
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:718
+msgid "Failed to start camera streaming process."
+msgstr "启动摄像头流处理失败。"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 62
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/notification.py:62
-msgid "Dismiss notification"
-msgstr "关闭通知"
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 732
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:732
+msgid "Failed to obtain GStreamer source for this camera."
+msgstr "获取此摄像头的 GStreamer 源失败。"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 815
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1143
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1154
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1379
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:815
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1143
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1154
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1379
+#. retry in 500ms
+msgid "Failed to start camera stream."
+msgstr "启动摄像头流失败。"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 81
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2015
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2604
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:81
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2015
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2604
-msgid "No camera"
-msgstr "无摄像头"
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1742
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1742
+msgid "Phone camera server not available."
+msgstr "手机摄像头服务器不可用。"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1925
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1925
+msgid "Unknown GStreamer error"
+msgstr "未知的 GStreamer 错误"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 82
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2016
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2605
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:82
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2016
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2605
-msgid "Connect a camera or select one from the list above."
-msgstr "连接摄像头或从上方列表中选择一个。"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 89
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 95
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1743
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2296
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:89
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:95
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1743
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2296
-#. Retry button (hidden by default)
-msgid "Try again"
-msgstr "请再试一次"
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 247
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:247
+msgid "Brightness / Contrast"
+msgstr "亮度 / 对比度"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 223
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 225
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 467
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 469
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 787
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:223
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:225
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:467
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:469
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:787
-msgid "Capture photo"
-msgstr "拍照"
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 251
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 20
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 76
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:251
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:76
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
+msgid "Brightness"
+msgstr "亮度"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 247
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 682
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 494
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:247
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:682
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:494
-msgid "Record video (Ctrl+R)"
-msgstr "录制视频 (Ctrl+R)"
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 252
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 21
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 87
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:252
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:87
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
+msgid "Contrast"
+msgstr "对比度"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 260
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:260
+msgid "Gamma Correction"
+msgstr "伽马校正"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 249
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 496
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:249
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:496
-msgid "Record video"
-msgstr "录制视频"
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 264
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 25
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:264
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
+msgid "Gamma"
+msgstr "伽马"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 295
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 297
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 459
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:295
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:297
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:459
-msgid "Mute"
-msgstr "静音"
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 272
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:272
+msgid "CLAHE (Adaptive Contrast)"
+msgstr "CLAHE（自适应对比度）"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 456
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:456
-msgid "Unmute"
-msgstr "取消静音"
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 276
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:276
+msgid "Clip Limit"
+msgstr "限制值"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 579
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1403
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1474
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1792
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1858
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:579
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1403
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1474
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1792
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1858
-msgid "Please wait…"
-msgstr "请稍候…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 647
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:647
-msgid "Camera in use by:"
-msgstr "摄像头正在被以下程序使用："
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 648
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 651
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:648
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:651
-msgid "Camera busy"
-msgstr "摄像头忙碌中"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 650
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:650
-msgid "Camera is being used"
-msgstr "摄像头正在使用中"
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 277
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:277
+msgid "Grid Size"
+msgstr "网格大小"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 654
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1623
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:654
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1623
-msgid "Connection failed"
-msgstr "连接失败"
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 657
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:657
-msgid "Could not connect to the camera. Check the connection and try again."
-msgstr "无法连接到摄像头。请检查连接后重试。"
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 285
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 26
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 109
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:285
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:109
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
+msgid "Auto White Balance"
+msgstr "自动白平衡"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 295
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:295
+msgid "Sharpen"
+msgstr "锐化"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 299
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 311
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 376
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:299
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:311
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:376
+msgid "Strength"
+msgstr "强度"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 307
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:307
+msgid "Denoise"
+msgstr "降噪"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 320
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:320
+msgid "Grayscale"
+msgstr "灰度"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 329
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:329
+msgid "Sepia"
+msgstr "棕褐色"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 338
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:338
+msgid "Negative"
+msgstr "负片"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 347
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:347
+msgid "Edge Detection"
+msgstr "边缘检测"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 351
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:351
+msgid "Threshold 1"
+msgstr "阈值 1"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 352
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:352
+msgid "Threshold 2"
+msgstr "阈值 2"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 360
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:360
+msgid "Color Map"
+msgstr "颜色映射"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 364
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:364
+msgid "Style"
+msgstr "风格"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 372
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:372
+msgid "Vignette"
+msgstr "暗角"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 676
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2468
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:676
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2468
-msgid "Stop recording"
-msgstr "停止录制"
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 22
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 98
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:98
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
+msgid "Saturation"
+msgstr "饱和度"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 725
-# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 736
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:725
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:736
-#, python-brace-format
-msgid "{n} seconds remaining"
-msgstr "{n} 秒剩余"
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 23
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
+msgid "Hue"
+msgstr "色调"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 24
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
+msgid "Sharpness"
+msgstr "锐度"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 27
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
+msgid "White Balance Temperature"
+msgstr "白平衡色温"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 28
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
+msgid "Gain"
+msgstr "增益"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 29
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
+msgid "Auto Exposure"
+msgstr "自动曝光"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 30
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 31
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:30
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
+msgid "Exposure Time"
+msgstr "曝光时间"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 32
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
+msgid "Exposure Auto Priority"
+msgstr "曝光自动优先"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 33
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
+msgid "Auto Focus"
+msgstr "自动对焦"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 34
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
+msgid "Focus Distance"
+msgstr "对焦距离"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 35
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
+msgid "Zoom"
+msgstr "变焦"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 36
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
+msgid "Pan"
+msgstr "平移"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 37
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
+msgid "Tilt"
+msgstr "倾斜"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 38
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
+msgid "Power Line Frequency"
+msgstr "电源线频率"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 39
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
+msgid "Exposure Bias"
+msgstr "曝光补偿"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 40
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
+msgid "WB Preset"
+msgstr "白平衡预设"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 41
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
+msgid "Image Stabilization"
+msgstr "图像稳定"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 42
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
+msgid "ISO Sensitivity"
+msgstr "ISO 感光度"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 43
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
+msgid "Auto ISO"
+msgstr "自动 ISO"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 44
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
+msgid "Scene Mode"
+msgstr "场景模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 45
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
+msgid "3A Lock"
+msgstr "3A 锁定"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 46
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
+msgid "LED Mode"
+msgstr "LED 模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 47
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
+msgid "LED Frequency"
+msgstr "LED 频率"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py, line: 232
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:232
+msgid "Generic Camera"
+msgstr "通用摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 127
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
+msgid "Exposure Mode"
+msgstr "曝光模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 560
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:560
+msgid "python-aiohttp is not installed"
+msgstr "未安装 python-aiohttp"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 579
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:579
+msgid "Server did not start in time"
+msgstr "服务器启动超时"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 638
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:638
+#, python-format
+msgid "Port %d is already in use"
+msgstr "端口 %d 已被占用"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 76
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:76
+#. ── Build the dialog ─────────────────────────────────────────────
+msgid "High resource usage detected"
+msgstr "检测到高资源使用率"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 80
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:80
+#, python-format
+msgid "The application is using %s and %s."
+msgstr "应用正在使用 %s 和 %s。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 82
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:82
+msgid "Active features that may be causing this:"
+msgstr "可能导致此问题的活动功能："
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:90
+msgid "You can optimize by disabling the heaviest features, or continue if you understand the impact."
+msgstr "您可以通过禁用最耗资源的功能来优化，或者如果您了解影响，可以继续。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 95
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:95
+msgid "No features can be disabled (active camera sources cannot be stopped from here)."
+msgstr "无法禁用任何功能（此处无法停止活动摄像头来源）。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 103
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:103
+#. ── Checkbox: "Don't show again" ─────────────────────────────────
+msgid "Don't show this warning again"
+msgstr "不再显示此警告"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 107
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:107
+msgid "Suppress resource usage warnings permanently"
+msgstr "永久屏蔽资源使用警告"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 112
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:112
+#. ── Responses ────────────────────────────────────────────────────
+msgid "I understand, continue"
+msgstr "我明白，继续"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 114
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:114
+msgid "Optimize (disable heavy features)"
+msgstr "优化（禁用耗资源功能）"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 505
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 40
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 105
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:40
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:105
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:505
+#. Status group with ExpanderRow
+msgid "Virtual Camera"
+msgstr "虚拟摄像头"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 507
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 43
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 27
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:43
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:27
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:507
+msgid "Status"
+msgstr "状态"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 53
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:53
+msgid "Virtual camera status"
+msgstr "虚拟摄像头状态"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 513
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 59
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 248
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 371
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:59
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:513
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:248
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:371
+msgid "Device"
+msgstr "设备"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 514
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 879
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 60
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 154
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 155
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:60
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:154
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:155
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:514
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:879
+#. gray
+msgid "Not loaded"
+msgstr "未加载"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 68
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:68
+msgid "Module"
+msgstr "模块"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 69
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:69
+msgid "v4l2loopback"
+msgstr "v4l2loopback"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 80
+# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 362
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:80
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:362
+#. Actions group
+#. Action buttons (FlowBox for side-by-side layout)
+msgid "Actions"
+msgstr "操作"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 520
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 83
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 90
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:83
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:90
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:520
+msgid "Enable virtual camera"
+msgstr "启用虚拟摄像头"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 521
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 84
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:84
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:521
+msgid "Create a virtual camera output for video calls and streaming."
+msgstr "为视频通话和直播创建虚拟摄像头输出。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 99
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
+msgid "Usage"
+msgstr "用法"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 101
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:101
+msgid ""
+"When enabled, the active camera preview is sent to a virtual camera device that applications like "
+"OBS Studio, Google Meet, and Zoom can use."
+msgstr "启用后，活动摄像头预览将发送到虚拟摄像头设备，OBS Studio、Google Meet 和 Zoom 等应用程序可以使用该设备。"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 862
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 129
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:129
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:862
+msgid "v4l2loopback not available"
+msgstr "v4l2loopback 不可用"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 131
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
+#. red
+msgid "Not installed"
+msgstr "未安装"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 132
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:132
+msgid "—"
+msgstr "—"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 867
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 140
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:140
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:867
+msgid "Active"
+msgstr "活跃"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 143
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 149
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:143
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:149
+msgid "Loaded"
+msgstr "已加载"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 872
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 146
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:146
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:872
+msgid "Module loaded"
+msgstr "模块已加载"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 877
+# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 152
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:152
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:877
+msgid "Module not loaded"
+msgstr "模块未加载"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 39
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
+msgid ""
+"The universal webcam control center for Linux.\n"
+"\n"
+"BigCam was born as a small shell script so that Rafael Ruscher could use his Canon Rebel T3 as a "
+"webcam during live streams about BigLinux. That humble hack, written by Rafael and Barnabé di "
+"Kartola, evolved from a Bash bridge between gPhoto2 and FFmpeg into a full GTK4/Adwaita application "
+"with live preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, IP cameras, "
+"smartphones), real-time OpenCV effects, virtual camera output, photo and video capture, and 29 "
+"languages."
+msgstr ""
+"Linux通用网络摄像头控制中心。\n"
+"\n"
+"BigCam起初是一个小型shell脚本，旨在让Rafael Ruscher在关于BigLinux的直播中使用他的Canon Rebel T3作为摄像头。这个由Rafael和Barnabé di "
+"Kartola编写的简单工具，最初是gPhoto2和FFmpeg之间的Bash桥梁，后来发展成一个完整的GTK4/Adwaita应用，具备实时预览、多后端摄像头支持（V4L2、gPhoto2"
+"、libcamera、PipeWire、IP摄像头、智能手机）、实时OpenCV特效、虚拟摄像头输出、照片和视频捕捉，以及支持29种语言。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 24
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
+msgid "Add IP Camera"
+msgstr "添加IP摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 42
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
+msgid "Camera Details"
+msgstr "摄像头详情"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 398
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 44
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:44
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:398
+msgid "Name"
+msgstr "名称"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 46
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
+msgid "Camera name"
+msgstr "摄像头名称"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 696
+# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 287
+# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 393
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 50
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:287
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:393
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:696
+#. Generic URL
+msgid "URL"
+msgstr "URL"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 53
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
+msgid "Camera URL (RTSP or HTTP)"
+msgstr "摄像头URL（RTSP或HTTP）"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 60
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
+#. Action button
+msgid "Add Camera"
+msgstr "添加摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 64
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
+msgid "Add IP camera"
+msgstr "添加IP摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 64
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:64
+msgid "Select camera"
+msgstr "选择摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 66
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:66
+msgid "Camera selector"
+msgstr "摄像头选择器"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 76
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 68
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:76
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:68
+msgid "OpenCV not available"
+msgstr "OpenCV 不可用"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 77
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:77
+msgid "Install python-opencv to use tools."
+msgstr "安装 python-opencv 以使用工具。"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 494
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 93
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 100
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:100
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:93
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:494
+#. --- QR Code Scanner ---
+msgid "QR Code Scanner"
+msgstr "二维码扫描器"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 496
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 97
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 434
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:97
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:496
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:434
+msgid "Scan QR Codes"
+msgstr "扫描二维码"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 497
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 98
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:98
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:497
+msgid "Detect QR codes in the camera feed"
+msgstr "检测摄像头画面中的二维码"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 104
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:104
+#. --- Smile Capture ---
+msgid "Smile Capture"
+msgstr "微笑捕捉"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 108
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:108
+msgid "Capture on Smile"
+msgstr "微笑时拍照"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 109
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:109
+msgid "Automatically take a photo when a smile is detected"
+msgstr "侦测到微笑时自动拍照"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 115
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:115
+#. Sensitivity slider
+msgid "Sensitivity"
+msgstr "灵敏度"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 324
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 408
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:324
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:408
+msgid "Watching for smiles..."
+msgstr "正在检测微笑..."
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 384
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:384
+msgid "Smile detected! Capturing..."
+msgstr "检测到微笑！正在拍摄..."
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 396
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1775
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1848
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:396
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1775
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1848
+msgid "Photo saved!"
+msgstr "照片已保存！"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 399
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:399
+msgid "Capture failed."
+msgstr "拍摄失败。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 47
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:47
+msgid "Welcome to BigCam"
+msgstr "欢迎使用 BigCam"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 55
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:55
+msgid "Your universal webcam control center for Linux"
+msgstr "您的 Linux 通用摄像头控制中心"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 72
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:72
+msgid "Photo & Video Capture"
+msgstr "照片与视频捕捉"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 73
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:73
+msgid ""
+"Take photos and record videos\n"
+"with timer and countdown support"
+msgstr ""
+"拍照和录制视频\n"
+"支持定时和倒计时"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 77
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:77
+msgid "Mirror Preview"
+msgstr "镜像预览"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 78
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:78
+msgid ""
+"Flip the camera preview\n"
+"horizontally like a mirror"
+msgstr ""
+"水平翻转摄像头预览\n"
+"如同镜子效果"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 82
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:82
+msgid "Real-Time Effects"
+msgstr "实时效果"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 83
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:83
+msgid ""
+"Apply brightness, contrast, blur,\n"
+"sepia, vignette and more effects live"
+msgstr ""
+"实时应用亮度、对比度、模糊、\n"
+"棕褐色、暗角等多种效果"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 87
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 57
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 155
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:87
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:57
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:155
+msgid "Phone as Webcam"
+msgstr "手机作为摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 88
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:88
+msgid ""
+"Use your smartphone camera\n"
+"wirelessly as a webcam"
+msgstr ""
+"无线使用智能手机摄像头\n"
+"作为摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 95
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
+msgid "Multiple Cameras"
+msgstr "多摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 96
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
+msgid ""
+"Switch between USB, IP, and\n"
+"virtual cameras with hotplug support"
+msgstr ""
+"支持热插拔，切换 USB、IP 和\n"
+"虚拟摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 101
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:101
+msgid ""
+"Scan QR codes and barcodes\n"
+"directly from the camera feed"
+msgstr "直接从摄像头画面扫描二维码和条形码"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 106
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:106
+msgid ""
+"Create a virtual camera device\n"
+"for use in video calls"
+msgstr ""
+"创建虚拟摄像头设备\n"
+"用于视频通话"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 128
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:128
+msgid "Tip: Press Space to capture, Ctrl+R to record, Tab to toggle sidebar"
+msgstr "提示：按空格键拍照，Ctrl+R录制，Tab切换侧边栏"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 149
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:149
+msgid "Show dialog on startup"
+msgstr "启动时显示对话框"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 160
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:160
+#. Button on right
+msgid "Let's Start"
+msgstr "开始吧"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 98
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:98
@@ -458,119 +1139,21 @@ msgstr "容器格式"
 msgid "Video Bitrate (kbps)"
 msgstr "视频码率（kbps）"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 533
+msgid "Maximum virtual cameras"
+msgstr "最大虚拟摄像头"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 534
+msgid "How many virtual camera devices to create (one per camera)."
+msgstr "要创建多少个虚拟摄像头设备（每个摄像头一个）。"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 494
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 93
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 100
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:100
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:93
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:494
-#. --- QR Code Scanner ---
-msgid "QR Code Scanner"
-msgstr "二维码扫描器"
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 543
+msgid "Device name"
+msgstr "设备名称"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 496
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 97
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 434
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:97
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:496
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:434
-msgid "Scan QR Codes"
-msgstr "扫描二维码"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 497
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 98
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:98
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:497
-msgid "Detect QR codes in the camera feed"
-msgstr "检测摄像头画面中的二维码"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 505
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 40
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 105
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:40
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:105
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:505
-#. Status group with ExpanderRow
-msgid "Virtual Camera"
-msgstr "虚拟摄像头"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 507
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 43
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 27
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:43
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:27
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:507
-msgid "Status"
-msgstr "状态"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 513
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 59
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 248
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 371
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:59
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:513
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:248
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:371
-msgid "Device"
-msgstr "设备"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 514
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 879
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 60
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 154
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 155
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:60
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:154
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:155
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:514
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:879
-#. gray
-msgid "Not loaded"
-msgstr "未加载"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 520
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 83
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 90
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:83
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:90
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:520
-msgid "Enable virtual camera"
-msgstr "启用虚拟摄像头"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 521
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 84
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:84
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:521
-msgid "Create a virtual camera output for video calls and streaming."
-msgstr "为视频通话和直播创建虚拟摄像头输出。"
+# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 548
+msgid "Name template for virtual cameras. Devices will be named '<name> 1', '<name> 2', etc."
+msgstr "虚拟摄像头名称模板。设备将命名为 '<name> 1'，'<name> 2'，等等。"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
@@ -585,161 +1168,805 @@ msgstr "为视频通话和直播创建虚拟摄像头输出。"
 msgid "Reset to defaults"
 msgstr "恢复默认"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 59
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/notification.py:59
+msgid "Dismiss"
+msgstr "关闭"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 862
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 129
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:129
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:862
-msgid "v4l2loopback not available"
-msgstr "v4l2loopback 不可用"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 867
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 140
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:140
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:867
-msgid "Active"
-msgstr "活跃"
+# File: bigcam/usr/share/biglinux/bigcam/ui/notification.py, line: 62
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/notification.py:62
+msgid "Dismiss notification"
+msgstr "关闭通知"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 872
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 146
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:146
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:872
-msgid "Module loaded"
-msgstr "模块已加载"
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 81
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2015
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2604
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:81
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2015
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2604
+msgid "No camera"
+msgstr "无摄像头"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 877
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 152
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:152
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:877
-msgid "Module not loaded"
-msgstr "模块未加载"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 53
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:53
-msgid "Virtual camera status"
-msgstr "虚拟摄像头状态"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 68
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:68
-msgid "Module"
-msgstr "模块"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 69
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:69
-msgid "v4l2loopback"
-msgstr "v4l2loopback"
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 82
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2016
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2605
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:82
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2016
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2605
+msgid "Connect a camera or select one from the list above."
+msgstr "连接摄像头或从上方列表中选择一个。"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 80
-# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 362
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:80
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:362
-#. Actions group
-#. Action buttons (FlowBox for side-by-side layout)
-msgid "Actions"
-msgstr "操作"
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 89
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 95
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1743
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2296
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:89
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:95
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1743
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2296
+#. Retry button (hidden by default)
+msgid "Try again"
+msgstr "请再试一次"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 99
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
-msgid "Usage"
-msgstr "用法"
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 101
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:101
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 223
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 225
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 467
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 469
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 787
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:223
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:225
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:467
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:469
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:787
+msgid "Capture photo"
+msgstr "拍照"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 247
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 682
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 494
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:247
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:682
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:494
+msgid "Record video (Ctrl+R)"
+msgstr "录制视频 (Ctrl+R)"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 249
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 496
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:249
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:496
+msgid "Record video"
+msgstr "录制视频"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 295
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 297
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 459
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:295
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:297
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:459
+msgid "Mute"
+msgstr "静音"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 456
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:456
+msgid "Unmute"
+msgstr "取消静音"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 579
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1403
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1474
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1792
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1858
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:579
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1403
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1474
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1792
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1858
+msgid "Please wait…"
+msgstr "请稍候…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 647
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:647
+msgid "Camera in use by:"
+msgstr "摄像头正在被以下程序使用："
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 648
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 651
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:648
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:651
+msgid "Camera busy"
+msgstr "摄像头忙碌中"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 650
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:650
+msgid "Camera is being used"
+msgstr "摄像头正在使用中"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 654
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1623
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:654
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1623
+msgid "Connection failed"
+msgstr "连接失败"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 657
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:657
+msgid "Could not connect to the camera. Check the connection and try again."
+msgstr "无法连接到摄像头。请检查连接后重试。"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 676
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2468
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:676
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2468
+msgid "Stop recording"
+msgstr "停止录制"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 725
+# File: bigcam/usr/share/biglinux/bigcam/ui/preview_area.py, line: 736
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:725
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/preview_area.py:736
+#, python-brace-format
+msgid "{n} seconds remaining"
+msgstr "{n} 秒剩余"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 22
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:22
+msgid "Adjustments"
+msgstr "调整"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 23
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:23
+msgid "Filters"
+msgstr "滤镜"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 24
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:24
+msgid "Artistic"
+msgstr "艺术"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 292
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 481
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 25
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 28
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:28
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:25
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:292
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:481
+msgid "Advanced"
+msgstr "高级"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 69
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:69
+msgid "Install python-opencv to enable video effects."
+msgstr "安装 python-opencv 以启用视频效果。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 110
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:110
+#, python-format
+msgid "Reset %s effects"
+msgstr "重置 %s 效果"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 84
+# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 399
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 146
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:84
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:399
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:146
+msgid "Phone"
+msgstr "电话"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 153
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:153
+msgid "Use your phone as a webcam"
+msgstr "使用手机作为摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 172
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1901
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:172
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1901
+msgid "Phone camera status"
+msgstr "手机摄像头状态"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 255
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 619
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 718
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:255
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:619
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:718
+msgid "Controls"
+msgstr "控制"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 265
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:265
+msgid "Always on Top"
+msgstr "始终置顶"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 310
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:310
+msgid "Refresh cameras"
+msgstr "刷新摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 312
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:312
+msgid "Refresh camera list"
+msgstr "刷新摄像头列表"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 322
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:322
+msgid "Menu"
+msgstr "菜单"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 324
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:324
+msgid "Main menu"
+msgstr "主菜单"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 368
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 370
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:368
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:370
+msgid "Photo mode"
+msgstr "照片模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 377
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 379
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:377
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:379
+msgid "Video mode"
+msgstr "视频模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 406
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 817
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 823
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:406
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:817
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:823
+msgid "Last photo"
+msgstr "最近照片"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 408
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:408
+msgid "Open last photo"
+msgstr "打开最近照片"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 448
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:448
+msgid "Enable Virtual Camera"
+msgstr "启用虚拟摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 515
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:515
+msgid "Zoom level"
+msgstr "缩放级别"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 517
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:517
+msgid "Change zoom level"
+msgstr "更改缩放级别"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 530
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:530
+msgid "Toggle grid overlay"
+msgstr "切换网格覆盖"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 570
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:570
+msgid "Fullscreen (F11)"
+msgstr "全屏 (F11)"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 628
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 719
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:628
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:719
+msgid "Effects"
+msgstr "特效"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 637
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 720
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:637
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:720
+msgid "Photos"
+msgstr "照片"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 646
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 721
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:646
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:721
+msgid "Videos"
+msgstr "视频"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 678
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 722
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:678
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:722
+msgid "Settings"
+msgstr "设置"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 701
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:701
+msgid "Close sidebar"
+msgstr "关闭侧边栏"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 781
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2433
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:781
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2433
+msgid "Start recording"
+msgstr "开始录制"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 815
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 820
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:815
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:820
+msgid "Last video"
+msgstr "上一个视频"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 982
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1096
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:982
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1096
+msgid "Capture timer: Off"
+msgstr "拍摄计时器：关闭"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 986
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1100
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:986
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1100
+#, python-format
+msgid "Capture timer: %ds"
+msgstr "拍摄计时器：%d秒"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1157
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1157
+msgid "Capture Photo"
+msgstr "拍摄照片"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1158
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1158
+msgid "Record Video"
+msgstr "录制视频"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1162
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 427
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:427
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1162
+msgid "Save Profile"
+msgstr "保存配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1163
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1163
+msgid "Load Profile"
+msgstr "加载配置文件"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1164
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 326
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:326
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1164
+msgid "Profiles"
+msgstr "配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1167
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1167
+msgid "Add IP Camera…"
+msgstr "添加IP摄像头…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1168
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1168
+msgid "Phone as Webcam…"
+msgstr "手机作为摄像头…"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 84
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 103
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 257
+# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 391
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1169
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:84
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:103
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:257
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:391
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1169
+msgid "Refresh"
+msgstr "刷新"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1170
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1170
+msgid "Welcome Screen"
+msgstr "欢迎界面"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1171
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1171
+msgid "About"
+msgstr "关于"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1175
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1175
+msgid "Quit"
+msgstr "退出"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1404
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1475
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1404
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1475
+msgid "Starting camera stream…"
+msgstr "正在启动摄像头流…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1441
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1441
+msgid "Camera streaming started!"
+msgstr "摄像头流已启动！"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1461
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1461
+msgid "Failed to start camera streaming."
+msgstr "启动摄像头流失败。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1504
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1504
+#. Show a simple notice instead of a blocking dialog
+#, python-brace-format
+msgid "Virtual Camera: {vcam_device} Created!"
+msgstr "虚拟摄像头：{vcam_device} 已创建！"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1684
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1684
+msgid "QR Code detected!"
+msgstr "检测到二维码！"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1690
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2444
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1690
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2444
+msgid "No camera selected."
+msgstr "未选择摄像头。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1698
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1698
+msgid "Choose capture mode"
+msgstr "选择拍摄模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1700
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1700
 msgid ""
-"When enabled, the active camera preview is sent to a virtual camera device that applications like "
-"OBS Studio, Google Meet, and Zoom can use."
-msgstr "启用后，活动摄像头预览将发送到虚拟摄像头设备，OBS Studio、Google Meet 和 Zoom 等应用程序可以使用该设备。"
+"You can take a screenshot from the current preview or capture a full-resolution photo directly from "
+"the camera."
+msgstr "您可以从当前预览中截图，或直接从摄像头捕获全分辨率照片。"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 131
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
-#. red
-msgid "Not installed"
-msgstr "未安装"
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1704
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1704
+msgid "Preview screenshot"
+msgstr "预览截图"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 132
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:132
-msgid "—"
-msgstr "—"
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1705
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1705
+msgid "Camera photo (full resolution)"
+msgstr "摄像头照片（全分辨率）"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 143
-# File: bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py, line: 149
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:143
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:149
-msgid "Loaded"
-msgstr "已加载"
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1733
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1733
+msgid "Camera in video mode"
+msgstr "摄像头处于视频模式"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1735
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1735
+msgid ""
+"Your camera is set to Video/Movie mode. Some cameras cannot take photos in this mode.\n"
+"\n"
+"Switch the mode dial on your camera to a photo mode (P, Av, Tv, M or Auto) and try again, or "
+"capture a frame from the current preview."
+msgstr ""
+"您的摄像头设置为视频/电影模式。某些摄像头在此模式下无法拍照。\n"
+"\n"
+"请将摄像头的模式拨盘切换到拍照模式（P、Av、Tv、M 或自动），然后重试，或从当前预览中捕获一帧。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1742
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1742
+msgid "Capture preview frame"
+msgstr "捕获预览帧"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1763
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1763
+msgid "Capturing photo…"
+msgstr "正在拍照…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1780
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1853
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1780
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1853
+msgid "Failed to capture photo."
+msgstr "拍照失败。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1793
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1793
+msgid "Switching to photography mode."
+msgstr "正在切换到拍照模式。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1859
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1859
+msgid "Resuming camera streaming…"
+msgstr "正在恢复摄像头流…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1895
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1895
+msgid "Phone camera: waiting"
+msgstr "手机摄像头：等待中"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1896
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1896
+msgid "Phone camera: connected"
+msgstr "手机摄像头：已连接"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1897
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1897
+msgid "Phone camera: stopped"
+msgstr "手机摄像头：已停止"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2045
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2045
+msgid "Phone Mic (Browser)"
+msgstr "手机麦克风（浏览器）"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2053
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2148
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2210
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2568
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2053
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2148
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2210
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2568
+msgid "Show"
+msgstr "显示"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2104
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2104
+msgid "BigCam Phone (AirPlay)"
+msgstr "BigCam 手机（AirPlay）"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2140
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2140
+msgid "AirPlay Audio"
+msgstr "AirPlay 音频"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2194
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2194
+msgid "BigCam Phone (scrcpy)"
+msgstr "BigCam 手机（scrcpy）"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2205
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2205
+msgid "Phone Mic (scrcpy)"
+msgstr "手机麦克风（scrcpy）"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2285
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2285
+#, python-format
+msgid ""
+"The camera \"%(camera)s\" is being used by: %(apps)s.\n"
+"\n"
+"Close the other application or force-close it to free the camera."
+msgstr ""
+"摄像头 \"%(camera)s\" 正被以下程序使用：%(apps)s。\n"
+"\n"
+"关闭其他程序或强制关闭以释放摄像头。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2290
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2290
+#, python-format
+msgid ""
+"The camera \"%s\" is being used by another application.\n"
+"\n"
+"Close the other application to free the camera."
+msgstr ""
+"摄像头 \"%s\" 正被其他程序使用。\n"
+"\n"
+"关闭其他程序以释放摄像头。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2294
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2294
+msgid "Camera in use"
+msgstr "摄像头正在使用中"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2305
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2305
+#, python-format
+msgid "Force close %s"
+msgstr "强制关闭 %s"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2311
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2311
+msgid "Close"
+msgstr "关闭"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2408
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2408
+msgid "Virtual Camera enabled. Other applications can use /dev/video10."
+msgstr "虚拟摄像头已启用。其他程序可以使用 /dev/video10。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2436
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2436
+#, python-format
+msgid "Video saved: %s"
+msgstr "视频已保存：%s"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2470
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2470
+msgid "Recording…"
+msgstr "正在录制…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2474
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2474
+msgid "Failed to start recording."
+msgstr "启动录制失败。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2511
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2511
+msgid "Profile saved."
+msgstr "配置已保存。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2521
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2521
+msgid "No profiles found."
+msgstr "未找到配置文件。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2533
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2533
+#, python-format
+msgid "Profile loaded: %s"
+msgstr "配置已加载：%s"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2655
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2655
+#, python-format
+msgid "Active camera: %s"
+msgstr "当前摄像头：%s"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2657
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2657
+msgid "Virtual Camera is enabled (other apps may depend on it)."
+msgstr "虚拟摄像头已启用（其他应用可能依赖它）。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2660
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2660
+msgid "If you choose to keep it running, the camera will remain on after closing the application."
+msgstr "如果选择保持运行，关闭应用后摄像头将继续开启。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2666
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2666
+msgid "Camera is active"
+msgstr "摄像头已激活"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2667
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2667
+msgid "Stop camera and close"
+msgstr "停止摄像头并关闭"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2668
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2668
+msgid "Keep camera on"
+msgstr "保持摄像头开启"
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 76
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 68
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:76
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:68
-msgid "OpenCV not available"
-msgstr "OpenCV 不可用"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 77
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:77
-msgid "Install python-opencv to use tools."
-msgstr "安装 python-opencv 以使用工具。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 104
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:104
-#. --- Smile Capture ---
-msgid "Smile Capture"
-msgstr "微笑捕捉"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 108
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:108
-msgid "Capture on Smile"
-msgstr "微笑时拍照"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 109
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:109
-msgid "Automatically take a photo when a smile is detected"
-msgstr "侦测到微笑时自动拍照"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 115
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:115
-#. Sensitivity slider
-msgid "Sensitivity"
-msgstr "灵敏度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 324
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 408
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:324
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:408
-msgid "Watching for smiles..."
-msgstr "正在检测微笑..."
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 384
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:384
-msgid "Smile detected! Capturing..."
-msgstr "检测到微笑！正在拍摄..."
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 396
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1775
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1848
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:396
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1775
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1848
-msgid "Photo saved!"
-msgstr "照片已保存！"
+# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 386
+# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 422
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 428
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 523
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2669
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 431
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:386
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:422
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:431
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:428
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:523
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2669
+msgid "Cancel"
+msgstr "取消"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/tools_page.py, line: 399
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/tools_page.py:399
-msgid "Capture failed."
-msgstr "拍摄失败。"
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2803
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2803
+msgid "Video effects"
+msgstr "视频效果"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2804
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2804
+msgid "Real-time filters, background blur, artistic effects"
+msgstr "实时滤镜、背景模糊、艺术效果"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2812
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2812
+msgid "Virtual camera"
+msgstr "虚拟摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2813
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2813
+msgid "v4l2loopback output for video conferencing"
+msgstr "用于视频会议的 v4l2loopback 输出"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2821
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2821
+msgid "Background virtual cameras"
+msgstr "背景虚拟摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2822
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2822
+msgid "Virtual camera feeds for inactive cameras"
+msgstr "非活动摄像头的虚拟摄像头画面"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2830
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2830
+msgid "Video recording"
+msgstr "视频录制"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2831
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2831
+msgid "Active video recording with encoding"
+msgstr "带编码的活动视频录制"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2842
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2842
+msgid "Phone camera server"
+msgstr "手机摄像头服务器"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2843
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2843
+msgid "HTTPS/WebSocket server for phone camera"
+msgstr "用于手机摄像头的 HTTPS/WebSocket 服务器"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2852
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2852
+msgid "Scrcpy (Android camera)"
+msgstr "Scrcpy（安卓摄像头）"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2853
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2853
+msgid "Android camera via USB/Wi-Fi ADB"
+msgstr "通过 USB/Wi-Fi ADB 连接的安卓摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2862
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2862
+msgid "AirPlay receiver"
+msgstr "AirPlay 接收器"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2863
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2863
+msgid "Apple AirPlay screen mirroring via UxPlay"
+msgstr "通过 UxPlay 的 Apple AirPlay 屏幕镜像"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 56
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:56
@@ -772,25 +1999,6 @@ msgstr "列表视图"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:97
 msgid "Select items"
 msgstr "选择项目"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 84
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 103
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 257
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 391
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1169
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:84
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:103
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:257
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:391
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1169
-msgid "Refresh"
-msgstr "刷新"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 136
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:136
@@ -870,27 +2078,6 @@ msgstr "删除 %d 张照片？"
 msgid "These photos will be permanently deleted."
 msgstr "这些照片将被永久删除。"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 386
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 422
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 428
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 523
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2669
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 431
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:386
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:422
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:431
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:428
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:523
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2669
-msgid "Cancel"
-msgstr "取消"
-# 
 # File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 419
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:419
 msgid "Delete photo?"
@@ -905,175 +2092,6 @@ msgstr "删除照片？"
 #, python-format
 msgid "\"%s\" will be permanently deleted."
 msgstr "“%s” 将被永久删除。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 47
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:47
-msgid "Welcome to BigCam"
-msgstr "欢迎使用 BigCam"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 55
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:55
-msgid "Your universal webcam control center for Linux"
-msgstr "您的 Linux 通用摄像头控制中心"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 72
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:72
-msgid "Photo & Video Capture"
-msgstr "照片与视频捕捉"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 73
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:73
-msgid ""
-"Take photos and record videos\n"
-"with timer and countdown support"
-msgstr ""
-"拍照和录制视频\n"
-"支持定时和倒计时"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 77
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:77
-msgid "Mirror Preview"
-msgstr "镜像预览"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 78
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:78
-msgid ""
-"Flip the camera preview\n"
-"horizontally like a mirror"
-msgstr ""
-"水平翻转摄像头预览\n"
-"如同镜子效果"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 82
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:82
-msgid "Real-Time Effects"
-msgstr "实时效果"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 83
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:83
-msgid ""
-"Apply brightness, contrast, blur,\n"
-"sepia, vignette and more effects live"
-msgstr ""
-"实时应用亮度、对比度、模糊、\n"
-"棕褐色、暗角等多种效果"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 87
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 57
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 155
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:87
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:57
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:155
-msgid "Phone as Webcam"
-msgstr "手机作为摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 88
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:88
-msgid ""
-"Use your smartphone camera\n"
-"wirelessly as a webcam"
-msgstr ""
-"无线使用智能手机摄像头\n"
-"作为摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 95
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
-msgid "Multiple Cameras"
-msgstr "多摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 96
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
-msgid ""
-"Switch between USB, IP, and\n"
-"virtual cameras with hotplug support"
-msgstr ""
-"支持热插拔，切换 USB、IP 和\n"
-"虚拟摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 101
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:101
-msgid ""
-"Scan QR codes and barcodes\n"
-"directly from the camera feed"
-msgstr "直接从摄像头画面扫描二维码和条形码"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 106
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:106
-msgid ""
-"Create a virtual camera device\n"
-"for use in video calls"
-msgstr ""
-"创建虚拟摄像头设备\n"
-"用于视频通话"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 128
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:128
-msgid "Tip: Press Space to capture, Ctrl+R to record, Tab to toggle sidebar"
-msgstr "提示：按空格键拍照，Ctrl+R录制，Tab切换侧边栏"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 149
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:149
-msgid "Show dialog on startup"
-msgstr "启动时显示对话框"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py, line: 160
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:160
-#. Button on right
-msgid "Let's Start"
-msgstr "开始吧"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py, line: 39
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/about_dialog.py:39
-msgid ""
-"The universal webcam control center for Linux.\n"
-"\n"
-"BigCam was born as a small shell script so that Rafael Ruscher could use his Canon Rebel T3 as a "
-"webcam during live streams about BigLinux. That humble hack, written by Rafael and Barnabé di "
-"Kartola, evolved from a Bash bridge between gPhoto2 and FFmpeg into a full GTK4/Adwaita application "
-"with live preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, IP cameras, "
-"smartphones), real-time OpenCV effects, virtual camera output, photo and video capture, and 29 "
-"languages."
-msgstr ""
-"Linux通用网络摄像头控制中心。\n"
-"\n"
-"BigCam起初是一个小型shell脚本，旨在让Rafael Ruscher在关于BigLinux的直播中使用他的Canon Rebel T3作为摄像头。这个由Rafael和Barnabé di "
-"Kartola编写的简单工具，最初是gPhoto2和FFmpeg之间的Bash桥梁，后来发展成一个完整的GTK4/Adwaita应用，具备实时预览、多后端摄像头支持（V4L2、gPhoto2"
-"、libcamera、PipeWire、IP摄像头、智能手机）、实时OpenCV特效、虚拟摄像头输出、照片和视频捕捉，以及支持29种语言。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 75
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:75
-msgid "Recorded Videos"
-msgstr "录制视频"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 155
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:155
-msgid "No videos yet"
-msgstr "还没有视频"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 156
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:156
-msgid "Recorded videos will appear here."
-msgstr "录制的视频将显示在这里。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 425
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:425
-#, python-format
-msgid "Delete %d videos?"
-msgstr "删除 %d 个视频？"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 426
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:426
-msgid "These videos will be permanently deleted."
-msgstr "这些视频将被永久删除。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 520
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:520
-msgid "Delete video?"
-msgstr "删除视频？"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 109
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:109
@@ -1181,21 +2199,6 @@ msgstr "质量"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:496
 msgid "Maximum"
 msgstr "最大值"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 292
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 481
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 25
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 28
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:28
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:25
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:292
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:481
-msgid "Advanced"
-msgstr "高级"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 299
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 501
@@ -1351,22 +2354,6 @@ msgstr "在任意手机浏览器中打开此 URL 以进行摄像头直播"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:685
 msgid "QR Code — scan with your phone"
 msgstr "二维码 — 用手机扫描"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 696
-# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 287
-# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 393
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 50
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:287
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:393
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:696
-#. Generic URL
-msgid "URL"
-msgstr "URL"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 697
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 1313
@@ -1830,16 +2817,170 @@ msgstr "AirPlay 意外停止"
 msgid "Waiting for AirPlay connection…"
 msgstr "等待 AirPlay 连接…"
 # 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
+msgid "Image"
+msgstr "图像"
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 84
-# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 399
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 146
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:84
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:399
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:146
-msgid "Phone"
-msgstr "电话"
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 23
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
+msgid "Exposure"
+msgstr "曝光"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 24
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
+msgid "Focus"
+msgstr "对焦"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 25
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
+msgid "White Balance"
+msgstr "白平衡"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 26
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
+msgid "Capture"
+msgstr "捕捉"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 91
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:91
+msgid "No camera selected"
+msgstr "未选择摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 92
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:92
+msgid "Select a camera to see its controls."
+msgstr "请选择摄像头以查看其控制项。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 125
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:125
+msgid "Loading controls…"
+msgstr "正在加载控件…"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 164
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:164
+msgid "Phone camera"
+msgstr "手机摄像头"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 166
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:166
+msgid ""
+"Adjust resolution, quality, and FPS directly on the phone's browser page. Use the Effects tab for "
+"brightness, contrast, and other adjustments."
+msgstr "直接在手机浏览器页面调整分辨率、质量和帧率。使用“效果”标签进行亮度、对比度及其他调整。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 173
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:173
+msgid "No adjustable controls"
+msgstr "无可调节控件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 174
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:174
+msgid "This camera does not expose any controls."
+msgstr "此摄像头不支持任何控件。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 329
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 330
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:329
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:330
+#. Profile selector
+msgid "Profile"
+msgstr "配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:340
+#. Action buttons row
+msgid "Manage"
+msgstr "管理"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 341
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:341
+msgid "Manage profiles"
+msgstr "管理配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 346
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:346
+msgid "Save current settings as new profile"
+msgstr "将当前设置保存为新配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 349
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:349
+msgid "Save profile"
+msgstr "保存配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 355
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:355
+msgid "Delete selected profile"
+msgstr "删除选中的配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 358
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:358
+msgid "Delete profile"
+msgstr "删除配置文件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 365
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:365
+msgid "Reset all controls to hardware defaults"
+msgstr "将所有控件重置为硬件默认值"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 369
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:369
+msgid "Hardware defaults"
+msgstr "硬件默认值"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:428
+msgid "Enter a name for this profile:"
+msgstr "输入此配置文件的名称："
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 432
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:432
+msgid "Save"
+msgstr "保存"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 437
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 440
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:437
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:440
+msgid "Profile name"
+msgstr "配置文件名称"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 621
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:621
+#, python-format
+msgid "Reset %s controls"
+msgstr "重置 %s 控件"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 75
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:75
+msgid "Recorded Videos"
+msgstr "录制视频"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 155
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:155
+msgid "No videos yet"
+msgstr "还没有视频"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 156
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:156
+msgid "Recorded videos will appear here."
+msgstr "录制的视频将显示在这里。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 425
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:425
+#, python-format
+msgid "Delete %d videos?"
+msgstr "删除 %d 个视频？"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 426
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:426
+msgid "These videos will be permanently deleted."
+msgstr "这些视频将被永久删除。"
+# 
+# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 520
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:520
+msgid "Delete video?"
+msgstr "删除视频？"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 93
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:93
@@ -1926,15 +3067,6 @@ msgstr "消息"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:397
 msgid "Address"
 msgstr "地址"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 398
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 44
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:44
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:398
-msgid "Name"
-msgstr "名称"
 # 
 # File: bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py, line: 401
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/qr_dialog.py:401
@@ -2159,1119 +3291,3 @@ msgstr "已保存：%s"
 #, python-format
 msgid "Error: %s"
 msgstr "错误：%s"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 64
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:64
-msgid "Select camera"
-msgstr "选择摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py, line: 66
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_selector.py:66
-msgid "Camera selector"
-msgstr "摄像头选择器"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 153
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:153
-msgid "Use your phone as a webcam"
-msgstr "使用手机作为摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 172
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1901
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:172
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1901
-msgid "Phone camera status"
-msgstr "手机摄像头状态"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 255
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 619
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 718
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:255
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:619
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:718
-msgid "Controls"
-msgstr "控制"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 265
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:265
-msgid "Always on Top"
-msgstr "始终置顶"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 310
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:310
-msgid "Refresh cameras"
-msgstr "刷新摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 312
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:312
-msgid "Refresh camera list"
-msgstr "刷新摄像头列表"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 322
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:322
-msgid "Menu"
-msgstr "菜单"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 324
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:324
-msgid "Main menu"
-msgstr "主菜单"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 368
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 370
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:368
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:370
-msgid "Photo mode"
-msgstr "照片模式"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 377
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 379
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:377
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:379
-msgid "Video mode"
-msgstr "视频模式"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 406
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 817
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 823
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:406
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:817
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:823
-msgid "Last photo"
-msgstr "最近照片"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 408
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:408
-msgid "Open last photo"
-msgstr "打开最近照片"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 448
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:448
-msgid "Enable Virtual Camera"
-msgstr "启用虚拟摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 515
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:515
-msgid "Zoom level"
-msgstr "缩放级别"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 517
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:517
-msgid "Change zoom level"
-msgstr "更改缩放级别"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 530
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:530
-msgid "Toggle grid overlay"
-msgstr "切换网格覆盖"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 570
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:570
-msgid "Fullscreen (F11)"
-msgstr "全屏 (F11)"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 628
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 719
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:628
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:719
-msgid "Effects"
-msgstr "特效"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 637
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 720
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:637
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:720
-msgid "Photos"
-msgstr "照片"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 646
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 721
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:646
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:721
-msgid "Videos"
-msgstr "视频"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 678
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 722
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:678
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:722
-msgid "Settings"
-msgstr "设置"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 701
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:701
-msgid "Close sidebar"
-msgstr "关闭侧边栏"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 781
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2433
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:781
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2433
-msgid "Start recording"
-msgstr "开始录制"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 815
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 820
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:815
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:820
-msgid "Last video"
-msgstr "上一个视频"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 982
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1096
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:982
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1096
-msgid "Capture timer: Off"
-msgstr "拍摄计时器：关闭"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 986
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1100
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:986
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1100
-#, python-format
-msgid "Capture timer: %ds"
-msgstr "拍摄计时器：%d秒"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1157
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1157
-msgid "Capture Photo"
-msgstr "拍摄照片"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1158
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1158
-msgid "Record Video"
-msgstr "录制视频"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1162
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 427
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:427
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1162
-msgid "Save Profile"
-msgstr "保存配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1163
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1163
-msgid "Load Profile"
-msgstr "加载配置文件"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1164
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 326
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:326
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1164
-msgid "Profiles"
-msgstr "配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1167
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1167
-msgid "Add IP Camera…"
-msgstr "添加IP摄像头…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1168
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1168
-msgid "Phone as Webcam…"
-msgstr "手机作为摄像头…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1170
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1170
-msgid "Welcome Screen"
-msgstr "欢迎界面"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1171
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1171
-msgid "About"
-msgstr "关于"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1175
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1175
-msgid "Quit"
-msgstr "退出"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1404
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1475
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1404
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1475
-msgid "Starting camera stream…"
-msgstr "正在启动摄像头流…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1441
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1441
-msgid "Camera streaming started!"
-msgstr "摄像头流已启动！"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1461
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1461
-msgid "Failed to start camera streaming."
-msgstr "启动摄像头流失败。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1504
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1504
-#. Show a simple notice instead of a blocking dialog
-#, python-brace-format
-msgid "Virtual Camera: {vcam_device} Created!"
-msgstr "虚拟摄像头：{vcam_device} 已创建！"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1684
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1684
-msgid "QR Code detected!"
-msgstr "检测到二维码！"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1690
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2444
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1690
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2444
-msgid "No camera selected."
-msgstr "未选择摄像头。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1698
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1698
-msgid "Choose capture mode"
-msgstr "选择拍摄模式"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1700
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1700
-msgid ""
-"You can take a screenshot from the current preview or capture a full-resolution photo directly from "
-"the camera."
-msgstr "您可以从当前预览中截图，或直接从摄像头捕获全分辨率照片。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1704
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1704
-msgid "Preview screenshot"
-msgstr "预览截图"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1705
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1705
-msgid "Camera photo (full resolution)"
-msgstr "摄像头照片（全分辨率）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1733
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1733
-msgid "Camera in video mode"
-msgstr "摄像头处于视频模式"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1735
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1735
-msgid ""
-"Your camera is set to Video/Movie mode. Some cameras cannot take photos in this mode.\n"
-"\n"
-"Switch the mode dial on your camera to a photo mode (P, Av, Tv, M or Auto) and try again, or "
-"capture a frame from the current preview."
-msgstr ""
-"您的摄像头设置为视频/电影模式。某些摄像头在此模式下无法拍照。\n"
-"\n"
-"请将摄像头的模式拨盘切换到拍照模式（P、Av、Tv、M 或自动），然后重试，或从当前预览中捕获一帧。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1742
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1742
-msgid "Capture preview frame"
-msgstr "捕获预览帧"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1763
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1763
-msgid "Capturing photo…"
-msgstr "正在拍照…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1780
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1853
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1780
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1853
-msgid "Failed to capture photo."
-msgstr "拍照失败。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1793
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1793
-msgid "Switching to photography mode."
-msgstr "正在切换到拍照模式。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1859
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1859
-msgid "Resuming camera streaming…"
-msgstr "正在恢复摄像头流…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1895
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1895
-msgid "Phone camera: waiting"
-msgstr "手机摄像头：等待中"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1896
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1896
-msgid "Phone camera: connected"
-msgstr "手机摄像头：已连接"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 1897
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1897
-msgid "Phone camera: stopped"
-msgstr "手机摄像头：已停止"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2045
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2045
-msgid "Phone Mic (Browser)"
-msgstr "手机麦克风（浏览器）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2053
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2148
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2210
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2568
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2053
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2148
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2210
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2568
-msgid "Show"
-msgstr "显示"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2104
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2104
-msgid "BigCam Phone (AirPlay)"
-msgstr "BigCam 手机（AirPlay）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2140
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2140
-msgid "AirPlay Audio"
-msgstr "AirPlay 音频"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2194
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2194
-msgid "BigCam Phone (scrcpy)"
-msgstr "BigCam 手机（scrcpy）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2205
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2205
-msgid "Phone Mic (scrcpy)"
-msgstr "手机麦克风（scrcpy）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2285
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2285
-#, python-format
-msgid ""
-"The camera \"%(camera)s\" is being used by: %(apps)s.\n"
-"\n"
-"Close the other application or force-close it to free the camera."
-msgstr ""
-"摄像头 \"%(camera)s\" 正被以下程序使用：%(apps)s。\n"
-"\n"
-"关闭其他程序或强制关闭以释放摄像头。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2290
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2290
-#, python-format
-msgid ""
-"The camera \"%s\" is being used by another application.\n"
-"\n"
-"Close the other application to free the camera."
-msgstr ""
-"摄像头 \"%s\" 正被其他程序使用。\n"
-"\n"
-"关闭其他程序以释放摄像头。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2294
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2294
-msgid "Camera in use"
-msgstr "摄像头正在使用中"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2305
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2305
-#, python-format
-msgid "Force close %s"
-msgstr "强制关闭 %s"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2311
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2311
-msgid "Close"
-msgstr "关闭"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2408
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2408
-msgid "Virtual Camera enabled. Other applications can use /dev/video10."
-msgstr "虚拟摄像头已启用。其他程序可以使用 /dev/video10。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2436
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2436
-#, python-format
-msgid "Video saved: %s"
-msgstr "视频已保存：%s"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2470
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2470
-msgid "Recording…"
-msgstr "正在录制…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2474
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2474
-msgid "Failed to start recording."
-msgstr "启动录制失败。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2511
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2511
-msgid "Profile saved."
-msgstr "配置已保存。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2521
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2521
-msgid "No profiles found."
-msgstr "未找到配置文件。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2533
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2533
-#, python-format
-msgid "Profile loaded: %s"
-msgstr "配置已加载：%s"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2655
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2655
-#, python-format
-msgid "Active camera: %s"
-msgstr "当前摄像头：%s"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2657
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2657
-msgid "Virtual Camera is enabled (other apps may depend on it)."
-msgstr "虚拟摄像头已启用（其他应用可能依赖它）。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2660
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2660
-msgid "If you choose to keep it running, the camera will remain on after closing the application."
-msgstr "如果选择保持运行，关闭应用后摄像头将继续开启。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2666
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2666
-msgid "Camera is active"
-msgstr "摄像头已激活"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2667
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2667
-msgid "Stop camera and close"
-msgstr "停止摄像头并关闭"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2668
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2668
-msgid "Keep camera on"
-msgstr "保持摄像头开启"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2803
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2803
-msgid "Video effects"
-msgstr "视频效果"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2804
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2804
-msgid "Real-time filters, background blur, artistic effects"
-msgstr "实时滤镜、背景模糊、艺术效果"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2812
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2812
-msgid "Virtual camera"
-msgstr "虚拟摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2813
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2813
-msgid "v4l2loopback output for video conferencing"
-msgstr "用于视频会议的 v4l2loopback 输出"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2821
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2821
-msgid "Background virtual cameras"
-msgstr "背景虚拟摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2822
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2822
-msgid "Virtual camera feeds for inactive cameras"
-msgstr "非活动摄像头的虚拟摄像头画面"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2830
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2830
-msgid "Video recording"
-msgstr "视频录制"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2831
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2831
-msgid "Active video recording with encoding"
-msgstr "带编码的活动视频录制"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2842
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2842
-msgid "Phone camera server"
-msgstr "手机摄像头服务器"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2843
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2843
-msgid "HTTPS/WebSocket server for phone camera"
-msgstr "用于手机摄像头的 HTTPS/WebSocket 服务器"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2852
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2852
-msgid "Scrcpy (Android camera)"
-msgstr "Scrcpy（安卓摄像头）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2853
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2853
-msgid "Android camera via USB/Wi-Fi ADB"
-msgstr "通过 USB/Wi-Fi ADB 连接的安卓摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2862
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2862
-msgid "AirPlay receiver"
-msgstr "AirPlay 接收器"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/window.py, line: 2863
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:2863
-msgid "Apple AirPlay screen mirroring via UxPlay"
-msgstr "通过 UxPlay 的 Apple AirPlay 屏幕镜像"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 22
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:22
-msgid "Adjustments"
-msgstr "调整"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 23
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:23
-msgid "Filters"
-msgstr "滤镜"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 24
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:24
-msgid "Artistic"
-msgstr "艺术"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 69
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:69
-msgid "Install python-opencv to enable video effects."
-msgstr "安装 python-opencv 以启用视频效果。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/effects_page.py, line: 110
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/effects_page.py:110
-#, python-format
-msgid "Reset %s effects"
-msgstr "重置 %s 效果"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 76
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:76
-#. ── Build the dialog ─────────────────────────────────────────────
-msgid "High resource usage detected"
-msgstr "检测到高资源使用率"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 80
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:80
-#, python-format
-msgid "The application is using %s and %s."
-msgstr "应用正在使用 %s 和 %s。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 82
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:82
-msgid "Active features that may be causing this:"
-msgstr "可能导致此问题的活动功能："
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:90
-msgid "You can optimize by disabling the heaviest features, or continue if you understand the impact."
-msgstr "您可以通过禁用最耗资源的功能来优化，或者如果您了解影响，可以继续。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 95
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:95
-msgid "No features can be disabled (active camera sources cannot be stopped from here)."
-msgstr "无法禁用任何功能（此处无法停止活动摄像头来源）。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 103
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:103
-#. ── Checkbox: "Don't show again" ─────────────────────────────────
-msgid "Don't show this warning again"
-msgstr "不再显示此警告"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 107
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:107
-msgid "Suppress resource usage warnings permanently"
-msgstr "永久屏蔽资源使用警告"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 112
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:112
-#. ── Responses ────────────────────────────────────────────────────
-msgid "I understand, continue"
-msgstr "我明白，继续"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 114
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:114
-msgid "Optimize (disable heavy features)"
-msgstr "优化（禁用耗资源功能）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 24
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
-msgid "Add IP Camera"
-msgstr "添加IP摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 42
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
-msgid "Camera Details"
-msgstr "摄像头详情"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 46
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
-msgid "Camera name"
-msgstr "摄像头名称"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 53
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
-msgid "Camera URL (RTSP or HTTP)"
-msgstr "摄像头URL（RTSP或HTTP）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 60
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
-#. Action button
-msgid "Add Camera"
-msgstr "添加摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py, line: 64
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
-msgid "Add IP camera"
-msgstr "添加IP摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
-msgid "Image"
-msgstr "图像"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 23
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
-msgid "Exposure"
-msgstr "曝光"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 24
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
-msgid "Focus"
-msgstr "对焦"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 25
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
-msgid "White Balance"
-msgstr "白平衡"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 26
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
-msgid "Capture"
-msgstr "捕捉"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 91
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:91
-msgid "No camera selected"
-msgstr "未选择摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 92
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:92
-msgid "Select a camera to see its controls."
-msgstr "请选择摄像头以查看其控制项。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 125
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:125
-msgid "Loading controls…"
-msgstr "正在加载控件…"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 164
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:164
-msgid "Phone camera"
-msgstr "手机摄像头"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 166
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:166
-msgid ""
-"Adjust resolution, quality, and FPS directly on the phone's browser page. Use the Effects tab for "
-"brightness, contrast, and other adjustments."
-msgstr "直接在手机浏览器页面调整分辨率、质量和帧率。使用“效果”标签进行亮度、对比度及其他调整。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 173
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:173
-msgid "No adjustable controls"
-msgstr "无可调节控件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 174
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:174
-msgid "This camera does not expose any controls."
-msgstr "此摄像头不支持任何控件。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 329
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 330
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:329
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:330
-#. Profile selector
-msgid "Profile"
-msgstr "配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:340
-#. Action buttons row
-msgid "Manage"
-msgstr "管理"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 341
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:341
-msgid "Manage profiles"
-msgstr "管理配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 346
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:346
-msgid "Save current settings as new profile"
-msgstr "将当前设置保存为新配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 349
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:349
-msgid "Save profile"
-msgstr "保存配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 355
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:355
-msgid "Delete selected profile"
-msgstr "删除选中的配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 358
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:358
-msgid "Delete profile"
-msgstr "删除配置文件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 365
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:365
-msgid "Reset all controls to hardware defaults"
-msgstr "将所有控件重置为硬件默认值"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 369
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:369
-msgid "Hardware defaults"
-msgstr "硬件默认值"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:428
-msgid "Enter a name for this profile:"
-msgstr "输入此配置文件的名称："
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 432
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:432
-msgid "Save"
-msgstr "保存"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 437
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 440
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:437
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:440
-msgid "Profile name"
-msgstr "配置文件名称"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 621
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:621
-#, python-format
-msgid "Reset %s controls"
-msgstr "重置 %s 控件"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 247
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:247
-msgid "Brightness / Contrast"
-msgstr "亮度 / 对比度"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 251
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 20
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 76
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:251
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:76
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
-msgid "Brightness"
-msgstr "亮度"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 252
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 21
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 87
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:252
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:87
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
-msgid "Contrast"
-msgstr "对比度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 260
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:260
-msgid "Gamma Correction"
-msgstr "伽马校正"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 264
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 25
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:264
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
-msgid "Gamma"
-msgstr "伽马"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 272
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:272
-msgid "CLAHE (Adaptive Contrast)"
-msgstr "CLAHE（自适应对比度）"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 276
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:276
-msgid "Clip Limit"
-msgstr "限制值"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 277
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:277
-msgid "Grid Size"
-msgstr "网格大小"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 285
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 26
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 109
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:285
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:109
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
-msgid "Auto White Balance"
-msgstr "自动白平衡"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 295
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:295
-msgid "Sharpen"
-msgstr "锐化"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 299
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 311
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 376
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:299
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:311
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:376
-msgid "Strength"
-msgstr "强度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 307
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:307
-msgid "Denoise"
-msgstr "降噪"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 320
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:320
-msgid "Grayscale"
-msgstr "灰度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 329
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:329
-msgid "Sepia"
-msgstr "棕褐色"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 338
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:338
-msgid "Negative"
-msgstr "负片"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 347
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:347
-msgid "Edge Detection"
-msgstr "边缘检测"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 351
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:351
-msgid "Threshold 1"
-msgstr "阈值 1"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 352
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:352
-msgid "Threshold 2"
-msgstr "阈值 2"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 360
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:360
-msgid "Color Map"
-msgstr "颜色映射"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 364
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:364
-msgid "Style"
-msgstr "风格"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/effects.py, line: 372
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/effects.py:372
-msgid "Vignette"
-msgstr "暗角"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 560
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:560
-msgid "python-aiohttp is not installed"
-msgstr "未安装 python-aiohttp"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 579
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:579
-msgid "Server did not start in time"
-msgstr "服务器启动超时"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 638
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/phone_camera.py:638
-#, python-format
-msgid "Port %d is already in use"
-msgstr "端口 %d 已被占用"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 718
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:718
-msgid "Failed to start camera streaming process."
-msgstr "启动摄像头流处理失败。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 732
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:732
-msgid "Failed to obtain GStreamer source for this camera."
-msgstr "获取此摄像头的 GStreamer 源失败。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 815
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1143
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1154
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1379
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:815
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1143
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1154
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1379
-#. retry in 500ms
-msgid "Failed to start camera stream."
-msgstr "启动摄像头流失败。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1742
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1742
-msgid "Phone camera server not available."
-msgstr "手机摄像头服务器不可用。"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1925
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/stream_engine.py:1925
-msgid "Unknown GStreamer error"
-msgstr "未知的 GStreamer 错误"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py, line: 232
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:232
-msgid "Generic Camera"
-msgstr "通用摄像头"
-# 
-# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 22
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 98
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:98
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
-msgid "Saturation"
-msgstr "饱和度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 23
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
-msgid "Hue"
-msgstr "色调"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 24
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
-msgid "Sharpness"
-msgstr "锐度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 27
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
-msgid "White Balance Temperature"
-msgstr "白平衡色温"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 28
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
-msgid "Gain"
-msgstr "增益"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 29
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
-msgid "Auto Exposure"
-msgstr "自动曝光"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 30
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 31
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:30
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
-msgid "Exposure Time"
-msgstr "曝光时间"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 32
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
-msgid "Exposure Auto Priority"
-msgstr "曝光自动优先"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 33
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
-msgid "Auto Focus"
-msgstr "自动对焦"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 34
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
-msgid "Focus Distance"
-msgstr "对焦距离"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 35
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
-msgid "Zoom"
-msgstr "变焦"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 36
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
-msgid "Pan"
-msgstr "平移"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 37
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
-msgid "Tilt"
-msgstr "倾斜"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 38
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
-msgid "Power Line Frequency"
-msgstr "电源线频率"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 39
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
-msgid "Exposure Bias"
-msgstr "曝光补偿"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 40
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
-msgid "WB Preset"
-msgstr "白平衡预设"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 41
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
-msgid "Image Stabilization"
-msgstr "图像稳定"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 42
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
-msgid "ISO Sensitivity"
-msgstr "ISO 感光度"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 43
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
-msgid "Auto ISO"
-msgstr "自动 ISO"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 44
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
-msgid "Scene Mode"
-msgstr "场景模式"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 45
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
-msgid "3A Lock"
-msgstr "3A 锁定"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 46
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
-msgid "LED Mode"
-msgstr "LED 模式"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py, line: 47
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
-msgid "LED Frequency"
-msgstr "LED 频率"
-# 
-# File: bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py, line: 127
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
-msgid "Exposure Mode"
-msgstr "曝光模式"
