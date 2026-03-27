@@ -179,10 +179,25 @@ class ImmersionController:
                 _INACTIVITY_MS, self._on_inactivity_timeout
             )
 
+    def _is_any_popover_mapped(self, widget: Gtk.Widget) -> bool:
+        if isinstance(widget, Gtk.Popover) and widget.get_mapped():
+            return True
+        child = widget.get_first_child()
+        while child is not None:
+            if self._is_any_popover_mapped(child):
+                return True
+            child = child.get_next_sibling()
+        return False
+
     def _on_inactivity_timeout(self) -> bool:
-        self._timer_id = None
         if self._inhibit_count == 0:
+            if self._is_any_popover_mapped(self._window):
+                return True  # Keep timeout alive while popover is open
+            self._timer_id = None
             self._begin_fade_out()
+            return False
+
+        self._timer_id = None
         return False
 
     # -- Fade out (smooth) --------------------------------------------------
