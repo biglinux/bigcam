@@ -22,6 +22,7 @@ class BackendType(enum.Enum):
     IP = "ip"
     PHONE = "phone"
     SCRCPY = "scrcpy"
+    AIRPLAY = "airplay"
 
 
 class ControlCategory(enum.Enum):

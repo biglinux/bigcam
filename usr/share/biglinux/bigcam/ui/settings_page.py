@@ -43,6 +43,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         "mirror-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "qr-detected": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "virtual-camera-toggled": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "virtual-camera-device-toggled": (GObject.SignalFlags.RUN_LAST, None, (str, bool)),
         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
@@ -56,13 +57,14 @@ class SettingsPage(Gtk.ScrolledWindow):
         "resource-monitor-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
     }
 
-    def __init__(self, settings: SettingsManager, stream_engine=None) -> None:
+    def __init__(self, settings: SettingsManager, stream_engine=None, camera_manager=None) -> None:
         super().__init__(
             hscrollbar_policy=Gtk.PolicyType.NEVER,
             vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
         )
         self._settings = settings
         self._engine = stream_engine
+        self._camera_manager = camera_manager
 
         # Tools state
         self._qr_active = False
@@ -193,6 +195,21 @@ class SettingsPage(Gtk.ScrolledWindow):
         resource_row.connect("notify::active", self._on_resource_monitor)
         self._resource_row = resource_row
         general.add(resource_row)
+
+        # Auto-optimize resources
+        auto_opt_row = Adw.SwitchRow(
+            title=_("Auto-optimize resources"),
+            subtitle=_("Automatically disable heavy background features when usage is high."),
+        )
+        auto_opt_row.add_prefix(
+            Gtk.Image.new_from_icon_name("system-run-symbolic")
+        )
+        auto_opt_row.set_active(self._settings.get("resource-monitor-auto-optimize", False))
+        auto_opt_row.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Auto-optimize resources")]
+        )
+        auto_opt_row.connect("notify::active", self._on_auto_optimize)
+        general.add(auto_opt_row)
 
         # Reset dismissed warnings
         reset_warnings_row = Adw.ActionRow(
@@ -517,17 +534,34 @@ class SettingsPage(Gtk.ScrolledWindow):
         vc_group.add(self._vc_device_row)
 
         self._vc_toggle_row = Adw.SwitchRow(
-            title=_("Enable virtual camera"),
-            subtitle=_("Create a virtual camera output for video calls and streaming."),
+            title=_("Enable virtual camera service"),
+            subtitle=_("Master switch to allow virtual camera outputs."),
         )
         self._vc_toggle_row.add_prefix(Gtk.Image.new_from_icon_name("camera-web-symbolic"))
         self._vc_toggle_row.connect("notify::active", self._on_vc_toggle)
         vc_group.add(self._vc_toggle_row)
 
+        content.append(vc_group)
+
+        # Per-device virtual camera group
+        self._vc_devices_group = Adw.PreferencesGroup(
+            title=_("Virtual Cameras"),
+            description=_("Select which cameras should output to a virtual device.")
+        )
+        content.append(self._vc_devices_group)
+        
+        if self._camera_manager:
+            self._camera_manager.connect("cameras-changed", self._on_cameras_changed_vc)
+
         # Max virtual cameras
+        val = self._settings.get("vcam-max-devices")
+        if isinstance(val, int) and val > 8:
+            val = 8
+            self._settings.set("vcam-max-devices", 8)
+
         max_adj = Gtk.Adjustment(
-            value=self._settings.get("vcam-max-devices"),
-            lower=1, upper=20, step_increment=1,
+            value=val,
+            lower=1, upper=8, step_increment=1,
         )
         self._vc_max_row = Adw.SpinRow(
             title=_("Maximum virtual cameras"),
@@ -596,6 +630,10 @@ class SettingsPage(Gtk.ScrolledWindow):
         active = row.get_active()
         self._settings.set("resource-monitor-enabled", active)
         self.emit("resource-monitor-changed", active)
+
+    def _on_auto_optimize(self, row: Adw.SwitchRow, _pspec) -> None:
+        active = row.get_active()
+        self._settings.set("resource-monitor-auto-optimize", active)
 
     def _on_reset_warnings(self, _btn: Gtk.Button) -> None:
         self._settings.set("resource-warnings-dismissed", [])
@@ -914,6 +952,43 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         from utils.async_worker import run_async
         run_async(_query, on_success=_update)
+
+    def _on_cameras_changed_vc(self, cm) -> None:
+        # Clear existing rows
+        for row in getattr(self, "_vc_device_rows", []):
+            self._vc_devices_group.remove(row)
+        self._vc_device_rows = []
+
+        disabled_cams = self._settings.get("vcam-disabled-cameras", [])
+        
+        if not cm.cameras:
+            empty = Adw.ActionRow(title=_("No cameras connected"))
+            self._vc_devices_group.add(empty)
+            self._vc_device_rows.append(empty)
+            return
+
+        for cam in cm.cameras:
+            row = Adw.SwitchRow(
+                title=cam.name,
+                subtitle=cam.id,
+                active=(cam.id not in disabled_cams)
+            )
+            row.connect("notify::active", self._on_vc_device_toggle, cam.id)
+            self._vc_devices_group.add(row)
+            self._vc_device_rows.append(row)
+
+    def _on_vc_device_toggle(self, row: Adw.SwitchRow, _pspec, camera_id: str) -> None:
+        active = row.get_active()
+        disabled_cams = self._settings.get("vcam-disabled-cameras", [])
+        
+        if active and camera_id in disabled_cams:
+            disabled_cams.remove(camera_id)
+            self._settings.set("vcam-disabled-cameras", disabled_cams)
+            self.emit("virtual-camera-device-toggled", camera_id, True)
+        elif not active and camera_id not in disabled_cams:
+            disabled_cams.append(camera_id)
+            self._settings.set("vcam-disabled-cameras", disabled_cams)
+            self.emit("virtual-camera-device-toggled", camera_id, False)
 
     def _on_vc_toggle(self, row: Adw.SwitchRow, _pspec) -> None:
         if self._vc_updating:

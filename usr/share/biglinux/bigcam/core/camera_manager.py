@@ -121,18 +121,7 @@ class CameraManager(GObject.Object):
 
             def _detect_one(b: CameraBackend) -> list[CameraInfo]:
                 try:
-                    found = b.detect_cameras()
-                    if (
-                        not found
-                        and hasattr(b, "_streaming_active")
-                        and b._streaming_active
-                    ):
-                        found = [
-                            c
-                            for c in self._cameras
-                            if c.backend == b.get_backend_type()
-                        ]
-                    return found
+                    return b.detect_cameras()
                 except Exception as exc:
                     GLib.idle_add(self.emit, "camera-error", str(exc))
                     return []
@@ -235,7 +224,7 @@ class CameraManager(GObject.Object):
     def add_phone_camera(self, camera: CameraInfo) -> None:
         """Register a phone camera source (WebRTC, scrcpy or AirPlay)."""
         self._cameras = [
-            c for c in self._cameras if not c.id.startswith("phone:")
+            c for c in self._cameras if c.id != camera.id
         ]
         self._cameras.append(camera)
         self.emit("cameras-changed")
@@ -249,15 +238,59 @@ class CameraManager(GObject.Object):
         if had:
             self.emit("cameras-changed")
 
+    def remove_scrcpy_camera(self, device_id: str) -> None:
+        """Remove a specific scrcpy android camera from the list."""
+        target_id = f"scrcpy:{device_id}"
+        had = any(c.id == target_id for c in self._cameras)
+        self._cameras = [
+            c for c in self._cameras if c.id != target_id
+        ]
+        if had:
+            self.emit("cameras-changed")
+
+    def remove_airplay_cameras(self) -> None:
+        """Remove airplay iOS/macOS cameras from the list."""
+        had = any(c.id.startswith("airplay:") for c in self._cameras)
+        self._cameras = [
+            c for c in self._cameras if not c.id.startswith("airplay:")
+        ]
+        if had:
+            self.emit("cameras-changed")
+
     # -- controls proxy ------------------------------------------------------
 
     def get_controls(self, camera: CameraInfo) -> list[CameraControl]:
+        if camera.backend == BackendType.PHONE:
+            from core.camera_backend import CameraControl
+            from constants import ControlCategory, ControlType
+            vol = 100
+            if "phone_server" in camera.extra:
+                vol = int(camera.extra["phone_server"]._desired_volume * 100)
+            return [
+                CameraControl(
+                    id="audio_volume",
+                    name="Audio Volume",
+                    category=ControlCategory.ADVANCED,
+                    control_type=ControlType.INTEGER,
+                    value=vol,
+                    default=100,
+                    minimum=0,
+                    maximum=100,
+                )
+            ]
         backend = self.get_backend(camera.backend)
         if backend:
-            return backend.get_controls(camera)
+            if hasattr(backend, "get_controls"):
+                return backend.get_controls(camera)
         return []
 
     def set_control(self, camera: CameraInfo, control_id: str, value: Any) -> bool:
+        if camera.backend == BackendType.PHONE:
+            if control_id == "audio_volume" and "phone_server" in camera.extra:
+                camera.extra["phone_server"].set_audio_volume(int(value) / 100.0)
+                return True
+            return False
+
         backend = self.get_backend(camera.backend)
         if backend:
             return backend.set_control(camera, control_id, value)
@@ -281,7 +314,11 @@ class CameraManager(GObject.Object):
         self, camera: CameraInfo, fmt: VideoFormat | None = None,
         prefer_v4l2: bool = False,
     ) -> str:
-        backend = self.get_backend(camera.backend)
+        backend_type = camera.backend
+        if backend_type in (BackendType.AIRPLAY, BackendType.SCRCPY):
+            backend_type = BackendType.V4L2
+
+        backend = self.get_backend(backend_type)
         if backend:
             try:
                 return backend.get_gst_source(camera, fmt, prefer_v4l2=prefer_v4l2)

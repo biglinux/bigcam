@@ -8,6 +8,7 @@ import re
 import shutil
 import signal
 import subprocess
+from utils.command_runner import SecureCommandRunner
 import threading
 from typing import Optional
 
@@ -50,11 +51,8 @@ class AirPlayReceiver(GObject.Object):
     def uxplay_version() -> str:
         """Return the UxPlay version string or empty on failure."""
         try:
-            out = subprocess.run(
-                [_UXPLAY_BIN, "-h"],
-                capture_output=True,
-                text=True,
-                timeout=5,
+            out = SecureCommandRunner.run_safe(
+                [_UXPLAY_BIN, "-h"], capture_output=True, text=True, timeout=5
             )
             # UxPlay prints version in first lines of help output
             combined = out.stdout + out.stderr
@@ -119,7 +117,7 @@ class AirPlayReceiver(GObject.Object):
         self.emit("status-changed", "Starting AirPlay receiver...")
 
         try:
-            self._process = subprocess.Popen(
+            self._process = SecureCommandRunner.popen_safe(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,

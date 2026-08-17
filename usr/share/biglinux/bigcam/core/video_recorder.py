@@ -168,7 +168,14 @@ class VideoRecorder:
             return f"vp9enc target-bitrate={br * 1000} cpu-used=4 deadline=1 threads=4 end-usage=cq cq-level=28"
 
         if codec == "mjpeg":
-            log.info("Using MJPEG encoder: jpegenc")
+            hw = [
+                ("vaapijpegenc", "quality=90"),
+            ]
+            for name, props in hw:
+                if Gst.ElementFactory.find(name):
+                    log.info("Using hardware MJPEG encoder: %s", name)
+                    return f"{name} {props}"
+            log.info("Using software MJPEG encoder: jpegenc")
             return "jpegenc quality=90"
 
         # Default: H.264

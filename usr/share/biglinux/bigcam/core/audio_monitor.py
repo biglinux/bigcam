@@ -6,6 +6,7 @@ import logging
 import os
 import re
 import subprocess
+from utils.command_runner import SecureCommandRunner
 import threading
 from typing import Callable
 
@@ -78,7 +79,7 @@ def find_all_audio_sources() -> list[tuple[str, str]]:
 
     # Query PulseAudio/PipeWire sources
     try:
-        result = subprocess.run(
+        result = SecureCommandRunner.run_safe(
             ["pactl", "list", "sources"],
             capture_output=True,
             text=True,
@@ -354,7 +355,7 @@ class AudioMonitor(GObject.Object):
         # Collect the PID and its direct children (e.g. stdbuf → scrcpy)
         pids_to_check: set[int] = {pid}
         try:
-            child_result = subprocess.run(
+            child_result = SecureCommandRunner.run_safe(
                 ["pgrep", "--parent", str(pid)],
                 capture_output=True, text=True, timeout=3,
             )
@@ -370,7 +371,7 @@ class AudioMonitor(GObject.Object):
 
         # --- Phase 1: check application.process.id in sink-inputs ----------
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["pactl", "list", "sink-inputs"],
                 capture_output=True, text=True, timeout=5,
             )
@@ -415,7 +416,7 @@ class AudioMonitor(GObject.Object):
             return None
 
         try:
-            cl_result = subprocess.run(
+            cl_result = SecureCommandRunner.run_safe(
                 ["pactl", "list", "clients"],
                 capture_output=True, text=True, timeout=5,
             )
@@ -464,7 +465,7 @@ class AudioMonitor(GObject.Object):
             return
         pct = int(round(value * 100))
         try:
-            subprocess.run(
+            SecureCommandRunner.run_safe(
                 ["pactl", "set-sink-input-volume", str(info["index"]), f"{pct}%"],
                 capture_output=True, timeout=3,
             )
@@ -483,7 +484,7 @@ class AudioMonitor(GObject.Object):
         if info.get("index") is None:
             return
         try:
-            subprocess.run(
+            SecureCommandRunner.run_safe(
                 ["pactl", "set-sink-input-mute", str(info["index"]),
                  "1" if muted else "0"],
                 capture_output=True, timeout=3,
@@ -559,7 +560,7 @@ class AudioMonitor(GObject.Object):
     def _ensure_sink_inputs_unmuted(self) -> bool:
         """Override PipeWire's module-stream-restore mute for BigCam sinks."""
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["pactl", "list", "sink-inputs"],
                 capture_output=True, text=True, timeout=3,
             )
@@ -571,11 +572,11 @@ class AudioMonitor(GObject.Object):
                 stripped = line.strip()
                 if stripped.startswith("Sink Input #"):
                     if is_bigcam and cur_idx is not None:
-                        subprocess.run(
+                        SecureCommandRunner.run_safe(
                             ["pactl", "set-sink-input-mute", str(cur_idx), "0"],
                             capture_output=True, timeout=3,
                         )
-                        subprocess.run(
+                        SecureCommandRunner.run_safe(
                             ["pactl", "set-sink-input-volume", str(cur_idx), "100%"],
                             capture_output=True, timeout=3,
                         )
@@ -588,11 +589,11 @@ class AudioMonitor(GObject.Object):
                     is_bigcam = True
             # Handle last entry
             if is_bigcam and cur_idx is not None:
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pactl", "set-sink-input-mute", str(cur_idx), "0"],
                     capture_output=True, timeout=3,
                 )
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pactl", "set-sink-input-volume", str(cur_idx), "100%"],
                     capture_output=True, timeout=3,
                 )

@@ -72,6 +72,11 @@ def show_resource_warning(
 
     can_disable = [f for f in actionable if f.disableable]
 
+    # Prevent multiple popups from stacking
+    if getattr(parent, "_resource_warning_showing", False):
+        return
+    parent._resource_warning_showing = True
+
     # ── Build the dialog ─────────────────────────────────────────────
     title = _("High resource usage detected")
     ram_info = f"{snapshot.rss_mb:.0f} MB RAM"
@@ -119,6 +124,8 @@ def show_resource_warning(
     dialog.set_close_response("continue")
 
     def _on_response(_dlg: Adw.AlertDialog, response: str) -> None:
+        parent._resource_warning_showing = False
+
         if check.get_active():
             # Store dismissed feature IDs so we don't prompt again.
             new_dismissed = list(set(dismissed + [f.feature_id for f in actionable]))

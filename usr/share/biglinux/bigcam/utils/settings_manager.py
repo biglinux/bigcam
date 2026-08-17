@@ -43,6 +43,7 @@ _DEFAULTS: dict[str, object] = {
     "virtual-camera-enabled": True,
     "vcam-max-devices": 5,
     "vcam-name-template": "BigCam Virtual",
+    "vcam-disabled-cameras": [],  # List of camera IDs where vcam is explicitly disabled
     # Pipeline
     "prefer-v4l2": True,
     # Recording
