@@ -12,7 +12,7 @@ window.bigcam {
 .preview-area {
     background-color: #000000;
     border-radius: 0;
-    color-scheme: dark;
+
 }
 
 .preview-picture {
@@ -22,7 +22,7 @@ window.bigcam {
     
     /* --- Top Bar Overlay (gradient for legibility) --- */
     .osd-bar.top-bar {
-        color-scheme: dark;
+
         background: linear-gradient(to bottom,
                 rgba(0, 0, 0, 0.75) 0%,
                     rgba(0, 0, 0, 0.45) 70%,
@@ -79,7 +79,7 @@ window.bigcam {
         }
     /* --- Bottom Controls Overlay (gradient edge-to-edge) --- */
     .osd-bar.bottom-bar {
-        color-scheme: dark;
+
         background: linear-gradient(to top,
                 rgba(0, 0, 0, 0.75) 0%,
                     rgba(0, 0, 0, 0.45) 70%,
@@ -423,7 +423,7 @@ row.expander image.expander-row-arrow {
 
 /* --- Audio volume overlay (left side, centered, button-like) --- */
 .audio-overlay {
-    color-scheme: dark;
+
     background: rgba(255, 255, 255, 0.15);
     border-radius: 16px;
     padding: 8px 12px;
@@ -470,7 +470,7 @@ row.expander image.expander-row-arrow {
 .status-overlay {
     background: rgba(0, 0, 0, 0.7);
     color: rgba(255, 255, 255, 0.7);
-    color-scheme: dark;
+
 }
 
 /* --- Immersion mode (auto-hide chrome) --- */
@@ -485,7 +485,7 @@ window.bigcam overlay-split-view> :not(.shade) {
 }
 .sidebar-panel {
     background-color: alpha(black, 0.92);
-    color-scheme: dark;
+
 }
 
 .sidebar-panel .boxed-list {
@@ -643,3 +643,14 @@ window.bigcam overlay-split-view> :not(.shade) {
 .phone-camera-dialog .needs-attention .badge {
     background-color: #29a645;
 }
+.vcam-badge {
+    background: @accent_bg_color;
+    color: @accent_fg_color;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 14px;
+    min-height: 14px;
+    padding: 0 4px;
+}
+

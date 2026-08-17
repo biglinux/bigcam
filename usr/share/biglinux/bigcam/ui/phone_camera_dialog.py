@@ -50,7 +50,8 @@ class PhoneCameraDialog(Adw.Dialog):
     def __init__(
         self,
         server: PhoneCameraServer,
-        scrcpy: ScrcpyCamera | None = None,
+        scrcpy_usb: ScrcpyCamera | None = None,
+        scrcpy_wifi: ScrcpyCamera | None = None,
         airplay: AirPlayReceiver | None = None,
     ) -> None:
         super().__init__()
@@ -60,17 +61,15 @@ class PhoneCameraDialog(Adw.Dialog):
         self.add_css_class("phone-camera-dialog")
 
         self._server = server
-        self._scrcpy = scrcpy or ScrcpyCamera()
+        self._scrcpy_usb = scrcpy_usb or ScrcpyCamera()
+        self._scrcpy_wifi = scrcpy_wifi or ScrcpyCamera()
         self._airplay = airplay or AirPlayReceiver()
         self._server_sig_ids: list[int] = []
-        self._scrcpy_sig_ids: list[int] = []
+        self._scrcpy_usb_sig_ids: list[int] = []
+        self._scrcpy_wifi_sig_ids: list[int] = []
         self._airplay_sig_ids: list[int] = []
         self._usb_poll_id: int = 0
 
-        # Active mode tracking (None = idle, or tab id)
-        self._active_mode: str | None = None
-        # Track which tab started scrcpy (USB or Wi-Fi)
-        self._scrcpy_tab: str | None = None
         # Guard against widget access after dialog destroyed
         self._closed: bool = False
 
@@ -1066,46 +1065,12 @@ class PhoneCameraDialog(Adw.Dialog):
     #  MODE LOCKING (disable other tabs when a service is running)
     # ══════════════════════════════════════════════════════════════════
 
-    def _set_mode_lock(self, active_mode: str | None) -> None:
-        """Enable/disable controls so only one service runs at a time.
-
-        When active_mode is set, the badge_number of that tab shows a
-        green dot (via Adw badge) and other tabs' interactive controls
-        are desensitized.
-        """
-        self._active_mode = active_mode
-
-        # Browser tab
-        wifi_locked = active_mode is not None and active_mode != _TAB_BROWSER
-        self._wifi_start_btn.set_sensitive(
-            not wifi_locked and self._wifi_available
-        )
-        self._port_row.set_sensitive(not wifi_locked)
-
-        # USB tab
-        usb_locked = active_mode is not None and active_mode != _TAB_USB
-        self._usb_start_btn.set_sensitive(not usb_locked and self._usb_all_ok)
-
-        # Wi-Fi Advanced tab
-        adv_locked = active_mode is not None and active_mode != _TAB_WIFI_ADV
-        self._scrcpy_start_btn.set_sensitive(
-            not adv_locked and self._wadv_all_ok
-        )
-        self._scan_btn.set_sensitive(not adv_locked)
-        self._pair_btn.set_sensitive(not adv_locked)
-        self._discover_pair_btn.set_sensitive(not adv_locked)
-
-        # AirPlay tab
-        airplay_locked = active_mode is not None and active_mode != _TAB_AIRPLAY
-        self._airplay_start_btn.set_sensitive(
-            not airplay_locked and self._airplay_all_ok
-        )
-
-        # Attention dot on active tab (green indicator)
-        for tab_id, page in self._tab_pages.items():
-            page.set_needs_attention(
-                active_mode is not None and tab_id == active_mode
-            )
+    def _sync_tabs_state(self) -> None:
+        if self._closed: return
+        self._tab_pages[_TAB_BROWSER].set_needs_attention(self._server.running)
+        self._tab_pages[_TAB_USB].set_needs_attention(self._scrcpy_usb.running)
+        self._tab_pages[_TAB_WIFI_ADV].set_needs_attention(self._scrcpy_wifi.running)
+        self._tab_pages[_TAB_AIRPLAY].set_needs_attention(self._airplay.running)
 
     # ══════════════════════════════════════════════════════════════════
     #  DRAWING
@@ -1186,14 +1151,24 @@ class PhoneCameraDialog(Adw.Dialog):
             self._server.connect("status-changed", self._on_wifi_status_changed)
         )
 
-        self._scrcpy_sig_ids.append(
-            self._scrcpy.connect("connected", self._on_scrcpy_connected)
+        self._scrcpy_usb_sig_ids.append(
+            self._scrcpy_usb.connect("connected", self._on_scrcpy_connected)
         )
-        self._scrcpy_sig_ids.append(
-            self._scrcpy.connect("disconnected", self._on_scrcpy_disconnected)
+        self._scrcpy_usb_sig_ids.append(
+            self._scrcpy_usb.connect("disconnected", self._on_scrcpy_disconnected)
         )
-        self._scrcpy_sig_ids.append(
-            self._scrcpy.connect("status-changed", self._on_scrcpy_status_changed)
+        self._scrcpy_usb_sig_ids.append(
+            self._scrcpy_usb.connect("status-changed", self._on_scrcpy_status_changed)
+        )
+
+        self._scrcpy_wifi_sig_ids.append(
+            self._scrcpy_wifi.connect("connected", self._on_scrcpy_connected)
+        )
+        self._scrcpy_wifi_sig_ids.append(
+            self._scrcpy_wifi.connect("disconnected", self._on_scrcpy_disconnected)
+        )
+        self._scrcpy_wifi_sig_ids.append(
+            self._scrcpy_wifi.connect("status-changed", self._on_scrcpy_status_changed)
         )
 
         self._airplay_sig_ids.append(
@@ -1219,39 +1194,26 @@ class PhoneCameraDialog(Adw.Dialog):
             else:
                 self._set_dot_color(1.0, 0.76, 0.03)
                 self._set_status(_("Waiting for connection…"))
-            self._set_mode_lock(_TAB_BROWSER)
-        elif self._scrcpy.running:
-            # Determine which tab started scrcpy
-            # If the scrcpy device is USB-connected, it came from USB tab
-            serial = getattr(self._scrcpy, "_device_serial", "")
-            is_usb = False
-            if serial:
-                try:
-                    devs = ScrcpyCamera.list_devices()
-                    is_usb = any(
-                        d.serial == serial and d.transport == "usb"
-                        for d in devs
-                    )
-                except Exception:
-                    pass
-            if is_usb:
-                self._scrcpy_tab = _TAB_USB
-                self._usb_start_btn.set_visible(False)
-                self._usb_stop_btn.set_visible(True)
-                self._set_mode_lock(_TAB_USB)
-            else:
-                self._scrcpy_tab = _TAB_WIFI_ADV
-                self._scrcpy_start_btn.set_visible(False)
-                self._scrcpy_stop_btn.set_visible(True)
-                self._set_mode_lock(_TAB_WIFI_ADV)
+
+        if self._scrcpy_usb.running:
+            self._usb_start_btn.set_visible(False)
+            self._usb_stop_btn.set_visible(True)
             self._set_dot_color(0.2, 0.78, 0.35)
             self._set_status(_("Connected"))
-        elif self._airplay.running:
+
+        if self._scrcpy_wifi.running:
+            self._scrcpy_start_btn.set_visible(False)
+            self._scrcpy_stop_btn.set_visible(True)
+            self._set_dot_color(0.2, 0.78, 0.35)
+            self._set_status(_("Connected"))
+
+        if self._airplay.running:
             self._airplay_start_btn.set_visible(False)
             self._airplay_stop_btn.set_visible(True)
             self._set_dot_color(0.2, 0.78, 0.35)
             self._set_status(_("AirPlay connected"))
-            self._set_mode_lock(_TAB_AIRPLAY)
+            
+        self._sync_tabs_state()
 
     # ══════════════════════════════════════════════════════════════════
     #  BROWSER (Wi-Fi) HANDLERS
@@ -1285,7 +1247,7 @@ class PhoneCameraDialog(Adw.Dialog):
                 self._usb_poll_id = GLib.timeout_add_seconds(
                     3, self._check_usb_tethering
                 )
-                self._set_mode_lock(_TAB_BROWSER)
+                self._sync_tabs_state()
                 # Auto-hide success message after 5s
                 GLib.timeout_add_seconds(
                     5, lambda: self._wifi_inline_status.set_visible(False) or False
@@ -1320,7 +1282,7 @@ class PhoneCameraDialog(Adw.Dialog):
         self._wifi_url_row.set_subtitle(_("Start to see the address"))
         self._wifi_copy_btn.set_sensitive(False)
         self._qr_picture.set_paintable(None)
-        self._set_mode_lock(None)
+        self._sync_tabs_state()
         self.emit("phone-disconnected")
 
     def _update_wifi_urls(self) -> None:
@@ -1486,7 +1448,7 @@ class PhoneCameraDialog(Adw.Dialog):
             res_values[res_idx] if res_idx < len(res_values) else 1080
         )
 
-        v4l2_dev = self._find_loopback_device()
+        v4l2_dev = self._find_loopback_device("phone:scrcpy_usb")
         if not v4l2_dev:
             self._set_dot_color(0.85, 0.2, 0.2)
             self._set_status(_("No v4l2loopback device"))
@@ -1497,7 +1459,7 @@ class PhoneCameraDialog(Adw.Dialog):
         def _start_delayed() -> bool:
             self._set_dot_color(1.0, 0.76, 0.03)
             self._set_status(_("Starting…"))
-            ok = self._scrcpy.start(
+            ok = self._scrcpy_usb.start(
                 device_serial=device.serial,
                 v4l2_device=v4l2_dev,
                 camera_facing=facing,
@@ -1506,25 +1468,20 @@ class PhoneCameraDialog(Adw.Dialog):
                 max_size=max_size,
             )
             if ok:
-                self._scrcpy_tab = _TAB_USB
                 self._usb_start_btn.set_visible(False)
                 self._usb_stop_btn.set_visible(True)
-                self._set_mode_lock(_TAB_USB)
+                self._sync_tabs_state()
             return False
 
         GLib.timeout_add(500, _start_delayed)
 
     def _on_usb_stop(self, _btn: Gtk.Button) -> None:
-        self._scrcpy.stop()
-        self._scrcpy_tab = None
-        VirtualCamera.release_device("phone:scrcpy")
+        self._scrcpy_usb.stop()
+        VirtualCamera.release_device("phone:scrcpy_usb")
         self._usb_start_btn.set_visible(True)
         self._usb_stop_btn.set_visible(False)
         self._usb_inline_status.set_visible(False)
-        self._set_dot_color(0.6, 0.6, 0.6)
-        self._set_status(_("Idle"))
-        self._set_resolution(0, 0)
-        self._set_mode_lock(None)
+        self._sync_tabs_state()
         self.emit("scrcpy-disconnected")
 
     # ══════════════════════════════════════════════════════════════════
@@ -1860,7 +1817,7 @@ class PhoneCameraDialog(Adw.Dialog):
             res_values[res_idx] if res_idx < len(res_values) else 1080
         )
 
-        v4l2_dev = self._find_loopback_device()
+        v4l2_dev = self._find_loopback_device("phone:scrcpy_wifi")
         if not v4l2_dev:
             self._set_dot_color(0.85, 0.2, 0.2)
             self._set_status(_("No v4l2loopback device"))
@@ -1871,7 +1828,7 @@ class PhoneCameraDialog(Adw.Dialog):
         def _start_delayed() -> bool:
             self._set_dot_color(1.0, 0.76, 0.03)
             self._set_status(_("Starting…"))
-            ok = self._scrcpy.start(
+            ok = self._scrcpy_wifi.start(
                 device_serial=device.serial,
                 v4l2_device=v4l2_dev,
                 camera_facing=facing,
@@ -1880,62 +1837,50 @@ class PhoneCameraDialog(Adw.Dialog):
                 max_size=max_size,
             )
             if ok:
-                self._scrcpy_tab = _TAB_WIFI_ADV
                 self._scrcpy_start_btn.set_visible(False)
                 self._scrcpy_stop_btn.set_visible(True)
-                self._set_mode_lock(_TAB_WIFI_ADV)
+                self._sync_tabs_state()
             return False
 
         GLib.timeout_add(500, _start_delayed)
 
     def _on_scrcpy_stop(self, _btn: Gtk.Button) -> None:
-        self._scrcpy.stop()
-        self._scrcpy_tab = None
-        VirtualCamera.release_device("phone:scrcpy")
+        self._scrcpy_wifi.stop()
+        VirtualCamera.release_device("phone:scrcpy_wifi")
         self._scrcpy_start_btn.set_visible(True)
         self._scrcpy_stop_btn.set_visible(False)
-        self._set_dot_color(0.6, 0.6, 0.6)
-        self._set_status(_("Idle"))
-        self._set_resolution(0, 0)
-        self._set_mode_lock(None)
+        self._sync_tabs_state()
         self.emit("scrcpy-disconnected")
 
     def _on_scrcpy_connected(
-        self, _scrcpy: ScrcpyCamera, w: int, h: int
+        self, scrcpy: ScrcpyCamera, w: int, h: int
     ) -> None:
         if not self._closed:
             self._set_dot_color(0.2, 0.78, 0.35)
-            if self._scrcpy_tab == _TAB_USB:
+            if scrcpy == self._scrcpy_usb:
                 self._set_status(_("Connected via USB"))
             else:
                 self._set_status(_("Connected via Wi-Fi"))
             self._set_resolution(w, h)
+            self._sync_tabs_state()
         self.emit("scrcpy-connected", w, h)
 
-    def _on_scrcpy_disconnected(self, _scrcpy: ScrcpyCamera) -> None:
+    def _on_scrcpy_disconnected(self, scrcpy: ScrcpyCamera) -> None:
         if not self._closed:
             self._set_dot_color(0.85, 0.2, 0.2)
             self._set_status(_("Disconnected"))
             self._set_resolution(0, 0)
-            # Reset only the tab that started scrcpy
-            if self._scrcpy_tab == _TAB_USB:
+            if scrcpy == self._scrcpy_usb:
                 self._usb_start_btn.set_visible(True)
                 self._usb_stop_btn.set_visible(False)
-            elif self._scrcpy_tab == _TAB_WIFI_ADV:
-                self._scrcpy_start_btn.set_visible(True)
-                self._scrcpy_stop_btn.set_visible(False)
             else:
-                # Unknown source — reset both
                 self._scrcpy_start_btn.set_visible(True)
                 self._scrcpy_stop_btn.set_visible(False)
-                self._usb_start_btn.set_visible(True)
-                self._usb_stop_btn.set_visible(False)
-            self._scrcpy_tab = None
-            self._set_mode_lock(None)
+            self._sync_tabs_state()
         self.emit("scrcpy-disconnected")
 
     def _on_scrcpy_status_changed(
-        self, _scrcpy: ScrcpyCamera, status: str
+        self, scrcpy: ScrcpyCamera, status: str
     ) -> None:
         if self._closed:
             return
@@ -1944,7 +1889,7 @@ class PhoneCameraDialog(Adw.Dialog):
             self._set_status(_("Starting…"))
         elif status == "connected":
             self._set_dot_color(0.2, 0.78, 0.35)
-            if self._scrcpy_tab == _TAB_USB:
+            if scrcpy == self._scrcpy_usb:
                 self._set_status(_("Connected via USB"))
             else:
                 self._set_status(_("Connected via Wi-Fi"))
@@ -1954,6 +1899,7 @@ class PhoneCameraDialog(Adw.Dialog):
         elif status == "error":
             self._set_dot_color(0.85, 0.2, 0.2)
             self._set_status(_("Error"))
+        self._sync_tabs_state()
 
     # ══════════════════════════════════════════════════════════════════
     #  AIRPLAY HANDLERS
@@ -2006,7 +1952,7 @@ class PhoneCameraDialog(Adw.Dialog):
             if ok:
                 self._airplay_start_btn.set_visible(False)
                 self._airplay_stop_btn.set_visible(True)
-                self._set_mode_lock(_TAB_AIRPLAY)
+                self._sync_tabs_state()
             else:
                 VirtualCamera.release_device("phone:airplay")
                 self._set_dot_color(0.85, 0.2, 0.2)
@@ -2026,7 +1972,7 @@ class PhoneCameraDialog(Adw.Dialog):
         self._set_dot_color(0.6, 0.6, 0.6)
         self._set_status(_("Idle"))
         self._set_resolution(0, 0)
-        self._set_mode_lock(None)
+        self._sync_tabs_state()
         self.emit("airplay-disconnected")
 
     def _on_airplay_connected(
@@ -2050,7 +1996,7 @@ class PhoneCameraDialog(Adw.Dialog):
                 self._set_dot_color(0.6, 0.6, 0.6)
                 self._set_status(_("AirPlay stopped unexpectedly"))
                 self._set_resolution(0, 0)
-                self._set_mode_lock(None)
+                self._sync_tabs_state()
             self.emit("airplay-disconnected")
         else:
             # Client disconnected but UxPlay still running (can reconnect)
@@ -2083,11 +2029,14 @@ class PhoneCameraDialog(Adw.Dialog):
         for sid in self._server_sig_ids:
             self._server.disconnect(sid)
         self._server_sig_ids.clear()
-        # Only disconnect scrcpy signals if scrcpy is NOT running
-        if not self._scrcpy.running:
-            for sid in self._scrcpy_sig_ids:
-                self._scrcpy.disconnect(sid)
-            self._scrcpy_sig_ids.clear()
+        if not self._scrcpy_usb.running:
+            for sid in self._scrcpy_usb_sig_ids:
+                self._scrcpy_usb.disconnect(sid)
+            self._scrcpy_usb_sig_ids.clear()
+        if not self._scrcpy_wifi.running:
+            for sid in self._scrcpy_wifi_sig_ids:
+                self._scrcpy_wifi.disconnect(sid)
+            self._scrcpy_wifi_sig_ids.clear()
         # Only disconnect airplay signals if airplay is NOT running
         if self._airplay and not self._airplay.running:
             for sid in self._airplay_sig_ids:
@@ -2106,16 +2055,20 @@ class PhoneCameraDialog(Adw.Dialog):
             clipboard.set(text)
 
     @property
-    def scrcpy(self) -> ScrcpyCamera:
-        return self._scrcpy
+    def scrcpy_usb(self) -> ScrcpyCamera:
+        return self._scrcpy_usb
+
+    @property
+    def scrcpy_wifi(self) -> ScrcpyCamera:
+        return self._scrcpy_wifi
 
     @property
     def server(self) -> PhoneCameraServer:
         return self._server
 
     @staticmethod
-    def _find_loopback_device() -> str:
-        dev = VirtualCamera.allocate_device("phone:scrcpy")
+    def _find_loopback_device(camera_id: str = "phone:scrcpy_usb") -> str:
+        dev = VirtualCamera.allocate_device(camera_id)
         if dev:
             return dev
         # Fallback: find a v4l2loopback device by checking driver name

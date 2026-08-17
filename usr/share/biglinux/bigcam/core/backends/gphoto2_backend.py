@@ -7,6 +7,7 @@ import os
 import re
 import signal
 import subprocess
+from utils.command_runner import SecureCommandRunner
 import threading
 import time
 from typing import Any
@@ -38,27 +39,27 @@ class GPhoto2Backend(CameraBackend):
     @staticmethod
     def _kill_gvfs() -> None:
         """Kill GVFS processes that interfere with gphoto2 USB access."""
-        subprocess.run(
+        SecureCommandRunner.run_safe(
             ["systemctl", "--user", "stop", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
             timeout=5,
         )
-        subprocess.run(
+        SecureCommandRunner.run_safe(
             ["systemctl", "--user", "mask", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
             timeout=5,
         )
-        subprocess.run(
+        SecureCommandRunner.run_safe(
             ["pkill", "-9", "-f", "gvfs-gphoto2-volume-monitor"],
             capture_output=True,
             timeout=5,
         )
-        subprocess.run(
+        SecureCommandRunner.run_safe(
             ["pkill", "-9", "-f", "gvfsd-gphoto2"],
             capture_output=True,
             timeout=5,
         )
-        subprocess.run(
+        SecureCommandRunner.run_safe(
             ["gio", "mount", "-u", "gphoto2://"],
             capture_output=True,
             timeout=5,
@@ -73,7 +74,7 @@ class GPhoto2Backend(CameraBackend):
             usb_path = f"/dev/bus/usb/{bus}/{dev}"
             if not os.path.exists(usb_path):
                 return
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["fuser", usb_path],
                 capture_output=True,
                 text=True,
@@ -104,7 +105,7 @@ class GPhoto2Backend(CameraBackend):
                 except (ProcessLookupError, FileNotFoundError, PermissionError):
                     pass
             if killed:
-                time.sleep(3)
+                time.sleep(0.5)
         except Exception:
             pass
 
@@ -136,7 +137,7 @@ class GPhoto2Backend(CameraBackend):
             )
 
             # Check lsusb for this specific device
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["lsusb", "-s", f"{bus}:{dev}"],
                 capture_output=True,
                 text=True,
@@ -145,7 +146,7 @@ class GPhoto2Backend(CameraBackend):
             log.debug(f"USB diag lsusb: {result.stdout.strip()}")
 
             # Check fuser
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["fuser", usb_path],
                 capture_output=True,
                 text=True,
@@ -155,7 +156,7 @@ class GPhoto2Backend(CameraBackend):
             log.debug(f"USB diag fuser: '{holders}'")
 
             # Check gphoto2 --auto-detect
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["gphoto2", "--auto-detect"],
                 capture_output=True,
                 text=True,
@@ -169,7 +170,7 @@ class GPhoto2Backend(CameraBackend):
             log.debug(f"USB diag auto-detect: {lines}")
 
             # Check dmesg for recent USB errors on this bus
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["dmesg", "--time-format=reltime"],
                 capture_output=True,
                 text=True,
@@ -189,7 +190,7 @@ class GPhoto2Backend(CameraBackend):
 
     def is_available(self) -> bool:
         try:
-            subprocess.run(["gphoto2", "--version"], capture_output=True, check=True, timeout=5)
+            SecureCommandRunner.run_safe(["gphoto2", "--version"], capture_output=True, check=True, timeout=5)
             return True
         except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
             return False
@@ -205,7 +206,7 @@ class GPhoto2Backend(CameraBackend):
             ["gphoto2", "--port", port, "--abilities"],
         ):
             try:
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     cmd, capture_output=True, text=True, timeout=15, env=env,
                 )
                 if result.returncode != 0:
@@ -228,7 +229,7 @@ class GPhoto2Backend(CameraBackend):
         """
         env = {**os.environ, "LANG": "C", "LC_ALL": "C"}
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["gphoto2", "--port", port, "--list-config"],
                 capture_output=True, text=True, timeout=15, env=env,
             )
@@ -259,17 +260,17 @@ class GPhoto2Backend(CameraBackend):
             # Kill GVFS to release the camera (skip if already streaming
             # to avoid disrupting an active session)
             if not self._streaming_active:
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pkill", "-f", "gvfs-gphoto2-volume-monitor"],
                     capture_output=True,
                     timeout=5,
                 )
-                time.sleep(1)
+                time.sleep(0.3)
 
             # Retry up to 2 times in case GVFS hasn't released the device yet
             max_attempts = 1 if self._streaming_active else 2
             for attempt in range(max_attempts):
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     ["gphoto2", "--auto-detect"],
                     capture_output=True,
                     text=True,
@@ -300,7 +301,7 @@ class GPhoto2Backend(CameraBackend):
                 if cameras:
                     break
                 if not self._streaming_active:
-                    time.sleep(1)
+                    time.sleep(0.3)
         except Exception:
             pass
         if cameras:
@@ -332,7 +333,7 @@ class GPhoto2Backend(CameraBackend):
         """Re-detect the current USB port for a camera (device number may change)."""
         old_port = camera.extra.get("port", camera.device_path)
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["gphoto2", "--auto-detect"],
                 capture_output=True,
                 text=True,
@@ -508,7 +509,7 @@ class GPhoto2Backend(CameraBackend):
                     self._diagnose_usb(port)
 
                 log.debug(f"get_controls attempt {attempt}/{len(delays)}")
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     ["gphoto2", "--port", port, "--list-all-config"],
                     capture_output=True,
                     text=True,
@@ -530,7 +531,7 @@ class GPhoto2Backend(CameraBackend):
                 log.debug(f"get_controls fallback port={port}")
                 self._release_usb_device(port)
                 self._diagnose_usb(port)
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     ["gphoto2", "--port", port, "--list-all-config"],
                     capture_output=True,
                     text=True,
@@ -556,7 +557,7 @@ class GPhoto2Backend(CameraBackend):
                 cmd = ["gphoto2", "--port", port]
                 for cfg in batch:
                     cmd.extend(["--get-config", cfg])
-                res = subprocess.run(
+                res = SecureCommandRunner.run_safe(
                     cmd,
                     capture_output=True,
                     text=True,
@@ -576,7 +577,7 @@ class GPhoto2Backend(CameraBackend):
 
     def _read_single_config(self, port: str, cfg_path: str) -> CameraControl | None:
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["gphoto2", "--port", port, "--get-config", cfg_path],
                 capture_output=True,
                 text=True,
@@ -704,7 +705,7 @@ class GPhoto2Backend(CameraBackend):
     def set_control(self, camera: CameraInfo, control_id: str, value: Any) -> bool:
         port = camera.extra.get("port", camera.device_path)
         try:
-            subprocess.run(
+            SecureCommandRunner.run_safe(
                 ["gphoto2", "--port", port, "--set-config", f"{control_id}={value}"],
                 capture_output=True,
                 check=True,
@@ -791,11 +792,12 @@ class GPhoto2Backend(CameraBackend):
             import tempfile
 
             with tempfile.TemporaryFile() as f:
-                res = subprocess.run(
+                res = SecureCommandRunner.run_safe(
                     [script, port_arg, udp_port, camera.name, v4l2_dev],
                     stdout=f,
                     stderr=subprocess.STDOUT,
                     timeout=60,
+                    capture_output=False,
                 )
                 f.seek(0)
                 raw = f.read()
@@ -860,36 +862,36 @@ class GPhoto2Backend(CameraBackend):
                 safe_udp = re.escape(udp_port)
 
                 # Graceful SIGTERM first
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pkill", "-f", f"gphoto2.*--port {safe_lp}"],
                     capture_output=True,
                     timeout=5,
                 )
                 if launch_port != port:
-                    subprocess.run(
+                    SecureCommandRunner.run_safe(
                         ["pkill", "-f", f"gphoto2.*--port {safe_port}"],
                         capture_output=True,
                         timeout=5,
                     )
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pkill", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
                     capture_output=True,
                     timeout=5,
                 )
                 time.sleep(2)
                 # Force-kill survivors
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pkill", "-9", "-f", f"gphoto2.*--port {safe_lp}"],
                     capture_output=True,
                     timeout=5,
                 )
                 if launch_port != port:
-                    subprocess.run(
+                    SecureCommandRunner.run_safe(
                         ["pkill", "-9", "-f", f"gphoto2.*--port {safe_port}"],
                         capture_output=True,
                         timeout=5,
                     )
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pkill", "-9", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
                     capture_output=True,
                     timeout=5,
@@ -897,13 +899,13 @@ class GPhoto2Backend(CameraBackend):
             else:
                 with self._streams_lock:
                     self._active_streams.clear()
-                subprocess.run(["pkill", "-f", "gphoto2 --"], capture_output=True, timeout=5)
+                SecureCommandRunner.run_safe(["pkill", "-f", "gphoto2 --"], capture_output=True, timeout=5)
                 time.sleep(1)
-                subprocess.run(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True, timeout=5)
-                subprocess.run(
+                SecureCommandRunner.run_safe(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True, timeout=5)
+                SecureCommandRunner.run_safe(
                     ["pkill", "-9", "-f", "ffmpeg.*mpegts"], capture_output=True, timeout=5
                 )
-                subprocess.run(
+                SecureCommandRunner.run_safe(
                     ["pkill", "-9", "-f", "ffmpeg.*v4l2"], capture_output=True, timeout=5
                 )
         except Exception:
@@ -927,14 +929,14 @@ class GPhoto2Backend(CameraBackend):
             stream_info = self._active_streams[port].copy()
         # Verify the process is actually alive using the launch port
         launch_port = stream_info.get("launch_port", port)
-        result = subprocess.run(
+        result = SecureCommandRunner.run_safe(
             ["pgrep", "-f", f"gphoto2.*--port {launch_port}"],
             capture_output=True,
         )
         if result.returncode != 0:
             # Also try current port (in case it matches)
             if launch_port != port:
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     ["pgrep", "-f", f"gphoto2.*--port {port}"],
                     capture_output=True,
                 )
@@ -967,7 +969,7 @@ class GPhoto2Backend(CameraBackend):
                     "capture_photo attempt %d: starting gphoto2 on port %s",
                     attempt + 1, port,
                 )
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     [
                         "gphoto2",
                         *camera_arg,
@@ -985,7 +987,8 @@ class GPhoto2Backend(CameraBackend):
                 log.info(
                     "capture_photo attempt %d: rc=%d stdout=%s stderr=%s",
                     attempt + 1, result.returncode,
-                    result.stdout[:200], result.stderr[:200],
+                    result.stdout[:200] if result.stdout else "",
+                    result.stderr[:200] if result.stderr else "",
                 )
                 if result.returncode == 0 and os.path.isfile(output_path):
                     return True
@@ -1002,7 +1005,7 @@ class GPhoto2Backend(CameraBackend):
                 # Kill the timed-out process
                 if port:
                     safe_port = re.escape(port)
-                    subprocess.run(
+                    SecureCommandRunner.run_safe(
                         ["pkill", "-9", "-f", f"gphoto2.*{safe_port}"],
                         capture_output=True,
                     )

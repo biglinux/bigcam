@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 from typing import Any
+import time
 
 from constants import BackendType, ControlCategory, ControlType
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
@@ -109,18 +110,21 @@ class V4L2Backend(CameraBackend):
 
     def detect_cameras(self) -> list[CameraInfo]:
         cameras: list[CameraInfo] = []
-        try:
-            result = subprocess.run(
-                ["v4l2-ctl", "--list-devices"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode != 0:
-                return cameras
-            cameras = self._parse_devices(result.stdout)
-        except Exception:
-            pass
+        for _ in range(3):
+            try:
+                result = subprocess.run(
+                    ["v4l2-ctl", "--list-devices"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if result.returncode == 0:
+                    cameras = self._parse_devices(result.stdout)
+                    if cameras:
+                        break
+            except Exception:
+                pass
+            time.sleep(0.5)
         return cameras
 
     def _parse_devices(self, output: str) -> list[CameraInfo]:
@@ -456,7 +460,6 @@ class V4L2Backend(CameraBackend):
         plf = self._detect_power_line_freq()
         src = (
             f"v4l2src device={device} io-mode=mmap do-timestamp=true"
-            f" extra-controls=\"s,power_line_frequency={plf}\""
         )
         if fmt is None:
             fmt = self._pick_best_format(camera)
@@ -505,9 +508,10 @@ class V4L2Backend(CameraBackend):
         return None
 
     def _pick_best_format(self, camera: CameraInfo) -> VideoFormat | None:
-        """Auto-select format: prefer MJPEG at highest resolution with 30fps."""
+        """Auto-select format: prefer MJPEG at highest resolution, cap RAW to 640x480."""
         if not camera.formats:
             return None
+            
         mjpeg = [
             f
             for f in camera.formats
@@ -518,14 +522,29 @@ class V4L2Backend(CameraBackend):
             for f in camera.formats
             if f.pixel_format != "MJPG" and f.fps and max(f.fps) >= 25
         ]
-        # Prefer MJPEG for higher resolutions (lower USB bandwidth)
-        candidates = mjpeg if mjpeg else raw
-        if not candidates:
-            candidates = camera.formats
-        candidates.sort(
+        
+        # Prefer MJPEG for lower USB bandwidth
+        if mjpeg:
+            mjpeg.sort(
+                key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
+            )
+            return mjpeg[0]
+            
+        if raw:
+            # For uncompressed formats, cap at 640x480 to prevent USB 2.0 saturation
+            raw_capped = [f for f in raw if f.width <= 640 and f.height <= 480]
+            if not raw_capped:
+                raw_capped = raw
+                
+            raw_capped.sort(
+                key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
+            )
+            return raw_capped[0]
+            
+        camera.formats.sort(
             key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
         )
-        return candidates[0]
+        return camera.formats[0]
 
     # -- photo ---------------------------------------------------------------
 

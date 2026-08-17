@@ -51,6 +51,9 @@ class LibcameraBackend(CameraBackend):
                     idx = m.group(1)
                     name = m.group(2).strip()
                     path = m.group(3).strip()
+                    # Skip USB/UVC cameras — V4L2 backend handles those
+                    if "usb" in path.lower() or "uvc" in path.lower():
+                        continue
                     cameras.append(
                         CameraInfo(
                             id=f"libcamera:{idx}",

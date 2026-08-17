@@ -8,6 +8,7 @@ import re
 import shutil
 import signal
 import subprocess
+from utils.command_runner import SecureCommandRunner
 import threading
 from typing import Optional
 
@@ -85,7 +86,7 @@ class ScrcpyCamera(GObject.Object):
     def scrcpy_version() -> str:
         """Return the scrcpy version string or empty on failure."""
         try:
-            out = subprocess.run(
+            out = SecureCommandRunner.run_safe(
                 [_SCRCPY_BIN, "--version"],
                 capture_output=True,
                 text=True,
@@ -102,7 +103,7 @@ class ScrcpyCamera(GObject.Object):
     def ensure_adb_server() -> bool:
         """Start the ADB server if not already running. Returns True on success."""
         try:
-            subprocess.run(
+            SecureCommandRunner.run_safe(
                 [_ADB_BIN, "start-server"],
                 capture_output=True,
                 timeout=10,
@@ -121,7 +122,7 @@ class ScrcpyCamera(GObject.Object):
         callers can show better diagnostics.
         """
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 [_ADB_BIN, "devices", "-l"],
                 capture_output=True,
                 text=True,
@@ -159,7 +160,7 @@ class ScrcpyCamera(GObject.Object):
             # For authorized devices, try to get the marketing name
             if state == "device" and (model == serial or model.startswith("2")):
                 try:
-                    name_result = subprocess.run(
+                    name_result = SecureCommandRunner.run_safe(
                         [_ADB_BIN, "-s", serial, "shell",
                          "getprop", "ro.product.marketname"],
                         capture_output=True,
@@ -212,7 +213,7 @@ class ScrcpyCamera(GObject.Object):
         }
         found: list[dict[str, str]] = []
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["lsusb"],
                 capture_output=True,
                 text=True,
@@ -237,7 +238,7 @@ class ScrcpyCamera(GObject.Object):
     def get_device_ip(serial: str) -> str:
         """Get the WiFi IP address of a device connected via USB."""
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 [_ADB_BIN, "-s", serial, "shell", "ip", "route"],
                 capture_output=True,
                 text=True,
@@ -268,7 +269,7 @@ class ScrcpyCamera(GObject.Object):
             return False, "IP:PORT and pairing code are required"
 
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 [_ADB_BIN, "pair", host_port, pairing_code],
                 capture_output=True,
                 text=True,
@@ -289,7 +290,7 @@ class ScrcpyCamera(GObject.Object):
         for port in ("5555",):
             target = f"{ip}:{port}"
             try:
-                result = subprocess.run(
+                result = SecureCommandRunner.run_safe(
                     [_ADB_BIN, "connect", target],
                     capture_output=True,
                     text=True,
@@ -316,7 +317,7 @@ class ScrcpyCamera(GObject.Object):
 
         # Enable ADB over TCP
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 [_ADB_BIN, "-s", serial, "tcpip", "5555"],
                 capture_output=True,
                 text=True,
@@ -332,7 +333,7 @@ class ScrcpyCamera(GObject.Object):
         time.sleep(1)  # Give the device time to switch
         target = f"{ip}:5555"
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 [_ADB_BIN, "connect", target],
                 capture_output=True,
                 text=True,
@@ -353,7 +354,7 @@ class ScrcpyCamera(GObject.Object):
         Returns list of dicts with keys: id, facing, size.
         """
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 [_SCRCPY_BIN, "--list-cameras", "-s", device_serial],
                 capture_output=True,
                 text=True,
@@ -443,7 +444,7 @@ class ScrcpyCamera(GObject.Object):
         log.info("Starting scrcpy: %s", " ".join(cmd))
 
         try:
-            self._process = subprocess.Popen(
+            self._process = SecureCommandRunner.popen_safe(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -500,7 +501,7 @@ class ScrcpyCamera(GObject.Object):
         if not self._v4l2_device:
             return 0, 0
         try:
-            result = subprocess.run(
+            result = SecureCommandRunner.run_safe(
                 ["v4l2-ctl", "-d", self._v4l2_device, "--get-fmt-video"],
                 capture_output=True,
                 text=True,

@@ -88,7 +88,13 @@ class PipeWireBackend(CameraBackend):
 
     @staticmethod
     def _is_video_source(props: dict[str, str]) -> bool:
-        return props.get("media.class", "") in ("Video/Source", "Video/Source/Virtual")
+        mc = props.get("media.class", "")
+        if mc not in ("Video/Source", "Video/Source/Virtual"):
+            return False
+        # Skip real V4L2 hardware cameras — the V4L2 backend handles those
+        if props.get("api.v4l2.path") or props.get("device.api") == "v4l2":
+            return False
+        return True
 
     @staticmethod
     def _make_camera(node_id: str, props: dict[str, str]) -> CameraInfo:

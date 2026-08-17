@@ -6,6 +6,7 @@ import asyncio
 import collections
 import logging
 import os
+import secrets
 import socket
 import ssl
 import subprocess
@@ -30,6 +31,23 @@ try:
     _HAS_AIOHTTP = True
 except ImportError:
     _HAS_AIOHTTP = False
+
+try:
+    from aioquic.asyncio import serve as quic_serve
+    from aioquic.asyncio.protocol import QuicConnectionProtocol
+    from aioquic.h3.connection import H3_ALPN, H3Connection
+    from aioquic.h3.events import (
+        DatagramReceived,
+        H3Event,
+        HeadersReceived,
+        WebTransportStreamDataReceived,
+    )
+    from aioquic.quic.configuration import QuicConfiguration
+    from aioquic.quic.events import ProtocolNegotiated, QuicEvent
+
+    _HAS_QUIC = True
+except ImportError:
+    _HAS_QUIC = False
 
 _CERT_DIR = os.path.join(GLib.get_user_cache_dir(), "bigcam")
 _CERT_FILE = os.path.join(_CERT_DIR, "cert.pem")
@@ -204,8 +222,10 @@ button:active{transform:scale(.95);opacity:.85}
 <div class="tip">Accept the security warning to allow camera access.</div>
 
 <script>
-let stream=null,ws=null,timer=null,frameCount=0,lastStatTime=0,sending=false;
-let useHttp=false;
+/*CERT_HASH*/
+/*HAS_QUIC*/
+let stream=null,ws=null,wt=null,timer=null,frameCount=0,lastStatTime=0,sending=false,adaptiveQ=0.75,baseQ=0.75;
+let useHttp=false,useWT=false;
 let audioCtx=null,audioProcessor=null,audioSource=null;
 const video=document.getElementById('video'),
       canvas=document.getElementById('canvas'),
@@ -228,18 +248,42 @@ async function start(){
     video.srcObject=stream;
     await video.play();
 
-    const proto=location.protocol==='https:'?'wss:':'ws:';
-    const wsUrl=proto+'//'+location.host+'/ws';
-    useHttp=false;
+    useHttp=false;useWT=false;wt=null;ws=null;
+    const search = location.search;
 
-    try{
-      ws=await connectWS(wsUrl);
-    }catch(e){
-      console.warn('WebSocket failed, falling back to HTTP POST:',e);
-      ws=null;useHttp=true;
+    // Try WebTransport (QUIC/UDP) first for lower latency
+    if(typeof HAS_QUIC!=='undefined'&&HAS_QUIC&&typeof WebTransport!=='undefined'){
+      try{
+        const opts={};
+        if(typeof CERT_HASH!=='undefined'&&CERT_HASH){
+          const raw=atob(CERT_HASH);
+          const hash=new Uint8Array(raw.length);
+          for(let i=0;i<raw.length;i++)hash[i]=raw.charCodeAt(i);
+          opts.serverCertificateHashes=[{algorithm:'sha-256',value:hash.buffer}];
+        }
+        wt=new WebTransport('https://'+location.host+'/camera'+search,opts);
+        await wt.ready;
+        useWT=true;
+        console.log('Using WebTransport (QUIC/UDP)');
+      }catch(e){
+        console.warn('WebTransport unavailable:',e);
+        wt=null;useWT=false;
+      }
     }
 
-    setStatus('Connected','connected');
+    // Fall back to WebSocket (TCP)
+    if(!useWT){
+      const proto=location.protocol==='https:'?'wss:':'ws:';
+      const wsUrl=proto+'//'+location.host+'/ws'+search;
+      try{
+        ws=await connectWS(wsUrl);
+      }catch(e){
+        console.warn('WebSocket failed, falling back to HTTP POST:',e);
+        ws=null;useHttp=true;
+      }
+    }
+
+    setStatus(useWT?'Connected (QUIC)':'Connected','connected');
     startCapture();
     startAudioCapture();
     document.getElementById('btnStart').hidden=true;
@@ -262,21 +306,40 @@ function startCapture(){
   const fps=parseInt(document.getElementById('fps').value)||30;
   const interval=Math.round(1000/fps);
   frameCount=0;lastStatTime=performance.now();sending=false;
+  // Adaptive quality: reduce when network is congested
+  adaptiveQ=parseFloat(document.getElementById('quality').value)||0.75;
+  baseQ=adaptiveQ;
   timer=setInterval(captureFrame,interval);
 }
 
 function captureFrame(){
   if(video.videoWidth===0)return;
   if(sending)return;
+  // Adaptive frame dropping: skip if WebSocket buffer is backed up
+  if(!useWT&&ws&&ws.bufferedAmount>131072){return}
   sending=true;
   canvas.width=video.videoWidth;
   canvas.height=video.videoHeight;
   ctx.drawImage(video,0,0);
-  const q=parseFloat(document.getElementById('quality').value)||0.75;
+  // Adaptive quality: reduce when buffer grows, restore when clear
+  if(!useWT&&ws){
+    if(ws.bufferedAmount>65536){adaptiveQ=Math.max(0.3,baseQ-0.2)}
+    else if(ws.bufferedAmount<16384){adaptiveQ=Math.min(baseQ,adaptiveQ+0.05)}
+  }
   canvas.toBlob(blob=>{
     if(!blob){sending=false;return}
-    if(useHttp){
-      fetch('/frame',{method:'POST',body:blob}).then(()=>{sending=false}).catch(()=>{sending=false});
+    if(useWT&&wt){
+      // QUIC: each frame as an independent unidirectional stream (no HOL blocking)
+      blob.arrayBuffer().then(buf=>{
+        wt.createUnidirectionalStream().then(stream=>{
+          const w=stream.getWriter();
+          w.write(new Uint8Array(buf));
+          w.close();
+          sending=false;
+        }).catch(()=>{sending=false});
+      });
+    }else if(useHttp){
+      fetch('/frame'+location.search,{method:'POST',body:blob}).then(()=>{sending=false}).catch(()=>{sending=false});
     }else if(ws&&ws.readyState===1){
       blob.arrayBuffer().then(buf=>{ws.send(buf);sending=false});
     }else{sending=false}
@@ -284,16 +347,18 @@ function captureFrame(){
     const now=performance.now();
     if(now-lastStatTime>=1000){
       const fps=Math.round(frameCount*1000/(now-lastStatTime));
+      const mode=useWT?'QUIC':'WS';
       document.getElementById('stats').textContent=
-        canvas.width+'\\u00d7'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB';
+        canvas.width+'\\u00d7'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB | q'+Math.round(adaptiveQ*100)+' | '+mode;
       frameCount=0;lastStatTime=now;
     }
-  },'image/jpeg',q);
+  },'image/jpeg',adaptiveQ);
 }
 
 function stopCapture(){
   if(timer){clearInterval(timer);timer=null}
   stopAudioCapture();
+  if(wt){try{wt.close()}catch(e){}wt=null;useWT=false}
   if(ws){ws.close();ws=null}
   if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
   video.srcObject=null;
@@ -304,19 +369,16 @@ function stopCapture(){
 }
 
 function startAudioCapture(){
-  if(!stream||(!ws&&!useHttp))return;
+  if(!stream||(!ws&&!useHttp&&!useWT))return;
   const audioTracks=stream.getAudioTracks();
   if(!audioTracks.length){console.warn('No audio tracks available');return}
   try{
     audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
     audioSource=audioCtx.createMediaStreamSource(stream);
-    audioProcessor=audioCtx.createScriptProcessor(8192,1,1);
+    audioProcessor=audioCtx.createScriptProcessor(2048,1,1);
     audioSource.connect(audioProcessor);
     audioProcessor.connect(audioCtx.destination);
-    let audioQueue=[];
-    let sending=false;
     audioProcessor.onaudioprocess=function(e){
-      if(!ws||ws.readyState!==1)return;
       const pcm=e.inputBuffer.getChannelData(0);
       const buf=new ArrayBuffer(1+pcm.length*2);
       const view=new DataView(buf);
@@ -324,7 +386,12 @@ function startAudioCapture(){
       for(let i=0;i<pcm.length;i++){
         view.setInt16(1+i*2,Math.max(-32768,Math.min(32767,pcm[i]*32768)),true);
       }
-      if(ws.bufferedAmount<65536){ws.send(buf)}
+      if(useWT&&wt){
+        // Audio via QUIC datagram (unreliable, low latency — ideal for audio)
+        try{const w=wt.datagrams.writable.getWriter();w.write(new Uint8Array(buf));w.releaseLock()}catch(e){}
+      }else if(ws&&ws.readyState===1&&ws.bufferedAmount<65536){
+        ws.send(buf);
+      }
     };
     console.log('Audio capture started at '+audioCtx.sampleRate+'Hz');
   }catch(e){console.warn('Audio capture failed:',e)}
@@ -362,6 +429,109 @@ if(screen.orientation){
 """
 
 
+def _cert_sha256_b64() -> str:
+    """Return the base64-encoded SHA-256 hash of the DER-encoded certificate.
+
+    Needed for WebTransport with self-signed certificates (serverCertificateHashes).
+    """
+    import base64
+    import hashlib
+
+    try:
+        with open(_CERT_FILE, "rb") as f:
+            pem = f.read()
+        # Extract DER from PEM (between BEGIN/END CERTIFICATE markers)
+        import re
+
+        m = re.search(
+            b"-----BEGIN CERTIFICATE-----\n(.+?)\n-----END CERTIFICATE-----",
+            pem,
+            re.DOTALL,
+        )
+        if not m:
+            return ""
+        der = base64.b64decode(m.group(1))
+        return base64.b64encode(hashlib.sha256(der).digest()).decode("ascii")
+    except Exception:
+        return ""
+
+
+# ---------------------------------------------------------------------------
+# QUIC / WebTransport protocol handler (optional — requires aioquic)
+# ---------------------------------------------------------------------------
+
+if _HAS_QUIC:
+
+    class _PhoneWTProtocol(QuicConnectionProtocol):
+        """HTTP/3 WebTransport server protocol for phone camera streaming.
+
+        Each video frame arrives as a complete unidirectional stream.
+        Audio packets arrive as QUIC datagrams (unreliable, low latency).
+        """
+
+        def __init__(self, *args: Any, phone_server: Any = None, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            self._phone = phone_server
+            self._h3: Optional[H3Connection] = None
+            self._session_ids: set[int] = set()
+            self._stream_bufs: dict[int, bytearray] = {}
+
+        def quic_event_received(self, event: QuicEvent) -> None:
+            if isinstance(event, ProtocolNegotiated):
+                self._h3 = H3Connection(self._quic, enable_webtransport=True)
+            if self._h3 is not None:
+                for h3_event in self._h3.handle_event(event):
+                    self._h3_event_received(h3_event)
+
+        def _h3_event_received(self, event: H3Event) -> None:
+            if isinstance(event, HeadersReceived):
+                headers = dict(event.headers)
+                if (
+                    headers.get(b":method") == b"CONNECT"
+                    and headers.get(b":protocol") == b"webtransport"
+                ):
+                    import urllib.parse
+                    path = headers.get(b":path", b"").decode("utf-8", errors="ignore")
+                    parsed = urllib.parse.urlparse(path)
+                    qs = urllib.parse.parse_qs(parsed.query)
+                    token = qs.get("token", [""])[0]
+                    
+                    if not token or not secrets.compare_digest(token, self._phone._token):
+                        self._h3.send_headers(
+                            stream_id=event.stream_id,
+                            headers=[(b":status", b"401")],
+                        )
+                        self.transmit()
+                        log.warning("WebTransport session rejected: Unauthorized")
+                        return
+
+                    self._session_ids.add(event.stream_id)
+                    self._h3.send_headers(
+                        stream_id=event.stream_id,
+                        headers=[(b":status", b"200")],
+                    )
+                    self.transmit()
+                    log.info("WebTransport session established")
+
+            elif isinstance(event, WebTransportStreamDataReceived):
+                sid = event.stream_id
+                if sid not in self._stream_bufs:
+                    self._stream_bufs[sid] = bytearray()
+                self._stream_bufs[sid].extend(event.data)
+                if event.stream_ended:
+                    data = bytes(self._stream_bufs.pop(sid))
+                    if data:
+                        asyncio.ensure_future(
+                            self._phone._decode_and_emit_frame(data)
+                        )
+
+            elif isinstance(event, DatagramReceived):
+                # Audio packets: first byte 0x01, rest is PCM S16LE
+                raw = event.data
+                if raw and raw[0] == 0x01:
+                    self._phone._push_audio_data(bytes(raw[1:]))
+
+
 class PhoneCameraServer(GObject.Object):
     """HTTPS + WebSocket server that receives JPEG frames from a smartphone.
 
@@ -386,6 +556,7 @@ class PhoneCameraServer(GObject.Object):
         self._width = 0
         self._height = 0
         self._ws_clients: set[Any] = set()
+        self._token = secrets.token_urlsafe(16)
 
         # fn(numpy_bgr_frame) — called from the asyncio thread
         self._frame_callback: Optional[Callable] = None
@@ -396,7 +567,7 @@ class PhoneCameraServer(GObject.Object):
         self._audio_started = False
         self._desired_volume: float = 1.0
         self._desired_muted: bool = False
-        self._audio_queue: collections.deque[bytes] = collections.deque(maxlen=120)
+        self._audio_queue: collections.deque[bytes] = collections.deque(maxlen=5)
         self._audio_drain_thread: Optional[threading.Thread] = None
         self._audio_drain_stop = threading.Event()
 
@@ -428,7 +599,7 @@ class PhoneCameraServer(GObject.Object):
         return (time.monotonic() - self._last_frame_time) < 3.0
 
     def get_url(self) -> str:
-        return f"https://{_get_local_ip()}:{self._port}/"
+        return f"https://{_get_local_ip()}:{self._port}/?token={self._token}"
 
     def set_frame_callback(self, callback: Optional[Callable]) -> None:
         self._frame_callback = callback
@@ -447,12 +618,12 @@ class PhoneCameraServer(GObject.Object):
             self._audio_proc = subprocess.Popen(
                 [
                     "gst-launch-1.0", "-q",
-                    "fdsrc", "fd=0",
+                    "fdsrc", "fd=0", "blocksize=4096",
                     "!", "audio/x-raw,format=S16LE,rate=16000,channels=1,layout=interleaved",
-                    "!", "queue", "max-size-time=5000000000",
+                    "!", "queue", "max-size-time=50000000", "leaky=downstream",
                     "!", "audioconvert",
                     "!", "audioresample",
-                    "!", "autoaudiosink",
+                    "!", "autoaudiosink", "sync=false",
                 ],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.DEVNULL,
@@ -601,6 +772,9 @@ class PhoneCameraServer(GObject.Object):
                 for ws in list(self._ws_clients):
                     await ws.close()
                 self._ws_clients.clear()
+                if getattr(self, "_quic_server", None) is not None:
+                    self._quic_server.close()
+                    self._quic_server = None
                 if self._runner:
                     await self._runner.cleanup()
 
@@ -657,13 +831,61 @@ class PhoneCameraServer(GObject.Object):
         await self._runner.setup()
         site = web.TCPSite(self._runner, "0.0.0.0", self._port, ssl_context=ssl_ctx)
         await site.start()
-        log.info("Phone camera server listening on port %d", self._port)
+        log.info("Phone camera server listening on port %d (HTTPS/TCP)", self._port)
 
-    async def _handle_index(self, _request: web.Request) -> web.Response:
-        return web.Response(text=_PHONE_HTML, content_type="text/html")
+        # Start QUIC/WebTransport alongside HTTPS (same port, UDP vs TCP)
+        self._quic_server = None
+        if _HAS_QUIC:
+            try:
+                quic_config = QuicConfiguration(
+                    alpn_protocols=H3_ALPN,
+                    is_client=False,
+                    max_datagram_frame_size=65536,
+                )
+                quic_config.load_cert_chain(_CERT_FILE, _KEY_FILE)
+                phone_ref = self
+
+                self._quic_server = await quic_serve(
+                    "0.0.0.0",
+                    self._port,
+                    configuration=quic_config,
+                    create_protocol=lambda *a, **kw: _PhoneWTProtocol(
+                        *a, phone_server=phone_ref, **kw
+                    ),
+                )
+                log.info("QUIC/WebTransport server listening on port %d (UDP)", self._port)
+            except Exception as exc:
+                log.warning("QUIC server failed to start: %s", exc)
+
+        # Pre-compute cert hash for WebTransport self-signed cert support
+        self._cert_hash_b64 = _cert_sha256_b64()
+
+    def _verify_token(self, request: web.Request) -> bool:
+        """Verify the authentication token in the request query parameters."""
+        token = request.query.get("token")
+        if not token or not secrets.compare_digest(token, self._token):
+            return False
+        return True
+
+    async def _handle_index(self, request: web.Request) -> web.Response:
+        if not self._verify_token(request):
+            return web.Response(status=401, text="Unauthorized")
+            
+        # Inject cert hash and QUIC availability into the HTML page
+        html = _PHONE_HTML.replace(
+            "/*CERT_HASH*/",
+            f"const CERT_HASH='{self._cert_hash_b64}';" if self._cert_hash_b64 else "const CERT_HASH='';",
+        ).replace(
+            "/*HAS_QUIC*/",
+            "const HAS_QUIC=true;" if self._quic_server else "const HAS_QUIC=false;",
+        )
+        return web.Response(text=html, content_type="text/html")
 
     async def _handle_frame_post(self, request: web.Request) -> web.Response:
         """HTTP POST fallback for browsers that reject WSS with self-signed certs (Safari/iOS)."""
+        if not self._verify_token(request):
+            return web.Response(status=401, text="Unauthorized")
+            
         try:
             import cv2
             import numpy as np
@@ -693,7 +915,35 @@ class PhoneCameraServer(GObject.Object):
 
         return web.Response(status=204)
 
+    async def _decode_and_emit_frame(self, data: bytes) -> None:
+        """Decode JPEG data and emit to the frame callback (shared by WS and QUIC)."""
+        try:
+            import cv2
+            import numpy as np
+        except ImportError:
+            return
+
+        loop = asyncio.get_event_loop()
+        arr = np.frombuffer(data, dtype=np.uint8)
+        bgr = await loop.run_in_executor(None, cv2.imdecode, arr, cv2.IMREAD_COLOR)
+        if bgr is None:
+            return
+
+        h, w = bgr.shape[:2]
+        if w != self._width or h != self._height:
+            self._width, self._height = w, h
+            GLib.idle_add(self.emit, "connected", w, h)
+            GLib.idle_add(self.emit, "status-changed", "connected")
+
+        cb = self._frame_callback
+        if cb:
+            cb(bgr)
+        self._last_frame_time = time.monotonic()
+
     async def _handle_ws(self, request: web.Request) -> web.WebSocketResponse:
+        if not self._verify_token(request):
+            raise web.HTTPUnauthorized(text="Unauthorized")
+        
         ws = web.WebSocketResponse(max_msg_size=10 * 1024 * 1024)
         await ws.prepare(request)
         self._ws_clients.add(ws)

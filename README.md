@@ -2,7 +2,7 @@
   <img src="usr/share/biglinux/bigcam/icons/bigcam.svg" alt="BigCam" width="128" height="128">
 </p>
 
-<h1 align="center">BigCam 4.4.4</h1>
+<h1 align="center">BigCam 4.5.0</h1>
 
 <p align="center">
   <b>The universal webcam control center for Linux — use any camera, including your smartphone, as a professional webcam. No expensive apps needed.</b>
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-4.4.4-brightgreen.svg" alt="Version 4.4.4">
+  <img src="https://img.shields.io/badge/Version-4.5.0-brightgreen.svg" alt="Version 4.5.0">
   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3">
   <img src="https://img.shields.io/badge/Platform-Linux-green.svg" alt="Platform: Linux">
   <img src="https://img.shields.io/badge/GTK-4.0-blue.svg" alt="GTK 4.0">
@@ -72,7 +72,20 @@
 - **Smile Capture removed**: Removed mediapipe-dependent smile detection feature entirely (code, README, translations).
 - **i18n verified**: All UI strings confirmed English and translation-ready across 29 languages.
 
-**Version 4.4.4** (current) is the **virtual camera & UX refinement update**:
+**Version 4.5.0** (current) is the **detection speed & streaming protocol update**:
+
+- **Parallel camera detection**: All backends (V4L2, GPhoto2, Libcamera, PipeWire) now detect cameras in parallel using `ThreadPoolExecutor`, with incremental result emission — cameras appear as they are found instead of waiting for all backends.
+- **Backend priority**: Duplicate cameras are resolved by backend priority (V4L2 > GPhoto2 > Libcamera > PipeWire), keeping the best backend when the same device is detected by multiple backends.
+- **USB camera filtering**: Libcamera and PipeWire backends now filter for USB/UVC cameras only, avoiding false positives.
+- **Deferred virtual camera**: Virtual camera device creation is deferred until the first video frame renders, reducing startup latency.
+- **QUIC/WebTransport** (optional): Phone camera streaming can now use HTTP/3 (QUIC/UDP) via WebTransport when `python-aioquic` is installed. Each video frame travels as an independent QUIC stream (no head-of-line blocking), and audio uses unreliable QUIC datagrams for minimum latency. Falls back to WebSocket (TCP) when unavailable.
+- **Adaptive Wi-Fi streaming**: Phone camera auto-adjusts JPEG quality based on WebSocket buffer pressure — reduces quality when congested, restores when clear. Frames are dropped entirely when the buffer exceeds 128 KB.
+- **H264/H265/VP9 encoder alignment**: Recording encoders now match big-video-converter defaults — NVENC → VA-API (new) → VA-API (legacy) → Software priority, CQP/CRF rate control, profile high.
+- **Incompatible camera detection**: Sony DSLR-A300/A37 and other PTP-only cameras are detected and shown with a warning icon instead of failing silently.
+- **Close dialog improvements**: The close confirmation dialog now lists ALL active sources (playing camera, background virtual cameras, phone server, scrcpy, AirPlay) with bullet points.
+- **Duplicate toast fix**: Camera notifications are deduplicated by name, preventing repeated toasts when the same physical device is detected by multiple backends.
+
+**Version 4.4.4** is the **virtual camera & UX refinement update**:
 
 - **Label-aware virtual camera allocation**: `allocate_device()` now verifies device labels match the current name template before reusing a v4l2loopback device. Static devices with mismatched labels are skipped — dynamic devices with the correct name are created instead.
 - **Stale device cleanup**: `cleanup_dynamic_devices()` now also finds and removes orphaned v4l2loopback devices from previous sessions that weren't tracked. Runs at app startup and during name changes.
@@ -97,27 +110,35 @@ We are grateful to Rafael and Barnabé for starting this journey.
 
 ---
 
-## What's New in 4.4.4
+## What's New in 4.5.0
 
-### Virtual Camera
+### Detection Speed
 
-- **Label-aware allocation**: Devices are only reused when their card label matches the current name template. Mismatched static devices (from modprobe) are skipped — new dynamic devices are created with the correct name.
-- **Stale device cleanup**: Orphaned v4l2loopback devices from previous sessions are automatically cleaned up at startup and during name changes. No more device accumulation across restarts.
-- **Duplicate name prevention**: Virtual camera numbering syncs with existing device labels before creating new devices, preventing duplicate "BigCam Virtual 1" names.
-- **Background vcam lifecycle**: Toggling or renaming virtual cameras now stops all background pipelines, cleans up devices, and recreates everything with the correct configuration.
+- **Parallel backend scanning**: Camera detection is now parallelized across all backends (`ThreadPoolExecutor`), with cameras emitted incrementally as they're found. Typical startup goes from ~4s to ~1s.
+- **Backend priority dedup**: When the same camera is detected by multiple backends, the highest-priority one wins (V4L2 > GPhoto2 > Libcamera > PipeWire).
+- **USB camera filtering**: Libcamera and PipeWire backends filter for USB/UVC devices, eliminating false positives from virtual or non-camera devices.
+- **Deferred virtual camera**: The v4l2loopback virtual camera device is only created after the first video frame renders, cutting perceived startup time.
 
-### Settings
+### Phone Wi-Fi Streaming
 
-- **Device name apply button**: Changes to the virtual camera name only apply when pressing Enter or clicking the ✓ button — no more device recreation on every keystroke.
-- **Keyboard shortcut safety**: Removed `Space` as a capture shortcut (Ctrl+P remains). Single-key shortcuts (Tab, 1/2/3) are suppressed when editing text.
+- **QUIC/WebTransport** (optional): When `python-aioquic` is installed, the phone browser streams via HTTP/3 (QUIC/UDP). Each video frame is an independent QUIC unidirectional stream — no head-of-line blocking between frames. Audio uses QUIC datagrams for minimal latency. Auto-falls back to WebSocket when unavailable.
+- **Adaptive quality**: JPEG quality auto-adjusts based on WebSocket buffer pressure (reduces when congested, restores when clear). Frames are dropped entirely when buffer exceeds 128 KB.
+- **Protocol indicator**: Stats display now shows "QUIC" or "WS" to indicate active transport.
 
-### Welcome Dialog
+### Recording
 
-- **8th feature item**: Added "Advanced Controls" (fine-tune exposure, white balance, per-camera profiles).
-- **Grid alignment**: Features use `Gtk.Grid` for consistent row alignment across columns.
-- **Window dragging**: Dialog wrapped in `Gtk.WindowHandle` — drag from any empty area.
+- **Encoder alignment**: H264/H265/VP9 encoders now match big-video-converter defaults — NVENC → VA-API (new) → VA-API (legacy) → Software, CQP/CRF rate control, profile high, proper presets.
 
-### Previous (4.4.1)
+### Camera Compatibility
+
+- **Incompatible camera warning**: Sony DSLR-A300/A37 and other PTP-only cameras are detected and shown with a yellow exclamation icon and explanatory message instead of failing silently.
+- **Duplicate toast prevention**: Camera discovery notifications are deduplicated by device name, preventing repeated toasts from multi-backend detection.
+
+### Close Dialog
+
+- **All active sources listed**: The close confirmation now shows ALL active sources (playing camera, background vcams, phone server, scrcpy, AirPlay) with bullet-point names.
+
+### Previous (4.4.4)
 
 ### Phone Camera Notifications
 

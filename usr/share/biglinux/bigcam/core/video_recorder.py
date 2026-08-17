@@ -124,7 +124,11 @@ class VideoRecorder:
         return self._output_path
 
     def _pick_encoder_str(self) -> str:
-        """Return the encoder element string based on configured codec."""
+        """Return the encoder element string based on configured codec.
+
+        Encoder selection priority: NVENC → VAAPI (va) → VAAPI (legacy) → Software.
+        Settings aligned with big-video-converter defaults (profile high, CQP/CRF).
+        """
         br = self._video_bitrate
         codec = self._video_codec
 
@@ -139,35 +143,60 @@ class VideoRecorder:
 
         if codec == "h265":
             hw = [
-                ("vaapih265enc", f"rate-control=2 bitrate={br}"),
-                ("vah265enc", f"rate-control=2 bitrate={br}"),
+                ("nvh265enc", f"preset=hq rc-mode=vbr bitrate={br}"),
+                ("vah265enc", "rate-control=cqp qp-i=28 qp-p=28 qp-b=30"),
+                ("vaapih265enc", "rate-control=cqp init-qp=28"),
             ]
             for name, props in hw:
                 if Gst.ElementFactory.find(name):
                     log.info("Using hardware H.265 encoder: %s", name)
                     return f"{name} {props} ! h265parse"
             log.info("Using software H.265 encoder: x265enc")
-            return f"x265enc bitrate={br} speed-preset=3 ! h265parse"
+            return "x265enc speed-preset=4 tune=0 option-string=crf=28:log-level=warning ! h265parse"
 
         if codec == "vp9":
+            hw = [
+                ("nvvp9enc", f"preset=hq rc-mode=vbr bitrate={br}"),
+                ("vavp9enc", "rate-control=cqp qp=28"),
+                ("vaapivp9enc", "rate-control=cqp"),
+            ]
+            for name, props in hw:
+                if Gst.ElementFactory.find(name):
+                    log.info("Using hardware VP9 encoder: %s", name)
+                    return f"{name} {props}"
             log.info("Using VP9 encoder: vp9enc")
-            return f"vp9enc target-bitrate={br * 1000} cpu-used=4 deadline=1 threads=4"
+            return f"vp9enc target-bitrate={br * 1000} cpu-used=4 deadline=1 threads=4 end-usage=cq cq-level=28"
 
         if codec == "mjpeg":
-            log.info("Using MJPEG encoder: jpegenc")
+            hw = [
+                ("vaapijpegenc", "quality=90"),
+            ]
+            for name, props in hw:
+                if Gst.ElementFactory.find(name):
+                    log.info("Using hardware MJPEG encoder: %s", name)
+                    return f"{name} {props}"
+            log.info("Using software MJPEG encoder: jpegenc")
             return "jpegenc quality=90"
 
         # Default: H.264
+        # Priority: NVENC → VA-API (new) → VA-API (legacy) → x264enc
+        # Matches big-video-converter: profile high, level 4.1, CQP/CRF mode
         hw = [
-            ("vaapih264enc", f"rate-control=2 bitrate={br}"),
-            ("vah264enc", f"rate-control=2 bitrate={br}"),
+            ("nvh264enc", f"preset=hq rc-mode=vbr bitrate={br}"),
+            ("vah264enc", "rate-control=cqp qp-i=24 qp-p=24 qp-b=26"),
+            ("vaapih264enc", "rate-control=cqp init-qp=24"),
         ]
         for name, props in hw:
             if Gst.ElementFactory.find(name):
                 log.info("Using hardware H.264 encoder: %s", name)
-                return f"{name} {props} ! h264parse"
+                caps = "video/x-h264,profile=high"
+                return f"{name} {props} ! {caps} ! h264parse"
         log.info("Using software H.264 encoder: x264enc")
-        return f"x264enc tune=4 speed-preset=3 bitrate={br} key-int-max=60 bframes=0 threads=0 ! h264parse"
+        return (
+            "x264enc speed-preset=4 pass=5 quantizer=24 "
+            "key-int-max=120 bframes=3 threads=0 "
+            "! video/x-h264,profile=high ! h264parse"
+        )
 
     def _pick_audio_encoder_str(self) -> str:
         """Return the audio encoder element string based on configured codec."""
