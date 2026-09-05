@@ -541,7 +541,10 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._vc_toggle_row.connect("notify::active", self._on_vc_toggle)
         vc_group.add(self._vc_toggle_row)
 
-        content.append(vc_group)
+        # NOTE: vc_group is appended once, at the end of this method, after
+        # every row has been added to it.  Appending it here as well raised
+        # "gtk_box_append: assertion 'gtk_widget_get_parent (child) == NULL'"
+        # and put the max-devices / name rows above the per-device list.
 
         # Per-device virtual camera group
         self._vc_devices_group = Adw.PreferencesGroup(
@@ -716,7 +719,6 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     @staticmethod
     def _open_directory(path: str) -> None:
-        import subprocess
 
         os.makedirs(path, exist_ok=True)
         proc = subprocess.Popen(["xdg-open", path])

@@ -1,11 +1,21 @@
-# Allow wheel group to load/unload v4l2loopback without password (BigCam)
-# modprobe may live in /usr/bin or /usr/sbin depending on distro
-%wheel ALL=(root) NOPASSWD: /usr/bin/modprobe v4l2loopback *
-%wheel ALL=(root) NOPASSWD: /usr/bin/modprobe -r v4l2loopback
-%wheel ALL=(root) NOPASSWD: /usr/sbin/modprobe v4l2loopback *
-%wheel ALL=(root) NOPASSWD: /usr/sbin/modprobe -r v4l2loopback
-# Allow dynamic v4l2loopback device management (add/delete)
-%wheel ALL=(root) NOPASSWD: /usr/sbin/v4l2loopback-ctl add *
-%wheel ALL=(root) NOPASSWD: /usr/sbin/v4l2loopback-ctl delete *
-%wheel ALL=(root) NOPASSWD: /usr/bin/v4l2loopback-ctl add *
-%wheel ALL=(root) NOPASSWD: /usr/bin/v4l2loopback-ctl delete *
+# BigCam — passwordless v4l2loopback management for the wheel group.
+#
+# Only ONE command is granted, and it validates its own arguments
+# (see /usr/share/biglinux/bigcam/script/bigcam-v4l2loopback).
+#
+# The previous rules used wildcards:
+#
+#     %wheel ALL=(root) NOPASSWD: /usr/bin/modprobe v4l2loopback *
+#     %wheel ALL=(root) NOPASSWD: /usr/sbin/v4l2loopback-ctl add *
+#
+# sudo's "*" matches spaces and slashes, so those allowed arbitrary extra
+# flags to be appended — e.g. `modprobe v4l2loopback -C <attacker-controlled
+# config>` — turning "load one specific module" into "load any module as
+# root, without a password".  Do not reintroduce wildcards here.
+#
+# The helper must stay root-owned and non-writable by unprivileged users,
+# otherwise sudo refuses to run it.
+
+Cmnd_Alias BIGCAM_VCAM = /usr/share/biglinux/bigcam/script/bigcam-v4l2loopback
+
+%wheel ALL=(root) NOPASSWD: BIGCAM_VCAM

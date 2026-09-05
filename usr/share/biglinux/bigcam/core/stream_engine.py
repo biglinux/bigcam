@@ -40,6 +40,40 @@ log = logging.getLogger(__name__)
 # Backends that stream via UDP (MPEG-TS) need appsink
 _APPSINK_BACKENDS = {BackendType.GPHOTO2, BackendType.IP}
 
+# GStreamer translates its error strings, so matching them is locale-dependent.
+# _force_c_messages() below pins the message catalogue to English at startup;
+# these keywords therefore only need the English wording.  Previously the list
+# mixed English and Portuguese, which meant a user running under any other
+# locale (es, de, fr, ...) matched neither and never got the "camera in use"
+# dialog.
+_BUSY_ERROR_KEYWORDS = (
+    "resource busy",
+    "busy",
+    "ebusy",
+    "cannot open",
+    "allocate",
+    "buffer pool",
+)
+
+# Warnings that are expected and must not reach the log.  A leaky queue
+# dropping buffers is normal back-pressure, not a fault.
+_IGNORED_WARNING_KEYWORDS = ("dropping",)
+
+
+def _force_c_messages() -> None:
+    """Pin library diagnostics to English for the rest of the process.
+
+    BigCam inspects GStreamer error text to tell "device is busy" apart from a
+    genuine failure.  That text is translated, so the checks only work if the
+    message catalogue is predictable.  LC_MESSAGES affects diagnostics only —
+    the user interface stays translated via gettext, and LC_NUMERIC and friends
+    are untouched.
+    """
+    os.environ.setdefault("LC_MESSAGES", "C")
+
+
+_force_c_messages()
+
 # ── Thread-safe stderr suppression (refcounted) ─────────────────────
 # Native libraries (libjpeg-turbo, V4L2) write warnings directly to fd 2.
 # We redirect fd 2 to /dev/null while capture threads are active, using a
@@ -70,6 +104,30 @@ def _stderr_restore() -> None:
             os.dup2(_stderr_orig_fd, 2)
             os.close(_stderr_orig_fd)
             _stderr_orig_fd = None
+
+
+def _paintable_suffix() -> str:
+    """Everything downstream of the camera source in the preview pipeline.
+
+    Kept in one place because *every* pipeline variant (direct, PipeWire
+    fallback, v4l2 fallback) must expose the same named elements:
+
+    * ``flip``  – videoflip, used by the mirror toggle
+    * ``crop``  – videocrop, used by zoom / pan / tilt
+    * ``t``     – tee, where the effects+FPS probe is installed
+
+    A variant missing any of these silently breaks those features.
+    """
+    n_threads = min(os.cpu_count() or 2, 4)
+    return (
+        "videoflip name=flip method=0 ! "
+        "videocrop name=crop left=0 right=0 top=0 bottom=0 ! "
+        f"videoconvert n-threads={n_threads} name=conv ! "
+        "video/x-raw,format=BGRA ! "
+        "tee name=t ! "
+        "queue max-size-buffers=4 leaky=downstream silent=true ! "
+        "gtk4paintablesink sync=true max-lateness=-1 qos=false"
+    )
 
 
 def _find_device_users(device_path: str) -> list[str]:
@@ -253,9 +311,12 @@ class StreamEngine(GObject.Object):
         "new-texture": (GObject.SignalFlags.RUN_LAST, None, (object,)),
     }
 
-    def __init__(self, camera_manager: CameraManager) -> None:
+    def __init__(self, camera_manager: CameraManager, settings: Any = None) -> None:
         super().__init__()
         self._manager = camera_manager
+        # SettingsManager (optional so the engine stays usable in tests).
+        # Used for per-camera virtual-camera opt-out; see _vcam_disabled_for().
+        self._settings = settings
         self._pipeline: Gst.Pipeline | None = None
         self._bus_watch_id: int | None = None
         self._current_camera: CameraInfo | None = None
@@ -316,6 +377,13 @@ class StreamEngine(GObject.Object):
     @property
     def effects(self) -> EffectPipeline:
         return self._effects
+
+    def _vcam_disabled_for(self, camera_id: str) -> bool:
+        """True when the user explicitly turned the virtual camera off for *camera_id*."""
+        if self._settings is None or not camera_id:
+            return False
+        disabled = self._settings.get("vcam-disabled-cameras", [])
+        return camera_id in disabled if isinstance(disabled, list) else False
 
     @property
     def last_frame_bgr(self):
@@ -822,18 +890,7 @@ class StreamEngine(GObject.Object):
         # as fallback but no longer attempted first - gtk4paintablesink with
         # v4l2src provides smoother rendering via GPU texture uploads rather
         # than CPU-side GdkMemoryTexture copies (~25 MB/frame).
-        is_phone = self._current_camera and self._current_camera.id.startswith("phone:")
-
-        n_threads = min(os.cpu_count() or 2, 4)
-        suffix = (
-            f"videoflip name=flip method=0 ! "
-            f"videocrop name=crop left=0 right=0 top=0 bottom=0 ! "
-            f"videoconvert n-threads={n_threads} name=conv ! "
-            f"video/x-raw,format=BGRA ! "
-            f"tee name=t ! "
-            f"queue max-size-buffers=4 leaky=downstream silent=true ! "
-            f"gtk4paintablesink sync=true max-lateness=-1 qos=false"
-        )
+        suffix = _paintable_suffix()
 
         base_pipeline = f"{gst_source} ! {suffix}"
 
@@ -1090,9 +1147,8 @@ class StreamEngine(GObject.Object):
                 log.info("Using pre-allocated vcam device %s for effects output", pre_allocated)
                 self._start_vcam(pre_allocated)
         else:
-            disabled_cams = self._settings.get("vcam-disabled-cameras", []) if hasattr(self, "_settings") else []
             cam_id = self._current_camera.id if self._current_camera else ""
-            if cam_id not in disabled_cams:
+            if not self._vcam_disabled_for(cam_id):
                 self._ensure_vcam_with_retry(cam_id, self._current_camera.name if self._current_camera else None)
 
         # Wait just 100ms for ffmpeg to start producing frames, then try immediately
@@ -1477,8 +1533,7 @@ class StreamEngine(GObject.Object):
             alloc_id = f"vcam:{camera.id}"
 
         def _worker() -> str:
-            disabled_cams = self._settings.get("vcam-disabled-cameras", []) if hasattr(self, "_settings") else []
-            if alloc_id in disabled_cams:
+            if self._vcam_disabled_for(alloc_id):
                 return ""
                 
             device = VirtualCamera.ensure_ready(
@@ -1880,8 +1935,7 @@ class StreamEngine(GObject.Object):
         if not VirtualCamera.is_enabled():
             return
             
-        disabled_cams = self._settings.get("vcam-disabled-cameras", []) if hasattr(self, "_settings") else []
-        if camera.id in disabled_cams:
+        if self._vcam_disabled_for(camera.id):
             return
 
         # Skip if this camera is already the active one (effects pipeline handles vcam)
@@ -2004,9 +2058,8 @@ class StreamEngine(GObject.Object):
         server.set_frame_callback(self._on_phone_frame)
 
         # Start v4l2loopback output if virtual camera is enabled
-        disabled_cams = self._settings.get("vcam-disabled-cameras", []) if hasattr(self, "_settings") else []
         cam_id = camera.id if camera else ""
-        if cam_id not in disabled_cams:
+        if not self._vcam_disabled_for(cam_id):
             loopback_device = VirtualCamera.ensure_ready(
                 card_label=camera.name if camera else None,
                 camera_id=cam_id,
@@ -2211,14 +2264,7 @@ class StreamEngine(GObject.Object):
             )
 
             combined = (error_text + (dbg or "")).lower()
-            busy = any(
-                kw in combined
-                for kw in (
-                    "resource busy", "busy", "ebusy",
-                    "cannot open", "ocupado", "alocar",
-                    "allocate", "buffer pool",
-                )
-            )
+            busy = any(kw in combined for kw in _BUSY_ERROR_KEYWORDS)
             if busy and dev_path:
                 # If the device was just released from a bg vcam, retry once
                 # after additional delay instead of giving up immediately.
@@ -2258,8 +2304,9 @@ class StreamEngine(GObject.Object):
         elif msg.type == Gst.MessageType.WARNING:
             err, dbg = msg.parse_warning()
             wmsg = err.message if err else ""
-            # Suppress expected leaky queue warnings
-            if "descartada" not in wmsg and "dropping" not in wmsg.lower():
+            lowered = wmsg.lower()
+            # Suppress expected leaky-queue warnings
+            if not any(kw in lowered for kw in _IGNORED_WARNING_KEYWORDS):
                 log.warning("GStreamer warning: %s", wmsg)
 
     def _try_pw_fallback(self) -> bool:
@@ -2273,7 +2320,6 @@ class StreamEngine(GObject.Object):
         # Only fallback if the failing pipeline uses pipewiresrc
         if not self._pipeline:
             return False
-        pipe_str = self._pipeline.get_name()
         has_pw = False
         it = self._pipeline.iterate_sources()
         while True:
@@ -2306,15 +2352,7 @@ class StreamEngine(GObject.Object):
         v4l2_source = backend._v4l2_gst_source(
             camera.device_path, camera, fmt_obj
         )
-        n_threads = min(os.cpu_count() or 2, 4)
-        suffix = (
-            f"videoconvert n-threads={n_threads} name=conv ! "
-            f"video/x-raw,format=BGRA ! "
-            f"tee name=t ! "
-            f"queue max-size-buffers=4 leaky=downstream silent=true ! "
-            f"gtk4paintablesink sync=true max-lateness=-1 qos=false"
-        )
-        fallback_pipeline = f"{v4l2_source} ! {suffix}"
+        fallback_pipeline = f"{v4l2_source} ! {_paintable_suffix()}"
         if self._try_start_paintable(fallback_pipeline):
             self._current_camera = camera
             if camera.device_path:

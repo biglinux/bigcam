@@ -144,7 +144,7 @@ def _kill_child_processes() -> None:
     own_pid = os.getpid()
     try:
         # Only kill direct children of this process
-        result = subprocess.run(
+        subprocess.run(
             ["pkill", "-9", "-P", str(own_pid)],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

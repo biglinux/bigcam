@@ -110,7 +110,7 @@ class V4L2Backend(CameraBackend):
 
     def detect_cameras(self) -> list[CameraInfo]:
         cameras: list[CameraInfo] = []
-        for _ in range(3):
+        for _attempt in range(3):
             try:
                 result = subprocess.run(
                     ["v4l2-ctl", "--list-devices"],
@@ -147,10 +147,15 @@ class V4L2Backend(CameraBackend):
             ]
             if not devs:
                 continue
-            # Use the first /dev/videoX as primary
-            device = devs[0]
-            # Verify it has capture capability
-            if not self._is_capture_device(device):
+            # Modern UVC webcams expose several nodes per device — typically
+            # one for capture and one for metadata — and the capture node is
+            # not always listed first.  Take the first node that actually
+            # supports Video Capture instead of assuming devs[0] does.
+            device = next(
+                (d for d in devs if self._is_capture_device(d)), ""
+            )
+            if not device:
+                log.debug("No capture node among %s for %r", devs, header)
                 continue
             cam = CameraInfo(
                 id=f"v4l2:{device}",
@@ -457,7 +462,6 @@ class V4L2Backend(CameraBackend):
         self, device: str, camera: CameraInfo, fmt: VideoFormat | None
     ) -> str:
         """Build v4l2src element — exclusive device access (like guvcview)."""
-        plf = self._detect_power_line_freq()
         src = (
             f"v4l2src device={device} io-mode=mmap do-timestamp=true"
         )
@@ -541,10 +545,13 @@ class V4L2Backend(CameraBackend):
             )
             return raw_capped[0]
             
-        camera.formats.sort(
-            key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
+        # Nothing reaches 25 fps — fall back to the largest format available.
+        # Sort a copy: camera.formats is shared state and the settings page
+        # renders the list in the order the driver reported it.
+        return max(
+            camera.formats,
+            key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0),
         )
-        return camera.formats[0]
 
     # -- photo ---------------------------------------------------------------
 

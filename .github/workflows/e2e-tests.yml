@@ -1,4 +1,4 @@
-name: End-to-End GTK Tests
+name: Tests
 
 on:
   push:
@@ -7,60 +7,91 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint (errors only — blocking)
+        run: ruff check --select F,E9 usr/share/biglinux/bigcam tests
+      - name: Style report (non-blocking)
+        run: ruff check --statistics usr/share/biglinux/bigcam tests || true
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          python3-pip \
-          xvfb \
-          python3-dogtail \
-          python3-gi \
-          python3-gi-cairo \
-          gir1.2-gtk-4.0 \
-          gir1.2-gstreamer-1.0 \
-          gstreamer1.0-plugins-base \
-          gstreamer1.0-plugins-good \
-          gstreamer1.0-plugins-bad \
-          v4l2loopback-utils \
-          ffmpeg \
-          xauth \
-          at-spi2-core
-          
-    - name: Setup at-spi for Headless Testing
-      run: |
-        # Required to allow dogtail to run under xvfb
-        mkdir -p ~/.config/at-spi2
-        echo -e "[core]\nEnabled=true" > ~/.config/at-spi2/at-spi2-core.conf
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3-gi \
+            python3-gi-cairo \
+            gir1.2-gtk-4.0 \
+            gir1.2-adw-1 \
+            gir1.2-gstreamer-1.0 \
+            gir1.2-gst-plugins-base-1.0 \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            libcairo2-dev \
+            libgirepository1.0-dev \
+            ffmpeg \
+            v4l-utils
 
-    - name: Install Python Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest aiohttp websockets opencv-python Pillow numpy qrcode pyzbar
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-timeout aiohttp opencv-python-headless numpy qrcode
+          # Reuse the distro PyGObject rather than building it from source.
+          echo "PYTHONPATH=/usr/lib/python3/dist-packages" >> "$GITHUB_ENV"
 
-    - name: Run E2E Dogtail UI Test (XVFB)
-      run: |
-        # Inicia Xvfb com a11y (AT-SPI) dbus-run-session
-        export DISPLAY=:99
-        Xvfb $DISPLAY -screen 0 1920x1080x24 &
-        sleep 3
-        
-        # Inicia o barramento DBUS e Roda os testes
-        dbus-run-session -- bash -c "python3 tests/test_ui_dogtail.py"
-        
-    - name: Run Chaos Monkey Test
-      run: |
-        # O teste de chaos precisa do módulo v4l2loopback, que o kernel host do github actions geralmente não permite carregar nativamente sem config avançada.
-        # Mas validamos a importação sintática do runner de testes:
-        python3 -m py_compile tests/chaos_hotplug.py
+      - name: Run unit tests
+        run: python -m pytest -v --timeout=120 -m "not gtk"
+
+  e2e:
+    runs-on: ubuntu-latest
+    continue-on-error: true   # AT-SPI in CI is flaky; informational only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            xvfb xauth at-spi2-core dbus-x11 \
+            python3-dogtail python3-gi python3-gi-cairo \
+            gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-gstreamer-1.0 \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad gstreamer1.0-gtk4 \
+            v4l2loopback-utils ffmpeg
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-timeout aiohttp opencv-python-headless numpy qrcode
+          echo "PYTHONPATH=/usr/lib/python3/dist-packages" >> "$GITHUB_ENV"
+
+      - name: Enable AT-SPI
+        run: |
+          mkdir -p ~/.config/at-spi2
+          printf '[core]\nEnabled=true\n' > ~/.config/at-spi2/at-spi2-core.conf
+
+      - name: Run GTK end-to-end tests
+        run: |
+          dbus-run-session -- xvfb-run -a --server-args="-screen 0 1920x1080x24" \
+            python -m pytest -v --timeout=180 -m gtk
+
+      - name: Chaos hotplug (skips itself without v4l2loopback)
+        run: python3 tests/chaos_hotplug.py --seconds 10

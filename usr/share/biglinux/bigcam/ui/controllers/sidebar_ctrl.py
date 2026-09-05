@@ -8,7 +8,6 @@ gi.require_version("Adw", "1")
 from gi.repository import Gtk, Gdk, Adw
 
 from constants import APP_NAME, APP_ICON
-from core.event_bus import event_bus
 
 class SidebarController:
     """Manages the Sidebar ViewStack and Header."""
@@ -97,6 +96,23 @@ class SidebarController:
         sidebar_outer.append(drag_handle)
 
         self._split_view.set_sidebar(sidebar_outer)
+
+    # -- public API ----------------------------------------------------------
+
+    @property
+    def page_count(self) -> int:
+        return len(self._sidebar_tab_btns)
+
+    def show_page(self, index: int) -> bool:
+        """Activate the sidebar tab at *index*.  Returns False when out of range.
+
+        Activating the toggle button keeps the tab bar and the ViewStack in
+        sync — setting the stack directly would leave the buttons stale.
+        """
+        if not 0 <= index < len(self._sidebar_tab_btns):
+            return False
+        self._sidebar_tab_btns[index].set_active(True)
+        return True
 
     def _on_sidebar_tab_toggled(self, btn: Gtk.ToggleButton, page_name: str) -> None:
         if btn.get_active():

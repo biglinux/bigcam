@@ -1,0 +1,125 @@
+#!/bin/bash
+# BigCam privileged helper for v4l2loopback management.
+#
+# This is the ONLY command BigCam is allowed to run as root, and it validates
+# every argument itself.  The previous design granted
+#
+#     %wheel ALL=(root) NOPASSWD: /usr/bin/modprobe v4l2loopback *
+#
+# but sudo's "*" matches spaces and slashes, so any member of the wheel group
+# could append arbitrary modprobe flags (e.g. -C to point at an
+# attacker-controlled config) and load any module as root without a password.
+#
+# Usage:
+#   bigcam-v4l2loopback load
+#   bigcam-v4l2loopback unload
+#   bigcam-v4l2loopback add <label> <device>
+#   bigcam-v4l2loopback delete <device>
+#
+# Exit codes: 0 ok, 1 runtime failure, 2 invalid arguments.
+
+set -euo pipefail
+
+readonly MODULE="v4l2loopback"
+
+# Single source of truth for the device pool, shared with
+# core/virtual_camera.py (_DEVICE_BASE / _MAX_DEVICES) and
+# etc/modprobe.d/v4l2loopback.conf.  Keep the three in sync.
+readonly DEVICE_BASE=20
+readonly MAX_DEVICES=8
+readonly CARD_LABEL_PREFIX="BigCam Virtual"
+
+MODPROBE="$(command -v modprobe || echo /usr/bin/modprobe)"
+readonly MODPROBE
+V4L2CTL="$(command -v v4l2loopback-ctl || echo /usr/sbin/v4l2loopback-ctl)"
+readonly V4L2CTL
+
+die() { printf 'bigcam-v4l2loopback: %s\n' "$1" >&2; exit "${2:-2}"; }
+
+# A device must be /dev/videoN inside the range BigCam owns, so this helper
+# can never be pointed at a physical camera node.
+validate_device() {
+    local dev="$1" num
+    [[ "$dev" =~ ^/dev/video([0-9]{1,3})$ ]] || die "invalid device: $dev"
+    num="${BASH_REMATCH[1]}"
+    (( num >= DEVICE_BASE && num < DEVICE_BASE + MAX_DEVICES )) \
+        || die "device out of BigCam range (${DEVICE_BASE}-$((DEVICE_BASE + MAX_DEVICES - 1))): $dev"
+}
+
+# Labels end up in a kernel module parameter; keep them to a boring charset.
+validate_label() {
+    local label="$1"
+    [[ ${#label} -ge 1 && ${#label} -le 32 ]] || die "label length out of range"
+    [[ "$label" =~ ^[A-Za-z0-9\ _-]+$ ]] || die "invalid characters in label"
+}
+
+module_loaded() { [[ -d "/sys/module/${MODULE}" ]]; }
+
+do_load() {
+    module_loaded && exit 0
+    if [[ -x "$V4L2CTL" ]]; then
+        # Devices are created on demand via `add`.
+        "$MODPROBE" "$MODULE" devices=0
+    else
+        # No control tool: fall back to a fixed pool.
+        local nrs labels caps i
+        nrs=""; labels=""; caps=""
+        for (( i = 0; i < MAX_DEVICES; i++ )); do
+            nrs+="${nrs:+,}$((DEVICE_BASE + i))"
+            labels+="${labels:+,}${CARD_LABEL_PREFIX} $((i + 1))"
+            caps+="${caps:+,}1"
+        done
+        "$MODPROBE" "$MODULE" \
+            "devices=${MAX_DEVICES}" \
+            "video_nr=${nrs}" \
+            "exclusive_caps=${caps}" \
+            "max_buffers=8" \
+            "card_label=${labels}"
+    fi
+}
+
+do_unload() {
+    module_loaded || exit 0
+    "$MODPROBE" -r "$MODULE"
+}
+
+do_add() {
+    [[ -x "$V4L2CTL" ]] || die "v4l2loopback-ctl not available" 1
+    module_loaded || do_load
+    "$V4L2CTL" add -n "$1" -x 1 -b 8 "$2"
+}
+
+do_delete() {
+    [[ -x "$V4L2CTL" ]] || die "v4l2loopback-ctl not available" 1
+    "$V4L2CTL" delete "$1"
+}
+
+main() {
+    local action="${1-}"
+    case "$action" in
+        load)
+            (( $# == 1 )) || die "load takes no arguments"
+            do_load
+            ;;
+        unload)
+            (( $# == 1 )) || die "unload takes no arguments"
+            do_unload
+            ;;
+        add)
+            (( $# == 3 )) || die "usage: add <label> <device>"
+            validate_label "$2"
+            validate_device "$3"
+            do_add "$2" "$3"
+            ;;
+        delete)
+            (( $# == 2 )) || die "usage: delete <device>"
+            validate_device "$2"
+            do_delete "$2"
+            ;;
+        *)
+            die "usage: $0 {load|unload|add <label> <device>|delete <device>}"
+            ;;
+    esac
+}
+
+main "$@"

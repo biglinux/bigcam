@@ -1,3 +1,21 @@
-# BigCam: Disable USB autosuspend for video capture devices to prevent frame drops.
-# When a V4L2 device appears, set the parent USB device power control to "on".
-ACTION=="add", SUBSYSTEM=="video4linux", RUN+="/bin/sh -c 'echo on > /sys/class/video4linux/%k/device/../power/control 2>/dev/null || true'"
+# BigCam: USB autosuspend and video capture.
+#
+# USB autosuspend makes some UVC webcams drop frames or take seconds to wake
+# up.  BigCam handles this itself: StreamEngine._disable_usb_autosuspend()
+# sets power/control to "on" for the camera in use and restores the previous
+# value when the stream stops.
+#
+# The rule below used to do the same thing globally and permanently:
+#
+#   ACTION=="add", SUBSYSTEM=="video4linux", RUN+="/bin/sh -c 'echo on > ...'"
+#
+# That disabled autosuspend for *every* video device on the machine, for the
+# whole session, whether or not BigCam was running — a measurable battery
+# cost on laptops — and it spawned a shell on every device event.
+#
+# It is left disabled on purpose.  Uncomment only if your hardware needs
+# autosuspend off before BigCam opens the device (rare; some hubs enumerate
+# too slowly).  Prefer restricting it to the affected camera's VID:PID:
+#
+# ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="046d", ATTR{idProduct}=="082d", \
+#   TEST=="power/control", ATTR{power/control}="on"

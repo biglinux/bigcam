@@ -126,8 +126,15 @@ class CameraManager(GObject.Object):
                     GLib.idle_add(self.emit, "camera-error", str(exc))
                     return []
 
-            completed = 0
             total = len(backends_to_scan)
+
+            # No scannable backend (nothing installed, or IP-only): still hand
+            # an empty result to the UI, otherwise it waits on "detecting…"
+            # forever and _detecting stays stuck at True.
+            if total == 0:
+                self._detecting = False
+                GLib.idle_add(self._on_detection_done, [])
+                return
 
             try:
                 with ThreadPoolExecutor(max_workers=total) as pool:
@@ -164,19 +171,20 @@ class CameraManager(GObject.Object):
                                 seen_ids.add(cam.id)
                                 seen_norm.append((norm, len(all_cameras)))
                                 all_cameras.append(cam)
-                            completed += 1
-                            snapshot = list(all_cameras)
-                            is_last = completed == total
 
-                        # Emit partial results so fast backends show up immediately
-                        if is_last:
-                            self._detecting = False
-                            GLib.idle_add(self._on_detection_done, snapshot)
-                        elif snapshot:
-                            # Only emit partial results when there are cameras to show
-                            GLib.idle_add(self._on_detection_done, snapshot)
-            except Exception:
+                # Publish once, when every backend has reported.
+                #
+                # Emitting partial results made fast backends appear sooner,
+                # but each emission re-runs the whole "cameras-changed"
+                # handler: the dropdown is rebuilt and auto-start may pick a
+                # different camera, so a slow backend could yank the selection
+                # out from under the user mid-detection.
                 self._detecting = False
+                GLib.idle_add(self._on_detection_done, list(all_cameras))
+            except Exception:
+                log.warning("Camera detection failed", exc_info=True)
+                self._detecting = False
+                GLib.idle_add(self._on_detection_done, list(all_cameras))
 
         threading.Thread(target=_worker, daemon=True).start()
 

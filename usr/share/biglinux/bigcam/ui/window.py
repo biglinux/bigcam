@@ -15,7 +15,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gdk, Gtk, Gio, GLib
 
-from constants import APP_NAME, APP_ICON, BackendType
+from constants import APP_NAME, BackendType
 from core.audio_monitor import AudioMonitor
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
@@ -33,7 +33,6 @@ from ui.settings_page import SettingsPage
 from ui.effects_page import EffectsPage
 from ui.immersion import ImmersionController
 from ui.ip_camera_dialog import IPCameraDialog
-from ui.phone_camera_dialog import PhoneCameraDialog
 from ui.controllers.sidebar_ctrl import SidebarController
 from ui.controllers.mobile_device_ctrl import MobileDeviceController
 from core.event_bus import event_bus
@@ -44,6 +43,11 @@ from utils.async_worker import run_async
 from utils.i18n import _
 
 log = logging.getLogger(__name__)
+
+# Shutdown budgets.  Closing the window must never block longer than these,
+# even if a GStreamer element or a subprocess wedges.
+_FINALIZE_TIMEOUT_S = 15.0   # muxer flush for an in-progress recording
+_CLEANUP_TIMEOUT_S = 10.0    # v4l2loopback teardown + gphoto2 kill
 
 
 class BigDigicamWindow(Adw.ApplicationWindow):
@@ -57,7 +61,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         self._settings = SettingsManager()
         self._camera_manager = CameraManager()
-        self._stream_engine = StreamEngine(self._camera_manager)
+        self._stream_engine = StreamEngine(self._camera_manager, self._settings)
         self._stream_engine.mirror = bool(self._settings.get("mirror_preview"))
         self._stream_engine.prefer_v4l2 = bool(self._settings.get("prefer-v4l2"))
         self._photo_capture = PhotoCapture(self._camera_manager)
@@ -114,7 +118,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._tooltip_widgets.append((widget, text))
 
     def _update_tooltip(self, widget: Gtk.Widget, text: str) -> None:
-        for i, (w, _) in enumerate(self._tooltip_widgets):
+        for i, (w, _old) in enumerate(self._tooltip_widgets):
             if w is widget:
                 self._tooltip_widgets[i] = (widget, text)
                 break
@@ -665,10 +669,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         visible = self._split_view.get_show_sidebar()
         self._split_view.set_show_sidebar(not visible)
 
-    def _on_sidebar_tab_toggled(self, btn: Gtk.ToggleButton, page_name: str) -> None:
-        if btn.get_active():
-            self._view_stack.set_visible_child_name(page_name)
-
     def _on_mode_toggled(self, btn: Gtk.ToggleButton, mode: str) -> None:
         """Switch between Photo and Video mode."""
         if not btn.get_active():
@@ -815,12 +815,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             return None
         entries.sort(key=lambda e: e.stat().st_mtime, reverse=True)
         return entries[0].path
-
-    def _on_sidebar_drag(self, gesture: Gtk.GestureDrag, offset_x: float, _offset_y: float) -> None:
-        """Resize the sidebar by dragging the handle."""
-        current_width = self._split_view.get_max_sidebar_width()
-        new_width = max(280, min(500, current_width + offset_x))
-        self._split_view.set_max_sidebar_width(new_width)
 
     def _on_sidebar_toggled(self, split_view: Adw.OverlaySplitView, _pspec: object) -> None:
         if split_view.get_show_sidebar():
@@ -996,10 +990,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _switch_sidebar_tab(self, index: int) -> None:
         if self._is_editing_text():
             return
-        pages = self._view_stack.get_pages()
-        if index < pages.get_n_items():
-            page = pages.get_item(index)
-            self._view_stack.set_visible_child_name(page.get_name())
+        if self._sidebar_ctrl.show_page(index):
             if not self._split_view.get_show_sidebar():
                 self._split_view.set_show_sidebar(True)
 
@@ -2447,7 +2438,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         # No active pipeline — hide immediately and clean up
         self.set_visible(False)
-        self._cleanup_and_close()
+        self._cleanup_and_close(quitting=True)
         return False
 
     def _on_close_response(self, _dialog: Adw.AlertDialog, response: str) -> None:
@@ -2456,7 +2447,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if response == "stop":
             # Hide window immediately so the user sees it close instantly
             self.set_visible(False)
-            self._cleanup_and_close()
+            self._cleanup_and_close(quitting=True)
             self.destroy()
         else:  # keep — hide window, keep pipeline alive
             self._camera_manager.stop_hotplug()
@@ -2466,9 +2457,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 app.hold()
             self.set_visible(False)
 
-    def _cleanup_and_close(self) -> None:
+    def _cleanup_and_close(self, quitting: bool = False) -> None:
+        """Tear everything down.
+
+        *quitting* means the process is about to exit, so slow cleanup runs
+        inline (bounded) instead of in a daemon thread that would be killed.
+        """
         self._immersion.cleanup()
+        # stop() hands the muxer over to a background thread; if we exit
+        # before it finishes the container header is never written and the
+        # recording is unplayable.  Every wait below is bounded so a stuck
+        # element can never freeze the close.
+        was_recording = self._video_recorder.is_recording
         self._video_recorder.stop()
+        if was_recording:
+            self._video_recorder.wait_finalize(timeout=_FINALIZE_TIMEOUT_S)
         self._audio_monitor.stop_all()
         self._audio_monitor.remove_external_source("airplay")
         self._stream_engine.stop()
@@ -2487,13 +2490,16 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if ctrl.phone_server and ctrl.phone_server.running:
             ctrl.phone_server.stop()
 
-        # Run slow blocking cleanup in background (VirtualCamera, gphoto2).
+        # Slow, subprocess-heavy cleanup (v4l2loopback teardown, gphoto2 kill).
         def _heavy_cleanup() -> None:
             VirtualCamera.stop()
             VirtualCamera.cleanup_dynamic_devices()
             gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
             if gp_backend and hasattr(gp_backend, "stop_streaming"):
                 gp_backend.stop_streaming()
+            # Hand the camera back to the desktop's GVFS mounts.
+            if gp_backend and hasattr(gp_backend, "restore_gvfs"):
+                gp_backend.restore_gvfs()
 
         def _on_cleanup_done(_result=None) -> None:
             if getattr(self, "_background_mode", False):
@@ -2502,7 +2508,31 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 if app is not None:
                     app.release()
 
-        run_async(_heavy_cleanup, on_success=_on_cleanup_done)
+        if quitting:
+            # The process is about to exit: a daemon thread would be killed
+            # mid-modprobe and leak /dev/videoN.  Run it inline, but never
+            # for longer than the budget — a hung subprocess must not turn
+            # into a window that refuses to close.
+            done = threading.Event()
+
+            def _runner() -> None:
+                try:
+                    _heavy_cleanup()
+                finally:
+                    done.set()
+
+            worker = threading.Thread(
+                target=_runner, name="bigcam-shutdown", daemon=True
+            )
+            worker.start()
+            if not done.wait(timeout=_CLEANUP_TIMEOUT_S):
+                log.warning(
+                    "Shutdown cleanup exceeded %ss — exiting anyway",
+                    _CLEANUP_TIMEOUT_S,
+                )
+            _on_cleanup_done()
+        else:
+            run_async(_heavy_cleanup, on_success=_on_cleanup_done)
 
     # -- theme ---------------------------------------------------------------
 

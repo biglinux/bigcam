@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import logging
-import os
 import threading
-import urllib.request
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -398,16 +396,16 @@ class EffectPipeline:
         return _HAS_CV2
 
     def get_effects(self) -> list[EffectInfo]:
-        return [info for info, _ in self._effects]
+        return [info for info, _fn in self._effects]
 
     def get_effect(self, effect_id: str) -> EffectInfo | None:
-        for info, _ in self._effects:
+        for info, _fn in self._effects:
             if info.effect_id == effect_id:
                 return info
         return None
 
     def set_enabled(self, effect_id: str, enabled: bool) -> None:
-        for info, _ in self._effects:
+        for info, _fn in self._effects:
             if info.effect_id == effect_id:
                 if info.enabled != enabled:
                     self._active_count += 1 if enabled else -1
@@ -415,7 +413,7 @@ class EffectPipeline:
                 return
 
     def set_param(self, effect_id: str, param_name: str, value: float) -> None:
-        for info, _ in self._effects:
+        for info, _fn in self._effects:
             if info.effect_id == effect_id:
                 for p in info.params:
                     if p.name == param_name:
@@ -423,14 +421,14 @@ class EffectPipeline:
                         return
 
     def reset_effect(self, effect_id: str) -> None:
-        for info, _ in self._effects:
+        for info, _fn in self._effects:
             if info.effect_id == effect_id:
                 for p in info.params:
                     p.value = p.default
                 return
 
     def reset_all(self) -> None:
-        for info, _ in self._effects:
+        for info, _fn in self._effects:
             info.enabled = False
             for p in info.params:
                 p.value = p.default

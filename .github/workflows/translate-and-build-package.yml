@@ -21,8 +21,8 @@ jobs:
         shell: bash
         run: |
           cancel () {
-            echo "Pacote de template, não precisa traduzir e compilar"
-            echo "SAINDO...."
+            echo "Template package, no need to translate and build"
+            echo "EXITING...."
             curl -s -H "Authorization: token ${{ github.token }}" \
             -X POST "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
             sleep infinity

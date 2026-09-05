@@ -14,12 +14,31 @@ from typing import Any
 
 from constants import BackendType, ControlCategory, ControlType, BASE_DIR
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
+from utils import xdg
 from utils.i18n import _
 
 log = logging.getLogger(__name__)
 
 # Unique UDP port per process instance (avoids conflicts with multi-instance)
 _UDP_PORT = 5000 + (os.getpid() % 1000)
+
+# Locale-independent environment for every gphoto2 invocation.  We parse
+# gphoto2's diagnostics, and those strings are translated, so the message
+# catalogue has to be pinned or the parsing silently stops working outside
+# the locale it was written against.
+_C_ENV = {**os.environ, "LANG": "C", "LC_ALL": "C"}
+
+# Substrings that identify a camera whose PTP driver cannot actually stream.
+# The streaming script runs under _C_ENV too, so English matches suffice; the
+# list used to carry Portuguese variants alongside, which meant every other
+# locale matched nothing at all.
+_PTP_FAILURE_KEYWORDS = (
+    "ptp general error",
+    "ptp error",
+    "ptp timeout",
+    "0 frames",
+    "not valid",
+)
 
 
 class GPhoto2Backend(CameraBackend):
@@ -36,19 +55,24 @@ class GPhoto2Backend(CameraBackend):
     def get_backend_type(self) -> BackendType:
         return BackendType.GPHOTO2
 
-    @staticmethod
-    def _kill_gvfs() -> None:
-        """Kill GVFS processes that interfere with gphoto2 USB access."""
+    # True once _kill_gvfs has stopped the GVFS monitor in this session, so
+    # restore_gvfs() knows whether it has anything to undo.
+    _gvfs_stopped: bool = False
+
+    @classmethod
+    def _kill_gvfs(cls) -> None:
+        """Stop GVFS processes that hold the camera's USB device.
+
+        Only *stops* the unit — masking it would survive BigCam and silently
+        break camera access in Files/Gwenview for the rest of the session.
+        :meth:`restore_gvfs` puts it back.
+        """
         SecureCommandRunner.run_safe(
             ["systemctl", "--user", "stop", "gvfs-gphoto2-volume-monitor.service"],
             capture_output=True,
             timeout=5,
         )
-        SecureCommandRunner.run_safe(
-            ["systemctl", "--user", "mask", "gvfs-gphoto2-volume-monitor.service"],
-            capture_output=True,
-            timeout=5,
-        )
+        cls._gvfs_stopped = True
         SecureCommandRunner.run_safe(
             ["pkill", "-9", "-f", "gvfs-gphoto2-volume-monitor"],
             capture_output=True,
@@ -64,6 +88,29 @@ class GPhoto2Backend(CameraBackend):
             capture_output=True,
             timeout=5,
         )
+
+    @classmethod
+    def restore_gvfs(cls) -> None:
+        """Undo :meth:`_kill_gvfs` so the desktop can mount cameras again.
+
+        Also unmasks the unit defensively: older BigCam versions masked it and
+        never restored it, leaving users with permanently broken camera
+        mounting.  Unmasking an already-enabled unit is a no-op.
+        """
+        SecureCommandRunner.run_safe(
+            ["systemctl", "--user", "unmask", "gvfs-gphoto2-volume-monitor.service"],
+            capture_output=True,
+            timeout=5,
+        )
+        if not cls._gvfs_stopped:
+            return
+        SecureCommandRunner.run_safe(
+            ["systemctl", "--user", "start", "gvfs-gphoto2-volume-monitor.service"],
+            capture_output=True,
+            timeout=5,
+        )
+        cls._gvfs_stopped = False
+        log.info("GVFS gphoto2 volume monitor restored")
 
     @staticmethod
     def _release_usb_device(port: str) -> None:
@@ -198,7 +245,6 @@ class GPhoto2Backend(CameraBackend):
     @staticmethod
     def _check_capture_support(port: str) -> bool:
         """Return True if the camera at *port* supports capture operations."""
-        env = {**os.environ, "LANG": "C", "LC_ALL": "C"}
         # Try without --port first (doesn't need device access, works even
         # when GVFS still holds the device), then fall back to --port.
         for cmd in (
@@ -207,7 +253,7 @@ class GPhoto2Backend(CameraBackend):
         ):
             try:
                 result = SecureCommandRunner.run_safe(
-                    cmd, capture_output=True, text=True, timeout=15, env=env,
+                    cmd, capture_output=True, text=True, timeout=15, env=_C_ENV,
                 )
                 if result.returncode != 0:
                     continue
@@ -227,11 +273,10 @@ class GPhoto2Backend(CameraBackend):
         status entries.  Remote-controllable cameras also expose
         capturesettings and/or imgsettings.
         """
-        env = {**os.environ, "LANG": "C", "LC_ALL": "C"}
         try:
             result = SecureCommandRunner.run_safe(
                 ["gphoto2", "--port", port, "--list-config"],
-                capture_output=True, text=True, timeout=15, env=env,
+                capture_output=True, text=True, timeout=15, env=_C_ENV,
             )
             if result.returncode != 0:
                 return True  # assume OK if we can't check
@@ -798,6 +843,7 @@ class GPhoto2Backend(CameraBackend):
                     stderr=subprocess.STDOUT,
                     timeout=60,
                     capture_output=False,
+                    env=_C_ENV,
                 )
                 f.seek(0)
                 raw = f.read()
@@ -828,11 +874,7 @@ class GPhoto2Backend(CameraBackend):
             log.error("GPhoto2 script failed (code %d): %s", res.returncode, output)
             # Detect PTP-level failures (camera doesn't really support streaming)
             out_lower = output.lower()
-            if any(kw in out_lower for kw in (
-                "ptp general error", "ptp error", "ptp timeout",
-                "0 quadros", "0 frames",
-                "not valid", "não é válido",
-            )):
+            if any(kw in out_lower for kw in _PTP_FAILURE_KEYWORDS):
                 log.warning(
                     "Camera %s failed with PTP errors — likely lacks "
                     "PC Remote mode for live streaming",
@@ -956,7 +998,10 @@ class GPhoto2Backend(CameraBackend):
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
         port = camera.extra.get("port", camera.device_path)
         camera_arg = ["--port", port] if port else []
-        debug_log = "/tmp/gphoto2_capture_debug.log"
+        # Keep the debug log inside the user's private cache dir.  A fixed
+        # /tmp path is world-writable and predictable: another user could
+        # pre-create it as a symlink and have gphoto2 clobber the target.
+        debug_log = os.path.join(xdg.cache_dir(), "gphoto2_capture_debug.log")
 
         for attempt in range(2):
             try:
@@ -992,7 +1037,7 @@ class GPhoto2Backend(CameraBackend):
                 )
                 if result.returncode == 0 and os.path.isfile(output_path):
                     return True
-            except subprocess.TimeoutExpired as exc:
+            except subprocess.TimeoutExpired:
                 log.warning("capture_photo attempt %d timed out", attempt + 1)
                 # Log debug output from gphoto2 to understand where it hung
                 try:

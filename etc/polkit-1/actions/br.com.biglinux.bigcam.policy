@@ -6,16 +6,27 @@
   <vendor>BigLinux</vendor>
   <vendor_url>https://www.biglinux.com.br</vendor_url>
 
+  <!--
+    Fallback path for users who are not in the wheel group, or where
+    etc/sudoers.d/bigcam is not installed.  BigCam first tries
+    `sudo -n bigcam-v4l2loopback ...`; if that is refused it falls back to
+    pkexec with this action.
+
+    The helper validates its own arguments (action verb, device number range
+    and label charset), so granting it is not equivalent to granting modprobe.
+  -->
   <action id="br.com.biglinux.bigcam.manage-v4l2loopback">
-    <description>Load or unload the v4l2loopback kernel module for BigCam</description>
+    <description>Manage the v4l2loopback virtual camera devices for BigCam</description>
+    <description xml:lang="pt_BR">Gerenciar os dispositivos de câmera virtual v4l2loopback do BigCam</description>
     <message>Authentication is required to enable the virtual camera</message>
+    <message xml:lang="pt_BR">É necessário autenticar-se para ativar a câmera virtual</message>
     <icon_name>camera-video-symbolic</icon_name>
     <defaults>
       <allow_any>auth_admin</allow_any>
       <allow_inactive>auth_admin</allow_inactive>
       <allow_active>auth_admin_keep</allow_active>
     </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/share/biglinux/bigcam/script/load-v4l2loopback.sh</annotate>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/share/biglinux/bigcam/script/bigcam-v4l2loopback</annotate>
     <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
   </action>
 </policyconfig>

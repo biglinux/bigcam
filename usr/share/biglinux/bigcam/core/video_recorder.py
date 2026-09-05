@@ -19,7 +19,7 @@ import gi
 
 gi.require_version("Gst", "1.0")
 
-from gi.repository import Gst, GLib
+from gi.repository import Gst
 
 from core.camera_backend import CameraInfo
 from core.camera_manager import CameraManager
@@ -46,6 +46,10 @@ class VideoRecorder:
         self._h = 0
         self._start_time = 0
         self._finalize_thread: threading.Thread | None = None
+        # Set when the pipeline could not be built.  Without it, write_frame
+        # would retry Gst.parse_launch on *every* incoming frame.
+        self._pipeline_failed = False
+        self._on_error_cb = None
         # Configurable codec/container/bitrate
         self._video_codec = "h264"
         self._audio_codec = "opus"
@@ -112,6 +116,7 @@ class VideoRecorder:
         self._source_volumes: dict[str, float] = dict(source_volumes or {})
         self._global_muted = muted
         self._recording = True
+        self._pipeline_failed = False
         self._w = 0
         self._h = 0
         self._pipeline = None
@@ -243,6 +248,8 @@ class VideoRecorder:
     def _ensure_pipeline(self, w: int, h: int) -> bool:
         if self._pipeline:
             return True
+        if self._pipeline_failed:
+            return False
 
         self._w = w
         self._h = h
@@ -347,13 +354,29 @@ class VideoRecorder:
 
             ret = self._pipeline.set_state(Gst.State.PLAYING)
             if ret == Gst.StateChangeReturn.FAILURE:
-                log.error("Failed to start recording pipeline")
-                self._stop_pipeline()
+                self._abort("recording pipeline refused to start")
                 return False
             return True
         except Exception as exc:
-            log.error("Failed to create recording pipeline: %s", exc)
+            self._abort(f"could not create the recording pipeline: {exc}")
             return False
+
+    def _abort(self, reason: str) -> None:
+        """Give up on this recording instead of retrying once per frame."""
+        log.error("Recording aborted: %s", reason)
+        self._stop_pipeline()
+        self._pipeline_failed = True
+        self._recording = False
+        cb = self._on_error_cb
+        if cb is not None:
+            try:
+                cb(reason)
+            except Exception:
+                log.debug("Recording error callback failed", exc_info=True)
+
+    def set_error_callback(self, callback) -> None:
+        """Register ``fn(reason: str)``, called once when a recording aborts."""
+        self._on_error_cb = callback
 
     def set_source_active(self, source_name: str, active: bool) -> None:
         """Mute or unmute a USB camera audio source in the recording pipeline."""

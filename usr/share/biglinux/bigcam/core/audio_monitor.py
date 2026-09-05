@@ -18,6 +18,10 @@ from gi.repository import Gst, GLib, GObject
 
 log = logging.getLogger(__name__)
 
+# How many times a failing audio source is respawned before BigCam gives
+# up on it.  Without a cap, an unplugged device restarts forever.
+_MAX_RESTARTS = 5
+
 
 def _get_usb_parent(sysfs_path: str) -> str | None:
     """Walk the real sysfs path and return the USB bus-port identifier."""
@@ -152,6 +156,7 @@ class AudioMonitor(GObject.Object):
         self._volume_elements: dict[str, Gst.Element] = {}
         self._source_volumes: dict[str, float] = {}  # per-source volume
         self._restart_counts: dict[str, int] = {}  # per-source restart counter
+        self._redetect_timer: int | None = None    # debounce for detect_all()
         self._volume: float = 0.5
         self._muted: bool = False
         # External sources (e.g. AirPlay) controlled via pactl
@@ -182,15 +187,19 @@ class AudioMonitor(GObject.Object):
         threading.Thread(target=self._detect_worker, daemon=True).start()
 
     def is_active(self, source_name: str) -> bool:
-        if source_name in self._external:
-            return self._external[source_name].get("active", True)
+        with self._ext_lock:
+            info = self._external.get(source_name)
+        if info is not None:
+            return info.get("active", True)
         return source_name in self._pipelines
 
     @property
     def active_source_names(self) -> list[str]:
         """Return PulseAudio device names of all currently active sources."""
         result = list(self._pipelines.keys())
-        for name, info in self._external.items():
+        with self._ext_lock:
+            snapshot = list(self._external.items())
+        for name, info in snapshot:
             if info.get("active", True):
                 result.append(name)
         return result
@@ -199,18 +208,23 @@ class AudioMonitor(GObject.Object):
     def all_source_names(self) -> list[str]:
         """Return PulseAudio device names of all detected sources."""
         result = [s[0] for s in self._sources]
-        result.extend(self._external.keys())
+        with self._ext_lock:
+            result.extend(self._external.keys())
         return result
 
     def toggle_source(self, source_name: str) -> None:
-        """Start or stop playback of a given source."""
-        if source_name in self._external:
-            info = self._external[source_name]
+        """Start or stop playback of a given source (explicit user action)."""
+        with self._ext_lock:
+            info = self._external.get(source_name)
+        if info is not None:
             active = not info.get("active", True)
             info["active"] = active
             self._pactl_mute_external(source_name, not active)
             self.emit("source-toggled", source_name, active)
             return
+        # An explicit toggle is the only thing allowed to clear the failure
+        # backoff — see _on_bus_eos / _on_bus_error.
+        self._restart_counts.pop(source_name, None)
         if source_name in self._pipelines:
             self._stop_source(source_name)
             self.emit("source-toggled", source_name, False)
@@ -219,16 +233,26 @@ class AudioMonitor(GObject.Object):
             self.emit("source-toggled", source_name, True)
 
     def stop_all(self) -> None:
-        """Stop all active pipelines."""
+        """Silence every source BigCam controls, local and external.
+
+        Called on shutdown: nothing BigCam started may keep making noise.
+        """
         for name in list(self._pipelines):
             self._stop_source(name)
+        self._restart_counts.clear()
+        with self._ext_lock:
+            external = list(self._external)
+        for name in external:
+            self._pactl_mute_external(name, True)
 
     def set_volume(self, value: float) -> None:
         self._volume = max(0.0, min(1.0, value))
         for src, vol in self._volume_elements.items():
             vol.set_property("volume", self._volume)
             self._source_volumes[src] = self._volume
-        for name in self._external:
+        with self._ext_lock:
+            external = list(self._external)
+        for name in external:
             self._source_volumes[name] = self._volume
             self._pactl_volume_external(name, self._volume)
         self.emit("volume-changed", self._volume)
@@ -237,7 +261,9 @@ class AudioMonitor(GObject.Object):
         """Set volume for a specific source."""
         value = max(0.0, min(1.0, value))
         self._source_volumes[source_name] = value
-        if source_name in self._external:
+        with self._ext_lock:
+            is_external = source_name in self._external
+        if is_external:
             self._pactl_volume_external(source_name, value)
         else:
             vol_elem = self._volume_elements.get(source_name)
@@ -253,7 +279,9 @@ class AudioMonitor(GObject.Object):
         self._muted = muted
         for vol in self._volume_elements.values():
             vol.set_property("mute", muted)
-        for name, info in self._external.items():
+        with self._ext_lock:
+            snapshot = list(self._external.items())
+        for name, info in snapshot:
             if muted:
                 self._pactl_mute_external(name, True)
             elif info.get("active", True):
@@ -299,9 +327,11 @@ class AudioMonitor(GObject.Object):
                 def _retry_mute(
                     _name: str = name, _cb: Callable[[bool], None] = mute_cb
                 ) -> bool:
-                    if _name not in self._external:
+                    with self._ext_lock:
+                        entry = self._external.get(_name)
+                    if entry is None:
                         return GLib.SOURCE_REMOVE
-                    if not self._external[_name].get("active", True):
+                    if not entry.get("active", True):
                         _cb(True)
                     return GLib.SOURCE_REMOVE
 
@@ -454,7 +484,8 @@ class AudioMonitor(GObject.Object):
 
     def _pactl_volume_external(self, name: str, value: float) -> None:
         """Set volume on an external source via callback or pactl."""
-        info = self._external.get(name)
+        with self._ext_lock:
+            info = self._external.get(name)
         if not info:
             return
         cb = info.get("volume_cb")
@@ -474,7 +505,8 @@ class AudioMonitor(GObject.Object):
 
     def _pactl_mute_external(self, name: str, muted: bool) -> None:
         """Mute/unmute an external source via callback or pactl."""
-        info = self._external.get(name)
+        with self._ext_lock:
+            info = self._external.get(name)
         if not info:
             return
         cb = info.get("mute_cb")
@@ -513,7 +545,9 @@ class AudioMonitor(GObject.Object):
     def _start_source(self, source: str) -> None:
         if source in self._pipelines:
             return
-        self._restart_counts.pop(source, None)  # reset restart counter on fresh start
+        # NOTE: deliberately does *not* clear _restart_counts.  This method is
+        # called by the automatic restart path, so resetting here would make
+        # the "give up after N failures" guard unreachable and spin forever.
         pipeline_str = (
             f'pulsesrc device="{source}" '
             "do-timestamp=true "
@@ -601,7 +635,9 @@ class AudioMonitor(GObject.Object):
             pass
 
         # Re-apply per-source volume and mute state for all external sources
-        for name, info in self._external.items():
+        with self._ext_lock:
+            snapshot = list(self._external.items())
+        for name, info in snapshot:
             vol = self._source_volumes.get(name, self._volume)
             self._pactl_volume_external(name, vol)
             if not info.get("active", True) or self._muted:
@@ -609,30 +645,55 @@ class AudioMonitor(GObject.Object):
 
         return GLib.SOURCE_REMOVE
 
+    def _schedule_restart(self, source: str, reason: str) -> None:
+        """Restart a failed source with exponential backoff, then give up.
+
+        EOS and ERROR share one counter: a device that is being unplugged
+        typically produces both, and two independent counters used to let the
+        pipeline respawn forever, pinning a CPU core.  Only an explicit user
+        toggle clears the counter (see :meth:`toggle_source`).
+        """
+        count = self._restart_counts.get(source, 0) + 1
+        self._restart_counts[source] = count
+        if count > _MAX_RESTARTS:
+            log.warning(
+                "Audio source %s failed %d times (%s) – giving up",
+                source, count, reason,
+            )
+            self._stop_source(source)
+            return
+        delay = min(500 * count, 5000)
+        log.warning(
+            "Audio source %s %s – restarting (attempt %d/%d in %dms)",
+            source, reason, count, _MAX_RESTARTS, delay,
+        )
+        GLib.timeout_add(delay, self._restart_source, source)
+
     def _on_bus_eos(
         self, _bus: Gst.Bus, _msg: Gst.Message, source: str
     ) -> None:
-        count = self._restart_counts.get(source, 0) + 1
-        self._restart_counts[source] = count
-        if count > 5:
-            log.warning("Audio pipeline EOS for %s – too many restarts (%d), giving up", source, count)
-            self._stop_source(source)
-            return
-        delay = min(500 * count, 5000)  # backoff: 500ms, 1s, 1.5s, ... max 5s
-        log.warning("Audio pipeline EOS for %s – restarting (attempt %d, delay %dms)", source, count, delay)
-        GLib.timeout_add(delay, self._restart_source, source)
+        self._schedule_restart(source, "reached EOS")
 
     def _on_bus_error(
         self, _bus: Gst.Bus, msg: Gst.Message, source: str
     ) -> None:
         err, debug = msg.parse_error()
         log.error("Audio pipeline error for %s: %s (%s)", source, err.message, debug)
-        # Restart the source; if device is gone, re-detect will clean up
-        GLib.timeout_add(500, self._restart_source, source)
-        GLib.timeout_add(2000, self._schedule_redetect)
+        self._schedule_restart(source, "errored")
+        # Re-detect once so a vanished device is dropped from the list, but
+        # only if we have not already given up on this source.
+        if self._restart_counts.get(source, 0) <= _MAX_RESTARTS:
+            self._schedule_redetect_debounced()
+
+    def _schedule_redetect_debounced(self) -> None:
+        """Coalesce re-detection requests into a single scan."""
+        if self._redetect_timer is not None:
+            return
+        self._redetect_timer = GLib.timeout_add(2000, self._schedule_redetect)
 
     def _schedule_redetect(self) -> bool:
         """Debounced re-detection to avoid multiple concurrent scans."""
+        self._redetect_timer = None
         self.detect_all()
         return GLib.SOURCE_REMOVE
 

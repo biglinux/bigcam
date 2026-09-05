@@ -89,4 +89,26 @@ package() {
     if [ -f "${pkgdir}/etc/sudoers.d/bigcam" ]; then
         chmod 0440 "${pkgdir}/etc/sudoers.d/bigcam"
     fi
+
+    # The privileged helper is granted NOPASSWD in sudoers.  sudo refuses to
+    # run a command that is writable by anyone other than root, and a
+    # user-writable helper would be a trivial root escalation.  Enforce
+    # root:root 0755 explicitly rather than relying on the source tree.
+    helper="${pkgdir}/usr/share/biglinux/bigcam/script/bigcam-v4l2loopback"
+    if [ -f "$helper" ]; then
+        chown 0:0 "$helper"
+        chmod 0755 "$helper"
+    fi
+
+    # Remaining scripts only ever run unprivileged.
+    for s in "${pkgdir}/usr/share/biglinux/bigcam/script/"*.sh; do
+        [ -f "$s" ] && chmod 0755 "$s"
+    done
+}
+
+check() {
+    # Fail the build rather than shipping an unparseable sudoers drop-in.
+    if command -v visudo >/dev/null 2>&1; then
+        visudo -c -f "${srcdir}/${pkgname}/etc/sudoers.d/bigcam" >/dev/null
+    fi
 }

@@ -1466,6 +1466,7 @@ class PhoneCameraDialog(Adw.Dialog):
                 fps=fps,
                 bitrate=bitrate,
                 max_size=max_size,
+                model=device.model,
             )
             if ok:
                 self._usb_start_btn.set_visible(False)
@@ -1835,6 +1836,7 @@ class PhoneCameraDialog(Adw.Dialog):
                 fps=fps,
                 bitrate=bitrate,
                 max_size=max_size,
+                model=device.model,
             )
             if ok:
                 self._scrcpy_start_btn.set_visible(False)

@@ -16,7 +16,7 @@ import gi
 
 gi.require_version("Gst", "1.0")
 
-from gi.repository import GLib, GObject, Gst
+from gi.repository import GLib, GObject
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +64,17 @@ class ScrcpyCamera(GObject.Object):
         self._monitor_thread: Optional[threading.Thread] = None
         self._v4l2_device: str = ""
         self._device_serial: str = ""
+        self._model: str = ""
         self._running = False
+
+    @property
+    def model(self) -> str:
+        """Human-readable device name (e.g. "Pixel 5").
+
+        Populated by :meth:`start`; the UI uses it to label the camera entry,
+        falling back to the serial when the model is unknown.
+        """
+        return self._model
 
     @property
     def pid(self) -> int | None:
@@ -303,7 +313,7 @@ class ScrcpyCamera(GObject.Object):
             except Exception:
                 pass
 
-        return True, f"Paired successfully. Connect manually if needed."
+        return True, "Paired successfully. Connect manually if needed."
 
     @staticmethod
     def switch_to_wifi(serial: str) -> tuple[bool, str]:
@@ -400,6 +410,7 @@ class ScrcpyCamera(GObject.Object):
         fps: int = 30,
         bitrate: str = "16M",
         max_size: int = 1920,
+        model: str = "",
     ) -> bool:
         """Start scrcpy camera streaming.
 
@@ -409,6 +420,8 @@ class ScrcpyCamera(GObject.Object):
 
         Args:
             v4l2_device: Path to the v4l2loopback device (e.g. /dev/video10).
+            model: Human-readable device name used to label the camera in
+                   the UI.  Defaults to the serial when empty.
         """
         if self._running:
             log.warning("ScrcpyCamera already running")
@@ -461,6 +474,7 @@ class ScrcpyCamera(GObject.Object):
 
         self._v4l2_device = v4l2_device
         self._device_serial = device_serial
+        self._model = model or device_serial
         self._running = True
         GLib.idle_add(self.emit, "status-changed", "starting")
 

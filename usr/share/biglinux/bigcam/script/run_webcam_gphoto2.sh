@@ -9,10 +9,16 @@ CAM_NAME="${CAM_NAME//,/}"
 # When called with V4L2_DEV=none, skip writing to v4l2loopback (BigCam handles via appsrc)
 V4L2_DEV="${4:-auto}"
 
-LOG="/tmp/canon_webcam_stream_${UDP_PORT}.log"
-ERR_LOG="/tmp/gphoto_err_${UDP_PORT}.log"
-> "$LOG"
-> "$ERR_LOG"
+# Logs go to the user's private cache dir.  A fixed /tmp path is predictable
+# and world-writable: another user can pre-create it as a symlink and have us
+# truncate whatever it points at.
+LOG_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/bigcam"
+mkdir -p "$LOG_DIR"
+chmod 700 "$LOG_DIR" 2>/dev/null || true
+LOG="${LOG_DIR}/gphoto_stream_${UDP_PORT}.log"
+ERR_LOG="${LOG_DIR}/gphoto_err_${UDP_PORT}.log"
+: > "$LOG"
+: > "$ERR_LOG"
 
 # ── Step 1: Kill ONLY this camera's previous processes ──
 if [ -n "$USB_PORT" ]; then
@@ -29,24 +35,21 @@ sleep 1
 systemctl --user stop gvfs-gphoto2-volume-monitor.service 2>/dev/null
 pkill -9 -f "gvfs-gphoto2-volume-monitor" 2>/dev/null
 pkill -9 -f "gvfsd-gphoto2" 2>/dev/null
-gio mount -u gphoto2://* 2>/dev/null
+gio mount -u 'gphoto2://' 2>/dev/null
 sleep 1
 
 # ── Step 3: Load v4l2loopback ──
-CARD_LABELS="BigCam Virtual 1,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
-if ! lsmod | grep -q v4l2loopback; then
-  sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
-    video_nr=10,11,12,13 "card_label=$CARD_LABELS"
-  sleep 1
-else
-  if [ "$(cat /sys/module/v4l2loopback/parameters/exclusive_caps 2>/dev/null)" = "0" ]; then
-    if ! fuser /dev/video* >/dev/null 2>&1; then
-      sudo -n modprobe -r v4l2loopback 2>/dev/null
-      sleep 1
-      sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1 max_buffers=4 \
-        video_nr=10,11,12,13 "card_label=$CARD_LABELS"
-      sleep 1
-    fi
+# Always go through the privileged helper: it is the only command BigCam is
+# allowed to run as root, and it owns the device-pool numbering.  Calling
+# modprobe here directly used to create devices at /dev/video10-13 while
+# virtual_camera.py looked for them at /dev/video20+, so the two never agreed.
+HELPER="$(dirname "$(readlink -f "$0")")/bigcam-v4l2loopback"
+if [ "$V4L2_DEV" != "none" ] && [ ! -d /sys/module/v4l2loopback ]; then
+  if [ -x "$HELPER" ]; then
+    sudo -n "$HELPER" load 2>/dev/null || echo "WARN: could not load v4l2loopback"
+    sleep 1
+  else
+    echo "WARN: privileged helper not found at $HELPER"
   fi
 fi
 
@@ -84,7 +87,7 @@ pkill -9 -f "gvfsd-gphoto2" 2>/dev/null
 sleep 0.5
 
 # Verify the specific camera is accessible, re-detect port if needed
-if ! timeout 10 gphoto2 --auto-detect 2>&1 | grep -q "$USB_PORT"; then
+if ! timeout 10 gphoto2 --auto-detect 2>&1 | grep -qF -- "$USB_PORT"; then
   echo "WARN: Camera not at original port $USB_PORT, re-detecting..."
   # Try to find camera by name at a different port
   NEW_PORT=$(timeout 10 gphoto2 --auto-detect 2>/dev/null | grep -Fi "$CAM_NAME" | grep -o 'usb:[^ ]*' | head -1)
@@ -101,8 +104,8 @@ fi
 # ── Step 6: Launch gphoto2 + ffmpeg with retry ──
 MAX_ATTEMPTS=3
 for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-  > "$ERR_LOG"
-  > "$LOG"
+  : > "$ERR_LOG"
+  : > "$LOG"
 
   if [ "$attempt" -gt 1 ]; then
     echo "Retry attempt $attempt/$MAX_ATTEMPTS..."
@@ -111,23 +114,35 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     sleep 3
   fi
 
-  # Build ffmpeg command depending on whether v4l2loopback output is needed
+  # Build the ffmpeg argument list as an array.  The previous version
+  # concatenated everything into a string and ran it through `bash -c`, so a
+  # quote in $USB_PORT or $DEVICE_VIDEO (both derived from device output)
+  # would have been re-parsed as shell syntax.  Arrays keep every value as a
+  # single argv entry, with no second round of word splitting.
+  UDP_URL="udp://127.0.0.1:${UDP_PORT}?pkt_size=1316"
+  FFMPEG_ARGS=(ffmpeg -y -hide_banner -loglevel error -stats -i -)
   if [ -n "$DEVICE_VIDEO" ]; then
     # Split to v4l2loopback + UDP
-    FFMPEG_CMD="ffmpeg -y -hide_banner -loglevel error -stats -i - \
-      -filter_complex \"[0:v]format=yuv420p,split=2[v1][v2]\" \
-      -map \"[v1]\" -r 30 -f v4l2 \"$DEVICE_VIDEO\" \
-      -map \"[v2]\" -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0 \
-      \"udp://127.0.0.1:${UDP_PORT}?pkt_size=1316\""
+    FFMPEG_ARGS+=(
+      -filter_complex "[0:v]format=yuv420p,split=2[v1][v2]"
+      -map "[v1]" -r 30 -f v4l2 "$DEVICE_VIDEO"
+      -map "[v2]" -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0
+      "$UDP_URL"
+    )
   else
     # UDP only (BigCam handles v4l2loopback via appsrc)
-    FFMPEG_CMD="ffmpeg -y -hide_banner -loglevel error -stats -i - \
-      -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0 \
-      \"udp://127.0.0.1:${UDP_PORT}?pkt_size=1316\""
+    FFMPEG_ARGS+=(
+      -f mpegts -r 30 -codec:v mpeg1video -b:v 5000k -bf 0
+      "$UDP_URL"
+    )
   fi
 
-  nohup bash -c "gphoto2 --stdout --capture-movie --port '$USB_PORT' 2>\"$ERR_LOG\" | \
-    $FFMPEG_CMD >\"$LOG\" 2>&1" &
+  # Run the pipeline in a detached subshell.  Everything crossing the boundary
+  # travels as an argument or a redirection target, never as shell source text.
+  (
+    gphoto2 --stdout --capture-movie --port "$USB_PORT" 2>"$ERR_LOG" \
+      | "${FFMPEG_ARGS[@]}" >"$LOG" 2>&1
+  ) &
   PID=$!
   disown
 

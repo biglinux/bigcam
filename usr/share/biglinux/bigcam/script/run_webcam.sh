@@ -7,7 +7,6 @@ UDP_PORT="${2:-5000}"
 CAM_NAME="${3:-Canon DSLR}"
 # Remove commas to prevent modprobe array parsing errors
 CAM_NAME="${CAM_NAME//,/}"
-CARD_LABELS="BigCam Virtual 1,BigCam Virtual 2,BigCam Virtual 3,BigCam Virtual 4"
 
 
 if [ -n "$USB_PORT" ]; then
@@ -23,7 +22,7 @@ fi
 # Kill gvfs interference more effectively
 systemctl --user stop gvfs-gphoto2-volume-monitor.service 2>/dev/null
 pkill -9 -f "gvfs-gphoto2-volume-monitor" 2>/dev/null
-gio mount -u gphoto2://* 2>/dev/null
+gio mount -u 'gphoto2://' 2>/dev/null
 sleep 2
 
 # Reset the USB interface of the camera before starting
@@ -34,21 +33,16 @@ sleep 2
 # fi
 # sleep 2
 
-# Load v4l2loopback with 4 virtual devices if not loaded
-if ! lsmod | grep -q v4l2loopback; then
-  sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1,1,1,1 max_buffers=4 \
-    video_nr=10,11,12,13 "card_label=$CARD_LABELS"
-  sleep 1
-else
-  # If loaded with exclusive_caps=0, reload only if no device is in use
-  if [ "$(cat /sys/module/v4l2loopback/parameters/exclusive_caps 2>/dev/null)" = "0" ]; then
-    if ! fuser /dev/video* >/dev/null 2>&1; then
-      sudo -n modprobe -r v4l2loopback 2>/dev/null
-      sleep 1
-      sudo -n modprobe v4l2loopback devices=4 exclusive_caps=1,1,1,1 max_buffers=4 \
-        video_nr=10,11,12,13 "card_label=$CARD_LABELS"
-      sleep 1
-    fi
+# Load v4l2loopback through the privileged helper (the only root command
+# BigCam is granted).  It owns the device-pool numbering, so the devices it
+# creates are the ones virtual_camera.py expects to find.
+HELPER="$(dirname "$(readlink -f "$0")")/bigcam-v4l2loopback"
+if [ ! -d /sys/module/v4l2loopback ]; then
+  if [ -x "$HELPER" ]; then
+    sudo -n "$HELPER" load 2>/dev/null || echo "WARN: could not load v4l2loopback"
+    sleep 1
+  else
+    echo "WARN: privileged helper not found at $HELPER"
   fi
 fi
 
@@ -83,10 +77,14 @@ else
 fi
 
 # Launch with high quality settings
-LOG="/tmp/canon_webcam_stream_${UDP_PORT}.log"
-ERR_LOG="/tmp/gphoto_err_${UDP_PORT}.log"
-> "$LOG"
-> "$ERR_LOG"
+# Private cache dir, not a predictable world-writable /tmp path.
+LOG_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/bigcam"
+mkdir -p "$LOG_DIR"
+chmod 700 "$LOG_DIR" 2>/dev/null || true
+LOG="${LOG_DIR}/gphoto_stream_${UDP_PORT}.log"
+ERR_LOG="${LOG_DIR}/gphoto_err_${UDP_PORT}.log"
+: > "$LOG"
+: > "$ERR_LOG"
 
 # Quality Upgrades:
 # - Bitrate was 800k (pixilated), now 5000k (sharp)

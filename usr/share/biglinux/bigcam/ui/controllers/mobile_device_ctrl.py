@@ -102,7 +102,7 @@ class MobileDeviceController:
 
     def _on_scrcpy_receiver_connected(self, camera: ScrcpyCamera, width: int, height: int) -> None:
         device_id = camera.device_serial
-        device_name = camera.model or device_id
+        device_name = getattr(camera, "model", "") or device_id
         cam_info = CameraInfo(
             id=f"scrcpy:{device_id}",
             name=f"Android: {device_name}",
