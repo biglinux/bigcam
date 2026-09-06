@@ -1153,7 +1153,7 @@ msgstr "Front camera"
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 266
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 483
 # File: bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py, line: 585
-# File: bigcam/usr/share/biglinux/bigcam/core/camera_profiles.py, line: 122
+# File: bigcam/usr/share/biglinux/bigcam/core/camera_profiles.py, line: 149
 msgid "Quality"
 msgstr "Quality"
 
@@ -2913,30 +2913,30 @@ msgid "Vignette"
 msgstr "Vignette"
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 898
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 903
 msgid "Failed to start camera streaming process."
 msgstr "Failed to start camera streaming process."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 912
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 917
 msgid "Failed to obtain GStreamer source for this camera."
 msgstr "Failed to obtain GStreamer source for this camera."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 986
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1353
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1364
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1641
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 991
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1358
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1369
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 1646
 msgid "Failed to start camera stream."
 msgstr "Failed to start camera stream."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 2119
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 2133
 msgid "Phone camera server not available."
 msgstr "Phone camera server not available."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 2326
+# File: bigcam/usr/share/biglinux/bigcam/core/stream_engine.py, line: 2344
 msgid "Unknown GStreamer error"
 msgstr "Unknown GStreamer error"
 
@@ -2960,12 +2960,12 @@ msgid "The camera's own default values."
 msgstr "The camera's own default values."
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
+# File: bigcam/usr/share/biglinux/bigcam/core/camera_profiles.py, line: 150
 msgid "Smooth"
 msgstr "Smooth"
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
+# File: bigcam/usr/share/biglinux/bigcam/core/camera_profiles.py, line: 151
 msgid "Factory defaults"
 msgstr "Factory defaults"
 
@@ -3099,17 +3099,17 @@ msgid "LED Frequency"
 msgstr "LED Frequency"
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 780
+# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 805
 msgid "python-aiohttp is not installed"
 msgstr "python-aiohttp is not installed"
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 799
+# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 824
 msgid "Server did not start in time"
 msgstr "Server did not start in time"
 
 #
-# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 861
+# File: bigcam/usr/share/biglinux/bigcam/core/phone_camera.py, line: 886
 #, python-format
 msgid "Port %d is already in use"
 msgstr "Port %d is already in use"
