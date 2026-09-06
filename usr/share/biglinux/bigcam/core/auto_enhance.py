@@ -47,10 +47,14 @@ _TARGET_LUMA = 120.0
 _LUMA_TOLERANCE = 12.0      # ±12 levels around the target
 _CAST_TOLERANCE = 0.06      # 6% channel imbalance
 _CONTRAST_FLOOR = 42.0      # luma std-dev below this counts as flat
+_SATURATION_FLOOR = 28.0    # mean HSV S below this looks washed out
 
 # Clamps, so a pathological frame cannot produce a wild correction.
 _MIN_GAMMA, _MAX_GAMMA = 0.45, 2.2
 _MAX_CHANNEL_GAIN = 1.6
+# Cap on chroma boost.  Beyond this, colour noise in a dim frame becomes more
+# objectionable than the missing saturation it is meant to fix.
+_MAX_SATURATION_BOOST = 1.8
 
 # Exponential-moving-average factor for parameter smoothing.  At 30 fps this
 # reaches ~95% of a new target in about one second.
@@ -69,6 +73,7 @@ class FrameStats:
     contrast: float
     colour_cast: float
     channel_means: tuple[float, float, float]
+    saturation: float = 0.0
 
     @property
     def needs_exposure(self) -> bool:
@@ -81,6 +86,10 @@ class FrameStats:
     @property
     def needs_white_balance(self) -> bool:
         return self.colour_cast > _CAST_TOLERANCE
+
+    @property
+    def needs_saturation(self) -> bool:
+        return self.saturation < _SATURATION_FLOOR
 
 
 def _downscale(bgr: np.ndarray) -> np.ndarray:
@@ -109,6 +118,9 @@ def analyse_frame(bgr: np.ndarray) -> FrameStats:
 
     median_luma = float(np.median(gray))
     contrast = float(gray.std())
+    # Mean HSV S.  Dim scenes and high sensor gain both drain chroma, and the
+    # difference is invisible in a luminance-only measurement.
+    saturation = float(cv2.cvtColor(small, cv2.COLOR_BGR2HSV)[:, :, 1].mean())
 
     means = small.reshape(-1, 3).mean(axis=0)
     b, g, r = (float(x) for x in means)
@@ -122,6 +134,7 @@ def analyse_frame(bgr: np.ndarray) -> FrameStats:
         contrast=contrast,
         colour_cast=cast,
         channel_means=(b, g, r),
+        saturation=saturation,
     )
 
 
@@ -138,6 +151,7 @@ class AutoEnhancer:
         self._gain_b = 1.0
         self._gain_r = 1.0
         self._clahe_strength = 0.0
+        self._saturation_boost = 1.0
         self._lut: np.ndarray | None = None
         self._lut_key: tuple | None = None
         self._clahe = None
@@ -161,6 +175,7 @@ class AutoEnhancer:
         self._gain_b = 1.0
         self._gain_r = 1.0
         self._clahe_strength = 0.0
+        self._saturation_boost = 1.0
         self._frame_index = 0
         self._stats = None
 
@@ -214,6 +229,15 @@ class AutoEnhancer:
         else:
             target_b = target_r = 1.0
 
+        # Chroma: dim rooms and sensor gain both wash colour out.  Scale back
+        # up toward the floor, capped so colour noise is not amplified.
+        if stats.needs_saturation and stats.saturation > 1.0:
+            target_sat = float(np.clip(
+                _SATURATION_FLOOR / stats.saturation, 1.0, _MAX_SATURATION_BOOST
+            ))
+        else:
+            target_sat = 1.0
+
         # Contrast: how hard CLAHE should push, 0..1 by how flat the frame is.
         if stats.needs_contrast:
             deficit = (_CONTRAST_FLOOR - stats.contrast) / _CONTRAST_FLOOR
@@ -228,6 +252,7 @@ class AutoEnhancer:
         self._gain_b += (target_b - self._gain_b) * alpha
         self._gain_r += (target_r - self._gain_r) * alpha
         self._clahe_strength += (target_clahe - self._clahe_strength) * alpha
+        self._saturation_boost += (target_sat - self._saturation_boost) * alpha
 
     # -- parameters -> pixels ----------------------------------------------
 
@@ -276,6 +301,13 @@ class AutoEnhancer:
             lab = cv2.cvtColor(out, cv2.COLOR_BGR2LAB)
             lab[:, :, 0] = self._clahe.apply(lab[:, :, 0])
             out = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+
+        # 3. Chroma. Scaling S in HSV leaves luminance and hue untouched, so
+        #    this cannot undo the exposure work above.
+        if self._saturation_boost > 1.02:
+            hsv = cv2.cvtColor(out, cv2.COLOR_BGR2HSV)
+            hsv[:, :, 1] = cv2.multiply(hsv[:, :, 1], self._saturation_boost)
+            out = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
         # Guarantee the caller's buffer is never handed back aliased.
         return out if out is not bgr else bgr.copy()

@@ -289,6 +289,26 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._auto_enhance_row.connect("notify::active", self._on_auto_enhance)
         preview.add(self._auto_enhance_row)
 
+        tune_row = Adw.ActionRow(
+            title=_("Optimise camera for current lighting"),
+            subtitle=_(
+                "Adjusts the camera's own exposure, gain and anti-flicker. "
+                "Better than software correction: no extra noise."
+            ),
+        )
+        tune_row.add_prefix(
+            Gtk.Image.new_from_icon_name("preferences-color-symbolic")
+        )
+        self._tune_btn = Gtk.Button(
+            label=_("Optimise"),
+            valign=Gtk.Align.CENTER,
+        )
+        self._tune_btn.connect("clicked", self._on_tune_camera)
+        tune_row.add_suffix(self._tune_btn)
+        tune_row.set_activatable_widget(self._tune_btn)
+        preview.add(tune_row)
+        self._tune_row = tune_row
+
         reset_image_row = Adw.ActionRow(
             title=_("Restore image defaults"),
             subtitle=_(
@@ -749,6 +769,24 @@ class SettingsPage(Gtk.ScrolledWindow):
         else:
             self._settings.set("auto-enhance", active)
         self.emit("auto-enhance-changed", active)
+
+    def _on_tune_camera(self, _btn: Gtk.Button) -> None:
+        """Ask the engine to tune the camera's own controls.
+
+        The button is disabled while the closed loop runs — it takes a few
+        seconds and starting a second pass mid-flight would fight the first.
+        """
+        if self._engine is None:
+            return
+        self._tune_btn.set_sensitive(False)
+        self._tune_btn.set_label(_("Optimising…"))
+
+        def _done(summary: str) -> None:
+            self._tune_btn.set_sensitive(True)
+            self._tune_btn.set_label(_("Optimise"))
+            self._tune_row.set_subtitle(summary)
+
+        self._engine.tune_camera_async(on_done=_done)
 
     def _on_reset_image(self, _btn: Gtk.Button) -> None:
         """Restore every image adjustment to its default.

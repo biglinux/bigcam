@@ -6,6 +6,7 @@ import logging
 import os
 import subprocess
 import threading
+import time
 from typing import Any
 
 import gi
@@ -58,6 +59,11 @@ _BUSY_ERROR_KEYWORDS = (
 # Warnings that are expected and must not reach the log.  A leaky queue
 # dropping buffers is normal back-pressure, not a fault.
 _IGNORED_WARNING_KEYWORDS = ("dropping",)
+
+# Auto-tune pacing.  A UVC sensor needs a few frames to react to a control
+# write, and the loop is bounded so an unresponsive camera cannot spin.
+_TUNE_SETTLE_S = 0.35
+_TUNE_MAX_STEPS = 12
 
 
 def _force_c_messages() -> None:
@@ -449,6 +455,100 @@ class StreamEngine(GObject.Object):
         if self._settings is not None:
             self._settings.set("auto-enhance", enabled)
         log.info("Auto image enhancement %s", "enabled" if enabled else "disabled")
+
+    def tune_camera_async(self, on_done=None) -> None:
+        """Configure the camera's own controls for the current lighting.
+
+        Runs off the main thread: each control write shells out to v4l2-ctl,
+        and the closed loop has to wait for the sensor to react between steps.
+
+        Fixing exposure here rather than in software is free of both CPU cost
+        and noise amplification, so this runs before auto-enhance has to do
+        anything.  *on_done* is called on the main thread with a summary
+        string.
+        """
+        camera = self._current_camera
+        if camera is None:
+            if on_done is not None:
+                GLib.idle_add(on_done, _("No camera selected."))
+            return
+
+        def _worker() -> str:
+            from core import camera_tuning as tuning
+
+            try:
+                controls = self._manager.get_controls(camera)
+            except Exception:
+                log.warning("Auto-tune: could not read controls", exc_info=True)
+                return _("Could not read the camera controls.")
+
+            specs = tuning.specs_from_controls(controls)
+            if not specs:
+                return _("This camera exposes no adjustable controls.")
+
+            plan = tuning.plan_initial_setup(specs, tuning.detect_mains_hz())
+            for name, value in plan.changes.items():
+                self._manager.set_control(camera, name, value)
+            if plan.changes:
+                log.info("Auto-tune: %s", plan.describe())
+                time.sleep(_TUNE_SETTLE_S)
+
+            steps = self._tune_exposure_loop(camera, specs)
+            summary = plan.describe()
+            if steps:
+                summary += f"; adjusted exposure in {steps} steps"
+            return summary
+
+        def _finish(summary: str) -> None:
+            if on_done is not None:
+                on_done(summary)
+
+        threading.Thread(
+            target=lambda: GLib.idle_add(_finish, _worker()),
+            daemon=True,
+            name="bigcam-autotune",
+        ).start()
+
+    def _tune_exposure_loop(self, camera: CameraInfo, specs) -> int:
+        """Close the loop on exposure until the picture hits the target.
+
+        Bounded by _TUNE_MAX_STEPS so a camera that never reacts — a lens cap,
+        a driver that accepts writes and ignores them — cannot spin forever.
+        """
+        from core import camera_tuning as tuning
+        from core.auto_enhance import analyse_frame
+
+        steps = 0
+        # Chroma the sensor produced before we touched gain.  Raising gain past
+        # the point where colour starts draining is a bad trade: software
+        # gamma reaches the same brightness without harming chroma.
+        reference_saturation = None
+        for _step in range(_TUNE_MAX_STEPS):
+            frame = self._last_probe_bgr
+            if frame is None:
+                break
+            stats = analyse_frame(frame)
+            if reference_saturation is None:
+                reference_saturation = stats.saturation
+            luma = stats.median_luma
+            adjustment = tuning.next_adjustment(
+                specs, luma,
+                saturation=stats.saturation,
+                reference_saturation=reference_saturation,
+            )
+            if adjustment is None:
+                break
+            name, value = adjustment
+            if not self._manager.set_control(camera, name, value):
+                break
+            old = specs[name]
+            specs[name] = tuning.ControlSpec(
+                name=name, value=value, minimum=old.minimum,
+                maximum=old.maximum, default=old.default, flags=old.flags,
+            )
+            steps += 1
+            time.sleep(_TUNE_SETTLE_S)
+        return steps
 
     # -- restore defaults ---------------------------------------------------
 
