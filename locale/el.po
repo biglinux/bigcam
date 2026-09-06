@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -493,7 +492,6 @@ msgstr ""
 "απενεργοποιήστε τις εικονικές κάμερες φόντου στις ρυθμίσεις για να συνδέσετε μια νέα."
 # 
 # File: usr/share/biglinux/bigcam/ui/window.py, line: 1901
-#: NEEDS WORK
 msgid "OK"
 msgstr "Εντάξει"
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -966,7 +964,6 @@ msgid "Profile"
 msgstr "Προφίλ"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 352
-#: NEEDS WORK
 msgid "About this profile"
 msgstr "Σχετικά με αυτό το προφίλ"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
@@ -996,7 +993,6 @@ msgid "Delete profile"
 msgstr "Διαγραφή προφίλ"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 384
-#: NEEDS WORK
 msgid "Restore image to defaults (controls, zoom and effects)"
 msgstr "Επαναφορά εικόνας στις προεπιλεγμένες ρυθμίσεις (έλεγχοι, ζουμ και εφέ)"
 # 
@@ -1004,7 +1000,6 @@ msgstr "Επαναφορά εικόνας στις προεπιλεγμένες 
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 388
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 303
-#: NEEDS WORK
 msgid "Restore image defaults"
 msgstr "Επαναφορά προεπιλεγμένων ρυθμίσεων εικόνας"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
@@ -2187,7 +2182,6 @@ msgid "Active features that may be causing this:"
 msgstr "Ενεργά χαρακτηριστικά που μπορεί να προκαλούν αυτό:"
 # 
 # File: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: NEEDS WORK
 msgid "active source"
 msgstr "ενεργή πηγή"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
@@ -2371,12 +2365,10 @@ msgid "Show a rule-of-thirds grid over the preview."
 msgstr "Εμφάνιση πλέγματος κανόνα των τρίτων πάνω στην προεπισκόπηση."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 305
-#: NEEDS WORK
 msgid "Resets camera controls, zoom, pan/tilt and every effect."
 msgstr "Επαναφέρει τους ελέγχους της κάμερας, το ζουμ, την κίνηση/κλίση και κάθε εφέ."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 312
-#: NEEDS WORK
 msgid "Restore"
 msgstr "Αποκατάσταση"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
@@ -2731,29 +2723,24 @@ msgid "Unknown GStreamer error"
 msgstr "Άγνωστο σφάλμα GStreamer"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 47
-#: NEEDS WORK
 msgid "Lets the camera use a longer exposure. Brighter and cleaner in dim rooms, at a lower frame rate."
 msgstr ""
 "Επιτρέπει στην κάμερα να χρησιμοποιεί μεγαλύτερη έκθεση. Πιο φωτεινές και καθαρές σε σκοτεινά "
 "δωμάτια, με χαμηλότερο ρυθμό καρέ."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 51
-#: NEEDS WORK
 msgid "Holds the full frame rate for smoother motion. Needs good lighting."
 msgstr "Διατηρεί τον πλήρη ρυθμό καρέ για πιο ομαλή κίνηση. Χρειάζεται καλή φωτισμό."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 53
-#: NEEDS WORK
 msgid "The camera's own default values."
 msgstr "Οι προεπιλεγμένες τιμές της κάμερας."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
-#: NEEDS WORK
 msgid "Smooth"
 msgstr "Ομαλός"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
-#: NEEDS WORK
 msgid "Factory defaults"
 msgstr "Εργοστασιακές ρυθμίσεις"
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,

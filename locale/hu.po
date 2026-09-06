@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -960,7 +959,6 @@ msgid "Profile"
 msgstr "Profil"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 352
-#: NEEDS WORK
 msgid "About this profile"
 msgstr "Erről a profilról"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
@@ -990,7 +988,6 @@ msgid "Delete profile"
 msgstr "Profil törlése"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 384
-#: NEEDS WORK
 msgid "Restore image to defaults (controls, zoom and effects)"
 msgstr "Állítsa vissza a képet az alapértelmezett értékekre (vezérlők, nagyítás és effektek)"
 # 
@@ -998,7 +995,6 @@ msgstr "Állítsa vissza a képet az alapértelmezett értékekre (vezérlők, n
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 388
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 303
-#: NEEDS WORK
 msgid "Restore image defaults"
 msgstr "Kép alapértelmezett értékeinek visszaállítása"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
@@ -2183,7 +2179,6 @@ msgid "Active features that may be causing this:"
 msgstr "Aktív funkciók, amelyek ezt okozhatják:"
 # 
 # File: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: NEEDS WORK
 msgid "active source"
 msgstr "aktív forrás"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
@@ -2365,12 +2360,10 @@ msgid "Show a rule-of-thirds grid over the preview."
 msgstr "Az ablak háttérének átlátszóságának szabályozása.|NEXT|||[10] Átfedés átlátszósága"
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 305
-#: NEEDS WORK
 msgid "Resets camera controls, zoom, pan/tilt and every effect."
 msgstr "Visszaállítja a kamera vezérlőit, a zoomot, a panninget/ferdítést és minden effektust."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 312
-#: NEEDS WORK
 msgid "Restore"
 msgstr "Visszaállítás"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
@@ -2725,29 +2718,24 @@ msgid "Unknown GStreamer error"
 msgstr "Ismeretlen GStreamer hiba"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 47
-#: NEEDS WORK
 msgid "Lets the camera use a longer exposure. Brighter and cleaner in dim rooms, at a lower frame rate."
 msgstr ""
 "Lehetővé teszi a kamera számára, hogy hosszabb expozíciót használjon. Világosabb és tisztább gyenge "
 "fényviszonyok között, alacsonyabb képkockasebességnél."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 51
-#: NEEDS WORK
 msgid "Holds the full frame rate for smoother motion. Needs good lighting."
 msgstr "Tartja a teljes képkockasebességet a simább mozgás érdekében. Jó világítást igényel."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 53
-#: NEEDS WORK
 msgid "The camera's own default values."
 msgstr "A kamera saját alapértelmezett értékei."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
-#: NEEDS WORK
 msgid "Smooth"
 msgstr "Simogató"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
-#: NEEDS WORK
 msgid "Factory defaults"
 msgstr "Gyári beállítások"
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,

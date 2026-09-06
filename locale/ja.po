@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -484,7 +483,6 @@ msgid ""
 msgstr "{}の仮想カメラの最大制限に達しました。新しいカメラを接続するには、いくつかのカメラの接続を解除するか、設定でバックグラウンドの仮想カメラを無効にしてください。"
 # 
 # File: usr/share/biglinux/bigcam/ui/window.py, line: 1901
-#: NEEDS WORK
 msgid "OK"
 msgstr "OK"
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -955,7 +953,6 @@ msgid "Profile"
 msgstr "プロファイル"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 352
-#: NEEDS WORK
 msgid "About this profile"
 msgstr "このプロフィールについて"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
@@ -985,7 +982,6 @@ msgid "Delete profile"
 msgstr "プロファイルを削除"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 384
-#: NEEDS WORK
 msgid "Restore image to defaults (controls, zoom and effects)"
 msgstr "画像をデフォルトに戻す（コントロール、ズーム、エフェクト）"
 # 
@@ -993,7 +989,6 @@ msgstr "画像をデフォルトに戻す（コントロール、ズーム、エ
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 388
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 303
-#: NEEDS WORK
 msgid "Restore image defaults"
 msgstr "画像のデフォルトを復元"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
@@ -2165,7 +2160,6 @@ msgid "Active features that may be causing this:"
 msgstr "これを引き起こしている可能性のある有効な機能："
 # 
 # File: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: NEEDS WORK
 msgid "active source"
 msgstr "アクティブソース"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
@@ -2345,12 +2339,10 @@ msgid "Show a rule-of-thirds grid over the preview."
 msgstr "プレビューに三分割法のグリッドを表示します。"
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 305
-#: NEEDS WORK
 msgid "Resets camera controls, zoom, pan/tilt and every effect."
 msgstr "カメラコントロール、ズーム、パン/チルト、およびすべてのエフェクトをリセットします。"
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 312
-#: NEEDS WORK
 msgid "Restore"
 msgstr "復元"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
@@ -2703,27 +2695,22 @@ msgid "Unknown GStreamer error"
 msgstr "不明なGStreamerエラー"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 47
-#: NEEDS WORK
 msgid "Lets the camera use a longer exposure. Brighter and cleaner in dim rooms, at a lower frame rate."
 msgstr "カメラがより長い露出を使用できるようにします。暗い部屋では、低いフレームレートでより明るく、クリーンになります。"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 51
-#: NEEDS WORK
 msgid "Holds the full frame rate for smoother motion. Needs good lighting."
 msgstr "フルフレームレートを保持して、より滑らかな動きを実現します。良好な照明が必要です。"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 53
-#: NEEDS WORK
 msgid "The camera's own default values."
 msgstr "カメラのデフォルト値。"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
-#: NEEDS WORK
 msgid "Smooth"
 msgstr "スムーズ"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
-#: NEEDS WORK
 msgid "Factory defaults"
 msgstr "工場出荷時設定"
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,

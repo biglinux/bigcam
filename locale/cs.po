@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -961,7 +960,6 @@ msgid "Profile"
 msgstr "Profil"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 352
-#: NEEDS WORK
 msgid "About this profile"
 msgstr "O tomto profilu"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
@@ -991,7 +989,6 @@ msgid "Delete profile"
 msgstr "Smazat profil"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 384
-#: NEEDS WORK
 msgid "Restore image to defaults (controls, zoom and effects)"
 msgstr "Obnovit obrázek na výchozí hodnoty (ovládání, přiblížení a efekty)"
 # 
@@ -999,7 +996,6 @@ msgstr "Obnovit obrázek na výchozí hodnoty (ovládání, přiblížení a efe
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 388
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 303
-#: NEEDS WORK
 msgid "Restore image defaults"
 msgstr "Obnovit výchozí hodnoty obrázku"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
@@ -2182,7 +2178,6 @@ msgid "Active features that may be causing this:"
 msgstr "Aktivní funkce, které mohou toto způsobovat:"
 # 
 # File: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: NEEDS WORK
 msgid "active source"
 msgstr "aktivní zdroj"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
@@ -2362,12 +2357,10 @@ msgid "Show a rule-of-thirds grid over the preview."
 msgstr "Zobrazit mřížku pravidla třetin přes náhled."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 305
-#: NEEDS WORK
 msgid "Resets camera controls, zoom, pan/tilt and every effect."
 msgstr "Resetuje ovládání kamery, zoom, panoramování/naklánění a všechny efekty."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 312
-#: NEEDS WORK
 msgid "Restore"
 msgstr "Obnovit"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
@@ -2720,29 +2713,24 @@ msgid "Unknown GStreamer error"
 msgstr "Neznámá chyba GStreameru"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 47
-#: NEEDS WORK
 msgid "Lets the camera use a longer exposure. Brighter and cleaner in dim rooms, at a lower frame rate."
 msgstr ""
 "Umožňuje kameře použít delší expozici. Jasnější a čistější v tmavých místnostech při nižší snímkové "
 "frekvenci."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 51
-#: NEEDS WORK
 msgid "Holds the full frame rate for smoother motion. Needs good lighting."
 msgstr "Udržuje plnou snímkovou frekvenci pro plynulejší pohyb. Potřebuje dobré osvětlení."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 53
-#: NEEDS WORK
 msgid "The camera's own default values."
 msgstr "Výchozí hodnoty kamery."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
-#: NEEDS WORK
 msgid "Smooth"
 msgstr "Hladký"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
-#: NEEDS WORK
 msgid "Factory defaults"
 msgstr "Výchozí nastavení výrobce"
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,

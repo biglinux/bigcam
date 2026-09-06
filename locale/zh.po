@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -483,7 +482,6 @@ msgid ""
 msgstr "已达到 {} 个虚拟摄像头的最大限制。请断开一些摄像头或在设置中禁用后台虚拟摄像头以连接新的摄像头。"
 # 
 # File: usr/share/biglinux/bigcam/ui/window.py, line: 1901
-#: NEEDS WORK
 msgid "OK"
 msgstr "好的"
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -954,7 +952,6 @@ msgid "Profile"
 msgstr "配置文件"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 352
-#: NEEDS WORK
 msgid "About this profile"
 msgstr "关于此配置文件"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
@@ -984,7 +981,6 @@ msgid "Delete profile"
 msgstr "删除配置文件"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 384
-#: NEEDS WORK
 msgid "Restore image to defaults (controls, zoom and effects)"
 msgstr "将图像恢复为默认设置（控件、缩放和效果）"
 # 
@@ -992,7 +988,6 @@ msgstr "将图像恢复为默认设置（控件、缩放和效果）"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 388
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 303
-#: NEEDS WORK
 msgid "Restore image defaults"
 msgstr "恢复图像默认设置"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
@@ -2162,7 +2157,6 @@ msgid "Active features that may be causing this:"
 msgstr "可能导致此问题的活动功能："
 # 
 # File: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: NEEDS WORK
 msgid "active source"
 msgstr "活动源"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
@@ -2342,12 +2336,10 @@ msgid "Show a rule-of-thirds grid over the preview."
 msgstr "在预览上显示三分法网格。"
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 305
-#: NEEDS WORK
 msgid "Resets camera controls, zoom, pan/tilt and every effect."
 msgstr "重置相机控制、缩放、平移/倾斜和所有效果。"
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 312
-#: NEEDS WORK
 msgid "Restore"
 msgstr "恢复"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
@@ -2700,27 +2692,22 @@ msgid "Unknown GStreamer error"
 msgstr "未知的 GStreamer 错误"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 47
-#: NEEDS WORK
 msgid "Lets the camera use a longer exposure. Brighter and cleaner in dim rooms, at a lower frame rate."
 msgstr "允许相机使用更长的曝光时间。在光线昏暗的房间中，图像更明亮、更清晰，帧率较低。"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 51
-#: NEEDS WORK
 msgid "Holds the full frame rate for smoother motion. Needs good lighting."
 msgstr "保持完整的帧率以实现更平滑的运动。需要良好的照明。"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 53
-#: NEEDS WORK
 msgid "The camera's own default values."
 msgstr "相机的默认值。"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
-#: NEEDS WORK
 msgid "Smooth"
 msgstr "平滑"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
-#: NEEDS WORK
 msgid "Factory defaults"
 msgstr "出厂设置"
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,

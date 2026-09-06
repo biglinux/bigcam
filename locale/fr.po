@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -494,7 +493,6 @@ msgstr ""
 "nouvelle."
 # 
 # File: usr/share/biglinux/bigcam/ui/window.py, line: 1901
-#: NEEDS WORK
 msgid "OK"
 msgstr "D'accord"
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
@@ -969,7 +967,6 @@ msgid "Profile"
 msgstr "Profil"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 352
-#: NEEDS WORK
 msgid "About this profile"
 msgstr "À propos de ce profil"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 340
@@ -999,7 +996,6 @@ msgid "Delete profile"
 msgstr "Supprimer le profil"
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 384
-#: NEEDS WORK
 msgid "Restore image to defaults (controls, zoom and effects)"
 msgstr "Restaurer l'image aux paramètres par défaut (contrôles, zoom et effets)"
 # 
@@ -1007,7 +1003,6 @@ msgstr "Restaurer l'image aux paramètres par défaut (contrôles, zoom et effet
 # 
 # File: usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 388
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 303
-#: NEEDS WORK
 msgid "Restore image defaults"
 msgstr "Restaurer les paramètres par défaut de l'image"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 428
@@ -2194,7 +2189,6 @@ msgid "Active features that may be causing this:"
 msgstr "Fonctionnalités actives pouvant causer cela :"
 # 
 # File: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line: 90
-#: NEEDS WORK
 msgid "active source"
 msgstr "source active"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
@@ -2380,12 +2374,10 @@ msgid "Show a rule-of-thirds grid over the preview."
 msgstr "Afficher une grille des tiers sur l’aperçu."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 305
-#: NEEDS WORK
 msgid "Resets camera controls, zoom, pan/tilt and every effect."
 msgstr "Réinitialise les contrôles de la caméra, le zoom, le panoramique/tilt et tous les effets."
 # 
 # File: usr/share/biglinux/bigcam/ui/settings_page.py, line: 312
-#: NEEDS WORK
 msgid "Restore"
 msgstr "Restaurer"
 # File: bigcam/usr/share/biglinux/bigcam/ui/settings_page.py, line: 257
@@ -2740,31 +2732,26 @@ msgid "Unknown GStreamer error"
 msgstr "Erreur GStreamer inconnue"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 47
-#: NEEDS WORK
 msgid "Lets the camera use a longer exposure. Brighter and cleaner in dim rooms, at a lower frame rate."
 msgstr ""
 "Permet à la caméra d'utiliser une exposition plus longue. Plus lumineux et plus clair dans les "
 "pièces sombres, à un taux de rafraîchissement plus bas."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 51
-#: NEEDS WORK
 msgid "Holds the full frame rate for smoother motion. Needs good lighting."
 msgstr ""
 "Maintient le taux de rafraîchissement complet pour un mouvement plus fluide. Nécessite un bon "
 "éclairage."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 53
-#: NEEDS WORK
 msgid "The camera's own default values."
 msgstr "Les valeurs par défaut de la caméra."
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 123
-#: NEEDS WORK
 msgid "Smooth"
 msgstr "Lisse"
 # 
 # File: usr/share/biglinux/bigcam/core/camera_profiles.py, line: 124
-#: NEEDS WORK
 msgid "Factory defaults"
 msgstr "Paramètres d'usine"
 # File: bigcam/usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py,
