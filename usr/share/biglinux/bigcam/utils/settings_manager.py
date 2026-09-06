@@ -22,7 +22,6 @@ _DEFAULTS: dict[str, object] = {
     "mirror_preview": False,
     "capture-timer": 0,
     "grid_overlay": False,
-    "auto-enhance": False,
     "overlay-opacity": 75,
     "controls-opacity": 90,
     "window-opacity": 50,

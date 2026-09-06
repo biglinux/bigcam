@@ -501,7 +501,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         """Restore the whole picture to defaults, not just the V4L2 controls.
 
         Users read this button as "make the image normal again", so it also
-        clears zoom/pan/tilt, the software effect chain and auto-enhance —
+        clears zoom/pan/tilt and the software effect chain —
         otherwise resetting brightness while a 2x crop and a grayscale filter
         stay on looks like the button did nothing.
         """

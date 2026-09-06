@@ -48,7 +48,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
-        "auto-enhance-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
         "image-reset": (GObject.SignalFlags.RUN_LAST, None, ()),
         "overlay-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "controls-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
@@ -271,43 +270,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._grid_row.set_active(self._settings.get("grid_overlay"))
         self._grid_row.connect("notify::active", self._on_grid_overlay)
         preview.add(self._grid_row)
-
-        self._auto_enhance_row = Adw.SwitchRow(
-            title=_("Enhance image automatically"),
-            subtitle=_(
-                "Corrects exposure, contrast and colour cast as the lighting "
-                "changes. Only adjusts what needs it."
-            ),
-        )
-        self._auto_enhance_row.add_prefix(
-            Gtk.Image.new_from_icon_name("image-auto-adjust-symbolic")
-        )
-        self._auto_enhance_row.set_active(bool(self._settings.get("auto-enhance")))
-        self._auto_enhance_row.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Enhance image automatically")]
-        )
-        self._auto_enhance_row.connect("notify::active", self._on_auto_enhance)
-        preview.add(self._auto_enhance_row)
-
-        tune_row = Adw.ActionRow(
-            title=_("Optimise camera for current lighting"),
-            subtitle=_(
-                "Adjusts the camera's own exposure, gain and anti-flicker. "
-                "Better than software correction: no extra noise."
-            ),
-        )
-        tune_row.add_prefix(
-            Gtk.Image.new_from_icon_name("preferences-color-symbolic")
-        )
-        self._tune_btn = Gtk.Button(
-            label=_("Optimise"),
-            valign=Gtk.Align.CENTER,
-        )
-        self._tune_btn.connect("clicked", self._on_tune_camera)
-        tune_row.add_suffix(self._tune_btn)
-        tune_row.set_activatable_widget(self._tune_btn)
-        preview.add(tune_row)
-        self._tune_row = tune_row
 
         reset_image_row = Adw.ActionRow(
             title=_("Restore image defaults"),
@@ -760,34 +722,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._settings.set("grid_overlay", active)
         self.emit("grid-overlay-changed", active)
 
-    def _on_auto_enhance(self, row: Adw.SwitchRow, _pspec) -> None:
-        """Toggle automatic exposure/contrast/white-balance correction."""
-        active = row.get_active()
-        if self._engine is not None:
-            # set_auto_enhance persists the value itself.
-            self._engine.set_auto_enhance(active)
-        else:
-            self._settings.set("auto-enhance", active)
-        self.emit("auto-enhance-changed", active)
-
-    def _on_tune_camera(self, _btn: Gtk.Button) -> None:
-        """Ask the engine to tune the camera's own controls.
-
-        The button is disabled while the closed loop runs — it takes a few
-        seconds and starting a second pass mid-flight would fight the first.
-        """
-        if self._engine is None:
-            return
-        self._tune_btn.set_sensitive(False)
-        self._tune_btn.set_label(_("Optimising…"))
-
-        def _done(summary: str) -> None:
-            self._tune_btn.set_sensitive(True)
-            self._tune_btn.set_label(_("Optimise"))
-            self._tune_row.set_subtitle(summary)
-
-        self._engine.tune_camera_async(on_done=_done)
-
     def _on_reset_image(self, _btn: Gtk.Button) -> None:
         """Restore every image adjustment to its default.
 
@@ -804,10 +738,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         threading.Thread(target=_apply, daemon=True).start()
 
     def _sync_after_image_reset(self) -> bool:
-        """Bring the switches back in line with the reset state."""
-        self._auto_enhance_row.handler_block_by_func(self._on_auto_enhance)
-        self._auto_enhance_row.set_active(False)
-        self._auto_enhance_row.handler_unblock_by_func(self._on_auto_enhance)
         self.emit("image-reset")
         return GLib.SOURCE_REMOVE
 

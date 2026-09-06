@@ -60,10 +60,6 @@ _BUSY_ERROR_KEYWORDS = (
 # dropping buffers is normal back-pressure, not a fault.
 _IGNORED_WARNING_KEYWORDS = ("dropping",)
 
-# Auto-tune pacing.  A UVC sensor needs a few frames to react to a control
-# write, and the loop is bounded so an unresponsive camera cannot spin.
-_TUNE_SETTLE_S = 0.35
-_TUNE_MAX_STEPS = 12
 
 
 def _force_c_messages() -> None:
@@ -213,7 +209,6 @@ class _BgVcamFeeder:
            v4l2loopback device alive for consuming applications (OBS, etc.)
         """
         import cv2
-        import time
 
         LOOP_FPS = 1  # 1 frame/sec is enough to keep v4l2loopback alive
         LOOP_INTERVAL = 1.0 / LOOP_FPS
@@ -348,15 +343,6 @@ class StreamEngine(GObject.Object):
         self._sharpness: float = 0.0  # 0.0 = off, positive = sharpen strength
         self._pan: float = 0.0   # -1.0 to 1.0 (left/right offset ratio)
         self._tilt: float = 0.0  # -1.0 to 1.0 (up/down offset ratio)
-        # Automatic exposure / contrast / white balance.  The enhancer is
-        # built lazily: it is stateful and pointless until switched on.
-        self._auto_enhance: bool = bool(
-            settings.get("auto-enhance") if settings is not None else False
-        )
-        self._enhancer: Any = None
-        self._denoiser: Any = None
-        if self._auto_enhance:
-            self._ensure_enhancer()
         # General virtual camera output (appsrc -> v4l2sink)
         self._vcam_pipeline: Gst.Pipeline | None = None
         self._vcam_appsrc: Any = None
@@ -434,142 +420,6 @@ class StreamEngine(GObject.Object):
         self._tilt = max(-1.0, min(1.0, value))
         self._update_crop()
 
-    # -- automatic image enhancement ----------------------------------------
-
-    @property
-    def auto_enhance(self) -> bool:
-        """Whether automatic exposure/contrast/white-balance is running."""
-        return self._auto_enhance
-
-    def _ensure_enhancer(self) -> None:
-        """Build the denoise + enhance chain if it does not exist yet.
-
-        Separate from :meth:`set_auto_enhance` because the setting can already
-        be on at startup, in which case no toggle ever fires.  Leaving
-        construction inside the toggle meant the objects stayed None and the
-        whole correction was silently skipped for anyone who had enabled it in
-        a previous session.
-        """
-        if self._enhancer is not None:
-            return
-        from core.auto_enhance import AutoEnhancer
-        from core.temporal_denoise import TemporalDenoiser
-
-        self._denoiser = TemporalDenoiser()
-        self._enhancer = AutoEnhancer(denoised=True)
-
-    def set_auto_enhance(self, enabled: bool) -> None:
-        """Turn automatic image correction on or off and remember the choice."""
-        enabled = bool(enabled)
-        unchanged = enabled == self._auto_enhance
-        self._auto_enhance = enabled
-        if enabled:
-            self._ensure_enhancer()
-            # Start from neutral so the correction eases in from the current
-            # picture instead of snapping to a stale adaptation.
-            self._enhancer.reset()
-            self._denoiser.reset()
-        if unchanged:
-            return
-        if self._settings is not None:
-            self._settings.set("auto-enhance", enabled)
-        log.info("Auto image enhancement %s", "enabled" if enabled else "disabled")
-
-    def tune_camera_async(self, on_done=None) -> None:
-        """Configure the camera's own controls for the current lighting.
-
-        Runs off the main thread: each control write shells out to v4l2-ctl,
-        and the closed loop has to wait for the sensor to react between steps.
-
-        Fixing exposure here rather than in software is free of both CPU cost
-        and noise amplification, so this runs before auto-enhance has to do
-        anything.  *on_done* is called on the main thread with a summary
-        string.
-        """
-        camera = self._current_camera
-        if camera is None:
-            if on_done is not None:
-                GLib.idle_add(on_done, _("No camera selected."))
-            return
-
-        def _worker() -> str:
-            from core import camera_tuning as tuning
-
-            try:
-                controls = self._manager.get_controls(camera)
-            except Exception:
-                log.warning("Auto-tune: could not read controls", exc_info=True)
-                return _("Could not read the camera controls.")
-
-            specs = tuning.specs_from_controls(controls)
-            if not specs:
-                return _("This camera exposes no adjustable controls.")
-
-            plan = tuning.plan_initial_setup(specs, tuning.detect_mains_hz())
-            for name, value in plan.changes.items():
-                self._manager.set_control(camera, name, value)
-            if plan.changes:
-                log.info("Auto-tune: %s", plan.describe())
-                time.sleep(_TUNE_SETTLE_S)
-
-            steps = self._tune_exposure_loop(camera, specs)
-            summary = plan.describe()
-            if steps:
-                summary += f"; adjusted exposure in {steps} steps"
-
-            return summary
-
-        def _finish(summary: str) -> None:
-            if on_done is not None:
-                on_done(summary)
-
-        threading.Thread(
-            target=lambda: GLib.idle_add(_finish, _worker()),
-            daemon=True,
-            name="bigcam-autotune",
-        ).start()
-
-    def _tune_exposure_loop(self, camera: CameraInfo, specs) -> int:
-        """Close the loop on exposure until the picture hits the target.
-
-        Bounded by _TUNE_MAX_STEPS so a camera that never reacts — a lens cap,
-        a driver that accepts writes and ignores them — cannot spin forever.
-        """
-        from core import camera_tuning as tuning
-        from core.auto_enhance import analyse_frame
-
-        steps = 0
-        # Chroma the sensor produced before we touched gain.  Raising gain past
-        # the point where colour starts draining is a bad trade: software
-        # gamma reaches the same brightness without harming chroma.
-        reference_saturation = None
-        for _step in range(_TUNE_MAX_STEPS):
-            frame = self._last_probe_bgr
-            if frame is None:
-                break
-            stats = analyse_frame(frame)
-            if reference_saturation is None:
-                reference_saturation = stats.saturation
-            luma = stats.median_luma
-            adjustment = tuning.next_adjustment(
-                specs, luma,
-                saturation=stats.saturation,
-                reference_saturation=reference_saturation,
-            )
-            if adjustment is None:
-                break
-            name, value = adjustment
-            if not self._manager.set_control(camera, name, value):
-                break
-            old = specs[name]
-            specs[name] = tuning.ControlSpec(
-                name=name, value=value, minimum=old.minimum,
-                maximum=old.maximum, default=old.default, flags=old.flags,
-            )
-            steps += 1
-            time.sleep(_TUNE_SETTLE_S)
-        return steps
-
     # -- restore defaults ---------------------------------------------------
 
     def reset_image_defaults(self, include_mirror: bool = False) -> None:
@@ -580,7 +430,7 @@ class StreamEngine(GObject.Object):
 
         * V4L2 controls on the device (brightness, contrast, exposure, ...)
         * geometry held here (zoom, pan, tilt, sharpness)
-        * the software effect chain and auto-enhance
+        * the software effect chain
 
         *include_mirror* is off by default: mirroring is a viewing preference,
         not a correction, and silently un-mirroring surprises people.
@@ -608,12 +458,6 @@ class StreamEngine(GObject.Object):
         self._update_sharpness()
 
         self._effects.reset_all()
-
-        self.set_auto_enhance(False)
-        if self._enhancer is not None:
-            self._enhancer.reset()
-        if self._denoiser is not None:
-            self._denoiser.reset()
 
         if include_mirror:
             self._mirror = False
@@ -721,16 +565,6 @@ class StreamEngine(GObject.Object):
     def _apply_frame_processing(self, bgr: np.ndarray) -> np.ndarray:
         """Apply software effects to a BGR frame (effects, QR overlay).
         Note: Zoom and Sharpness are now handled natively via GPU in GStreamer."""
-        # Denoise before enhancing.  Lifting shadows amplifies whatever is
-        # there, so removing the sensor noise first is what lets the exposure
-        # correction push as far as it does.  Then auto-enhance, so the user's
-        # own effects act on a clean, correctly exposed frame.
-        if self._auto_enhance:
-            if self._denoiser is not None:
-                bgr = self._denoiser.process(bgr)
-            if self._enhancer is not None:
-                bgr = self._enhancer.process(bgr)
-
         if self._effects.has_active_effects():
             bgr = self._effects.apply(bgr)
 
@@ -800,7 +634,7 @@ class StreamEngine(GObject.Object):
     def _has_processing_work(self) -> bool:
         """Check if any frame processing is needed."""
         return (self._effects.has_active_effects() or self._overlay_rects
-                or self._qr_scan_active or self._auto_enhance
+                or self._qr_scan_active
                 or self._zoom_level > 1.0 or self._sharpness > 0.0
                 or self._pan != 0.0 or self._tilt != 0.0)
 
