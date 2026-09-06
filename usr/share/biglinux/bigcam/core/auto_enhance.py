@@ -50,7 +50,18 @@ _CONTRAST_FLOOR = 42.0      # luma std-dev below this counts as flat
 _SATURATION_FLOOR = 28.0    # mean HSV S below this looks washed out
 
 # Clamps, so a pathological frame cannot produce a wild correction.
-_MIN_GAMMA, _MAX_GAMMA = 0.45, 2.2
+_MAX_GAMMA = 2.2
+# How hard shadows may be lifted, chosen by how much detail the frame holds.
+# A frame with real content tolerates a strong lift; one that is mostly sensor
+# noise does not, because lifting it only makes the noise visible.
+_MIN_GAMMA_RICH = 0.30     # plenty of detail: lift hard
+_MIN_GAMMA_POOR = 0.70     # essentially featureless: barely lift
+_INFORMATIVE_CONTRAST = 30.0   # luma std-dev with usable detail
+_NOISE_FLOOR_CONTRAST = 8.0    # below this there is nothing to recover
+# With temporal denoising ahead of us the same frame tolerates a much harder
+# lift, because the grain the lift would reveal has already been removed.
+_MIN_GAMMA_RICH_DENOISED = 0.22
+_MIN_GAMMA_POOR_DENOISED = 0.45
 _MAX_CHANNEL_GAIN = 1.6
 # Cap on chroma boost.  Beyond this, colour noise in a dim frame becomes more
 # objectionable than the missing saturation it is meant to fix.
@@ -74,10 +85,11 @@ class FrameStats:
     colour_cast: float
     channel_means: tuple[float, float, float]
     saturation: float = 0.0
+    metered_luma: float = 0.0
 
     @property
     def needs_exposure(self) -> bool:
-        return abs(self.median_luma - _TARGET_LUMA) > _LUMA_TOLERANCE
+        return abs(self.metered_luma - _TARGET_LUMA) > _LUMA_TOLERANCE
 
     @property
     def needs_contrast(self) -> bool:
@@ -107,6 +119,43 @@ def _downscale(bgr: np.ndarray) -> np.ndarray:
     return np.ascontiguousarray(bgr[::step, ::step])
 
 
+# Centre weighting for exposure metering.  The periphery still counts, but at
+# a quarter of the weight, so a dark wall behind the subject cannot drag the
+# reading down.  Cached per analysis size — it only depends on the shape.
+_WEIGHT_CACHE: dict[tuple[int, int], np.ndarray] = {}
+
+
+def _centre_weights(h: int, w: int) -> np.ndarray:
+    key = (h, w)
+    cached = _WEIGHT_CACHE.get(key)
+    if cached is None:
+        yy, xx = np.mgrid[0:h, 0:w]
+        radius = np.sqrt(((yy - h / 2) / max(h / 2, 1)) ** 2
+                         + ((xx - w / 2) / max(w / 2, 1)) ** 2)
+        cached = np.clip(1.0 - 0.75 * np.clip(radius, 0, 1), 0.25, 1.0)
+        if len(_WEIGHT_CACHE) > 8:
+            _WEIGHT_CACHE.clear()
+        _WEIGHT_CACHE[key] = cached
+    return cached
+
+
+def metered_luma(bgr: np.ndarray) -> float:
+    """Exposure reading weighted toward the centre of the frame.
+
+    A webcam shot is a person against a background, and the background is
+    normally the darkest thing in view.  Metering the whole frame therefore
+    reads far darker than the subject: on a real capture the user judged
+    correctly exposed, the global median was 30 while the face sat at 54.
+    Correcting to that global figure visibly over-brightens.
+
+    Centre weighting is deliberately used instead of face detection, which is
+    least reliable in exactly the low light where metering matters most.
+    """
+    small = _downscale(bgr)
+    gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    return float(np.average(gray, weights=_centre_weights(*gray.shape)))
+
+
 def analyse_frame(bgr: np.ndarray) -> FrameStats:
     """Measure exposure, contrast and colour balance of a BGR frame.
 
@@ -121,6 +170,9 @@ def analyse_frame(bgr: np.ndarray) -> FrameStats:
     # Mean HSV S.  Dim scenes and high sensor gain both drain chroma, and the
     # difference is invisible in a luminance-only measurement.
     saturation = float(cv2.cvtColor(small, cv2.COLOR_BGR2HSV)[:, :, 1].mean())
+    metered = float(np.average(
+        gray.astype(np.float32), weights=_centre_weights(*gray.shape)
+    ))
 
     means = small.reshape(-1, 3).mean(axis=0)
     b, g, r = (float(x) for x in means)
@@ -135,6 +187,7 @@ def analyse_frame(bgr: np.ndarray) -> FrameStats:
         colour_cast=cast,
         channel_means=(b, g, r),
         saturation=saturation,
+        metered_luma=metered,
     )
 
 
@@ -146,7 +199,12 @@ class AutoEnhancer:
     when the camera changes.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, denoised: bool = False) -> None:
+        # When a temporal denoiser runs ahead of us the frame carries roughly
+        # four times less noise, so shadows can be lifted much harder before
+        # the result looks grainy.  That is the entire point of denoising
+        # first; see core.temporal_denoise.
+        self._denoised = bool(denoised)
         self._gamma = 1.0
         self._gain_b = 1.0
         self._gain_r = 1.0
@@ -212,10 +270,10 @@ class AutoEnhancer:
         # target, derived from  (median/255) ** gamma == target/255.
         # A pure-white frame gives log(1.0) == 0 in the denominator; clamp just
         # below 255 so the division stays finite.
-        luma = float(np.clip(stats.median_luma, 1.0, 254.0))
+        luma = float(np.clip(stats.metered_luma, 1.0, 254.0))
         if stats.needs_exposure:
             ratio = np.log(_TARGET_LUMA / 255.0) / np.log(luma / 255.0)
-            target_gamma = float(np.clip(ratio, _MIN_GAMMA, _MAX_GAMMA))
+            target_gamma = float(np.clip(ratio, self._gamma_floor(stats), _MAX_GAMMA))
         else:
             target_gamma = 1.0
 
@@ -253,6 +311,35 @@ class AutoEnhancer:
         self._gain_r += (target_r - self._gain_r) * alpha
         self._clahe_strength += (target_clahe - self._clahe_strength) * alpha
         self._saturation_boost += (target_sat - self._saturation_boost) * alpha
+
+    def set_denoised(self, denoised: bool) -> None:
+        """Tell the enhancer whether its input has already been denoised."""
+        self._denoised = bool(denoised)
+
+    def _gamma_floor(self, stats: FrameStats) -> float:
+        """Lowest gamma allowed, i.e. how hard we may lift this frame.
+
+        Lifting shadows amplifies whatever the sensor recorded there — signal
+        and noise alike.  How far it is worth pushing therefore depends on how
+        much the sensor actually captured, which luma standard deviation
+        measures well: a frame with real detail spans a wide range, a frame
+        that is only sensor noise barely spans anything.
+
+        A well-exposed scene never reaches the floor anyway, so this only
+        matters in the dark.
+        """
+        rich = _MIN_GAMMA_RICH
+        poor = _MIN_GAMMA_POOR
+        if self._denoised:
+            rich = _MIN_GAMMA_RICH_DENOISED
+            poor = _MIN_GAMMA_POOR_DENOISED
+        if stats.contrast >= _INFORMATIVE_CONTRAST:
+            return rich
+        if stats.contrast <= _NOISE_FLOOR_CONTRAST:
+            return poor
+        span = _INFORMATIVE_CONTRAST - _NOISE_FLOOR_CONTRAST
+        t = (stats.contrast - _NOISE_FLOOR_CONTRAST) / span
+        return poor + (rich - poor) * t
 
     # -- parameters -> pixels ----------------------------------------------
 

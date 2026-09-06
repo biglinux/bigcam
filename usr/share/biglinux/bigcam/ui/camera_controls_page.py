@@ -330,11 +330,30 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         profile_row.update_property([Gtk.AccessibleProperty.LABEL], [_("Profile")])
         self._profile_model = Gtk.StringList()
         self._profile_names: list[str] = []
+        # Seed Quality / Smooth / Factory the first time this camera is seen.
+        # They are ordinary profiles afterwards, so the user can edit them.
+        camera_profiles.ensure_builtin_profiles(self._camera, self._controls)
         self._refresh_profile_list()
         profile_row.set_model(self._profile_model)
+
+        # Preselect whatever was in use last, without reapplying it: the
+        # controls on the device are already in that state.
+        last = camera_profiles.last_profile(self._camera)
+        if last in self._profile_names:
+            self._syncing_profile = True
+            profile_row.set_selected(self._profile_names.index(last))
+            self._syncing_profile = False
+
         profile_row.connect("notify::selected", self._on_profile_selected)
         self._profile_row = profile_row
         group.add(profile_row)
+
+        self._profile_hint = Adw.ActionRow(
+            title=_("About this profile"),
+            subtitle=camera_profiles.PRESET_DESCRIPTIONS.get(last or "", ""),
+        )
+        self._profile_hint.set_activatable(False)
+        group.add(self._profile_hint)
 
         # Action buttons row
         btn_row = Adw.ActionRow(title=_("Manage"))
@@ -379,10 +398,17 @@ class CameraControlsPage(Gtk.ScrolledWindow):
     def _refresh_profile_list(self) -> None:
         if not self._camera:
             return
-        self._profile_names = camera_profiles.list_profiles(self._camera)
+        # Built-ins first, in a fixed order, then the user's own profiles.
+        names = camera_profiles.list_profiles(self._camera)
+        builtins = [n for n in camera_profiles.builtin_names() if n in names]
+        own = sorted(n for n in names if n not in builtins)
+        self._profile_names = builtins + own
+
         self._profile_model.splice(0, self._profile_model.get_n_items(), [])
         for name in self._profile_names:
-            self._profile_model.append(name)
+            # Stored names are untranslated so a language change cannot orphan
+            # a saved selection; only the label is translated.
+            self._profile_model.append(camera_profiles.display_name(name))
 
     def _on_profile_selected(self, row: Adw.ComboRow, _pspec: Any) -> None:
         if self._resetting or not self._camera:
@@ -390,10 +416,17 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         idx = row.get_selected()
         if idx == Gtk.INVALID_LIST_POSITION or idx >= len(self._profile_names):
             return
+        if getattr(self, "_syncing_profile", False):
+            return
         name = self._profile_names[idx]
         values = camera_profiles.load_profile(self._camera, name)
         if not values:
             return
+        camera_profiles.remember_profile(self._camera, name)
+        if hasattr(self, "_profile_hint"):
+            self._profile_hint.set_subtitle(
+                camera_profiles.PRESET_DESCRIPTIONS.get(name, "")
+            )
         self._resetting = True
         for ctrl in self._controls:
             if ctrl.id in values:

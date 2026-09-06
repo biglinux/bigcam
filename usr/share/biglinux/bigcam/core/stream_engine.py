@@ -354,6 +354,9 @@ class StreamEngine(GObject.Object):
             settings.get("auto-enhance") if settings is not None else False
         )
         self._enhancer: Any = None
+        self._denoiser: Any = None
+        if self._auto_enhance:
+            self._ensure_enhancer()
         # General virtual camera output (appsrc -> v4l2sink)
         self._vcam_pipeline: Gst.Pipeline | None = None
         self._vcam_appsrc: Any = None
@@ -438,20 +441,36 @@ class StreamEngine(GObject.Object):
         """Whether automatic exposure/contrast/white-balance is running."""
         return self._auto_enhance
 
+    def _ensure_enhancer(self) -> None:
+        """Build the denoise + enhance chain if it does not exist yet.
+
+        Separate from :meth:`set_auto_enhance` because the setting can already
+        be on at startup, in which case no toggle ever fires.  Leaving
+        construction inside the toggle meant the objects stayed None and the
+        whole correction was silently skipped for anyone who had enabled it in
+        a previous session.
+        """
+        if self._enhancer is not None:
+            return
+        from core.auto_enhance import AutoEnhancer
+        from core.temporal_denoise import TemporalDenoiser
+
+        self._denoiser = TemporalDenoiser()
+        self._enhancer = AutoEnhancer(denoised=True)
+
     def set_auto_enhance(self, enabled: bool) -> None:
         """Turn automatic image correction on or off and remember the choice."""
         enabled = bool(enabled)
-        if enabled == self._auto_enhance:
-            return
+        unchanged = enabled == self._auto_enhance
         self._auto_enhance = enabled
         if enabled:
-            if self._enhancer is None:
-                from core.auto_enhance import AutoEnhancer
-
-                self._enhancer = AutoEnhancer()
+            self._ensure_enhancer()
             # Start from neutral so the correction eases in from the current
             # picture instead of snapping to a stale adaptation.
             self._enhancer.reset()
+            self._denoiser.reset()
+        if unchanged:
+            return
         if self._settings is not None:
             self._settings.set("auto-enhance", enabled)
         log.info("Auto image enhancement %s", "enabled" if enabled else "disabled")
@@ -497,6 +516,7 @@ class StreamEngine(GObject.Object):
             summary = plan.describe()
             if steps:
                 summary += f"; adjusted exposure in {steps} steps"
+
             return summary
 
         def _finish(summary: str) -> None:
@@ -592,6 +612,8 @@ class StreamEngine(GObject.Object):
         self.set_auto_enhance(False)
         if self._enhancer is not None:
             self._enhancer.reset()
+        if self._denoiser is not None:
+            self._denoiser.reset()
 
         if include_mirror:
             self._mirror = False
@@ -699,10 +721,15 @@ class StreamEngine(GObject.Object):
     def _apply_frame_processing(self, bgr: np.ndarray) -> np.ndarray:
         """Apply software effects to a BGR frame (effects, QR overlay).
         Note: Zoom and Sharpness are now handled natively via GPU in GStreamer."""
-        # Auto-enhance runs first so the user's own effects act on a
-        # correctly exposed, colour-balanced frame.
-        if self._auto_enhance and self._enhancer is not None:
-            bgr = self._enhancer.process(bgr)
+        # Denoise before enhancing.  Lifting shadows amplifies whatever is
+        # there, so removing the sensor noise first is what lets the exposure
+        # correction push as far as it does.  Then auto-enhance, so the user's
+        # own effects act on a clean, correctly exposed frame.
+        if self._auto_enhance:
+            if self._denoiser is not None:
+                bgr = self._denoiser.process(bgr)
+            if self._enhancer is not None:
+                bgr = self._enhancer.process(bgr)
 
         if self._effects.has_active_effects():
             bgr = self._effects.apply(bgr)

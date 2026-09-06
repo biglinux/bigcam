@@ -1426,6 +1426,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             # Start the V4L2 camera immediately
             self._controls_page.set_camera(camera)
             self._settings_page.update_camera_formats(camera)
+            self._restore_tuning_async(camera)
             preferred_fmt = self._pick_preferred_format(camera)
             self._stream_engine.play(camera, fmt=preferred_fmt)
 
@@ -1436,6 +1437,30 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
             # Unblock dropdown signals after synchronous setup
             self._camera_selector.unblock_signals()
+
+    def _restore_tuning_async(self, camera: CameraInfo) -> None:
+        """Reapply this camera's saved tuning, if it has one.
+
+        V4L2 controls reset whenever the device re-enumerates, so a camera
+        that was tuned in an earlier session comes back at the driver's
+        defaults.  Restoring here means the good picture is also what every
+        other application sees, since the controls live on the device.
+
+        Runs off the main thread: each control is a v4l2-ctl call.
+        """
+        def _apply() -> int:
+            from core import camera_profiles as cp
+
+            name = cp.last_profile(camera)
+            if not name:
+                return 0
+            return cp.apply_profile(self._camera_manager, camera, name)
+
+        def _done(count: int) -> None:
+            if count:
+                log.info("Restored tuning for %s (%d controls)", camera.name, count)
+
+        run_async(_apply, on_success=_done)
 
     def _show_vcam_dialog(self, camera: CameraInfo) -> None:
         """Show a notice informing the user about the virtual camera created (once per device)."""
