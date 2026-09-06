@@ -429,6 +429,44 @@ if(screen.orientation){
 """
 
 
+class _StreamBuffers:
+    """Partial WebTransport frames, keyed by stream id and bounded.
+
+    Each video frame arrives as its own unidirectional QUIC stream and is
+    buffered until the peer marks it finished.  A peer that abandons a stream
+    mid-frame — a dropped connection, a reload — never sends that marker, so
+    an unbounded dict would keep the partial frame for the life of the
+    process.  Only a handful of frames can legitimately be in flight, so the
+    oldest partial is discarded once the cap is reached.
+    """
+
+    def __init__(self, max_streams: int = 8) -> None:
+        self._max = max(1, max_streams)
+        self._buffers: collections.OrderedDict[int, bytearray] = (
+            collections.OrderedDict()
+        )
+
+    def __len__(self) -> int:
+        return len(self._buffers)
+
+    def append(self, stream_id: int, data: bytes) -> None:
+        buf = self._buffers.get(stream_id)
+        if buf is None:
+            while len(self._buffers) >= self._max:
+                dropped, _ = self._buffers.popitem(last=False)
+                log.debug("Dropping abandoned WebTransport stream %s", dropped)
+            buf = bytearray()
+            self._buffers[stream_id] = buf
+        buf.extend(data)
+
+    def take(self, stream_id: int) -> bytes:
+        """Return and forget the accumulated bytes for *stream_id*."""
+        return bytes(self._buffers.pop(stream_id, b""))
+
+    def clear(self) -> None:
+        self._buffers.clear()
+
+
 def _cert_sha256_b64() -> str:
     """Return the base64-encoded SHA-256 hash of the DER-encoded certificate.
 
@@ -474,7 +512,7 @@ if _HAS_QUIC:
             self._phone = phone_server
             self._h3: H3Connection | None = None
             self._session_ids: set[int] = set()
-            self._stream_bufs: dict[int, bytearray] = {}
+            self._stream_bufs = _StreamBuffers()
 
         def quic_event_received(self, event: QuicEvent) -> None:
             if isinstance(event, ProtocolNegotiated):
@@ -515,11 +553,9 @@ if _HAS_QUIC:
 
             elif isinstance(event, WebTransportStreamDataReceived):
                 sid = event.stream_id
-                if sid not in self._stream_bufs:
-                    self._stream_bufs[sid] = bytearray()
-                self._stream_bufs[sid].extend(event.data)
+                self._stream_bufs.append(sid, event.data)
                 if event.stream_ended:
-                    data = bytes(self._stream_bufs.pop(sid))
+                    data = self._stream_bufs.take(sid)
                     if data:
                         asyncio.ensure_future(
                             self._phone._decode_and_emit_frame(data)
@@ -641,8 +677,21 @@ class PhoneCameraServer(GObject.Object):
         )
         self._audio_drain_thread.start()
 
-    def _stop_audio_pipeline(self) -> None:
-        """Stop the audio playback subprocess."""
+    def stop_audio_soon(self) -> None:
+        """Tear the audio subprocess down without blocking the caller.
+
+        Called from the websocket handler, which runs on the asyncio loop.
+        The teardown joins the drain thread and waits on a subprocess, so
+        doing it inline stalls every other connection for up to five seconds.
+        """
+        threading.Thread(
+            target=self._shutdown_audio_blocking,
+            name="phone-audio-stop",
+            daemon=True,
+        ).start()
+
+    def _shutdown_audio_blocking(self) -> None:
+        """Stop the audio playback subprocess.  Blocks; see stop_audio_soon."""
         self._audio_drain_stop.set()
         if self._audio_drain_thread:
             self._audio_drain_thread.join(timeout=2.0)
@@ -790,7 +839,7 @@ class PhoneCameraServer(GObject.Object):
         self._thread = None
         self._loop = None
         self._width = self._height = 0
-        self._stop_audio_pipeline()
+        self._shutdown_audio_blocking()
         # Emit "disconnected" so the window cleans up the phone camera entry
         # even if the WebSocket handler's finally block didn't get a chance.
         if had_clients:
@@ -1003,7 +1052,7 @@ class PhoneCameraServer(GObject.Object):
         finally:
             self._ws_clients.discard(ws)
             self._width = self._height = 0
-            self._stop_audio_pipeline()
+            self.stop_audio_soon()
             GLib.idle_add(self.emit, "disconnected")
             GLib.idle_add(self.emit, "status-changed", "disconnected")
             log.info("Phone camera WebSocket disconnected")

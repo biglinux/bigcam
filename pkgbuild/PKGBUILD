@@ -63,6 +63,7 @@ depends=(
     'psmisc'
     'usbutils'
 )
+makedepends=('git' 'gettext')
 pkgver=$(date +%y.%m.%d)
 pkgrel=$(date +%H%M)
 arch=('any')
@@ -88,6 +89,15 @@ package() {
     if [ -d "${InternalDir}/etc" ]; then
         cp -r "${InternalDir}/etc" "${pkgdir}/"
     fi
+
+    # /usr/share/locale is a namespace shared by every package on the system.
+    # Only the compiled catalogue belongs there, under <lang>/LC_MESSAGES/ and
+    # named after the text domain.  A flat pt-BR.po collides with any other
+    # package that ships one (it did, with big-gnome-center), and pacman
+    # aborts the whole transaction.  Translation sources live in locale/ and
+    # are never installed; strip them if one ever slips back in.
+    find "${pkgdir}/usr/share/locale" -maxdepth 1 -type f \
+        \( -name '*.po' -o -name '*.pot' \) -delete 2>/dev/null || true
 
     # sudoers files must be 0440 or sudo refuses to parse them
     if [ -f "${pkgdir}/etc/sudoers.d/bigcam" ]; then

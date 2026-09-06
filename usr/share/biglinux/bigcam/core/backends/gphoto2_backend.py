@@ -608,14 +608,21 @@ class GPhoto2Backend(CameraBackend):
                     text=True,
                     timeout=30,
                 )
-                if res.returncode != 0:
-                    # Fallback: try one-by-one for this batch
-                    for cfg in batch:
-                        ctrl = self._read_single_config(port, cfg)
-                        if ctrl:
-                            controls.append(ctrl)
+                parsed = (
+                    self._parse_batch_output(batch, res.stdout)
+                    if res.returncode == 0
+                    else []
+                )
+                if parsed:
+                    controls.extend(parsed)
                     continue
-                controls.extend(self._parse_batch_output(batch, res.stdout))
+                # Either the call failed, or the reply could not be paired to
+                # the requested configs with confidence.  Re-read one at a
+                # time: slower, but each answer is unambiguously its own.
+                for cfg in batch:
+                    ctrl = self._read_single_config(port, cfg)
+                    if ctrl:
+                        controls.append(ctrl)
         except Exception as exc:
             log.warning("get_controls failed: %s", exc)
         return controls
@@ -640,22 +647,66 @@ class GPhoto2Backend(CameraBackend):
         paths: list[str],
         output: str,
     ) -> list[CameraControl]:
-        """Split combined gphoto2 output into per-config blocks and parse."""
-        controls: list[CameraControl] = []
-        blocks: list[list[str]] = []
-        current: list[str] = []
-        for line in output.splitlines():
-            if line.startswith("Label:") and current:
-                blocks.append(current)
-                current = []
-            current.append(line)
-        if current:
-            blocks.append(current)
+        """Split a batched ``--get-config`` reply and pair blocks with paths.
 
-        for idx, block in enumerate(blocks):
-            if idx >= len(paths):
-                break
-            ctrl = cls._parse_config(paths[idx], "\n".join(block))
+        The resulting ``CameraControl.id`` is what :meth:`set_control` later
+        writes to, so a wrong pairing changes the wrong setting on the camera.
+        Two strategies, in order of trustworthiness:
+
+        1. gphoto2 prints the config path above each block when several are
+           requested.  When those are present they are authoritative, and a
+           config the camera failed to report simply does not appear.
+        2. Without them, fall back to matching by position — but only if the
+           number of blocks equals the number of paths requested.  A mismatch
+           means at least one config is missing and every block after it would
+           be misfiled, so nothing is returned and the caller re-reads the
+           batch one config at a time.
+        """
+        requested = set(paths)
+        blocks: list[tuple[str | None, list[str]]] = []
+        current: list[str] = []
+        current_path: str | None = None
+
+        def _flush() -> None:
+            if current:
+                blocks.append((current_path, list(current)))
+
+        for line in output.splitlines():
+            stripped = line.strip()
+            # A bare path line introduces the block that follows it.
+            if stripped.startswith("/") and stripped in requested:
+                _flush()
+                current = []
+                current_path = stripped
+                continue
+            if stripped.startswith("Label:") and current:
+                _flush()
+                current = []
+                # Keep the path only if it was announced for *this* block.
+                current_path = None
+            current.append(line)
+        _flush()
+
+        labelled = [(path, block) for path, block in blocks if path is not None]
+        if labelled:
+            controls = []
+            for path, block in labelled:
+                ctrl = cls._parse_config(path, "\n".join(block))
+                if ctrl:
+                    controls.append(ctrl)
+            return controls
+
+        # No path headers: positional pairing, only when it is verifiable.
+        if len(blocks) != len(paths):
+            log.debug(
+                "gphoto2 returned %d blocks for %d configs; re-reading "
+                "individually rather than guessing the pairing",
+                len(blocks), len(paths),
+            )
+            return []
+        controls = []
+        for path, (_unused, block) in zip(paths, blocks):
+            ctrl = cls._parse_config(path, "\n".join(block))
             if ctrl:
                 controls.append(ctrl)
         return controls

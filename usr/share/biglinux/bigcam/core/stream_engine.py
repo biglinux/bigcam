@@ -60,6 +60,12 @@ _BUSY_ERROR_KEYWORDS = (
 # dropping buffers is normal back-pressure, not a fault.
 _IGNORED_WARNING_KEYWORDS = ("dropping",)
 
+# How many times to retry obtaining a v4l2loopback device before giving up.
+# Each attempt shells out to v4l2-ctl and possibly modprobe, so a machine
+# where allocation can never succeed must not retry forever.
+_VCAM_RETRY_LIMIT = 5
+_VCAM_RETRY_MS = 2000
+
 
 
 def _force_c_messages() -> None:
@@ -1200,7 +1206,9 @@ class StreamEngine(GObject.Object):
         self._appsink_timer_id = GLib.timeout_add(100, self._try_appsink_first)
         return True
 
-    def _ensure_vcam_with_retry(self, cam_id: str, cam_name: str | None) -> bool:
+    def _ensure_vcam_with_retry(
+        self, cam_id: str, cam_name: str | None, attempt: int = 1
+    ) -> bool:
         if not self._current_camera or self._current_camera.id != cam_id:
             return False  # Stop retrying if camera changed
 
@@ -1214,9 +1222,19 @@ class StreamEngine(GObject.Object):
             self._start_vcam(loopback_device)
             return False  # Success, stop retrying
 
-        # Failed, retry in 2 seconds
-        log.debug("No loopback device for active camera %s, retrying in 2s", cam_name)
-        GLib.timeout_add(2000, self._ensure_vcam_with_retry, cam_id, cam_name)
+        if attempt >= _VCAM_RETRY_LIMIT:
+            log.warning(
+                "Giving up on a virtual camera for %s after %d attempts",
+                cam_name, attempt,
+            )
+            return False
+        log.debug(
+            "No loopback device for %s, retry %d/%d",
+            cam_name, attempt, _VCAM_RETRY_LIMIT,
+        )
+        GLib.timeout_add(
+            _VCAM_RETRY_MS, self._ensure_vcam_with_retry, cam_id, cam_name, attempt + 1
+        )
         return False
 
     def _try_appsink_first(self) -> bool:
@@ -1824,11 +1842,10 @@ class StreamEngine(GObject.Object):
         if camera.backend == BackendType.IP and camera.device_path:
             self._stop_bg_vcam(cam_id)
             backend = self._manager.get_backend(BackendType.IP)
-            if backend and hasattr(backend, "get_gst_source"):
-                source = backend.get_gst_source(camera)
-            else:
-                url = camera.extra.get("url", camera.device_path)
-                source = f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
+            source = backend.get_gst_source(camera) if backend else ""
+            if not source:
+                log.error("No usable source for IP camera %s", camera.name)
+                return
             nthreads = min(os.cpu_count() or 2, 4)
             pipeline_str = (
                 f"{source} ! "
@@ -1969,7 +1986,7 @@ class StreamEngine(GObject.Object):
         self._release_vcam_device()
         self._vcam_device = ""
 
-    def ensure_bg_vcam(self, camera: CameraInfo) -> None:
+    def ensure_bg_vcam(self, camera: CameraInfo, attempt: int = 1) -> None:
         """Ensure a background vcam feeder exists for the given camera.
 
         Called at detection time for each camera. Creates backend-specific
@@ -2018,18 +2035,26 @@ class StreamEngine(GObject.Object):
             card_label=camera.name, camera_id=camera.id,
         )
         if not device:
-            log.debug("ensure_bg_vcam: no loopback device for %s, retrying in 2s", camera.name)
-            GLib.timeout_add(2000, self.ensure_bg_vcam, camera)
+            if attempt >= _VCAM_RETRY_LIMIT:
+                log.warning(
+                    "Giving up on a background virtual camera for %s after "
+                    "%d attempts", camera.name, attempt,
+                )
+                return
+            log.debug(
+                "ensure_bg_vcam: no loopback device for %s, retry %d/%d",
+                camera.name, attempt, _VCAM_RETRY_LIMIT,
+            )
+            GLib.timeout_add(_VCAM_RETRY_MS, self.ensure_bg_vcam, camera, attempt + 1)
             return
 
         # IP cameras: create a GStreamer pipeline reading the stream
         if camera.backend == BackendType.IP:
             backend = self._manager.get_backend(BackendType.IP)
-            if backend and hasattr(backend, "get_gst_source"):
-                source = backend.get_gst_source(camera)
-            else:
-                url = camera.extra.get("url", camera.device_path)
-                source = f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
+            source = backend.get_gst_source(camera) if backend else ""
+            if not source:
+                log.error("No usable source for IP camera %s", camera.name)
+                return
             nthreads = min(os.cpu_count() or 2, 4)
             pipeline_str = (
                 f"{source} ! "

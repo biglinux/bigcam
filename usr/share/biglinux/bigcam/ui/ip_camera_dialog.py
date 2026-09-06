@@ -9,6 +9,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gtk, GObject
 
+from core.backends.ip_backend import validate_stream_url
 from utils.i18n import _
 
 
@@ -72,12 +73,13 @@ class IPCameraDialog(Adw.Dialog):
     def _on_add(self, _btn: Gtk.Button) -> None:
         name = self._name_row.get_text().strip()
         url = self._url_row.get_text().strip()
+        # Reject anything that is not a plain http/rtsp URL: it would be
+        # interpolated into a GStreamer pipeline description.
+        url = validate_stream_url(url)
         if not url:
+            self._url_row.add_css_class("error")
             return
-        # Validate URL scheme to prevent SSRF / local file access
-        _ALLOWED_SCHEMES = ("rtsp://", "rtsps://", "http://", "https://")
-        if not url.lower().startswith(_ALLOWED_SCHEMES):
-            return
+        self._url_row.remove_css_class("error")
         if not name:
             name = url
         self.emit("camera-added", name, url)
