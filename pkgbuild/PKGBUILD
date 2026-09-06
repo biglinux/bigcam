@@ -82,6 +82,14 @@ package() {
         InternalDir="${srcdir}/${pkgname}"
     fi
 
+    # Recompile the catalogues from locale/*.po rather than trusting the .mo
+    # files committed alongside them.  The two drift: a merge that takes an
+    # incoming .po but keeps the local .mo leaves strings compiled out, and
+    # nothing at review time makes that visible.
+    if [ -x "${InternalDir}/build-translations.sh" ]; then
+        (cd "${InternalDir}" && ./build-translations.sh)
+    fi
+
     if [ -d "${InternalDir}/usr" ]; then
         cp -r "${InternalDir}/usr" "${pkgdir}/"
     fi

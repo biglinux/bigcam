@@ -15,6 +15,7 @@ writes there, so nothing stops it from writing under usr/ again by accident.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -70,6 +71,29 @@ def test_every_language_has_a_catalogue(tag):
     assert expected.is_file(), (
         f"{tag}.po has no compiled catalogue at "
         f"{expected.relative_to(REPO)} — run ./build-translations.sh"
+    )
+
+
+@pytest.mark.parametrize("tag", _tags())
+def test_catalogue_is_up_to_date_with_its_source(tag, tmp_path):
+    """The .mo is committed, so it can drift from the .po behind it.
+
+    A merge did exactly that: it took the incoming locale/en.po and kept the
+    local catalogue, leaving 16 strings compiled out.  Nothing noticed,
+    because checking that the file merely exists always passes.
+    """
+    if not shutil.which("msgfmt"):
+        pytest.skip("gettext not installed")
+
+    po = SRC / f"{tag}.po"
+    installed = INSTALLED / tag.replace("-", "_") / "LC_MESSAGES" / f"{DOMAIN}.mo"
+    fresh = tmp_path / "fresh.mo"
+    subprocess.run(
+        ["msgfmt", "--check-format", "-o", str(fresh), str(po)], check=True
+    )
+    assert fresh.read_bytes() == installed.read_bytes(), (
+        f"{installed.relative_to(REPO)} is stale relative to {po.name} — "
+        f"run ./build-translations.sh"
     )
 
 
