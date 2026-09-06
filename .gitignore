@@ -27,3 +27,8 @@ nohup.out
 .direnv/
 .venv/
 .env
+
+# Compiled message catalogues: generated from locale/*.po by
+# build-translations.sh, and by package() at build time.  Tracking them
+# means two producers write the same binary file and every merge conflicts.
+usr/share/locale/*/
