@@ -67,6 +67,11 @@ _VCAM_RETRY_LIMIT = 5
 _VCAM_RETRY_MS = 2000
 
 
+def _is_v4l2_node(path: str) -> bool:
+    """True if *path* is a V4L2 device node OpenCV can open by name."""
+    return bool(path) and path.startswith("/dev/video")
+
+
 
 def _force_c_messages() -> None:
     """Pin library diagnostics to English for the rest of the process.
@@ -1901,8 +1906,17 @@ class StreamEngine(GObject.Object):
         # Stop any existing background pipeline/feeder for this camera
         self._stop_bg_vcam(cam_id)
 
-        # Prefer OpenCV V4L2 feeder for reliable USB camera capture
-        if self._prefer_v4l2 and _HAS_CV2 and camera.device_path:
+        # Prefer OpenCV V4L2 feeder for reliable USB camera capture.  It opens
+        # the path with cv2.VideoCapture, so the path has to be a V4L2 node:
+        # a libcamera camera carries an ACPI id like
+        # \\_SB_.PC00.XHCI.RHUB.HS07-7:1.0-3277:0018 in device_path, which
+        # OpenCV retries 15 times before giving up.
+        if (
+            self._prefer_v4l2
+            and _HAS_CV2
+            and _is_v4l2_node(camera.device_path)
+            and camera.backend == BackendType.V4L2
+        ):
             feeder = _BgVcamFeeder(camera.device_path, device, camera.name)
             if feeder.start():
                 self._bg_vcam_feeders[cam_id] = feeder
@@ -2080,7 +2094,7 @@ class StreamEngine(GObject.Object):
         # v4l2loopback device is readable)
         if camera.backend == BackendType.V4L2 and camera.device_path:
             # Start the background feeder
-            if _HAS_CV2:
+            if _HAS_CV2 and _is_v4l2_node(camera.device_path):
                 feeder = _BgVcamFeeder(camera.device_path, device, camera.name)
                 if feeder.start():
                     self._bg_vcam_feeders[camera.id] = feeder
@@ -2253,10 +2267,6 @@ class StreamEngine(GObject.Object):
         """Handle a BGR frame from the phone WebSocket (asyncio thread)."""
         if self._current_camera is None:
             return
-        # Drop frame if GTK hasn't consumed the previous one
-        if self._phone_frame_pending:
-            return
-        self._phone_frame_pending = True
 
         h, w = bgr.shape[:2]
 
@@ -2275,6 +2285,14 @@ class StreamEngine(GObject.Object):
         # Feed virtual camera via appsrc if active
         if self._phone_v4l2_device:
             self._push_phone_v4l2(bgr, w, h)
+
+        # Only the preview is dropped when GTK falls behind.  Gating the
+        # whole callback on it also starved the recorder and the virtual
+        # camera, so a slow preview made every other application consuming
+        # the phone stutter in lockstep with it.
+        if self._phone_frame_pending:
+            return
+        self._phone_frame_pending = True
 
         # BGR -> BGRA using OpenCV SIMD (much faster than numpy manual copy)
         bgra = cv2.cvtColor(bgr, cv2.COLOR_BGR2BGRA)

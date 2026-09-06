@@ -53,6 +53,7 @@ def controls():
         _ctrl("brightness", 0, -64, 64, 0),
         _ctrl("contrast", 32, 0, 64, 32),
         _ctrl("saturation", 64, 0, 128, 64),
+        _ctrl("gamma", 100, 72, 500, 100),
         _ctrl("gain", 0, 0, 100, 0),
         _ctrl("auto_exposure", 3, 0, 3, 3),
         _ctrl("white_balance_automatic", 1, 0, 1, 1),
@@ -120,11 +121,20 @@ def test_factory_preset_uses_the_driver_defaults(camera, controls):
 
 
 def test_presets_skip_controls_the_camera_lacks(camera):
-    minimal = [_ctrl("brightness", 0, -64, 64, 0)]
+    """A control the device does not expose is simply left out of the preset.
+
+    Quality still has to differ from the defaults, or it would be withheld
+    as a no-op, so the one control it turns on is kept and the rest dropped.
+    """
+    minimal = [
+        _ctrl("brightness", 0, -64, 64, 0),
+        _ctrl("exposure_dynamic_framerate", 1, 0, 1, 0),
+    ]
     cp.ensure_builtin_profiles(camera, minimal)
     values = cp.load_profile(camera, cp.PRESET_QUALITY)
-    assert "exposure_dynamic_framerate" not in values
+    assert "gamma" not in values
     assert "brightness" in values
+    assert values["exposure_dynamic_framerate"] == 1
 
 
 def test_presets_never_include_read_only_controls(camera, controls):

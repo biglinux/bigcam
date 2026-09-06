@@ -74,7 +74,29 @@ PROFILE_CONTROLS = (
 
 # What each built-in preset overrides.  Anything not listed keeps the driver
 # default, and anything the camera does not expose is skipped.
-_PRESET_OVERRIDES: dict[str, dict[str, int]] = {
+class _Scaled:
+    """An override expressed relative to the driver's own default.
+
+    An absolute number cannot be portable: this camera's gamma runs 72..500
+    with a default of 100, another's runs 1..10.  Scaling the default and
+    clamping to the control's range gives the same intent on both.
+    """
+
+    __slots__ = ("factor",)
+
+    def __init__(self, factor: float) -> None:
+        self.factor = factor
+
+    def resolve(self, ctrl) -> int:
+        value = int(round(int(ctrl.default) * self.factor))
+        if ctrl.minimum is not None:
+            value = max(int(ctrl.minimum), value)
+        if ctrl.maximum is not None:
+            value = min(int(ctrl.maximum), value)
+        return value
+
+
+_PRESET_OVERRIDES: dict[str, dict[str, object]] = {
     PRESET_QUALITY: {
         "exposure_dynamic_framerate": 1,   # allow a longer exposure
         "auto_exposure": 3,                # aperture priority
@@ -85,6 +107,11 @@ _PRESET_OVERRIDES: dict[str, dict[str, int]] = {
         "exposure_dynamic_framerate": 0,   # never drop below the nominal rate
         "auto_exposure": 3,
         "white_balance_automatic": 1,
+        # Locking the frame rate caps the exposure time, so the picture comes
+        # out darker than Quality.  Lift it back with gamma rather than gain:
+        # gain drains chroma badly on these sensors.
+        "gamma": _Scaled(1.4),
+        "gain": 0,
     },
     PRESET_FACTORY: {},
 }
@@ -255,8 +282,24 @@ def ensure_builtin_profiles(
             continue
         settings = dict(defaults)
         for cid, value in _PRESET_OVERRIDES[name].items():
-            if cid in available:
-                settings[cid] = value
+            if cid not in available:
+                continue
+            if isinstance(value, _Scaled):
+                value = value.resolve(available[cid])
+            settings[cid] = int(value)
+
+        # A preset whose every value matches the driver's defaults is the
+        # factory preset under another name.  Offering it as a separate
+        # choice is a promise the camera cannot keep: Smooth shipped setting
+        # the three controls this webcam already defaults to, so picking it
+        # changed nothing and looked like a bug.
+        if name != PRESET_FACTORY and settings == defaults:
+            log.info(
+                "Skipping built-in profile %r for %s: identical to the "
+                "driver defaults on this camera", name, camera.name,
+            )
+            continue
+
         write_profile(camera, name, settings)
         created.append(name)
     if created:

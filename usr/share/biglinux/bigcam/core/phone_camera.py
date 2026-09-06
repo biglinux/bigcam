@@ -226,6 +226,14 @@ button:active{transform:scale(.95);opacity:.85}
 /*HAS_QUIC*/
 let stream=null,ws=null,wt=null,timer=null,frameCount=0,lastStatTime=0,sending=false,adaptiveQ=0.75,baseQ=0.75;
 let useHttp=false,useWT=false;
+// Congestion ladder.  Adapting quality alone cannot recover an order of
+// magnitude: 720p30 at q0.75 is roughly 25-50 Mbps sustained, far beyond a
+// busy 2.4 GHz link, and no JPEG quality setting closes that gap.  Degrade
+// in a defined order — quality first because it is cheapest to give up,
+// then frame rate, then resolution — driven by one counter so the three do
+// not fight each other.  Recovery walks back down the same ladder.
+let congestion=0,frameCredit=0,scale=1,rateDiv=1;
+const CONGESTION_MAX=12;
 let audioCtx=null,audioProcessor=null,audioSource=null;
 const video=document.getElementById('video'),
       canvas=document.getElementById('canvas'),
@@ -309,7 +317,23 @@ function startCapture(){
   // Adaptive quality: reduce when network is congested
   adaptiveQ=parseFloat(document.getElementById('quality').value)||0.75;
   baseQ=adaptiveQ;
+  congestion=0;frameCredit=0;scale=1;rateDiv=1;
   timer=setInterval(captureFrame,interval);
+}
+
+function adapt(){
+  // One step per captured frame, so the ladder tracks the send rate rather
+  // than wall-clock time.
+  if(!useWT&&ws){
+    if(ws.bufferedAmount>65536){congestion=Math.min(CONGESTION_MAX,congestion+1)}
+    else if(ws.bufferedAmount<16384){congestion=Math.max(0,congestion-1)}
+  }else{congestion=Math.max(0,congestion-1)}
+  // Back off from the CURRENT quality, not from baseQ: anchoring the
+  // decrease to baseQ capped it at one step, so a link that stayed
+  // congested never went below baseQ-0.2 and the sender kept overshooting.
+  adaptiveQ=Math.max(0.3,baseQ-0.05*Math.min(congestion,6));
+  rateDiv=congestion>=9?2:congestion>=5?1.5:1;
+  scale=congestion>=11?0.5:congestion>=7?0.75:1;
 }
 
 function captureFrame(){
@@ -317,15 +341,16 @@ function captureFrame(){
   if(sending)return;
   // Adaptive frame dropping: skip if WebSocket buffer is backed up
   if(!useWT&&ws&&ws.bufferedAmount>131072){return}
+  adapt();
+  // Thin the rate smoothly instead of dropping frames at random: a steady
+  // 15 fps looks far better than 30 fps with half the frames missing.
+  frameCredit+=1/rateDiv;
+  if(frameCredit<1){return}
+  frameCredit-=1;
   sending=true;
-  canvas.width=video.videoWidth;
-  canvas.height=video.videoHeight;
-  ctx.drawImage(video,0,0);
-  // Adaptive quality: reduce when buffer grows, restore when clear
-  if(!useWT&&ws){
-    if(ws.bufferedAmount>65536){adaptiveQ=Math.max(0.3,baseQ-0.2)}
-    else if(ws.bufferedAmount<16384){adaptiveQ=Math.min(baseQ,adaptiveQ+0.05)}
-  }
+  canvas.width=Math.round(video.videoWidth*scale);
+  canvas.height=Math.round(video.videoHeight*scale);
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
   canvas.toBlob(blob=>{
     if(!blob){sending=false;return}
     if(useWT&&wt){
@@ -349,7 +374,7 @@ function captureFrame(){
       const fps=Math.round(frameCount*1000/(now-lastStatTime));
       const mode=useWT?'QUIC':'WS';
       document.getElementById('stats').textContent=
-        canvas.width+'\\u00d7'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB | q'+Math.round(adaptiveQ*100)+' | '+mode;
+        canvas.width+'\\u00d7'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB | q'+Math.round(adaptiveQ*100)+' | c'+congestion+' | '+mode;
       frameCount=0;lastStatTime=now;
     }
   },'image/jpeg',adaptiveQ);
