@@ -177,10 +177,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._phone_overlay.set_child(phone_btn)
         self._phone_overlay.add_overlay(self._phone_dot)
 
-        # Progress bar (thin, hidden, placed as overlay later)
-        self._progress = Gtk.ProgressBar(visible=False)
-        self._progress.add_css_class("osd")
-
         # Main content: OverlaySplitView (sidebar overlays the preview)
         self._split_view = Adw.OverlaySplitView(
             show_sidebar=False,
@@ -870,10 +866,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if not self._settings.get("virtual-camera-enabled"):
             self._vcam_badge.set_visible(False)
             return
-            
+
         disabled_list = self._settings.get("vcam-disabled-cameras", [])
         active_count = sum(1 for c in self._camera_manager.cameras if c.id not in disabled_list)
-                
+
         if active_count > 0:
             self._vcam_badge.set_label(str(active_count))
             self._vcam_badge.set_visible(True)
@@ -1023,7 +1019,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._flash_overlay.set_opacity(0.8)
         GLib.timeout_add(100, self._flash_fade_out)
 
-    def _show_notification(self, message: str, _level: str = "info", timeout_ms: int = 3000, **_kwargs) -> None:
+    def _show_notification(
+        self, message: str, _level: str = "info", timeout_ms: int = 3000
+    ) -> None:
         """Show a window-level banner that pushes content down."""
         if self._window_banner_timeout is not None:
             GLib.source_remove(self._window_banner_timeout)
@@ -1260,7 +1258,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._camera_selector.set_active_camera(camera.id)
         self._settings.set("last-camera-id", camera.id)
         self.set_title(f"{APP_NAME} — {camera.name}")
-        
+
         # If we are switching away from a camera, ensure it resumes streaming in the background
         if old_active and old_active.id != camera.id:
             # We delay the bg vcam creation slightly to ensure the main pipeline has
@@ -1470,7 +1468,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if not vcam_device:
             return
         self._vcam_dialog_shown.add(camera.id)
-        
+
         # Show a simple notice instead of a blocking dialog
         msg = _("Virtual Camera: {vcam_device} Created!").format(vcam_device=vcam_device)
         self._show_notification(msg, "info", 4000)
@@ -1915,7 +1913,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "disconnected": (0.6, 0.6, 0.6),
             "error": (0.85, 0.2, 0.2),
         }
-        
+
         lower_status = status.lower()
         color = (1.0, 0.76, 0.03) # yellow default
 
@@ -1970,7 +1968,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             # A camera connected
             self._camera_manager.stop_hotplug()
             self._stream_engine._stop_bg_vcam(cam_info.id)
-            
+
             toast = Adw.Toast.new(f"📱  {cam_info.name}")
             toast.set_timeout(6)
             toast.set_button_label(_("Show"))
@@ -2074,14 +2072,14 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         response: str,
         device_path: str,
         blocking_apps: list[str],
-        camera: "CameraInfo | None",
+        camera: CameraInfo | None,
     ) -> None:
         if response == "force-close":
             self._force_close_device_users(device_path, blocking_apps, camera)
         elif response == "retry":
             self._retry_camera(camera)
 
-    def _retry_camera(self, camera: "CameraInfo | None") -> None:
+    def _retry_camera(self, camera: CameraInfo | None) -> None:
         """Force-retry the given camera, bypassing the 'already active' guard."""
         if not camera:
             return
@@ -2093,7 +2091,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self,
         device_path: str,
         blocking_apps: list[str],
-        camera: "CameraInfo | None" = None,
+        camera: CameraInfo | None = None,
     ) -> None:
         """Terminate processes using the device, then retry the camera."""
         import signal as sig
@@ -2216,7 +2214,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                     self._bottom_capture_btn.set_icon_name("media-playback-stop-symbolic")
                     self._update_tooltip(self._bottom_capture_btn, _("Stop recording"))
                 self._show_notification(
-                    _("Recording…"), "info", 0, progress=True
+                    _("Recording…"), "info", 0
                 )
             else:
                 self._show_notification(
@@ -2517,7 +2515,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
         # Slow, subprocess-heavy cleanup (v4l2loopback teardown, gphoto2 kill).
         def _heavy_cleanup() -> None:
-            VirtualCamera.stop()
             VirtualCamera.cleanup_dynamic_devices()
             gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
             if gp_backend and hasattr(gp_backend, "stop_streaming"):
@@ -2630,9 +2627,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # Top/bottom bar revealers (crossfade)
         self._immersion.add_revealer(self._top_bar_revealer)
         self._immersion.add_revealer(self._bottom_bar_revealer)
-
-        # Window-level progress bar
-        self._immersion.add_fade_widget(self._progress)
 
         # Preview overlays that should fade
         for w in self._preview.immersion_widgets():

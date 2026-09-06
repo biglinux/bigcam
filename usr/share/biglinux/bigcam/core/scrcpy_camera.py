@@ -10,7 +10,6 @@ import signal
 import subprocess
 from utils.command_runner import SecureCommandRunner
 import threading
-from typing import Optional
 
 import gi
 
@@ -27,7 +26,7 @@ _ADB_BIN = "adb"
 class DeviceInfo:
     """Descriptor for a connected Android device."""
 
-    __slots__ = ("serial", "model", "state", "transport")
+    __slots__ = ("model", "serial", "state", "transport")
 
     def __init__(
         self,
@@ -60,8 +59,8 @@ class ScrcpyCamera(GObject.Object):
 
     def __init__(self) -> None:
         super().__init__()
-        self._process: Optional[subprocess.Popen] = None
-        self._monitor_thread: Optional[threading.Thread] = None
+        self._process: subprocess.Popen | None = None
+        self._monitor_thread: threading.Thread | None = None
         self._v4l2_device: str = ""
         self._device_serial: str = ""
         self._model: str = ""

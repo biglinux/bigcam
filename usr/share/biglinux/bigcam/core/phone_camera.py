@@ -12,7 +12,7 @@ import ssl
 import subprocess
 import threading
 import time
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import gi
 
@@ -472,7 +472,7 @@ if _HAS_QUIC:
         def __init__(self, *args: Any, phone_server: Any = None, **kwargs: Any) -> None:
             super().__init__(*args, **kwargs)
             self._phone = phone_server
-            self._h3: Optional[H3Connection] = None
+            self._h3: H3Connection | None = None
             self._session_ids: set[int] = set()
             self._stream_bufs: dict[int, bytearray] = {}
 
@@ -495,7 +495,7 @@ if _HAS_QUIC:
                     parsed = urllib.parse.urlparse(path)
                     qs = urllib.parse.parse_qs(parsed.query)
                     token = qs.get("token", [""])[0]
-                    
+
                     if not token or not secrets.compare_digest(token, self._phone._token):
                         self._h3.send_headers(
                             stream_id=event.stream_id,
@@ -548,9 +548,9 @@ class PhoneCameraServer(GObject.Object):
 
     def __init__(self) -> None:
         super().__init__()
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._thread: Optional[threading.Thread] = None
-        self._runner: Optional[Any] = None
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
+        self._runner: Any | None = None
         self._running = False
         self._port = DEFAULT_PORT
         self._width = 0
@@ -559,16 +559,16 @@ class PhoneCameraServer(GObject.Object):
         self._token = secrets.token_urlsafe(16)
 
         # fn(numpy_bgr_frame) — called from the asyncio thread
-        self._frame_callback: Optional[Callable] = None
+        self._frame_callback: Callable | None = None
         self._last_frame_time: float = 0.0
 
         # Audio playback — runs as separate process for isolation
-        self._audio_proc: Optional[subprocess.Popen] = None
+        self._audio_proc: subprocess.Popen | None = None
         self._audio_started = False
         self._desired_volume: float = 1.0
         self._desired_muted: bool = False
         self._audio_queue: collections.deque[bytes] = collections.deque(maxlen=5)
-        self._audio_drain_thread: Optional[threading.Thread] = None
+        self._audio_drain_thread: threading.Thread | None = None
         self._audio_drain_stop = threading.Event()
 
     # -- public API ----------------------------------------------------------
@@ -601,7 +601,7 @@ class PhoneCameraServer(GObject.Object):
     def get_url(self) -> str:
         return f"https://{_get_local_ip()}:{self._port}/?token={self._token}"
 
-    def set_frame_callback(self, callback: Optional[Callable]) -> None:
+    def set_frame_callback(self, callback: Callable | None) -> None:
         self._frame_callback = callback
 
     def _start_audio_pipeline(self) -> None:
@@ -661,7 +661,7 @@ class PhoneCameraServer(GObject.Object):
         self._audio_queue.clear()
 
     @property
-    def audio_pid(self) -> Optional[int]:
+    def audio_pid(self) -> int | None:
         """PID of the audio subprocess (for pactl volume control)."""
         proc = self._audio_proc
         return proc.pid if proc and proc.poll() is None else None
@@ -870,7 +870,7 @@ class PhoneCameraServer(GObject.Object):
     async def _handle_index(self, request: web.Request) -> web.Response:
         if not self._verify_token(request):
             return web.Response(status=401, text="Unauthorized")
-            
+
         # Inject cert hash and QUIC availability into the HTML page
         html = _PHONE_HTML.replace(
             "/*CERT_HASH*/",
@@ -885,7 +885,7 @@ class PhoneCameraServer(GObject.Object):
         """HTTP POST fallback for browsers that reject WSS with self-signed certs (Safari/iOS)."""
         if not self._verify_token(request):
             return web.Response(status=401, text="Unauthorized")
-            
+
         try:
             import cv2
             import numpy as np
@@ -943,7 +943,7 @@ class PhoneCameraServer(GObject.Object):
     async def _handle_ws(self, request: web.Request) -> web.WebSocketResponse:
         if not self._verify_token(request):
             raise web.HTTPUnauthorized(text="Unauthorized")
-        
+
         ws = web.WebSocketResponse(max_msg_size=10 * 1024 * 1024)
         await ws.prepare(request)
         self._ws_clients.add(ws)

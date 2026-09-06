@@ -470,7 +470,7 @@ class StreamEngine(GObject.Object):
         crop = self._pipeline.get_by_name("crop")
         if not crop:
             return
-            
+
         pad = crop.get_static_pad("sink")
         if not pad:
             return
@@ -491,7 +491,7 @@ class StreamEngine(GObject.Object):
         crop_w = int(zw / zoom)
         cx = zw // 2 + int(self._pan * (zw - crop_w) / 2)
         cy = zh // 2 + int(self._tilt * (zh - crop_h) / 2)
-        
+
         left = max(0, min(cx - crop_w // 2, zw - crop_w))
         top = max(0, min(cy - crop_h // 2, zh - crop_h))
         right = zw - (left + crop_w)
@@ -1203,7 +1203,7 @@ class StreamEngine(GObject.Object):
     def _ensure_vcam_with_retry(self, cam_id: str, cam_name: str | None) -> bool:
         if not self._current_camera or self._current_camera.id != cam_id:
             return False  # Stop retrying if camera changed
-            
+
         loopback_device = VirtualCamera.ensure_ready(
             card_label=cam_name,
             camera_id=cam_id,
@@ -1213,7 +1213,7 @@ class StreamEngine(GObject.Object):
             self._vcam_alloc_id = cam_id
             self._start_vcam(loopback_device)
             return False  # Success, stop retrying
-            
+
         # Failed, retry in 2 seconds
         log.debug("No loopback device for active camera %s, retrying in 2s", cam_name)
         GLib.timeout_add(2000, self._ensure_vcam_with_retry, cam_id, cam_name)
@@ -1580,7 +1580,7 @@ class StreamEngine(GObject.Object):
         def _worker() -> str:
             if self._vcam_disabled_for(alloc_id):
                 return ""
-                
+
             device = VirtualCamera.ensure_ready(
                 card_label=camera.name,
                 camera_id=alloc_id,
@@ -1900,7 +1900,7 @@ class StreamEngine(GObject.Object):
         fmt_obj = None
         if backend and hasattr(backend, "_pick_best_format") and camera.formats:
             fmt_obj = backend._pick_best_format(camera)
-            
+
         if backend and hasattr(backend, "get_gst_source"):
             source = backend.get_gst_source(camera, fmt_obj)
         elif backend and hasattr(backend, "_v4l2_gst_source"):
@@ -1979,7 +1979,7 @@ class StreamEngine(GObject.Object):
         """
         if not VirtualCamera.is_enabled():
             return
-            
+
         if self._vcam_disabled_for(camera.id):
             return
 
@@ -2064,7 +2064,7 @@ class StreamEngine(GObject.Object):
                 log.warning("OpenCV bg vcam failed at detection for %s", camera.name)
             # Fallback: GStreamer v4l2src pipeline
             self._create_bg_vcam_pipeline(camera.id, camera, device)
-            
+
         elif camera.backend in (BackendType.LIBCAMERA, BackendType.PIPEWIRE):
             # Libcamera and Pipewire natively use GStreamer pipelines
             self._create_bg_vcam_pipeline(camera.id, camera, device)

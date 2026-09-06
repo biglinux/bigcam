@@ -46,7 +46,11 @@ depends=(
     'uxplay'
 
     # QR / barcode
+    # zbar is the C library; python-pyzbar is the Python 3 binding the code
+    # imports.  The bare 'zbar' package ships a Python 2 binding only, so
+    # without pyzbar the 1-D barcode fallback silently never runs.
     'zbar'
+    'python-pyzbar'
     'qrencode'
 
     # Network / security / system

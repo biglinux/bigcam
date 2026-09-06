@@ -23,7 +23,7 @@ class MobileDeviceController:
         self._immersion = immersion_controller
         self._audio_monitor = audio_monitor
         self._phone_disconnect_timer = None
-        
+
         self.phone_server = PhoneCameraServer()
         self.scrcpy_usb = ScrcpyCamera()
         self.scrcpy_wifi = ScrcpyCamera()

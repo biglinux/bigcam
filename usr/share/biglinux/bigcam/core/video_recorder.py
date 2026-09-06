@@ -290,7 +290,7 @@ class VideoRecorder:
                         vol = self._source_volumes.get(dev, 1.0)
                     else:
                         vol = 0.0
-                    
+
                     # USB sources follow global clock
                     audio_str += (
                         f'pulsesrc device="{safe}" do-timestamp=true '
@@ -338,7 +338,7 @@ class VideoRecorder:
             mic_vol_el = self._pipeline.get_by_name("avol_mic")
             if mic_vol_el:
                 self._audio_vol_elements["__mic__"] = mic_vol_el
-                
+
             for i, dev in enumerate(self._audio_source_devices):
                 vol_el = self._pipeline.get_by_name(f"avol_{i}")
                 if vol_el:

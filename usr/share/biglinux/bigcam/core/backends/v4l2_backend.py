@@ -515,7 +515,7 @@ class V4L2Backend(CameraBackend):
         """Auto-select format: prefer MJPEG at highest resolution, cap RAW to 640x480."""
         if not camera.formats:
             return None
-            
+
         mjpeg = [
             f
             for f in camera.formats
@@ -526,25 +526,25 @@ class V4L2Backend(CameraBackend):
             for f in camera.formats
             if f.pixel_format != "MJPG" and f.fps and max(f.fps) >= 25
         ]
-        
+
         # Prefer MJPEG for lower USB bandwidth
         if mjpeg:
             mjpeg.sort(
                 key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
             )
             return mjpeg[0]
-            
+
         if raw:
             # For uncompressed formats, cap at 640x480 to prevent USB 2.0 saturation
             raw_capped = [f for f in raw if f.width <= 640 and f.height <= 480]
             if not raw_capped:
                 raw_capped = raw
-                
+
             raw_capped.sort(
                 key=lambda f: (f.width * f.height, max(f.fps) if f.fps else 0), reverse=True
             )
             return raw_capped[0]
-            
+
         # Nothing reaches 25 fps — fall back to the largest format available.
         # Sort a copy: camera.formats is shared state and the settings page
         # renders the list in the order the driver reported it.

@@ -78,8 +78,6 @@ class VirtualCamera:
     falling back to a fixed pool of 4 devices otherwise.
     """
 
-    _loopback_device: str = ""
-    _process: subprocess.Popen | None = None
     _load_attempted: bool = False
     _enabled: bool = False
     _dynamic_supported: bool | None = None  # lazy-checked
@@ -90,8 +88,6 @@ class VirtualCamera:
     _allocations: dict[str, str] = {}
     # Devices created dynamically by v4l2loopback-ctl (need explicit cleanup)
     _dynamic_devices: set[str] = set()
-    # Sequential counter for "BigCam Virtual N" naming
-    _next_vcam_number: int = 1
     _labels_synced: bool = False
     _alloc_lock = threading.RLock()
 
@@ -168,23 +164,6 @@ class VirtualCamera:
     def _get_existing_labels(cls) -> set[str]:
         """Return the set of card labels currently used by v4l2loopback devices."""
         return set(cls._get_device_labels().values())
-
-    @classmethod
-    def _sync_vcam_counter(cls) -> None:
-        """Advance _next_vcam_number past any existing device labels."""
-        if cls._labels_synced:
-            return
-        cls._labels_synced = True
-        labels = cls._get_existing_labels()
-        max_n = 0
-        pattern = re.compile(re.escape(cls._name_template) + r"\s+(\d+)$")
-        for label in labels:
-            m = pattern.match(label)
-            if m:
-                max_n = max(max_n, int(m.group(1)))
-        if max_n >= cls._next_vcam_number:
-            cls._next_vcam_number = max_n + 1
-            log.debug("Synced _next_vcam_number to %d from existing labels", cls._next_vcam_number)
 
     @staticmethod
     def find_loopback_device() -> str:
@@ -384,7 +363,6 @@ class VirtualCamera:
 
         with cls._alloc_lock:
             cls._dynamic_devices.clear()
-            cls._next_vcam_number = 1
             cls._labels_synced = False
         log.info("Cleaned up %d BigCam v4l2loopback devices", deleted)
 
@@ -398,51 +376,9 @@ class VirtualCamera:
         cls.cleanup_dynamic_devices()
 
     @classmethod
-    def load_module(cls, card_label: str | None = None) -> bool:
-        """Load v4l2loopback kernel module.
-
-        When v4l2loopback-ctl is available, loads with devices=0 and
-        creates devices dynamically. Otherwise falls back to 4 fixed devices.
-        """
+    def load_module(cls) -> bool:
+        """Load the v4l2loopback kernel module via the privileged helper."""
         return _run_privileged("load").returncode == 0
-
-    @classmethod
-    def start(cls, gst_pipeline: str) -> bool:
-        """Start writing to the loopback device."""
-        device = cls.find_loopback_device()
-        if not device:
-            if not cls.load_module():
-                return False
-            device = cls.find_loopback_device()
-            if not device:
-                return False
-        cls._loopback_device = device
-
-        try:
-            cls._process = SecureCommandRunner.popen_safe(
-                [
-                    "gst-launch-1.0",
-                    *gst_pipeline.split(),
-                    "!",
-                    "v4l2sink",
-                    f"device={device}",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            return True
-        except Exception:
-            return False
-
-    @classmethod
-    def stop(cls) -> None:
-        if cls._process is not None:
-            cls._process.terminate()
-            try:
-                cls._process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                cls._process.kill()
-            cls._process = None
 
     @classmethod
     def set_enabled(cls, enabled: bool) -> None:
@@ -468,15 +404,10 @@ class VirtualCamera:
         cls._name_template = new_template
         # Reset label sync so the counter re-syncs with existing device names
         cls._labels_synced = False
-        cls._next_vcam_number = 1
 
     @classmethod
     def get_name_template(cls) -> str:
         return cls._name_template
-
-    @classmethod
-    def is_running(cls) -> bool:
-        return cls._process is not None and cls._process.poll() is None
 
     @classmethod
     def ensure_ready(cls, card_label: str | None = None, camera_id: str = "") -> str:
@@ -502,7 +433,7 @@ class VirtualCamera:
                 return ""
             if not cls._load_attempted:
                 cls._load_attempted = True
-                cls.load_module(card_label=card_label)
+                cls.load_module()
                 module_loaded = _is_module_loaded()
 
         if not module_loaded:
@@ -514,11 +445,6 @@ class VirtualCamera:
         device = cls.find_loopback_device()
         return device
 
-    @staticmethod
-    def _reload_module() -> bool:
-        """Unload and reload v4l2loopback with correct parameters."""
-        _run_privileged("unload")
-        return _run_privileged("load").returncode == 0
 
 
 def _is_module_loaded() -> bool:
@@ -569,25 +495,3 @@ def _v4l2loopback_kernel_status() -> str:
         return "kernel_mismatch"
     return "not_installed"
 
-
-def _has_exclusive_caps() -> bool:
-    """Check if ALL loaded v4l2loopback devices have exclusive_caps enabled."""
-    try:
-        with open("/sys/module/v4l2loopback/parameters/exclusive_caps") as f:
-            raw = f.read().strip()
-    except (FileNotFoundError, OSError):
-        return False
-    entries = [v.strip() for v in raw.split(",") if v.strip()]
-    # Count actual devices from video_nr (the 'devices' param is not
-    # always exposed in sysfs depending on kernel/module version).
-    try:
-        with open("/sys/module/v4l2loopback/parameters/video_nr") as f:
-            vn = f.read().strip()
-        # video_nr contains entries like "10,11,12,13,-1,-1,-1,-1"
-        # -1 means unused slot, so filter them out.
-        n_devices = len([v for v in vn.split(",") if v.strip() and v.strip() != "-1"])
-    except (FileNotFoundError, OSError, ValueError):
-        # Fallback: assume we need 4 devices with exclusive_caps
-        n_devices = 4
-    active = entries[:n_devices]
-    return len(active) >= n_devices and all(v == "Y" for v in active)

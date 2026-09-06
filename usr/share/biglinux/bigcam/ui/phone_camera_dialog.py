@@ -1212,7 +1212,7 @@ class PhoneCameraDialog(Adw.Dialog):
             self._airplay_stop_btn.set_visible(True)
             self._set_dot_color(0.2, 0.78, 0.35)
             self._set_status(_("AirPlay connected"))
-            
+
         self._sync_tabs_state()
 
     # ══════════════════════════════════════════════════════════════════

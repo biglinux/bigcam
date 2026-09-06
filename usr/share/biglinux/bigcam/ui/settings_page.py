@@ -27,13 +27,28 @@ except ImportError:
     _HAS_CV2 = False
 
 try:
-    import zbar
+    # pyzbar, not the "zbar" module: that binding is Python 2 only, so the
+    # import never succeeded and the barcode fallback was silently dead.
+    from pyzbar import pyzbar
 
     _HAS_ZBAR = True
 except ImportError:
     _HAS_ZBAR = False
 
 _HAARCASCADES = "/usr/share/opencv4/haarcascades"
+
+# 1-D symbologies only: QR is already covered by OpenCV's detector, and asking
+# pyzbar for it too just costs time and produces duplicate hits.
+_BARCODE_SYMBOLS = (
+    [
+        pyzbar.ZBarSymbol.EAN13, pyzbar.ZBarSymbol.EAN8,
+        pyzbar.ZBarSymbol.UPCA, pyzbar.ZBarSymbol.UPCE,
+        pyzbar.ZBarSymbol.CODE128, pyzbar.ZBarSymbol.CODE39,
+        pyzbar.ZBarSymbol.ITF,
+    ]
+    if _HAS_ZBAR
+    else []
+)
 
 
 class SettingsPage(Gtk.ScrolledWindow):
@@ -572,7 +587,7 @@ class SettingsPage(Gtk.ScrolledWindow):
             description=_("Select which cameras should output to a virtual device.")
         )
         content.append(self._vc_devices_group)
-        
+
         if self._camera_manager:
             self._camera_manager.connect("cameras-changed", self._on_cameras_changed_vc)
 
@@ -827,14 +842,9 @@ class SettingsPage(Gtk.ScrolledWindow):
             self._wechat_qr = cv2.wechat_qrcode.WeChatQRCode()
         except Exception:
             self._qr_detector = cv2.QRCodeDetector()
-        if self._zbar_scanner is None and _HAS_ZBAR:
-            try:
-                sc = zbar.ImageScanner()
-                sc.parse_config("enable")
-                sc.set_config(zbar.Symbol.QRCODE, zbar.Config.ENABLE, 0)
-                self._zbar_scanner = sc
-            except Exception:
-                pass
+        # pyzbar needs no scanner object; QR codes are handled by OpenCV
+        # above, so only the 1-D barcode symbologies are requested here.
+        self._zbar_scanner = _HAS_ZBAR
 
     def _try_detect_qr(self, img):
         if self._wechat_qr is not None:
@@ -847,17 +857,17 @@ class SettingsPage(Gtk.ScrolledWindow):
             if data:
                 p = pts[0] if pts is not None and pts.ndim == 3 else pts
                 return data, p
-        # Barcode fallback via zbar
-        if self._zbar_scanner is not None:
+        # Barcode fallback: OpenCV reads QR codes but not 1-D symbologies.
+        if _HAS_ZBAR:
             try:
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
-                h, w = gray.shape
-                zimg = zbar.Image(w, h, "Y800", gray.tobytes())
-                self._zbar_scanner.scan(zimg)
-                for sym in zimg:
+                for sym in pyzbar.decode(gray, symbols=_BARCODE_SYMBOLS):
                     if sym.data:
-                        loc = np.array(sym.location, dtype=np.float32)
-                        return f"barcode:{sym.data}", loc
+                        loc = np.array(
+                            [(p.x, p.y) for p in sym.polygon], dtype=np.float32
+                        )
+                        text = sym.data.decode("utf-8", errors="replace")
+                        return f"barcode:{text}", loc
             except Exception:
                 pass
         return "", None
@@ -1001,7 +1011,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._vc_device_rows = []
 
         disabled_cams = self._settings.get("vcam-disabled-cameras", [])
-        
+
         if not cm.cameras:
             empty = Adw.ActionRow(title=_("No cameras connected"))
             self._vc_devices_group.add(empty)
@@ -1021,7 +1031,7 @@ class SettingsPage(Gtk.ScrolledWindow):
     def _on_vc_device_toggle(self, row: Adw.SwitchRow, _pspec, camera_id: str) -> None:
         active = row.get_active()
         disabled_cams = self._settings.get("vcam-disabled-cameras", [])
-        
+
         if active and camera_id in disabled_cams:
             disabled_cams.remove(camera_id)
             self._settings.set("vcam-disabled-cameras", disabled_cams)

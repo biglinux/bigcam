@@ -538,7 +538,7 @@ class PreviewArea(Gtk.Overlay):
     # -- public helpers ------------------------------------------------------
 
     @property
-    def notification(self) -> "PreviewArea":
+    def notification(self) -> PreviewArea:
         """Backward-compatible accessor – returns self so
         ``preview.notification.notify_user(...)`` keeps working."""
         return self
@@ -644,10 +644,7 @@ class PreviewArea(Gtk.Overlay):
     def _show_retry(self) -> bool:
         self._cancel_retry_timer()
         error = self._last_error
-        if error and _("Camera in use by:") in error:
-            self._status.set_title(_("Camera busy"))
-            self._status.set_description(error)
-        elif error and _("Camera is being used") in error:
+        if error and _("Camera in use by:") in error or error and _("Camera is being used") in error:
             self._status.set_title(_("Camera busy"))
             self._status.set_description(error)
         else:

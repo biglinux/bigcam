@@ -2,7 +2,7 @@
 
 import subprocess
 import logging
-from typing import List, Optional, IO, Any
+from typing import IO, Any
 
 log = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ class SecureCommandRunner:
 
     @staticmethod
     def run_safe(
-        args: List[str],
+        args: list[str],
         timeout: int = 5,
         capture_output: bool = True,
         check: bool = False,
@@ -42,14 +42,14 @@ class SecureCommandRunner:
             kwargs["capture_output"] = True
 
         log.debug(f"Running secure command: {' '.join(args)}")
-        
+
         return subprocess.run(args, timeout=timeout, check=check, **kwargs)
 
     @staticmethod
     def popen_safe(
-        args: List[str],
-        stdout: Optional[int | IO[Any]] = None,
-        stderr: Optional[int | IO[Any]] = None,
+        args: list[str],
+        stdout: int | IO[Any] | None = None,
+        stderr: int | IO[Any] | None = None,
         **kwargs: Any
     ) -> subprocess.Popen[bytes]:
         """
@@ -65,7 +65,7 @@ class SecureCommandRunner:
             subprocess.Popen
         """
         kwargs["shell"] = False
-        
+
         log.debug(f"Starting secure background process: {' '.join(args)}")
-        
+
         return subprocess.Popen(args, stdout=stdout, stderr=stderr, **kwargs)

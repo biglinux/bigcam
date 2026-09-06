@@ -33,8 +33,11 @@ class ImmersionController:
     """Centralised manager for the immersive auto-hide behaviour.
 
     * Monitors pointer motion and key-press events on a top-level window.
-    * After *_INACTIVITY_MS* of silence, smoothly fades registered widgets to
-      ``opacity 0`` and disables their hit-testing (``can_target = False``).
+    * Fades registered widgets to ``opacity 0`` and disables their hit-testing
+      (``can_target = False``) after *_INACTIVITY_MS*.  The timer only runs
+      while the pointer is *outside* the window: a pointer resting over the
+      preview counts as presence, so the chrome does not vanish under the
+      user's cursor.
     * Any subsequent activity *instantly* restores full opacity and
       interactivity — no animation delay on re-entry.
     * Optionally manages a :class:`Gtk.Revealer` for the header bar so that
@@ -80,7 +83,7 @@ class ImmersionController:
         """Register the revealer that wraps the header bar."""
         self._header_revealer = revealer
 
-    def set_split_view(self, split_view: "Adw.OverlaySplitView") -> None:
+    def set_split_view(self, split_view: Adw.OverlaySplitView) -> None:
         """Register the split view so its sidebar can be hidden on immersion."""
         self._split_view = split_view
 

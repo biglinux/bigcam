@@ -62,7 +62,7 @@ _CLK_TCK = os.sysconf("SC_CLK_TCK")
 def _system_ram_mb() -> float:
     """Return total system RAM in MB from /proc/meminfo."""
     try:
-        with open("/proc/meminfo", "r") as fh:
+        with open("/proc/meminfo") as fh:
             for line in fh:
                 if line.startswith("MemTotal:"):
                     return int(line.split()[1]) / 1024  # kB → MB
@@ -235,7 +235,7 @@ class ResourceMonitor(GObject.Object):
     def _read_rss_mb(self) -> float:
         """Read RSS from /proc/self/statm (fast, no subprocess)."""
         try:
-            with open("/proc/self/statm", "r") as fh:
+            with open("/proc/self/statm") as fh:
                 parts = fh.readline().split()
                 rss_pages = int(parts[1])
                 return rss_pages * _PAGE_SIZE / (1024 * 1024)
@@ -245,7 +245,7 @@ class ResourceMonitor(GObject.Object):
     def _read_proc_stat(self) -> tuple[int, int]:
         """Read utime + stime from /proc/<pid>/stat."""
         try:
-            with open(_PROC_STAT, "r") as fh:
+            with open(_PROC_STAT) as fh:
                 parts = fh.readline().split()
                 utime = int(parts[13])
                 stime = int(parts[14])
@@ -258,7 +258,7 @@ class ResourceMonitor(GObject.Object):
     def _read_cpu_percent(self) -> float:
         """Calculate CPU % since last sample."""
         try:
-            with open(_PROC_STAT, "r") as fh:
+            with open(_PROC_STAT) as fh:
                 parts = fh.readline().split()
                 utime = int(parts[13])
                 stime = int(parts[14])

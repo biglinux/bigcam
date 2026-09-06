@@ -10,7 +10,6 @@ import signal
 import subprocess
 from utils.command_runner import SecureCommandRunner
 import threading
-from typing import Optional
 
 from gi.repository import GLib, GObject
 
@@ -35,8 +34,8 @@ class AirPlayReceiver(GObject.Object):
 
     def __init__(self) -> None:
         super().__init__()
-        self._process: Optional[subprocess.Popen] = None
-        self._monitor_thread: Optional[threading.Thread] = None
+        self._process: subprocess.Popen | None = None
+        self._monitor_thread: threading.Thread | None = None
         self._v4l2_device: str = ""
         self._running = False
 

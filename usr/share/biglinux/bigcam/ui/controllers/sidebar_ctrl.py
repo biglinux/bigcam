@@ -123,6 +123,6 @@ class SidebarController:
         start_x, _ = gesture.get_start_point()
         current_width = self._split_view.get_sidebar_width_fraction()
         # Roughly convert pixel delta to fraction delta
-        delta = -(offset_x / 1000.0) 
+        delta = -(offset_x / 1000.0)
         new_width = max(0.2, min(0.5, current_width + delta))
         self._split_view.set_sidebar_width_fraction(new_width)

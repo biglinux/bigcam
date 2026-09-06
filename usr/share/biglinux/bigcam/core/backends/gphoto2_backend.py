@@ -709,9 +709,7 @@ class GPhoto2Backend(CameraBackend):
             ctype = ControlType.BOOLEAN
         elif gp_type == "RANGE":
             ctype = ControlType.INTEGER
-        elif gp_type == "TEXT":
-            ctype = ControlType.STRING
-        elif gp_type == "DATE":
+        elif gp_type == "TEXT" or gp_type == "DATE":
             ctype = ControlType.STRING
         else:
             return None

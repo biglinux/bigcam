@@ -35,12 +35,12 @@ MONITOR_ENABLED_KEY = "resource-monitor-enabled"
 
 def show_resource_warning(
     parent: Gtk.Window,
-    snapshot: "ResourceSnapshot",
-    features: list["FeatureDescriptor"],
-    settings: "SettingsManager",
+    snapshot: ResourceSnapshot,
+    features: list[FeatureDescriptor],
+    settings: SettingsManager,
     *,
     present_fn=None,
-    on_optimized: "Callable[[list[str]], None] | None" = None,
+    on_optimized: Callable[[list[str]], None] | None = None,
 ) -> None:
     """Present a resource-warning dialog to the user.
 

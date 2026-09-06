@@ -34,7 +34,7 @@ def _human_date(timestamp: float) -> str:
 
 
 class _VideoMeta:
-    __slots__ = ("path", "name", "size", "mtime", "duration", "thumb_path")
+    __slots__ = ("duration", "mtime", "name", "path", "size", "thumb_path")
 
     def __init__(self, path: str) -> None:
         self.path = path

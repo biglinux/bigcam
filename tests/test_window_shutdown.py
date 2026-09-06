@@ -41,7 +41,6 @@ def window(monkeypatch, settings):
                         lambda self, *a, **kw: None)
     monkeypatch.setattr(VirtualCamera, "cleanup_dynamic_devices",
                         classmethod(lambda cls: None))
-    monkeypatch.setattr(VirtualCamera, "stop", classmethod(lambda cls: None))
     monkeypatch.setattr("core.audio_monitor.AudioMonitor.detect_all",
                         lambda self: None)
 
