@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import threading
 import subprocess
@@ -18,6 +19,8 @@ from utils.settings_manager import SettingsManager
 from utils import xdg
 from utils.i18n import _
 
+log = logging.getLogger(__name__)
+
 try:
     import cv2
     import numpy as np
@@ -26,29 +29,39 @@ try:
 except ImportError:
     _HAS_CV2 = False
 
-try:
-    # pyzbar, not the "zbar" module: that binding is Python 2 only, so the
-    # import never succeeded and the barcode fallback was silently dead.
-    from pyzbar import pyzbar
-
-    _HAS_ZBAR = True
-except ImportError:
-    _HAS_ZBAR = False
-
 _HAARCASCADES = "/usr/share/opencv4/haarcascades"
 
-# 1-D symbologies only: QR is already covered by OpenCV's detector, and asking
-# pyzbar for it too just costs time and produces duplicate hits.
-_BARCODE_SYMBOLS = (
-    [
-        pyzbar.ZBarSymbol.EAN13, pyzbar.ZBarSymbol.EAN8,
-        pyzbar.ZBarSymbol.UPCA, pyzbar.ZBarSymbol.UPCE,
-        pyzbar.ZBarSymbol.CODE128, pyzbar.ZBarSymbol.CODE39,
-        pyzbar.ZBarSymbol.ITF,
-    ]
-    if _HAS_ZBAR
-    else []
-)
+# 1-D symbologies (EAN, UPC, Code128, ...) come from OpenCV's own barcode
+# detector.  The obvious alternative, pyzbar, is packaged only in the AUR, and
+# the "zbar" package in extra ships a Python 2 binding that cannot be
+# imported at all — which is why this fallback was dead for so long.  OpenCV
+# is already a hard dependency, so it costs nothing.
+_HAS_BARCODE = _HAS_CV2 and hasattr(cv2, "barcode")
+
+
+def _decode_barcode(detector, img):
+    """Return (text, points) from a BarcodeDetector, or ("", None).
+
+    The return shape changed between OpenCV releases: 4.x answers
+    (ok, texts, formats, points) with a list of hits, 5.x answers
+    (text, points, straight_code) for a single one.  Unpacking the wrong
+    arity raises, and the caller swallows exceptions, so getting this wrong
+    means barcodes silently never scan.
+    """
+    result = detector.detectAndDecode(img)
+    if len(result) == 3:                       # OpenCV 5.x
+        text, points, _straight = result
+        if not text:
+            return "", None
+        return text, points
+    ok, texts, _formats, points = result       # OpenCV 4.x
+    if not ok or not texts:
+        return "", None
+    for i, text in enumerate(texts):
+        if text:
+            pts = points[i] if points is not None and len(points) > i else None
+            return text, pts
+    return "", None
 
 
 class SettingsPage(Gtk.ScrolledWindow):
@@ -90,7 +103,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._qr_scanning = False
         self._qr_detector = None
         self._wechat_qr = None
-        self._zbar_scanner = None
+        self._barcode_detector = None
         self._face_cascade = None
 
         clamp = Adw.Clamp(maximum_size=600, tightening_threshold=400)
@@ -842,9 +855,12 @@ class SettingsPage(Gtk.ScrolledWindow):
             self._wechat_qr = cv2.wechat_qrcode.WeChatQRCode()
         except Exception:
             self._qr_detector = cv2.QRCodeDetector()
-        # pyzbar needs no scanner object; QR codes are handled by OpenCV
-        # above, so only the 1-D barcode symbologies are requested here.
-        self._zbar_scanner = _HAS_ZBAR
+        # QR is handled above; this one only reads the 1-D symbologies.
+        if _HAS_BARCODE and self._barcode_detector is None:
+            try:
+                self._barcode_detector = cv2.barcode.BarcodeDetector()
+            except Exception:
+                self._barcode_detector = None
 
     def _try_detect_qr(self, img):
         if self._wechat_qr is not None:
@@ -857,19 +873,15 @@ class SettingsPage(Gtk.ScrolledWindow):
             if data:
                 p = pts[0] if pts is not None and pts.ndim == 3 else pts
                 return data, p
-        # Barcode fallback: OpenCV reads QR codes but not 1-D symbologies.
-        if _HAS_ZBAR:
+        # 1-D fallback: the QR detectors above do not read linear barcodes.
+        if self._barcode_detector is not None:
             try:
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
-                for sym in pyzbar.decode(gray, symbols=_BARCODE_SYMBOLS):
-                    if sym.data:
-                        loc = np.array(
-                            [(p.x, p.y) for p in sym.polygon], dtype=np.float32
-                        )
-                        text = sym.data.decode("utf-8", errors="replace")
-                        return f"barcode:{text}", loc
+                text, pts = _decode_barcode(self._barcode_detector, img)
+                if text:
+                    loc = None if pts is None else np.asarray(pts, dtype=np.float32)
+                    return f"barcode:{text}", loc
             except Exception:
-                pass
+                log.debug("Barcode decode failed", exc_info=True)
         return "", None
 
     def _scan_qr(self) -> bool:
