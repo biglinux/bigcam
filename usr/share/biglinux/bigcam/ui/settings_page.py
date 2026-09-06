@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import threading
 import subprocess
 
 import gi
@@ -47,6 +48,8 @@ class SettingsPage(Gtk.ScrolledWindow):
         "resolution-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "fps-limit-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "grid-overlay-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "auto-enhance-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "image-reset": (GObject.SignalFlags.RUN_LAST, None, ()),
         "overlay-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "controls-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
         "window-opacity-changed": (GObject.SignalFlags.RUN_LAST, None, (int,)),
@@ -268,6 +271,41 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._grid_row.set_active(self._settings.get("grid_overlay"))
         self._grid_row.connect("notify::active", self._on_grid_overlay)
         preview.add(self._grid_row)
+
+        self._auto_enhance_row = Adw.SwitchRow(
+            title=_("Enhance image automatically"),
+            subtitle=_(
+                "Corrects exposure, contrast and colour cast as the lighting "
+                "changes. Only adjusts what needs it."
+            ),
+        )
+        self._auto_enhance_row.add_prefix(
+            Gtk.Image.new_from_icon_name("image-auto-adjust-symbolic")
+        )
+        self._auto_enhance_row.set_active(bool(self._settings.get("auto-enhance")))
+        self._auto_enhance_row.update_property(
+            [Gtk.AccessibleProperty.LABEL], [_("Enhance image automatically")]
+        )
+        self._auto_enhance_row.connect("notify::active", self._on_auto_enhance)
+        preview.add(self._auto_enhance_row)
+
+        reset_image_row = Adw.ActionRow(
+            title=_("Restore image defaults"),
+            subtitle=_(
+                "Resets camera controls, zoom, pan/tilt and every effect."
+            ),
+        )
+        reset_image_row.add_prefix(
+            Gtk.Image.new_from_icon_name("edit-undo-symbolic")
+        )
+        reset_image_btn = Gtk.Button(
+            label=_("Restore"),
+            valign=Gtk.Align.CENTER,
+        )
+        reset_image_btn.connect("clicked", self._on_reset_image)
+        reset_image_row.add_suffix(reset_image_btn)
+        reset_image_row.set_activatable_widget(reset_image_btn)
+        preview.add(reset_image_row)
 
         # Window background opacity slider
         window_opacity_row = Adw.ActionRow(
@@ -701,6 +739,39 @@ class SettingsPage(Gtk.ScrolledWindow):
         active = row.get_active()
         self._settings.set("grid_overlay", active)
         self.emit("grid-overlay-changed", active)
+
+    def _on_auto_enhance(self, row: Adw.SwitchRow, _pspec) -> None:
+        """Toggle automatic exposure/contrast/white-balance correction."""
+        active = row.get_active()
+        if self._engine is not None:
+            # set_auto_enhance persists the value itself.
+            self._engine.set_auto_enhance(active)
+        else:
+            self._settings.set("auto-enhance", active)
+        self.emit("auto-enhance-changed", active)
+
+    def _on_reset_image(self, _btn: Gtk.Button) -> None:
+        """Restore every image adjustment to its default.
+
+        Runs off the main thread: resetting device controls shells out to
+        v4l2-ctl once per control, which would otherwise freeze the UI.
+        """
+        if self._engine is None:
+            return
+
+        def _apply() -> None:
+            self._engine.reset_image_defaults()
+            GLib.idle_add(self._sync_after_image_reset)
+
+        threading.Thread(target=_apply, daemon=True).start()
+
+    def _sync_after_image_reset(self) -> bool:
+        """Bring the switches back in line with the reset state."""
+        self._auto_enhance_row.handler_block_by_func(self._on_auto_enhance)
+        self._auto_enhance_row.set_active(False)
+        self._auto_enhance_row.handler_unblock_by_func(self._on_auto_enhance)
+        self.emit("image-reset")
+        return GLib.SOURCE_REMOVE
 
     def _on_overlay_opacity(self, scale: Gtk.Scale) -> None:
         value = int(scale.get_value())

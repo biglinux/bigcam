@@ -362,11 +362,11 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         hw_reset_btn = Gtk.Button(
             icon_name="view-refresh-symbolic",
             valign=Gtk.Align.CENTER,
-            tooltip_text=_("Reset all controls to hardware defaults"),
+            tooltip_text=_("Restore image to defaults (controls, zoom and effects)"),
             css_classes=["flat"],
         )
         hw_reset_btn.update_property(
-            [Gtk.AccessibleProperty.LABEL], [_("Hardware defaults")]
+            [Gtk.AccessibleProperty.LABEL], [_("Restore image defaults")]
         )
         hw_reset_btn.connect("clicked", self._on_hardware_reset)
 
@@ -465,14 +465,28 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         self._refresh_profile_list()
 
     def _on_hardware_reset(self, _btn: Gtk.Button) -> None:
-        """Reset all V4L2 controls to hardware default values."""
-        if not self._camera or not self._controls:
+        """Restore the whole picture to defaults, not just the V4L2 controls.
+
+        Users read this button as "make the image normal again", so it also
+        clears zoom/pan/tilt, the software effect chain and auto-enhance —
+        otherwise resetting brightness while a 2x crop and a grayscale filter
+        stay on looks like the button did nothing.
+        """
+        if not self._camera:
             return
         import threading
 
         def _apply():
-            self._manager.reset_all_controls(self._camera, self._controls)
-            # Re-apply anti-flicker after reset (power_line_frequency defaults to 0)
+            if self._engine is not None:
+                # Owns device controls + geometry + effects; safe off the main
+                # thread because every step it touches is either a subprocess
+                # or plain Python state.
+                self._engine.reset_image_defaults()
+            elif self._controls:
+                # No engine wired (unit tests): device controls only.
+                self._manager.reset_all_controls(self._camera, self._controls)
+            # power_line_frequency resets to 0 (disabled), which reintroduces
+            # banding under mains lighting; put it back.
             self._manager.apply_anti_flicker(self._camera)
             GLib.idle_add(self._reload_controls)
 

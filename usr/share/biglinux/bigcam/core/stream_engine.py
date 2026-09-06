@@ -342,6 +342,12 @@ class StreamEngine(GObject.Object):
         self._sharpness: float = 0.0  # 0.0 = off, positive = sharpen strength
         self._pan: float = 0.0   # -1.0 to 1.0 (left/right offset ratio)
         self._tilt: float = 0.0  # -1.0 to 1.0 (up/down offset ratio)
+        # Automatic exposure / contrast / white balance.  The enhancer is
+        # built lazily: it is stateful and pointless until switched on.
+        self._auto_enhance: bool = bool(
+            settings.get("auto-enhance") if settings is not None else False
+        )
+        self._enhancer: Any = None
         # General virtual camera output (appsrc -> v4l2sink)
         self._vcam_pipeline: Gst.Pipeline | None = None
         self._vcam_appsrc: Any = None
@@ -418,6 +424,79 @@ class StreamEngine(GObject.Object):
         """Set tilt offset (-1.0 up .. 1.0 down)."""
         self._tilt = max(-1.0, min(1.0, value))
         self._update_crop()
+
+    # -- automatic image enhancement ----------------------------------------
+
+    @property
+    def auto_enhance(self) -> bool:
+        """Whether automatic exposure/contrast/white-balance is running."""
+        return self._auto_enhance
+
+    def set_auto_enhance(self, enabled: bool) -> None:
+        """Turn automatic image correction on or off and remember the choice."""
+        enabled = bool(enabled)
+        if enabled == self._auto_enhance:
+            return
+        self._auto_enhance = enabled
+        if enabled:
+            if self._enhancer is None:
+                from core.auto_enhance import AutoEnhancer
+
+                self._enhancer = AutoEnhancer()
+            # Start from neutral so the correction eases in from the current
+            # picture instead of snapping to a stale adaptation.
+            self._enhancer.reset()
+        if self._settings is not None:
+            self._settings.set("auto-enhance", enabled)
+        log.info("Auto image enhancement %s", "enabled" if enabled else "disabled")
+
+    # -- restore defaults ---------------------------------------------------
+
+    def reset_image_defaults(self, include_mirror: bool = False) -> None:
+        """Restore the picture to factory defaults.
+
+        Image state is spread across three owners and users think of them as
+        one thing, so this resets all of them:
+
+        * V4L2 controls on the device (brightness, contrast, exposure, ...)
+        * geometry held here (zoom, pan, tilt, sharpness)
+        * the software effect chain and auto-enhance
+
+        *include_mirror* is off by default: mirroring is a viewing preference,
+        not a correction, and silently un-mirroring surprises people.
+
+        A camera that errors out mid-reset must not prevent the software side
+        from being restored, so the device pass is isolated.
+        """
+        camera = self._current_camera
+        if camera is not None:
+            try:
+                controls = self._manager.get_controls(camera)
+                if controls:
+                    self._manager.reset_all_controls(camera, controls)
+            except Exception:
+                log.warning(
+                    "Could not restore device controls for %s",
+                    camera.name, exc_info=True,
+                )
+
+        self._zoom_level = 1.0
+        self._pan = 0.0
+        self._tilt = 0.0
+        self._sharpness = 0.0
+        self._update_crop()
+        self._update_sharpness()
+
+        self._effects.reset_all()
+
+        self.set_auto_enhance(False)
+        if self._enhancer is not None:
+            self._enhancer.reset()
+
+        if include_mirror:
+            self._mirror = False
+
+        log.info("Image settings restored to defaults")
 
     def _update_crop(self) -> None:
         if not self._pipeline:
@@ -520,6 +599,11 @@ class StreamEngine(GObject.Object):
     def _apply_frame_processing(self, bgr: np.ndarray) -> np.ndarray:
         """Apply software effects to a BGR frame (effects, QR overlay).
         Note: Zoom and Sharpness are now handled natively via GPU in GStreamer."""
+        # Auto-enhance runs first so the user's own effects act on a
+        # correctly exposed, colour-balanced frame.
+        if self._auto_enhance and self._enhancer is not None:
+            bgr = self._enhancer.process(bgr)
+
         if self._effects.has_active_effects():
             bgr = self._effects.apply(bgr)
 
@@ -589,7 +673,7 @@ class StreamEngine(GObject.Object):
     def _has_processing_work(self) -> bool:
         """Check if any frame processing is needed."""
         return (self._effects.has_active_effects() or self._overlay_rects
-                or self._qr_scan_active
+                or self._qr_scan_active or self._auto_enhance
                 or self._zoom_level > 1.0 or self._sharpness > 0.0
                 or self._pan != 0.0 or self._tilt != 0.0)
 

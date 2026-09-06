@@ -128,6 +128,19 @@ def find_all_audio_sources() -> list[tuple[str, str]]:
     return sources
 
 
+def _unmute_own_sink_input(index: int) -> None:
+    """Clear the mute flag on one of BigCam's own playback streams.
+
+    Only the mute flag.  Writing a volume level here would be persisted by
+    module-stream-restore and survive the process, overriding whatever the
+    user had set for BigCam in their mixer.
+    """
+    SecureCommandRunner.run_safe(
+        ["pactl", "set-sink-input-mute", str(index), "0"],
+        capture_output=True, timeout=3,
+    )
+
+
 class AudioMonitor(GObject.Object):
     """Manages multiple audio sources from USB camera devices.
 
@@ -157,6 +170,7 @@ class AudioMonitor(GObject.Object):
         self._source_volumes: dict[str, float] = {}  # per-source volume
         self._restart_counts: dict[str, int] = {}  # per-source restart counter
         self._redetect_timer: int | None = None    # debounce for detect_all()
+        self._vol_counter: int = 0                 # unique GStreamer element names
         self._volume: float = 0.5
         self._muted: bool = False
         # External sources (e.g. AirPlay) controlled via pactl
@@ -548,17 +562,28 @@ class AudioMonitor(GObject.Object):
         # NOTE: deliberately does *not* clear _restart_counts.  This method is
         # called by the automatic restart path, so resetting here would make
         # the "give up after N failures" guard unreachable and spin forever.
+        # A sequential name, not hash(source): str hashes are randomised per
+        # process and two sources could collide, making get_by_name() return
+        # the wrong volume element.
+        self._vol_counter += 1
+        vol_name = f"vol_{self._vol_counter}"
+
+        # No buffer-time/latency-time here on purpose.  Pinning them asks
+        # PipeWire for a specific quantum, and renegotiating the graph quantum
+        # can stall other clients — notably a filter chain declaring
+        # node.lock-quantum, like the BigLinux AI microphone.  Letting the
+        # server pick costs nothing: this is a monitoring path, not low-latency
+        # playback.
+        safe_source = source.replace("\\", "\\\\").replace('"', '\\"')
         pipeline_str = (
-            f'pulsesrc device="{source}" '
-            "do-timestamp=true "
-            "buffer-time=200000 latency-time=50000 ! "
+            f'pulsesrc device="{safe_source}" '
+            "do-timestamp=true ! "
             "audioconvert ! "
             "audioresample ! "
-            f"volume name=vol_{hash(source) & 0xFFFF:04x} ! "
+            f"volume name={vol_name} ! "
             "queue max-size-time=1000000000 leaky=downstream ! "
             "autoaudiosink sync=false"
         )
-        vol_name = f"vol_{hash(source) & 0xFFFF:04x}"
         try:
             pipeline = Gst.parse_launch(pipeline_str)
         except GLib.Error as exc:
@@ -606,14 +631,7 @@ class AudioMonitor(GObject.Object):
                 stripped = line.strip()
                 if stripped.startswith("Sink Input #"):
                     if is_bigcam and cur_idx is not None:
-                        SecureCommandRunner.run_safe(
-                            ["pactl", "set-sink-input-mute", str(cur_idx), "0"],
-                            capture_output=True, timeout=3,
-                        )
-                        SecureCommandRunner.run_safe(
-                            ["pactl", "set-sink-input-volume", str(cur_idx), "100%"],
-                            capture_output=True, timeout=3,
-                        )
+                        _unmute_own_sink_input(cur_idx)
                     try:
                         cur_idx = int(stripped.split("#", 1)[1])
                     except ValueError:
@@ -623,14 +641,7 @@ class AudioMonitor(GObject.Object):
                     is_bigcam = True
             # Handle last entry
             if is_bigcam and cur_idx is not None:
-                SecureCommandRunner.run_safe(
-                    ["pactl", "set-sink-input-mute", str(cur_idx), "0"],
-                    capture_output=True, timeout=3,
-                )
-                SecureCommandRunner.run_safe(
-                    ["pactl", "set-sink-input-volume", str(cur_idx), "100%"],
-                    capture_output=True, timeout=3,
-                )
+                _unmute_own_sink_input(cur_idx)
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
 
