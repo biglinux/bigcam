@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import re
+import glob
 import subprocess
 from typing import Any
 import time
@@ -108,9 +109,24 @@ class V4L2Backend(CameraBackend):
 
     # -- detection -----------------------------------------------------------
 
+    _DETECT_ATTEMPTS = 3
+    _DETECT_BACKOFF_S = 0.5
+
     def detect_cameras(self) -> list[CameraInfo]:
+        """Enumerate V4L2 cameras, retrying only while it can help.
+
+        The retry exists because a node can appear a moment before the
+        driver will answer queries on it, which is normal right after a
+        hotplug.  It used to run unconditionally and sleep after every
+        attempt including the last, so a machine with no camera at all paid
+        1.5s of sleeping to be told three times what it knew immediately —
+        and up to 16.5s if v4l2-ctl itself hung.
+
+        Waiting only makes sense when a node exists but has not answered
+        yet.  With no nodes there is nothing to wait for.
+        """
         cameras: list[CameraInfo] = []
-        for _attempt in range(3):
+        for attempt in range(1, self._DETECT_ATTEMPTS + 1):
             try:
                 result = subprocess.run(
                     ["v4l2-ctl", "--list-devices"],
@@ -121,10 +137,15 @@ class V4L2Backend(CameraBackend):
                 if result.returncode == 0:
                     cameras = self._parse_devices(result.stdout)
                     if cameras:
-                        break
+                        return cameras
             except Exception:
-                pass
-            time.sleep(0.5)
+                log.debug("v4l2-ctl --list-devices failed", exc_info=True)
+
+            if attempt == self._DETECT_ATTEMPTS:
+                break
+            if not glob.glob("/dev/video*"):
+                break
+            time.sleep(self._DETECT_BACKOFF_S)
         return cameras
 
     def _parse_devices(self, output: str) -> list[CameraInfo]:

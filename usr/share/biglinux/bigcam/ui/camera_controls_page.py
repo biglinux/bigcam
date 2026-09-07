@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import threading
 from typing import Any
 
@@ -17,6 +18,8 @@ from core.camera_backend import CameraControl, CameraInfo
 from core.camera_manager import CameraManager
 from core import camera_profiles
 from utils.i18n import _
+
+log = logging.getLogger(__name__)
 
 _CATEGORY_LABELS = {
     ControlCategory.IMAGE: _("Image"),
@@ -526,11 +529,41 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         threading.Thread(target=_apply, daemon=True).start()
 
     def _reload_controls(self) -> bool:
-        """Refresh UI with current control values from hardware."""
-        if not self._camera:
+        """Read the hardware back, off the main thread.
+
+        This is scheduled with GLib.idle_add, so it used to do the read on
+        the main thread.  For a V4L2 camera that is one v4l2-ctl call; for a
+        gphoto2 camera get_controls retries --list-all-config three times
+        with a 15s timeout and sleeps in between, so the whole interface
+        could sit frozen for the better part of a minute after touching one
+        setting.
+        """
+        camera = self._camera
+        if not camera:
             return False
-        controls = self._manager.get_controls(self._camera)
-        if controls is None:
+
+        def _fetch() -> None:
+            try:
+                controls = self._manager.get_controls(camera)
+            except Exception:
+                log.debug("Could not read controls back", exc_info=True)
+                return
+            if controls:
+                GLib.idle_add(self._apply_control_values, camera.id, controls)
+
+        threading.Thread(
+            target=_fetch, daemon=True, name="bigcam-reload-controls"
+        ).start()
+        return False
+
+    def _apply_control_values(
+        self, camera_id: str, controls: list[CameraControl]
+    ) -> bool:
+        """Put freshly read values into the widgets (main thread)."""
+        # The read is slow enough that the user may have switched cameras
+        # meanwhile.  Compare ids: CameraInfo is rebuilt on every detection,
+        # so identity would not match even for the same device.
+        if not self._camera or self._camera.id != camera_id:
             return False
         self._controls = controls
         self._resetting = True
@@ -672,10 +705,26 @@ class CameraControlsPage(Gtk.ScrolledWindow):
 
     def _on_reset(self, _btn: Gtk.Button, ctrls: list[CameraControl]) -> None:
         if self._camera:
+            camera = self._camera
+
+            # One subprocess per control, on a button handler: eleven
+            # v4l2-ctl calls in a row is a visible stall, and on a gphoto2
+            # camera it is far worse.  The widgets below are set from the
+            # defaults we already know, so the interface does not wait for
+            # the device to confirm what it was told.
+            def _reset_hardware() -> None:
+                try:
+                    self._manager.reset_all_controls(camera, ctrls)
+                    # power_line_frequency defaults to 0, so re-apply.
+                    self._manager.apply_anti_flicker(camera)
+                except Exception:
+                    log.debug("Reset to defaults failed", exc_info=True)
+
+            threading.Thread(
+                target=_reset_hardware, daemon=True, name="bigcam-reset-controls"
+            ).start()
+
             self._resetting = True
-            self._manager.reset_all_controls(self._camera, ctrls)
-            # Re-apply anti-flicker after reset (power_line_frequency defaults to 0)
-            self._manager.apply_anti_flicker(self._camera)
             for ctrl in ctrls:
                 ctrl.value = ctrl.default
                 entry = self._ctrl_widgets.get(ctrl.id)
