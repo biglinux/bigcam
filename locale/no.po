@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -868,28 +869,44 @@ msgstr "Slett"
 #, python-format
 msgid "%d selected"
 msgstr "%d valgt"
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 425
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:425
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 468
+#: NEEDS WORK
 #, python-format
-msgid "Delete %d videos?"
-msgstr "Slette %d videoer?"
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 426
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:426
-msgid "These videos will be permanently deleted."
-msgstr "Disse videoene vil bli slettet permanent."
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 520
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:520
-msgid "Delete video?"
-msgstr "Slette video?"
+msgid "Move %d videos to the trash?"
+msgstr "Flytt %d videoer til papirkurven?"
+# 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 420
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 521
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:420
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:521
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 469
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 413
+#: NEEDS WORK
+msgid "They can be restored from the trash in your file manager."
+msgstr "De kan gjenopprettes fra søppelbøtta i filbehandleren din."
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 472
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 575
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 416
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 449
+#: NEEDS WORK
+msgid "Move to Trash"
+msgstr "Flytt til søppelkurv"
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 571
+#: NEEDS WORK
+msgid "Move video to the trash?"
+msgstr "Flytt video til papirkurven?"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 572
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 446
+#: NEEDS WORK
 #, python-format
-msgid "\"%s\" will be permanently deleted."
-msgstr "\"%s\" vil bli slettet permanent."
+msgid "\"%s\" can be restored from the trash afterwards."
+msgstr "\"%s\" kan gjenopprettes fra papirkurven etterpå."
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
 msgid "Image"
@@ -2147,19 +2164,17 @@ msgstr "Ingen bilder ennå"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:137
 msgid "Captured photos will appear here."
 msgstr "Bilder tatt vil vises her."
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 383
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:383
+# 
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 412
+#: NEEDS WORK
 #, python-format
-msgid "Delete %d photos?"
-msgstr "Slett %d bilder?"
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 384
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:384
-msgid "These photos will be permanently deleted."
-msgstr "Disse bildene vil bli slettet permanent."
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 419
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:419
-msgid "Delete photo?"
-msgstr "Slett bilde?"
+msgid "Move %d photos to the trash?"
+msgstr "Flytt %d bilder til papirkurven?"
+# 
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 445
+#: NEEDS WORK
+msgid "Move photo to the trash?"
+msgstr "Flytt bilde til søppelkassen?"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 76
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:76

@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the bigcam package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: bigcam\n"
@@ -860,28 +861,44 @@ msgstr "削除"
 #, python-format
 msgid "%d selected"
 msgstr "%d 件選択"
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 425
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:425
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 468
+#: NEEDS WORK
 #, python-format
-msgid "Delete %d videos?"
-msgstr "%d 本のビデオを削除しますか？"
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 426
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:426
-msgid "These videos will be permanently deleted."
-msgstr "これらのビデオは完全に削除されます。"
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 520
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:520
-msgid "Delete video?"
-msgstr "ビデオを削除しますか？"
+msgid "Move %d videos to the trash?"
+msgstr "%d本のビデオをゴミ箱に移動しますか？"
+# 
 # #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
 # 
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 420
-# File: bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py, line: 521
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:420
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/video_gallery.py:521
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 469
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 413
+#: NEEDS WORK
+msgid "They can be restored from the trash in your file manager."
+msgstr "ファイルマネージャーのゴミ箱から復元できます。"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 472
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 575
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 416
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 449
+#: NEEDS WORK
+msgid "Move to Trash"
+msgstr "ゴミ箱に移動"
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 571
+#: NEEDS WORK
+msgid "Move video to the trash?"
+msgstr "ビデオをゴミ箱に移動しますか？"
+# 
+# #-#-#-#-#  bigcam.pot (bigcam)  #-#-#-#-#
+# 
+# File: usr/share/biglinux/bigcam/ui/video_gallery.py, line: 572
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 446
+#: NEEDS WORK
 #, python-format
-msgid "\"%s\" will be permanently deleted."
-msgstr "「%s」は完全に削除されます。"
+msgid "\"%s\" can be restored from the trash afterwards."
+msgstr "\"%s\"は後でゴミ箱から復元できます。"
 # File: bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py, line: 22
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
 msgid "Image"
@@ -2128,19 +2145,17 @@ msgstr "写真がまだありません"
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:137
 msgid "Captured photos will appear here."
 msgstr "撮影した写真はここに表示されます。"
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 383
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:383
+# 
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 412
+#: NEEDS WORK
 #, python-format
-msgid "Delete %d photos?"
-msgstr "%d 枚の写真を削除しますか？"
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 384
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:384
-msgid "These photos will be permanently deleted."
-msgstr "これらの写真は完全に削除されます。"
-# File: bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 419
-#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/photo_gallery.py:419
-msgid "Delete photo?"
-msgstr "写真を削除しますか？"
+msgid "Move %d photos to the trash?"
+msgstr "%d枚の写真をゴミ箱に移動しますか？"
+# 
+# File: usr/share/biglinux/bigcam/ui/photo_gallery.py, line: 445
+#: NEEDS WORK
+msgid "Move photo to the trash?"
+msgstr "写真をゴミ箱に移動しますか？"
 # File: bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py, line:
 # 76
 #: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:76
