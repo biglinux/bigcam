@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -11,10 +12,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib
+from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, Gio, GLib
 
 from utils import xdg
 from utils.i18n import _
+
+log = logging.getLogger(__name__)
 
 
 def _human_size(nbytes: int) -> str:
@@ -28,6 +31,33 @@ def _human_size(nbytes: int) -> str:
 def _human_date(timestamp: float) -> str:
     return time.strftime("%d/%m/%Y  %H:%M", time.localtime(timestamp))
 
+
+
+def _delete_to_trash(path: str) -> bool:
+    """Move *path* to the desktop trash, falling back to unlinking it.
+
+    A photo or a recording is the one thing in this application the user
+    cannot recreate, and the confirmation dialog is one mis-click away from
+    a whole selection.  Gio.File.trash goes through the freedesktop trash
+    spec, so the file stays recoverable from the file manager.
+
+    Trash is unavailable on some filesystems — a removable drive without a
+    .Trash-$uid, or one mounted read-only for metadata.  There the choice is
+    an unlink or nothing at all, and the dialog has already been confirmed.
+    """
+    gfile = Gio.File.new_for_path(path)
+    try:
+        return bool(gfile.trash(None))
+    except GLib.Error as exc:
+        log.info("Trash unavailable for %s (%s); deleting instead", path, exc.message)
+    except Exception:
+        log.debug("Unexpected error trashing %s", path, exc_info=True)
+    try:
+        os.remove(path)
+        return True
+    except OSError as exc:
+        log.warning("Could not delete %s: %s", path, exc)
+        return False
 
 class PhotoGallery(Gtk.Box):
     """Gallery of captured photo thumbnails with grid/list and bulk selection."""
@@ -379,11 +409,11 @@ class PhotoGallery(Gtk.Box):
             return
         n = len(self._selected)
         dialog = Adw.AlertDialog(
-            heading=_("Delete %d photos?") % n,
-            body=_("These photos will be permanently deleted."),
+            heading=_("Move %d photos to the trash?") % n,
+            body=_("They can be restored from the trash in your file manager."),
         )
         dialog.add_response("cancel", _("Cancel"))
-        dialog.add_response("delete", _("Delete"))
+        dialog.add_response("delete", _("Move to Trash"))
         dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.set_close_response("cancel")
@@ -394,10 +424,7 @@ class PhotoGallery(Gtk.Box):
         if response != "delete":
             return
         for p in list(self._selected):
-            try:
-                os.remove(p)
-            except OSError:
-                pass
+            _delete_to_trash(p)
         self._selected.clear()
         self._update_sel_label()
         self.refresh()
@@ -415,11 +442,11 @@ class PhotoGallery(Gtk.Box):
 
     def _on_delete_clicked(self, _btn: Gtk.Button, path: str) -> None:
         dialog = Adw.AlertDialog(
-            heading=_("Delete photo?"),
-            body=_('"%s" will be permanently deleted.') % os.path.basename(path),
+            heading=_("Move photo to the trash?"),
+            body=_('"%s" can be restored from the trash afterwards.') % os.path.basename(path),
         )
         dialog.add_response("cancel", _("Cancel"))
-        dialog.add_response("delete", _("Delete"))
+        dialog.add_response("delete", _("Move to Trash"))
         dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.set_close_response("cancel")
@@ -431,8 +458,5 @@ class PhotoGallery(Gtk.Box):
     ) -> None:
         if response != "delete":
             return
-        try:
-            os.remove(path)
-        except OSError:
-            pass
+        _delete_to_trash(path)
         self.refresh()

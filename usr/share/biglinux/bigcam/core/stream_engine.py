@@ -67,6 +67,27 @@ _VCAM_RETRY_LIMIT = 5
 _VCAM_RETRY_MS = 2000
 
 
+# Longest edge the preview texture is built at.  A GTK window never shows
+# more than this, and Gtk.Picture scales whatever it is given anyway.
+_PREVIEW_MAX_EDGE = 1280
+
+
+def _downscale_for_preview(bgr, w: int, h: int):
+    """Shrink *bgr* to _PREVIEW_MAX_EDGE if it is larger, else return it.
+
+    INTER_LINEAR, not INTER_AREA: measured at 1.3ms against 3.0ms for a
+    1080p frame, and the difference in a scaled-down preview is not visible.
+    """
+    longest = max(w, h)
+    if longest <= _PREVIEW_MAX_EDGE or not _HAS_CV2:
+        return bgr
+    scale = _PREVIEW_MAX_EDGE / longest
+    return cv2.resize(
+        bgr, (max(1, round(w * scale)), max(1, round(h * scale))),
+        interpolation=cv2.INTER_LINEAR,
+    )
+
+
 def _is_v4l2_node(path: str) -> bool:
     """True if *path* is a V4L2 device node OpenCV can open by name."""
     return bool(path) and path.startswith("/dev/video")
@@ -87,36 +108,27 @@ def _force_c_messages() -> None:
 
 _force_c_messages()
 
-# ── Thread-safe stderr suppression (refcounted) ─────────────────────
-# Native libraries (libjpeg-turbo, V4L2) write warnings directly to fd 2.
-# We redirect fd 2 to /dev/null while capture threads are active, using a
-# refcount so multiple threads can coexist safely.
-_stderr_lock = threading.Lock()
-_stderr_refcount = 0
-_stderr_orig_fd: int | None = None
+# ── OpenCV's own chatter ────────────────────────────────────────────
+# Probing a V4L2 device that cannot be opened by name makes OpenCV log
+#
+#   [ WARN:0@2.144] global cap.cpp:212 open VIDEOIO(V4L2): backend is
+#   generally available but can't be used to capture by name
+#
+# once per attempt, which the retry loops turn into a wall of text.  This
+# used to be handled by redirecting fd 2 to /dev/null for the whole life of
+# the capture thread — which also discarded every log line and every
+# traceback the application produced while a preview was running.  OpenCV
+# has its own log level; use that, and leave the process's stderr alone.
+def _quiet_opencv() -> None:
+    if not _HAS_CV2:
+        return
+    try:
+        cv2.utils.logging.setLogLevel(cv2.utils.logging.LOG_LEVEL_ERROR)
+    except Exception:
+        log.debug("Could not lower the OpenCV log level", exc_info=True)
 
 
-def _stderr_suppress() -> None:
-    """Redirect fd 2 to /dev/null (refcounted, thread-safe)."""
-    global _stderr_refcount, _stderr_orig_fd
-    with _stderr_lock:
-        if _stderr_refcount == 0:
-            _stderr_orig_fd = os.dup(2)
-            devnull = os.open(os.devnull, os.O_WRONLY)
-            os.dup2(devnull, 2)
-            os.close(devnull)
-        _stderr_refcount += 1
-
-
-def _stderr_restore() -> None:
-    """Restore fd 2 when the last suppressor exits."""
-    global _stderr_refcount, _stderr_orig_fd
-    with _stderr_lock:
-        _stderr_refcount -= 1
-        if _stderr_refcount == 0 and _stderr_orig_fd is not None:
-            os.dup2(_stderr_orig_fd, 2)
-            os.close(_stderr_orig_fd)
-            _stderr_orig_fd = None
+_quiet_opencv()
 
 
 def _paintable_suffix() -> str:
@@ -1134,17 +1146,13 @@ class StreamEngine(GObject.Object):
         """Background thread: read frames from V4L2 as fast as they arrive."""
         cap = self._cv_cap
         stop = self._cv_stop_event
-        _stderr_suppress()
-        try:
-            while cap is not None and cap.isOpened() and not stop.is_set():
-                ret, frame = cap.read()
-                if ret:
-                    self._cv_latest_frame = frame
-                    self._cv_frame_seq += 1
-                elif stop.is_set():
-                    break
-        finally:
-            _stderr_restore()
+        while cap is not None and cap.isOpened() and not stop.is_set():
+            ret, frame = cap.read()
+            if ret:
+                self._cv_latest_frame = frame
+                self._cv_frame_seq += 1
+            elif stop.is_set():
+                break
 
     def _cv_render_frame(self) -> bool:
         """Main-thread timer: render latest captured frame as GdkTexture."""
@@ -2294,13 +2302,21 @@ class StreamEngine(GObject.Object):
             return
         self._phone_frame_pending = True
 
+        # The preview is a window a few hundred pixels wide; converting and
+        # copying a full 1080p frame for it costs 10ms on the asyncio thread
+        # against 1.3ms once scaled down, and the copies are what dominate.
+        # Photos, recording and the virtual camera keep the full frame — they
+        # were served above, before this point.
+        preview = _downscale_for_preview(bgr, w, h)
+        ph, pw = preview.shape[:2]
+
         # BGR -> BGRA using OpenCV SIMD (much faster than numpy manual copy)
-        bgra = cv2.cvtColor(bgr, cv2.COLOR_BGR2BGRA)
+        bgra = cv2.cvtColor(preview, cv2.COLOR_BGR2BGRA)
         data = bgra.tobytes()
 
-        stride = w * 4
+        stride = pw * 4
         glib_bytes = GLib.Bytes.new(data)
-        GLib.idle_add(self._update_phone_texture, w, h, stride, glib_bytes)
+        GLib.idle_add(self._update_phone_texture, pw, ph, stride, glib_bytes)
 
     def _update_phone_texture(
         self, w: int, h: int, stride: int, glib_bytes: GLib.Bytes

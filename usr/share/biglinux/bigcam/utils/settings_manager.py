@@ -15,7 +15,6 @@ _DEFAULTS: dict[str, object] = {
     "window-width": 1100,
     "window-height": 700,
     "window-maximized": False,
-    "sidebar-position": 420,
     # Preview
     "preferred-resolution": "",
     "fps-limit": 0,
@@ -25,18 +24,11 @@ _DEFAULTS: dict[str, object] = {
     "overlay-opacity": 75,
     "controls-opacity": 90,
     "window-opacity": 50,
-    # Photo
-    "photo-directory": "",
-    "photo-format": "jpg",
-    "photo-name-pattern": "photo_{datetime}",
-    # GPhoto2
-    "gphoto2-bitrate": 5000,
     # General
     "show-welcome": True,
     "show-help-tooltips": True,
     "show_fps": True,
     "theme": "dark",
-    "auto-start-preview": True,
     "hotplug_enabled": True,
     "last-camera-id": "",
     # Virtual camera

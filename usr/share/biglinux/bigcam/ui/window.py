@@ -55,11 +55,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def __init__(self, app: Adw.Application) -> None:
         super().__init__(application=app, title=APP_NAME)
-        self.set_default_size(1000, 650)
         self.set_size_request(700, 500)
         self.add_css_class("bigcam")
 
         self._settings = SettingsManager()
+        self._restore_geometry()
         self._camera_manager = CameraManager()
         self._stream_engine = StreamEngine(self._camera_manager, self._settings)
         self._stream_engine.mirror = bool(self._settings.get("mirror_preview"))
@@ -2401,7 +2401,45 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         if self._settings.get("hotplug_enabled"):
             self._camera_manager.start_hotplug()
 
+    # -- window geometry -----------------------------------------------------
+
+    _MIN_SANE_SIZE = 400
+
+    def _restore_geometry(self) -> None:
+        """Reopen at the size the window was last closed at.
+
+        The three settings keys have existed since the first release and
+        nothing ever read them, so every launch reverted to a hardcoded
+        1000x650 no matter how the user had sized the window.
+        """
+        width = self._settings.get("window-width")
+        height = self._settings.get("window-height")
+        # A stored size can be nonsense: a crash mid-resize, or a monitor
+        # that is no longer attached.  Fall back rather than open unusably.
+        if not isinstance(width, int) or width < self._MIN_SANE_SIZE:
+            width = 1100
+        if not isinstance(height, int) or height < self._MIN_SANE_SIZE:
+            height = 700
+        self.set_default_size(width, height)
+        if self._settings.get("window-maximized"):
+            self.maximize()
+
+    def _save_geometry(self) -> None:
+        """Record the current size, ignoring the maximised frame's."""
+        try:
+            maximized = bool(self.is_maximized())
+            self._settings.set("window-maximized", maximized)
+            if not maximized:
+                width, height = self.get_default_size()
+                if width >= self._MIN_SANE_SIZE and height >= self._MIN_SANE_SIZE:
+                    self._settings.set("window-width", width)
+                    self._settings.set("window-height", height)
+        except Exception:
+            log.debug("Could not store the window geometry", exc_info=True)
+
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
+        self._save_geometry()
+
         # Gather ALL active camera sources
         active_names: list[str] = []
 

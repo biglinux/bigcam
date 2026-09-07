@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
+import hashlib
 import os
+import re
 import subprocess
 import time
 
@@ -12,7 +14,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, GLib
+from gi.repository import Adw, Gtk, Gdk, GdkPixbuf, Gio, GLib
 
 from utils import xdg
 from utils.async_worker import run_async
@@ -32,6 +34,47 @@ def _human_size(nbytes: int) -> str:
 def _human_date(timestamp: float) -> str:
     return time.strftime("%d/%m/%Y  %H:%M", time.localtime(timestamp))
 
+
+_UNSAFE_STEM = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def _safe_stem(basename: str, limit: int = 48) -> str:
+    """A filename-safe, length-capped prefix, purely to keep thumbs readable.
+
+    Uniqueness comes from the digest appended to it, not from this.
+    """
+    # splitext(".mp4") is (".mp4", ""): a leading dot means a hidden file,
+    # not an extension, and a thumbnail should not be hidden either.
+    stem = os.path.splitext(basename)[0].lstrip(".")
+    return _UNSAFE_STEM.sub("_", stem)[:limit] or "video"
+
+
+
+def _delete_to_trash(path: str) -> bool:
+    """Move *path* to the desktop trash, falling back to unlinking it.
+
+    A photo or a recording is the one thing in this application the user
+    cannot recreate, and the confirmation dialog is one mis-click away from
+    a whole selection.  Gio.File.trash goes through the freedesktop trash
+    spec, so the file stays recoverable from the file manager.
+
+    Trash is unavailable on some filesystems — a removable drive without a
+    .Trash-$uid, or one mounted read-only for metadata.  There the choice is
+    an unlink or nothing at all, and the dialog has already been confirmed.
+    """
+    gfile = Gio.File.new_for_path(path)
+    try:
+        return bool(gfile.trash(None))
+    except GLib.Error as exc:
+        log.info("Trash unavailable for %s (%s); deleting instead", path, exc.message)
+    except Exception:
+        log.debug("Unexpected error trashing %s", path, exc_info=True)
+    try:
+        os.remove(path)
+        return True
+    except OSError as exc:
+        log.warning("Could not delete %s: %s", path, exc)
+        return False
 
 class _VideoMeta:
     __slots__ = ("duration", "mtime", "name", "path", "size", "thumb_path")
@@ -422,11 +465,11 @@ class VideoGallery(Gtk.Box):
             return
         n = len(self._selected)
         dialog = Adw.AlertDialog(
-            heading=_("Delete %d videos?") % n,
-            body=_("These videos will be permanently deleted."),
+            heading=_("Move %d videos to the trash?") % n,
+            body=_("They can be restored from the trash in your file manager."),
         )
         dialog.add_response("cancel", _("Cancel"))
-        dialog.add_response("delete", _("Delete"))
+        dialog.add_response("delete", _("Move to Trash"))
         dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.set_close_response("cancel")
@@ -437,10 +480,7 @@ class VideoGallery(Gtk.Box):
         if response != "delete":
             return
         for p in list(self._selected):
-            try:
-                os.remove(p)
-            except OSError:
-                pass
+            _delete_to_trash(p)
             thumb = self._get_thumb_path(p)
             if thumb:
                 try:
@@ -454,10 +494,21 @@ class VideoGallery(Gtk.Box):
     # ── Thumbnail helpers ────────────────────────────────────────────
 
     def _get_thumb_path(self, video_path: str) -> str | None:
+        """Where the thumbnail for *video_path* lives.
+
+        The name has to key on the whole path, not the stem.  Dropping the
+        extension made holiday.mp4 and holiday.mkv share one thumbnail, and
+        dropping the directory made two files of the same name in different
+        folders share one too — whichever was scanned first won, and the
+        other showed the wrong frame.
+        """
         thumbs = xdg.thumbs_dir()
         os.makedirs(thumbs, exist_ok=True)
-        basename = os.path.splitext(os.path.basename(video_path))[0]
-        return os.path.join(thumbs, f"{basename}.jpg")
+        digest = hashlib.sha256(
+            os.path.abspath(video_path).encode("utf-8", "surrogateescape")
+        ).hexdigest()[:16]
+        stem = _safe_stem(os.path.basename(video_path))
+        return os.path.join(thumbs, f"{stem}-{digest}.jpg")
 
     def _load_pixbuf(
         self, path: str | None, size: int
@@ -517,11 +568,11 @@ class VideoGallery(Gtk.Box):
 
     def _on_delete_clicked(self, _btn: Gtk.Button, path: str) -> None:
         dialog = Adw.AlertDialog(
-            heading=_("Delete video?"),
-            body=_('"%s" will be permanently deleted.') % os.path.basename(path),
+            heading=_("Move video to the trash?"),
+            body=_('"%s" can be restored from the trash afterwards.') % os.path.basename(path),
         )
         dialog.add_response("cancel", _("Cancel"))
-        dialog.add_response("delete", _("Delete"))
+        dialog.add_response("delete", _("Move to Trash"))
         dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.set_close_response("cancel")
@@ -533,10 +584,7 @@ class VideoGallery(Gtk.Box):
     ) -> None:
         if response != "delete":
             return
-        try:
-            os.remove(path)
-        except OSError:
-            pass
+        _delete_to_trash(path)
         thumb = self._get_thumb_path(path)
         if thumb:
             try:

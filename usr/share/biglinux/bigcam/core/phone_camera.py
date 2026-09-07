@@ -454,6 +454,49 @@ if(screen.orientation){
 """
 
 
+class _FramePump:
+    """Holds only the newest undecoded frame, and tracks what it dropped.
+
+    A live preview gains nothing from a frame that has already been
+    superseded, and decoding it costs the time the next one needed.  The read
+    loop offers each arriving JPEG here and goes straight back to the socket;
+    a single pump task decodes whatever is current when it gets there.
+
+    Single-threaded by construction: every method runs on the asyncio loop,
+    and neither offer() nor the take()/finish() pair awaits, so no two of
+    them can interleave.
+    """
+
+    __slots__ = ("_pending", "_running", "superseded")
+
+    def __init__(self) -> None:
+        self._pending: bytes | None = None
+        self._running = False
+        self.superseded = 0
+
+    def offer(self, data: bytes) -> bool:
+        """Make *data* current.  True if the caller must start a pump task."""
+        if self._pending is not None:
+            self.superseded += 1
+        self._pending = data
+        if self._running:
+            return False
+        self._running = True
+        return True
+
+    def take(self) -> bytes | None:
+        """The current frame, or None when there is nothing left to decode."""
+        data, self._pending = self._pending, None
+        return data
+
+    def finish(self) -> None:
+        self._running = False
+
+    @property
+    def running(self) -> bool:
+        return self._running
+
+
 class _StreamBuffers:
     """Partial WebTransport frames, keyed by stream id and bounded.
 
@@ -1032,12 +1075,47 @@ class PhoneCameraServer(GObject.Object):
             await ws.close()
             return ws
 
-        first_frame = True
         loop = asyncio.get_event_loop()
 
         def _decode_jpeg(data: bytes):
             arr = np.frombuffer(data, dtype=np.uint8)
             return cv2.imdecode(arr, cv2.IMREAD_COLOR)
+
+        # Newest frame wins.  Awaiting the decode inside the read loop made
+        # the socket back up whenever the machine could not keep up: aiohttp
+        # queues the unread messages, so every frame was still decoded and
+        # displayed, just later and later.  The preview drifted further
+        # behind for as long as the load lasted, which is what the stutter
+        # over Wi-Fi actually was.
+        #
+        # This is a live stream, so a frame that is already superseded has no
+        # value.  The read loop only ever stores the latest JPEG and returns
+        # to the socket; one pump task decodes whatever is current.
+        state = _FramePump()
+        pump_task: asyncio.Task | None = None
+
+        async def _pump() -> None:
+            try:
+                while True:
+                    data = state.take()
+                    if data is None:
+                        return
+                    bgr = await loop.run_in_executor(None, _decode_jpeg, data)
+                    if bgr is None:
+                        continue
+
+                    h, w = bgr.shape[:2]
+                    if w != self._width or h != self._height:
+                        self._width, self._height = w, h
+                        GLib.idle_add(self.emit, "connected", w, h)
+                        GLib.idle_add(self.emit, "status-changed", "connected")
+
+                    cb = self._frame_callback
+                    if cb:
+                        cb(bgr)
+                    self._last_frame_time = time.monotonic()
+            finally:
+                state.finish()
 
         try:
             async for msg in ws:
@@ -1051,23 +1129,8 @@ class PhoneCameraServer(GObject.Object):
                         self._push_audio_data(bytes(data[1:]))
                         continue
 
-                    # Video frame: decode JPEG in thread pool
-                    bgr = await loop.run_in_executor(None, _decode_jpeg, bytes(data))
-                    if bgr is None:
-                        continue
-
-                    h, w = bgr.shape[:2]
-
-                    if first_frame or (w != self._width or h != self._height):
-                        self._width, self._height = w, h
-                        GLib.idle_add(self.emit, "connected", w, h)
-                        GLib.idle_add(self.emit, "status-changed", "connected")
-                        first_frame = False
-
-                    cb = self._frame_callback
-                    if cb:
-                        cb(bgr)
-                    self._last_frame_time = time.monotonic()
+                    if state.offer(bytes(data)):
+                        pump_task = loop.create_task(_pump())
 
                 elif msg.type in (
                     web.WSMsgType.ERROR,
@@ -1075,6 +1138,18 @@ class PhoneCameraServer(GObject.Object):
                 ):
                     break
         finally:
+            # Let a decode already in flight finish, so the frames the peer
+            # did send are not thrown away at teardown.
+            if pump_task is not None and not pump_task.done():
+                try:
+                    await asyncio.wait_for(asyncio.shield(pump_task), timeout=2.0)
+                except (TimeoutError, asyncio.CancelledError):
+                    pump_task.cancel()
+            if state.superseded:
+                log.debug(
+                    "Phone camera: skipped %d superseded frame(s)",
+                    state.superseded,
+                )
             self._ws_clients.discard(ws)
             self._width = self._height = 0
             self.stop_audio_soon()
