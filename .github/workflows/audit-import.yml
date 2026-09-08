@@ -1,0 +1,66 @@
+name: Import verified audit changes
+on:
+  push:
+    branches: [fix/audit-hardening-20260907]
+    paths: [.github/audit-transfer/**]
+permissions:
+  contents: read
+jobs:
+  import:
+    if: github.repository == 'biglinux/bigcam' && github.ref == 'refs/heads/fix/audit-hardening-20260907'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 2
+      - name: Apply hash-pinned data only; never execute project code
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = e93e6d7290c9cf830e4714695848b39d2697e082
+          python3 -I - <<'PY'
+          import hashlib, json, lzma, pathlib, shutil, subprocess
+          root = pathlib.Path.cwd()
+          base = 'e93e6d7290c9cf830e4714695848b39d2697e082'
+          chunks = root / '.github/audit-transfer'
+          data = b''.join((chunks / f'{i:02d}.bin').read_bytes() for i in range(8))
+          assert hashlib.sha256(data).hexdigest() == '18d2359d5774344a20e167239e5498b03d7738867f41bc75833b89f0ad4ff37c', 'Edit plan integrity failed'
+          decoded = lzma.decompress(data, memlimit=64 * 1024 * 1024)
+          assert len(decoded) == 230349
+          plan = json.loads(decoded)
+          for name, entry in plan.items():
+              rel = pathlib.PurePosixPath(name)
+              assert not rel.is_absolute() and '..' not in rel.parts and '.git' not in rel.parts
+              assert rel.parts[0] in ('usr', 'etc', 'pkgbuild', 'tests', '.github')
+              if name.startswith('.github/workflows/'):
+                  continue  # Workflows are reviewed and written through the connector separately.
+              path = root / rel
+              for parent in (path, *path.parents):
+                  assert not parent.is_symlink(), f'Refusing symlink: {parent}'
+                  if parent == root:
+                      break
+              if entry is None:
+                  path.unlink(missing_ok=True)
+                  continue
+              assert entry['mode'] in (420, 493)
+              old = subprocess.run(['git', 'show', f'{base}:{name}'], capture_output=True)
+              lines = old.stdout.decode('utf-8').splitlines(keepends=True) if old.returncode == 0 else []
+              edits = entry['edits']
+              previous = -1
+              for first, last, text in edits:
+                  assert isinstance(text, str) and 0 <= first <= last <= len(lines) and first >= previous
+                  previous = last
+              for first, last, text in reversed(edits):
+                  lines[first:last] = text.splitlines(keepends=True)
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(''.join(lines), encoding='utf-8')
+              path.chmod(entry['mode'])
+          shutil.rmtree(chunks)
+          PY
+          test -z "$(git diff --name-only -- .github/workflows)"
+          git add -A -- usr etc pkgbuild tests .github/audit-transfer
+          git -c core.hooksPath=/dev/null -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix: harden camera and media lifecycle with audit regression tests'
+          git -c core.hooksPath=/dev/null push origin HEAD:refs/heads/fix/audit-hardening-20260907
