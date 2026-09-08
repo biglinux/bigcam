@@ -129,10 +129,6 @@ def test_certificate_is_private_short_lived_and_reused(tmp_path):
     cert,key,digest=ensure_certificate(tmp_path/"tls")
     x=x509.load_pem_x509_certificate(Path(cert).read_bytes())
     assert isinstance(x.public_key(),ec.EllipticCurvePublicKey)
-    if hasattr(x, "not_valid_after_utc"):
-        lifetime = x.not_valid_after_utc - x.not_valid_before_utc
-    else:
-        lifetime = x.not_valid_after - x.not_valid_before
-    assert lifetime.days <= 14
+    assert (x.not_valid_after_utc-x.not_valid_before_utc).days<=14
     assert Path(key).stat().st_mode&0o777==0o600
     assert ensure_certificate(tmp_path/"tls")== (cert,key,digest)
