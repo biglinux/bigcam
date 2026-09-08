@@ -45,6 +45,7 @@ class EffectsPage(Gtk.ScrolledWindow):
             hscrollbar_policy=Gtk.PolicyType.NEVER,
             vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
         )
+        self._closed = False
         self._pipeline = effect_pipeline
         self._debounce_sources: dict[str, int] = {}
         self._effect_widgets: dict[str, dict[str, Any]] = {}
@@ -128,12 +129,13 @@ class EffectsPage(Gtk.ScrolledWindow):
             # Add switch as suffix (independent of expansion)
             switch = Gtk.Switch()
             switch.set_active(effect.enabled)
+            switch.update_property([Gtk.AccessibleProperty.LABEL], [effect.name])
             switch.set_valign(Gtk.Align.CENTER)
             switch.connect("notify::active", self._on_switch_toggle, effect)
             expander.add_suffix(switch)
             self._effect_widgets[effect.effect_id] = {"switch": switch, "params": {}}
             # Replace internal arrow icon
-            self._replace_arrow_icon(expander, "pan-up-symbolic")
+            # Keep libadwaita's native RTL- and state-aware disclosure indicator.
             for param in effect.params:
                 param_row = self._make_param_row(effect, param)
                 expander.add_row(param_row)
@@ -178,7 +180,8 @@ class EffectsPage(Gtk.ScrolledWindow):
             draw_value=True,
             value_pos=Gtk.PositionType.LEFT,
         )
-        scale.set_size_request(180, -1)
+        scale.set_size_request(120, -1)
+        scale.update_property([Gtk.AccessibleProperty.LABEL], [param.label])
 
         # Set digits based on step
         if param.step >= 1:
@@ -228,6 +231,8 @@ class EffectsPage(Gtk.ScrolledWindow):
     def _on_param_changed(
         self, adj: Gtk.Adjustment, effect: EffectInfo, param: EffectParam
     ) -> None:
+        if self._resetting or self._closed:
+            return
         key = f"{effect.effect_id}_{param.name}"
         if key in self._debounce_sources:
             GLib.source_remove(self._debounce_sources[key])
@@ -302,6 +307,19 @@ class EffectsPage(Gtk.ScrolledWindow):
             next_c = child.get_next_sibling()
             self._content.remove(child)
             child = next_c
+        for timer in self._debounce_sources.values():
+            GLib.source_remove(timer)
         self._debounce_sources.clear()
         self._effect_widgets.clear()
         self._build_ui()
+
+    def cleanup(self):
+        self._closed = True
+        for timer in getattr(self, "_debounce_sources", {}).values():
+            GLib.source_remove(timer)
+        getattr(self, "_debounce_sources", {}).clear()
+        for name in ("_qr_timer_id",):
+            timer = getattr(self, name, None)
+            if timer:
+                GLib.source_remove(timer)
+                setattr(self, name, None)

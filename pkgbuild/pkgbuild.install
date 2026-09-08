@@ -1,30 +1,30 @@
-## arg 1:  the new package version
-#pre_install() {
-	# do something here
-#}
+pre_upgrade() {
+    # New helper is not installed yet: match only the eight old shipped rules.
+    local policy=/etc/sudoers.d/bigcam
+    [[ -f $policy && ! -L $policy ]] || return 0
+    local tmp
+    tmp=$(mktemp /etc/sudoers.d/.bigcam-upgrade.XXXXXX) || return 1
+    awk '!/^%wheel ALL=\(root\) NOPASSWD: \/usr\/(sbin|bin)\/(modprobe v4l2loopback \*|modprobe -r v4l2loopback|v4l2loopback-ctl (add|delete) \*)$/' "$policy" > "$tmp"
+    chmod 0440 "$tmp"
+    if ! cmp -s "$policy" "$tmp"; then
+        if visudo -cf "$tmp"; then
+            install -d -m 0700 /var/lib/bigcam/policy-backups
+            install -m 0600 "$policy" "/var/lib/bigcam/policy-backups/sudoers-$(date +%s)-$$"
+            mv -f "$tmp" "$policy"
+        else
+            echo 'ERROR: legacy BigCam sudoers migration failed; remove the unsafe rules manually.' >&2
+            rm -f "$tmp"
+            return 1
+        fi
+    else
+        rm -f "$tmp"
+    fi
+}
 
-## arg 1:  the new package version
-#post_install() {
-    # do something here
-#}
+post_install() {
+    /usr/bin/python3 -I /usr/share/biglinux/bigcam/script/migrate-legacy-policy.py
+}
 
-## arg 2:  the old package version
-#pre_upgrade() {
-	# do something here
-#}
-
-## arg 2:  the old package version
-#post_upgrade() {
-	#post_install
-#}
-
-## arg 1:  the old package version
-#pre_remove() {
-	# do something here
-#}
-
-## arg 1:  the old package version
-#post_remove() {
-	# do something here
-#}
- 
+post_upgrade() {
+    post_install
+}

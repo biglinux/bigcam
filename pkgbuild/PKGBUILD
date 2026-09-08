@@ -9,15 +9,16 @@ depends=(
     'python-gobject'
     'python-opencv'
     'python-numpy'
+    'python-pillow'
     'python-aiohttp'
     'python-qrcode'
 
     # GTK4 / UI
-    'gtk4'
-    'libadwaita'
+    'gtk4>=4.12'
+    'libadwaita>=1.5'
 
     # GStreamer core + plugins
-    'gstreamer'
+    'gstreamer>=1.20'
     'gst-plugins-base'
     'gst-plugins-good'
     'gst-plugins-bad'
@@ -29,7 +30,6 @@ depends=(
     # Camera backends & virtual camera
     'v4l-utils'
     'v4l2loopback-dkms'
-    'linux-headers'
     'gphoto2'
     'libcamera'
     'libcamera-tools'
@@ -59,12 +59,13 @@ depends=(
     'psmisc'
     'usbutils'
 )
-pkgver=$(date +%y.%m.%d)
-pkgrel=$(date +%H%M)
+pkgver=4.5.0
+pkgrel=2
 arch=('any')
 license=('GPL3')
 url="https://github.com/biglinux/$pkgname"
-backup=('etc/sudoers.d/bigcam' 'etc/modprobe.d/v4l2loopback.conf')
+backup=('etc/modprobe.d/v4l2loopback.conf')
+makedepends=('git' 'gettext')
 provides=("$pkgname")
 source=("git+${url}.git")
 sha256sums=('SKIP')

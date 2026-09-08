@@ -9,6 +9,7 @@ import shutil
 import subprocess
 from utils.command_runner import SecureCommandRunner
 import threading
+import uuid
 
 
 log = logging.getLogger(__name__)
@@ -17,52 +18,30 @@ _V4L2LOOPBACK_CTL = shutil.which("v4l2loopback-ctl") or "/usr/sbin/v4l2loopback-
 
 
 def _run_privileged(action: str) -> bool:
-    """Run modprobe via passwordless sudo (sudoers.d/bigcam)."""
-    cmd = _modprobe_args(action)
-    result = SecureCommandRunner.run_safe(
-        ["sudo", "-n", *cmd],
-        capture_output=True,
-        timeout=15,
-    )
-    if result.returncode != 0:
-        log.error(
-            "sudo -n modprobe failed (rc=%d): %s",
-            result.returncode,
-            result.stderr.strip(),
+    if action != "load":
+        log.warning("Refusing to unload a potentially shared kernel module")
+        return False
+    return _helper("load").returncode == 0
+
+
+def _helper(*args: str) -> subprocess.CompletedProcess:
+    """Run only the installed fixed-operation helper, never a user script."""
+    try:
+        return SecureCommandRunner.run_safe(
+            ["pkexec", "/usr/lib/bigcam/virtual-camera-helper", *args],
+            capture_output=True, text=True, timeout=120,
         )
-    return result.returncode == 0
-
-
-def _modprobe_args(action: str) -> list[str]:
-    """Return the modprobe argument list for the given action."""
-    _modprobe = shutil.which("modprobe") or "/usr/bin/modprobe"
-    if action == "unload":
-        return [_modprobe, "-r", "v4l2loopback"]
-    # Load module with no initial devices — devices are created dynamically
-    # via v4l2loopback-ctl add. Fall back to fixed devices if ctl unavailable.
-    if os.path.isfile(_V4L2LOOPBACK_CTL):
-        return [_modprobe, "v4l2loopback", "devices=0"]
-    max_devs = VirtualCamera.get_max_devices()
-    devices_str = ",".join(str(20 + i) for i in range(max_devs))
-    exclusive_caps_str = ",".join(["1"] * max_devs)
-    labels_str = ",".join([f"BigCam Virtual {i+1}" for i in range(max_devs)])
-    return [
-        _modprobe,
-        "v4l2loopback",
-        f"devices={max_devs}",
-        f"exclusive_caps={exclusive_caps_str}",
-        "max_buffers=8",
-        f"video_nr={devices_str}",
-        f"card_label={labels_str}",
-    ]
+    except (OSError, subprocess.SubprocessError) as exc:
+        log.error("Virtual camera authorization failed: %s", exc)
+        return subprocess.CompletedProcess(args, 1, "", str(exc))
 
 
 class VirtualCamera:
     """Manage v4l2loopback virtual camera output.
 
     Supports multiple simultaneous virtual cameras — one per physical camera.
-    Devices are created dynamically via v4l2loopback-ctl when available,
-    falling back to a fixed pool of 4 devices otherwise.
+    Devices are created by the authorized helper and owned by this session.
+    Existing devices belonging to other applications are never taken over.
     """
 
     _loopback_device: str = ""
@@ -81,6 +60,7 @@ class VirtualCamera:
     _next_vcam_number: int = 1
     _labels_synced: bool = False
     _alloc_lock = threading.RLock()
+    _session_id = uuid.uuid4().hex
 
     @staticmethod
     def is_available() -> bool:
@@ -95,10 +75,7 @@ class VirtualCamera:
 
     @classmethod
     def _is_dynamic_supported(cls) -> bool:
-        """Check if v4l2loopback-ctl is available for dynamic device management."""
-        if cls._dynamic_supported is None:
-            cls._dynamic_supported = os.path.isfile(_V4L2LOOPBACK_CTL)
-        return cls._dynamic_supported
+        return os.path.isfile(_V4L2LOOPBACK_CTL) and os.path.isfile("/usr/lib/bigcam/virtual-camera-helper")
 
     @staticmethod
     def find_all_loopback_devices() -> list[str]:
@@ -181,130 +158,58 @@ class VirtualCamera:
 
     @classmethod
     def find_free_loopback_device(cls) -> str:
-        """Return a v4l2loopback device not currently allocated to any camera."""
+        """Reuse only idle devices created by this process; labels are not ownership."""
         with cls._alloc_lock:
             allocated = set(cls._allocations.values())
-        devices = cls.find_all_loopback_devices()
-        if not cls._is_dynamic_supported():
-            # If no v4l2loopback-ctl, search in the allocated pool range
-            for i in range(cls._max_devices):
-                dev = f"/dev/video{20 + i}"
-                if dev not in allocated and os.path.exists(dev):
-                    return dev
-        for dev in devices:
-            if dev not in allocated:
-                return dev
-        return ""
+            return next((dev for dev in sorted(cls._dynamic_devices)
+                         if dev not in allocated and os.path.exists(dev)), "")
 
     @classmethod
     def _add_dynamic_device(cls, label: str) -> str:
-        """Dynamically create a v4l2loopback device via v4l2loopback-ctl.
-
-        Devices start at /dev/video20 to avoid conflicts with physical cameras.
-        """
-        # Find the next available high device number (20+)
-        dev_num = 20
-        with cls._alloc_lock:
-            used_nums = set()
-            for dev in list(cls._allocations.values()) + list(cls._dynamic_devices):
-                try:
-                    used_nums.add(int(dev.replace("/dev/video", "")))
-                except (ValueError, AttributeError):
-                    pass
-        while dev_num in used_nums or os.path.exists(f"/dev/video{dev_num}"):
-            dev_num += 1
-        try:
-            result = SecureCommandRunner.run_safe(
-                ["sudo", "-n", _V4L2LOOPBACK_CTL, "add",
-                 "-n", label, "-x", "1", "-b", "8",
-                 f"/dev/video{dev_num}"],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
-            if result.returncode == 0:
-                dev = result.stdout.strip()
-                if dev.startswith("/dev/video"):
-                    with cls._alloc_lock:
-                        cls._dynamic_devices.add(dev)
-                    log.info("Dynamically created v4l2loopback: %s (%s)", dev, label)
-                    return dev
-            log.warning(
-                "v4l2loopback-ctl add failed (rc=%d): %s",
-                result.returncode,
-                result.stderr.strip(),
-            )
-        except Exception:
-            log.error("Failed to run v4l2loopback-ctl add", exc_info=True)
+        safe_label = "".join(c if c.isalnum() or c in " ._-" else "_" for c in label)
+        safe_label = safe_label.encode("utf-8")[:31].decode("utf-8", "ignore") or "BigCam"
+        result = _helper("create", cls._session_id, safe_label)
+        device = result.stdout.strip()
+        if result.returncode == 0 and re.fullmatch(r"/dev/video[0-9]{1,3}", device):
+            with cls._alloc_lock:
+                cls._dynamic_devices.add(device)
+            return device
+        log.warning("Could not create an owned virtual camera: %s", result.stderr.strip())
         return ""
 
     @classmethod
     def _delete_dynamic_device(cls, dev: str) -> bool:
-        """Delete a dynamically created v4l2loopback device."""
-        try:
-            result = SecureCommandRunner.run_safe(
-                ["sudo", "-n", _V4L2LOOPBACK_CTL, "delete", dev],
-                capture_output=True,
-                text=True,
-                timeout=15,
-            )
+        with cls._alloc_lock:
+            if dev not in cls._dynamic_devices or dev in cls._allocations.values():
+                return False
+            result = _helper("delete", cls._session_id, dev)
             if result.returncode == 0:
-                with cls._alloc_lock:
-                    cls._dynamic_devices.discard(dev)
-                log.info("Deleted v4l2loopback device: %s", dev)
+                cls._dynamic_devices.discard(dev)
                 return True
-            log.warning("v4l2loopback-ctl delete failed for %s: %s",
-                        dev, result.stderr.strip())
-        except Exception:
-            log.error("Failed to delete v4l2loopback device %s", dev, exc_info=True)
+        log.warning("Keeping virtual camera after unsuccessful cleanup: %s", dev)
         return False
 
     @classmethod
     def allocate_device(cls, camera_id: str) -> str:
-        """Allocate a v4l2loopback device for a camera. Returns device path."""
+        """Allocate a device created by this session, never an unregistered loopback."""
         with cls._alloc_lock:
-            # Already allocated?
             if camera_id in cls._allocations:
                 return cls._allocations[camera_id]
-            # Check max devices limit
             if len(cls._allocations) >= cls._max_devices:
-                log.warning("Max virtual cameras (%d) reached, cannot allocate for %s",
-                            cls._max_devices, camera_id)
+                from gi.repository import GLib
                 from core.event_bus import event_bus
-                event_bus.emit("vcam-limit-reached", cls._max_devices)
+                GLib.idle_add(event_bus.emit, "vcam-limit-reached", cls._max_devices)
                 return ""
-            device = ""
-            if cls._is_dynamic_supported():
-                # Prefer a free device whose label matches the template
-                dev_labels = cls._get_device_labels()
-                tpl_pat = re.compile(
-                    re.escape(cls._name_template) + r"\s+\d+$"
-                )
-                allocated = set(cls._allocations.values())
-                for dev in cls.find_all_loopback_devices():
-                    if dev not in allocated:
-                        lbl = dev_labels.get(dev, "")
-                        if lbl and tpl_pat.match(lbl):
-                            device = dev
-                            break
-                if not device:
-                    # No matching free device — create a dynamic one
-                    existing = cls._get_existing_labels()
-                    n = 1
-                    while f"{cls._name_template} {n}" in existing:
-                        n += 1
-                    label = f"{cls._name_template} {n}"
-                    device = cls._add_dynamic_device(label)
-            else:
-                # Fallback: use any free loopback device (no dynamic support)
-                device = cls.find_free_loopback_device()
+            if not cls._is_dynamic_supported():
+                log.warning("Install the BigCam Polkit helper and v4l2loopback-ctl to create virtual cameras")
+                return ""
+            device = cls.find_free_loopback_device()
+            if not device:
+                device = cls._add_dynamic_device(f"{cls._name_template} {cls._next_vcam_number}")
+                if device:
+                    cls._next_vcam_number += 1
             if device:
                 cls._allocations[camera_id] = device
-                log.info("Allocated %s for camera %s", device, camera_id)
-            else:
-                from core.event_bus import event_bus
-                actual_limit = min(len(cls._allocations), cls._max_devices)
-                event_bus.emit("vcam-limit-reached", actual_limit)
             return device
 
     @classmethod
@@ -323,30 +228,11 @@ class VirtualCamera:
 
     @classmethod
     def cleanup_dynamic_devices(cls) -> None:
-        """Delete all dynamically created v4l2loopback devices.
-
-        Also removes stale devices from previous sessions that are no
-        longer tracked by the app (prevents device accumulation).
-        """
+        """Delete only released devices created by this session; retain failures."""
         with cls._alloc_lock:
-            tracked = list(cls._dynamic_devices)
-            cls._allocations.clear()
-        deleted = 0
-        for dev in tracked:
-            if cls._delete_dynamic_device(dev):
-                deleted += 1
-        # Clean up stale v4l2loopback devices not tracked in this session
-        if cls._is_dynamic_supported():
-            all_loopback = cls.find_all_loopback_devices()
-            stale = [d for d in all_loopback if d not in tracked]
-            for dev in stale:
-                if cls._delete_dynamic_device(dev):
-                    deleted += 1
-        with cls._alloc_lock:
-            cls._dynamic_devices.clear()
-            cls._next_vcam_number = 1
-            cls._labels_synced = False
-        log.info("Cleaned up %d v4l2loopback devices", deleted)
+            idle = cls._dynamic_devices - set(cls._allocations.values())
+        for device in sorted(idle):
+            cls._delete_dynamic_device(device)
 
     @classmethod
     def reset_all_allocations(cls) -> None:
@@ -361,21 +247,16 @@ class VirtualCamera:
     def load_module(cls, card_label: str | None = None) -> bool:
         """Load v4l2loopback kernel module.
 
-        When v4l2loopback-ctl is available, loads with devices=0 and
-        creates devices dynamically. Otherwise falls back to 4 fixed devices.
+        The helper uses fixed options and never unloads a shared module.
         """
         return _run_privileged("load")
 
     @classmethod
     def start(cls, gst_pipeline: str) -> bool:
         """Start writing to the loopback device."""
-        device = cls.find_loopback_device()
+        device = cls.ensure_ready(camera_id="legacy-pipeline")
         if not device:
-            if not cls.load_module():
-                return False
-            device = cls.find_loopback_device()
-            if not device:
-                return False
+            return False
         cls._loopback_device = device
 
         try:
@@ -471,14 +352,12 @@ class VirtualCamera:
         # Module is loaded — allocate a device (creates dynamically if needed)
         if camera_id:
             return cls.allocate_device(camera_id)
-        device = cls.find_loopback_device()
-        return device
+        return cls.allocate_device("default")
 
     @staticmethod
     def _reload_module() -> bool:
-        """Unload and reload v4l2loopback with correct parameters."""
-        _run_privileged("unload")
-        return _run_privileged("load")
+        log.warning("Reload requires explicit administrator action; shared devices are not interrupted")
+        return False
 
 
 def _is_module_loaded() -> bool:

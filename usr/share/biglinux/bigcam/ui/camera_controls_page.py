@@ -17,6 +17,8 @@ from core.camera_backend import CameraControl, CameraInfo
 from core.camera_manager import CameraManager
 from core import camera_profiles
 from utils.i18n import _
+from utils.async_worker import run_async
+from utils.latest_commands import LatestCommands
 
 _CATEGORY_LABELS = {
     ControlCategory.IMAGE: _("Image"),
@@ -55,13 +57,17 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         self._ctrl_widgets: dict[str, tuple[str, Any]] = {}
         self._ctrl_rows: dict[str, Gtk.Widget] = {}
         self._resetting = False
+        self._closed = False
+        self._generation = 0
+        self._commands = LatestCommands()
+        self._fetch_task = None
 
         # Auto-controls that disable their dependent manual controls.
         # Key = auto control ID, value = (dependent IDs, disable-when values).
         self._DEPENDENCIES: dict[str, tuple[list[str], set[int]]] = {
             "auto_exposure": (
                 ["exposure_time_absolute", "exposure_absolute"],
-                {3},  # 3 = Aperture Priority → disable manual exposure
+                {0, 3},  # Auto / aperture priority: manual shutter is inactive.
             ),
             "white_balance_automatic": (
                 ["white_balance_temperature"],
@@ -101,12 +107,20 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         controls: list[CameraControl],
     ) -> None:
         """Set camera and display pre-fetched controls (avoids USB conflict)."""
+        self._generation += 1
+        self._commands.invalidate()
+        if self._fetch_task:
+            self._fetch_task.cancel()
         self._camera = camera
         self._controls = controls
         self._clear_content()
         self._populate(controls)
 
     def set_camera(self, camera: CameraInfo | None) -> None:
+        self._generation += 1
+        self._commands.invalidate()
+        if self._fetch_task:
+            self._fetch_task.cancel()
         self._camera = camera
         self._clear_content()
         if camera is None:
@@ -125,22 +139,20 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         spinner_box.append(Gtk.Label(label=_("Loading controls…")))
         self._content.append(spinner_box)
 
-        def fetch_controls() -> list[CameraControl]:
-            return self._manager.get_controls(camera)
-
-        def on_controls(controls: list[CameraControl]) -> None:
-            # Ensure we're still on the same camera
-            if self._camera is not camera:
+        generation = self._generation
+        def done(controls):
+            if self._closed or generation != self._generation:
                 return
             self._controls = controls
             self._clear_content()
             self._populate(controls)
-
-        def _bg_fetch():
-            ctrls = fetch_controls()
-            GLib.idle_add(on_controls, ctrls)
-
-        threading.Thread(target=_bg_fetch, daemon=True).start()
+        def failed(exc):
+            if not self._closed and generation == self._generation:
+                self._clear_content()
+                self._content.append(Adw.StatusPage(title=_("Could not load camera controls"),
+                                                   description=_("Check the connection and try again.")))
+        self._fetch_task = run_async(lambda: self._manager.get_controls(camera),
+                                     on_success=done, on_error=failed)
 
     def _clear_content(self) -> None:
         child = self._content.get_first_child()
@@ -148,6 +160,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             next_child = child.get_next_sibling()
             self._content.remove(child)
             child = next_child
+        for timer in self._debounce_sources.values():
+            GLib.source_remove(timer)
         self._debounce_sources.clear()
         self._ctrl_widgets.clear()
         self._ctrl_rows.clear()
@@ -253,8 +267,8 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             row.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
             adj = Gtk.Adjustment(
                 value=float(ctrl.value or 0),
-                lower=float(ctrl.minimum or 0),
-                upper=float(ctrl.maximum or 100),
+                lower=float(ctrl.minimum if ctrl.minimum is not None else 0),
+                upper=float(ctrl.maximum if ctrl.maximum is not None else 100),
                 step_increment=float(ctrl.step or 1),
             )
             scale = Gtk.Scale(
@@ -264,20 +278,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
                 draw_value=False,
             )
             scale.set_size_request(140, -1)
-            scale.update_property(
-                [
-                    Gtk.AccessibleProperty.LABEL,
-                    Gtk.AccessibleProperty.VALUE_NOW,
-                    Gtk.AccessibleProperty.VALUE_MIN,
-                    Gtk.AccessibleProperty.VALUE_MAX,
-                ],
-                [
-                    ctrl.name,
-                    float(adj.get_value()),
-                    float(adj.get_lower()),
-                    float(adj.get_upper()),
-                ],
-            )
+            scale.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
             spin = Gtk.SpinButton(
                 adjustment=adj,
                 climb_rate=1.0,
@@ -311,6 +312,7 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             else:
                 row = Adw.EntryRow(title=ctrl.name)
                 row.set_text(str(ctrl.value or ""))
+                row.set_show_apply_button(True)
                 row.connect("apply", self._on_entry_apply, ctrl)
             row.update_property([Gtk.AccessibleProperty.LABEL], [ctrl.name])
             row.set_sensitive(True)
@@ -384,41 +386,29 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         for name in self._profile_names:
             self._profile_model.append(name)
 
-    def _on_profile_selected(self, row: Adw.ComboRow, _pspec: Any) -> None:
-        if self._resetting or not self._camera:
+    def _on_profile_selected(self, row, _pspec):
+        if self._resetting or not self._camera or self._closed:
             return
-        idx = row.get_selected()
-        if idx == Gtk.INVALID_LIST_POSITION or idx >= len(self._profile_names):
+        index = row.get_selected()
+        if index >= len(self._profile_names):
             return
-        name = self._profile_names[idx]
-        values = camera_profiles.load_profile(self._camera, name)
-        if not values:
-            return
-        self._resetting = True
-        for ctrl in self._controls:
-            if ctrl.id in values:
-                val = values[ctrl.id]
-                ctrl.value = val
-                entry = self._ctrl_widgets.get(ctrl.id)
-                if entry:
-                    kind, widget = entry
-                    if kind == "bool":
-                        widget.set_active(bool(val))
-                    elif kind == "menu" and isinstance(val, int) and ctrl.choice_values:
-                        try:
-                            widget.set_selected(ctrl.choice_values.index(val))
-                        except ValueError:
-                            pass
-                    elif kind == "int":
-                        widget.set_value(float(val))
-                threading.Thread(
-                    target=lambda c=ctrl, v=val: self._manager.set_control(
-                        self._camera, c.id, v
-                    ),
-                    daemon=True,
-                ).start()
-        self._resetting = False
-        self._update_all_dependencies(self._controls)
+        camera = self._camera
+        generation = self._generation
+        name = self._profile_names[index]
+        controls = {control.id: control for control in self._controls}
+        def apply_profile():
+            values = camera_profiles.load_profile(camera, name)
+            # Auto modes precede dependent manual values; never write unknown controls.
+            keys = sorted(values, key=lambda key: (key not in self._DEPENDENCIES, key))
+            for key in keys:
+                if self._closed or generation != self._generation:
+                    return
+                control = controls.get(key)
+                if control and "read-only" not in (control.flags or ""):
+                    if not self._manager.set_control(camera, key, values[key]):
+                        raise RuntimeError("A profile control was rejected")
+        run_async(apply_profile, on_success=lambda _result: self._reload_controls(),
+                  on_error=lambda exc: self._report_error(_("Some profile controls could not be applied.")))
 
     def _on_save_profile(self, _btn: Gtk.Button) -> None:
         if not self._camera:
@@ -446,7 +436,13 @@ class CameraControlsPage(Gtk.ScrolledWindow):
             name = entry.get_text().strip()
             if not name:
                 return
-            camera_profiles.save_profile(self._camera, name, self._controls)
+            try:
+                saved_path = camera_profiles.save_profile(self._camera, name, self._controls)
+                import os
+                name = os.path.splitext(os.path.basename(saved_path))[0]
+            except (OSError, ValueError):
+                self._report_error(_("Could not save the profile. Check its name and folder permissions."))
+                return
             self._refresh_profile_list()
             if name in self._profile_names:
                 self._profile_row.set_selected(self._profile_names.index(name))
@@ -464,48 +460,14 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         camera_profiles.delete_profile(self._camera, name)
         self._refresh_profile_list()
 
-    def _on_hardware_reset(self, _btn: Gtk.Button) -> None:
-        """Reset all V4L2 controls to hardware default values."""
-        if not self._camera or not self._controls:
-            return
-        import threading
+    def _on_hardware_reset(self, _btn):
+        if self._camera:
+            self._on_reset(_btn, list(self._controls))
 
-        def _apply():
-            self._manager.reset_all_controls(self._camera, self._controls)
-            # Re-apply anti-flicker after reset (power_line_frequency defaults to 0)
-            self._manager.apply_anti_flicker(self._camera)
-            GLib.idle_add(self._reload_controls)
-
-        threading.Thread(target=_apply, daemon=True).start()
-
-    def _reload_controls(self) -> bool:
-        """Refresh UI with current control values from hardware."""
-        if not self._camera:
-            return False
-        controls = self._manager.get_controls(self._camera)
-        if controls is None:
-            return False
-        self._controls = controls
-        self._resetting = True
-        for ctrl in controls:
-            widget_info = self._ctrl_widgets.get(ctrl.id)
-            if not widget_info:
-                continue
-            wtype, widget = widget_info
-            if wtype == "int" and isinstance(widget, Gtk.Adjustment):
-                widget.set_value(float(ctrl.value or 0))
-            elif wtype == "bool" and isinstance(widget, Adw.SwitchRow):
-                widget.set_active(bool(ctrl.value))
-            elif wtype == "menu" and isinstance(widget, Adw.ComboRow):
-                if isinstance(ctrl.value, int) and ctrl.choice_values:
-                    try:
-                        sel = ctrl.choice_values.index(ctrl.value)
-                        widget.set_selected(sel)
-                    except ValueError:
-                        pass
-        self._update_all_dependencies(controls)
-        self._resetting = False
-        return False
+    def _reload_controls(self):
+        if not self._closed and self._camera:
+            self.set_camera(self._camera)
+        return GLib.SOURCE_REMOVE
 
     # -- control dependencies -------------------------------------------------
 
@@ -568,42 +530,32 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         self._apply(ctrl, int(adj.get_value()))
         return False
 
-    def _apply(self, ctrl: CameraControl, value: Any) -> None:
-        if self._camera:
-            # Run v4l2-ctl subprocess in background to avoid blocking UI
-            camera = self._camera
-            threading.Thread(
-                target=lambda: self._manager.set_control(camera, ctrl.id, value),
-                daemon=True,
-            ).start()
-            # Apply software zoom as fallback for cameras where V4L2 zoom is ineffective
-            if ctrl.id == "zoom_absolute" and self._engine is not None:
-                v4l_min = ctrl.minimum or 0
-                v4l_max = ctrl.maximum or 10
-                rng = max(v4l_max - v4l_min, 1)
-                level = 1.0 + (int(value) - v4l_min) / rng * 3.0  # 1x-4x
-                self._engine.set_zoom(level)
-            # Apply software sharpness as fallback
-            if ctrl.id == "sharpness" and self._engine is not None:
-                v4l_min = ctrl.minimum or 0
-                v4l_max = ctrl.maximum or 50
-                rng = max(v4l_max - v4l_min, 1)
-                level = (int(value) - v4l_min) / rng  # 0.0-1.0
-                self._engine.set_sharpness(level)
-            # Apply software pan as fallback
-            if ctrl.id == "pan_absolute" and self._engine is not None:
-                v4l_min = ctrl.minimum or -201600
-                v4l_max = ctrl.maximum or 201600
-                rng = max(v4l_max - v4l_min, 1)
-                level = ((int(value) - v4l_min) / rng) * 2.0 - 1.0  # -1.0 to 1.0
-                self._engine.set_pan(level)
-            # Apply software tilt as fallback
-            if ctrl.id == "tilt_absolute" and self._engine is not None:
-                v4l_min = ctrl.minimum or -201600
-                v4l_max = ctrl.maximum or 201600
-                rng = max(v4l_max - v4l_min, 1)
-                level = ((int(value) - v4l_min) / rng) * 2.0 - 1.0  # -1.0 to 1.0
-                self._engine.set_tilt(level)
+    def _apply(self, ctrl, value):
+        camera = self._camera
+        generation = self._generation
+        if self._closed or camera is None or "read-only" in (ctrl.flags or ""):
+            return
+        def apply():
+            if not self._manager.set_control(camera, ctrl.id, value):
+                raise RuntimeError("Camera rejected the control")
+            return value
+        def done(confirmed):
+            if not self._closed and generation == self._generation:
+                ctrl.value = confirmed
+                if ctrl.id in self._DEPENDENCIES:
+                    self._reload_controls()
+        def failed(exc):
+            if not self._closed and generation == self._generation:
+                self._report_error(_("The camera could not apply this setting."))
+        self._commands.submit(ctrl.id, apply, done, failed)
+
+
+    def _report_error(self, message):
+        if self._closed:
+            return
+        root = self.get_root()
+        if root and hasattr(root, "_show_notification"):
+            root._show_notification(message, "error", 0)
 
     def _on_entry_apply(self, row: Adw.EntryRow, ctrl: CameraControl) -> None:
         self._apply(ctrl, row.get_text())
@@ -623,37 +575,35 @@ class CameraControlsPage(Gtk.ScrolledWindow):
         btn.connect("clicked", self._on_reset, ctrls)
         return btn
 
-    def _on_reset(self, _btn: Gtk.Button, ctrls: list[CameraControl]) -> None:
-        if self._camera:
-            self._resetting = True
-            self._manager.reset_all_controls(self._camera, ctrls)
-            # Re-apply anti-flicker after reset (power_line_frequency defaults to 0)
-            self._manager.apply_anti_flicker(self._camera)
-            for ctrl in ctrls:
-                ctrl.value = ctrl.default
-                entry = self._ctrl_widgets.get(ctrl.id)
-                if not entry:
-                    continue
-                kind, widget = entry
-                if kind == "bool":
-                    widget.set_active(bool(ctrl.default))
-                elif kind == "menu":
-                    if isinstance(ctrl.default, int) and ctrl.choices:
-                        idx = ctrl.default - (ctrl.minimum or 0)
-                        if 0 <= idx < len(ctrl.choices):
-                            widget.set_selected(idx)
-                elif kind == "int":
-                    widget.set_value(float(ctrl.default or 0))
-                # Reset software zoom if zoom control is reset
-                if ctrl.id == "zoom_absolute" and self._engine is not None:
-                    self._engine.set_zoom(1.0)
-                # Reset software sharpness if sharpness control is reset
-                if ctrl.id == "sharpness" and self._engine is not None:
-                    self._engine.set_sharpness(0.0)
-                # Reset software pan if control is reset
-                if ctrl.id == "pan_absolute" and self._engine is not None:
-                    self._engine.set_pan(0.0)
-                # Reset software tilt if control is reset
-                if ctrl.id == "tilt_absolute" and self._engine is not None:
-                    self._engine.set_tilt(0.0)
-            self._resetting = False
+    def _on_reset(self, _btn, controls):
+        camera = self._camera
+        if not camera or self._closed:
+            return
+        generation = self._generation
+        self._commands.invalidate()
+        def reset():
+            self._manager.reset_all_controls(camera, controls)
+        def done(_result):
+            if not self._closed and generation == self._generation:
+                if self._engine:
+                    self._engine.set_zoom(1)
+                    self._engine.set_sharpness(0)
+                    self._engine.set_pan(0)
+                    self._engine.set_tilt(0)
+                self._reload_controls()
+        run_async(reset, on_success=done, on_error=lambda exc: self._report_error(_("Could not reset camera controls.")))
+
+    def cleanup(self):
+        self._closed = True
+        self._generation += 1
+        self._commands.invalidate()
+        if self._fetch_task:
+            self._fetch_task.cancel()
+        for timer in getattr(self, "_debounce_sources", {}).values():
+            GLib.source_remove(timer)
+        getattr(self, "_debounce_sources", {}).clear()
+        for name in ("_qr_timer_id",):
+            timer = getattr(self, name, None)
+            if timer:
+                GLib.source_remove(timer)
+                setattr(self, name, None)

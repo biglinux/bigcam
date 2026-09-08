@@ -1,0 +1,146 @@
+#!/usr/bin/python3 -I
+"""Polkit-authorized, fixed-operation loopback helper. Never accepts commands.
+
+Only devices recorded for the invoking UID and session can be removed. A root-
+owned ledger is kept in /run (lost on reboot along with the kernel devices).
+Unregistered loopbacks are deliberately never reused, removed or reconfigured.
+"""
+from __future__ import annotations
+
+from contextlib import contextmanager
+import fcntl
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import tempfile
+
+STATE = Path("/run/bigcam")
+SAFE_PATH = "/usr/sbin:/usr/bin:/sbin:/bin"
+SESSION = re.compile(r"[0-9a-f]{32}\Z")
+DEVICE = re.compile(r"/dev/video([0-9]{1,3})\Z")
+MAX_PER_USER = 8
+
+
+def validate(arguments: list[str]) -> tuple[str, str, str]:
+    if arguments == ["load"]:
+        return "load", "", ""
+    if len(arguments) != 3 or arguments[0] not in {"create", "delete"}:
+        raise ValueError("Usage: helper load | create SESSION LABEL | delete SESSION DEVICE")
+    action, session, value = arguments
+    if not SESSION.fullmatch(session):
+        raise ValueError("Invalid session identifier")
+    if action == "create":
+        if not value or len(value.encode("utf-8")) > 31 or any(not (c.isalnum() or c in " ._-") for c in value):
+            raise ValueError("Invalid device label (maximum 31 UTF-8 bytes)")
+    elif not DEVICE.fullmatch(value) or not 20 <= int(DEVICE.fullmatch(value)[1]) <= 255:
+        raise ValueError("Invalid device path")
+    return action, session, value
+
+
+def run(program: str, *arguments: str) -> subprocess.CompletedProcess:
+    binary = shutil.which(program, path=SAFE_PATH)
+    if binary is None:
+        raise RuntimeError(f"Required executable not found: {program}")
+    return subprocess.run([binary, *arguments], check=True, capture_output=True,
+                          text=True, timeout=20, env={"PATH": SAFE_PATH, "LC_ALL": "C"},
+                          stdin=subprocess.DEVNULL)
+
+
+@contextmanager
+def ledger():
+    STATE.mkdir(mode=0o700, exist_ok=True)
+    st = STATE.lstat()
+    if not stat.S_ISDIR(st.st_mode) or st.st_uid != 0 or st.st_mode & 0o077:
+        raise PermissionError("Unsafe loopback ledger directory")
+    fd = os.open(STATE / "lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        path = STATE / "devices.json"
+        if path.is_symlink():
+            raise PermissionError("Unsafe loopback ledger file")
+        data = json.loads(path.read_text()) if path.exists() else {}
+        if not isinstance(data, dict):
+            raise ValueError("Invalid loopback ledger")
+        yield data
+        temporary_fd, temporary = tempfile.mkstemp(dir=STATE, prefix=".ledger-")
+        try:
+            with os.fdopen(temporary_fd, "w", encoding="utf-8") as stream:
+                json.dump(data, stream, ensure_ascii=False)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+    finally:
+        os.close(fd)
+
+
+def load() -> None:
+    # No caller-controlled module, config path, environment or module options.
+    if not Path("/sys/module/v4l2loopback").exists():
+        run("modprobe", "--ignore-install", "--config", "/dev/null",
+            "v4l2loopback", "devices=0", "max_buffers=8")
+
+
+def current_label(device: str) -> str:
+    return (Path("/sys/class/video4linux") / Path(device).name / "name").read_text().strip()
+
+
+def perform(action: str, session: str, value: str, uid: int) -> str:
+    with ledger() as records:
+        if action == "load":
+            load()
+            return ""
+        # Expunge only records whose devices no longer exist. Never remove a
+        # kernel device merely because it is unregistered in this process.
+        for device in list(records):
+            if not Path(device).exists():
+                del records[device]
+        if action == "delete":
+            record = records.get(value)
+            if record is None or record.get("uid") != uid or record.get("session") != session:
+                raise PermissionError("Device is not owned by this caller/session")
+            if current_label(value) != record["label"]:
+                raise PermissionError("Device identity changed; refusing deletion")
+            run("v4l2loopback-ctl", "delete", value)
+            del records[value]
+            return ""
+        if sum(record.get("uid") == uid for record in records.values()) >= MAX_PER_USER:
+            raise RuntimeError("Per-user loopback quota reached; administrator cleanup may be required")
+        load()
+        for number in range(20, 256):
+            device = f"/dev/video{number}"
+            if Path(device).exists() or device in records:
+                continue
+            run("v4l2loopback-ctl", "add", "-n", value, "-x", "1", "-b", "8", device)
+            # Persist only the specific device successfully created by this call.
+            records[device] = {"uid": uid, "session": session, "label": value}
+            return device
+        raise RuntimeError("No free loopback device number")
+
+
+def main(argv: list[str] | None = None) -> int:
+    try:
+        action, session, value = validate(sys.argv[1:] if argv is None else argv)
+        if os.geteuid() != 0:
+            raise PermissionError("This helper must be authorized through Polkit")
+        caller = os.environ.get("PKEXEC_UID")
+        if caller is None or not caller.isascii() or not caller.isdigit():
+            raise PermissionError("Missing Polkit caller identity")
+        result = perform(action, session, value, int(caller))
+        if result:
+            print(result)
+        return 0
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
+        print(f"BigCam virtual camera: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

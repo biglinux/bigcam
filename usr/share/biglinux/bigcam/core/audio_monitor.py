@@ -642,3 +642,7 @@ class AudioMonitor(GObject.Object):
         self._stop_source(source)
         self._start_source(source)
         return GLib.SOURCE_REMOVE
+
+    @property
+    def capture_source_names(self):
+        return [name for name, _label in self._sources]

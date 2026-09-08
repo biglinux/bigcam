@@ -5,6 +5,8 @@ from __future__ import annotations
 import logging
 import os
 import subprocess
+from urllib.parse import urlsplit
+from utils.urls import camera_url, camera_url_id, public_camera_name, gst_quote
 from typing import Any
 
 from constants import BackendType
@@ -30,23 +32,19 @@ class IPBackend(CameraBackend):
         return []
 
     def cameras_from_urls(self, entries: list[dict[str, str]]) -> list[CameraInfo]:
-        """Build CameraInfo list from user-saved [{"name": ..., "url": ...}]."""
-        cameras: list[CameraInfo] = []
+        cameras = []
         for entry in entries:
-            url = entry.get("url", "")
-            name = entry.get("name", url)
-            if not url:
+            try:
+                url = camera_url(entry["url"])
+                name = entry.get("name") or public_camera_name(url)
+                # Legacy configurations commonly stored the credential-bearing URL as a name.
+                if name == entry["url"] or "://" in name:
+                    name = public_camera_name(url)
+            except (KeyError, TypeError, ValueError):
+                log.warning("Ignoring an invalid camera configuration")
                 continue
-            cameras.append(
-                CameraInfo(
-                    id=f"ip:{url}",
-                    name=name,
-                    backend=BackendType.IP,
-                    device_path=url,
-                    capabilities=["video"],
-                    extra={"url": url},
-                )
-            )
+            cameras.append(CameraInfo(id=camera_url_id(url), name=name, backend=BackendType.IP,
+                                      device_path=url, capabilities=["video"], extra={"url": url}))
         return cameras
 
     # -- controls (none for basic IP) ----------------------------------------
@@ -60,11 +58,10 @@ class IPBackend(CameraBackend):
     # -- gstreamer -----------------------------------------------------------
 
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
-        url = camera.extra.get("url", camera.device_path)
-        if url.startswith("rtsp://"):
-            return f'rtspsrc location="{url}" latency=300 ! decodebin ! videoconvert'
-        # HTTP / MJPEG stream
-        return f'souphttpsrc location="{url}" ! decodebin ! videoconvert'
+        url = camera_url(camera.extra.get("url", camera.device_path))
+        if urlsplit(url).scheme in {"rtsp", "rtsps"}:
+            return f"rtspsrc location={gst_quote(url)} latency=150 ! decodebin ! videoconvert"
+        return f"souphttpsrc location={gst_quote(url)} ! decodebin ! videoconvert"
 
     # -- photo ---------------------------------------------------------------
 
@@ -72,30 +69,15 @@ class IPBackend(CameraBackend):
         return True
 
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
-        """Snapshot via GStreamer one-frame pipeline."""
-        url = camera.extra.get("url", camera.device_path)
-        if url.startswith("rtsp://"):
-            src_args = ["rtspsrc", f"location={url}", "latency=300", "!", "decodebin"]
-        else:
-            src_args = ["souphttpsrc", f"location={url}", "!", "decodebin"]
+        """jpegenc snapshot sends EOS after the first frame; never timeout to finish."""
         try:
-            subprocess.run(
-                [
-                    "gst-launch-1.0",
-                    "-e",
-                    *src_args,
-                    "!",
-                    "videoconvert",
-                    "!",
-                    "jpegenc",
-                    "!",
-                    "filesink",
-                    f"location={output_path}",
-                ],
-                capture_output=True,
-                check=True,
-                timeout=15,
-            )
-            return os.path.isfile(output_path)
-        except Exception:
+            url = camera_url(camera.extra.get("url", camera.device_path))
+            source = "rtspsrc" if urlsplit(url).scheme in {"rtsp", "rtsps"} else "souphttpsrc"
+            subprocess.run(["gst-launch-1.0", "-e", source, f"location={gst_quote(url)}",
+                            "!", "decodebin", "!", "videoconvert", "!", "jpegenc", "snapshot=true",
+                            "!", "filesink", f"location={gst_quote(output_path)}"],
+                           capture_output=True, check=True, timeout=15)
+            return os.path.isfile(output_path) and os.path.getsize(output_path) > 0
+        except (OSError, ValueError, subprocess.SubprocessError):
+            log.warning("Network snapshot failed")
             return False

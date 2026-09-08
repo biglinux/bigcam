@@ -89,5 +89,5 @@ class CameraBackend(ABC):
     ) -> None:
         """Reset every control to its default value."""
         for ctrl in controls:
-            if ctrl.flags not in ("inactive", "read-only"):
+            if not any(flag in (ctrl.flags or "") for flag in ("inactive", "read-only")):
                 self.set_control(camera, ctrl.id, ctrl.default)

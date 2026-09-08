@@ -125,7 +125,7 @@ def _apply_brightness(frame: np.ndarray, params: dict[str, float]) -> np.ndarray
         return frame
     alpha = 1.0 + contrast / 100.0
     beta = brightness
-    return cv2.convertScaleAbs(frame, alpha=alpha, beta=beta)
+    return cv2.addWeighted(frame, alpha, frame, 0.0, beta)
 
 
 def _apply_sharpen(frame: np.ndarray, params: dict[str, float]) -> np.ndarray:

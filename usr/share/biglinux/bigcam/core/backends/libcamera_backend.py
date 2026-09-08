@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import re
+import shutil
+from utils.urls import gst_quote
+from utils.video_formats import frame_rate
 import subprocess
 from typing import Any
 
@@ -18,17 +21,7 @@ class LibcameraBackend(CameraBackend):
         return BackendType.LIBCAMERA
 
     def is_available(self) -> bool:
-        for cmd in ("cam", "libcamera-hello"):
-            try:
-                subprocess.run([cmd, "--version"], capture_output=True, timeout=5)
-                return True
-            except (
-                FileNotFoundError,
-                subprocess.CalledProcessError,
-                subprocess.TimeoutExpired,
-            ):
-                continue
-        return False
+        return shutil.which("cam") is not None
 
     # -- detection -----------------------------------------------------------
 
@@ -56,7 +49,7 @@ class LibcameraBackend(CameraBackend):
                         continue
                     cameras.append(
                         CameraInfo(
-                            id=f"libcamera:{idx}",
+                            id=f"libcamera:{path}",
                             name=name,
                             backend=BackendType.LIBCAMERA,
                             device_path=path,
@@ -71,86 +64,23 @@ class LibcameraBackend(CameraBackend):
     # -- controls (limited at CLI level) -------------------------------------
 
     def get_controls(self, camera: CameraInfo) -> list[CameraControl]:
-        # libcamera CLI does not expose a rich control listing;
-        # provide the most common ones as GStreamer element properties.
-        return [
-            CameraControl(
-                id="brightness",
-                name=_("Brightness"),
-                category=ControlCategory.IMAGE,
-                control_type=ControlType.INTEGER,
-                value=0,
-                default=0,
-                minimum=-100,
-                maximum=100,
-                step=1,
-            ),
-            CameraControl(
-                id="contrast",
-                name=_("Contrast"),
-                category=ControlCategory.IMAGE,
-                control_type=ControlType.INTEGER,
-                value=100,
-                default=100,
-                minimum=0,
-                maximum=200,
-                step=1,
-            ),
-            CameraControl(
-                id="saturation",
-                name=_("Saturation"),
-                category=ControlCategory.IMAGE,
-                control_type=ControlType.INTEGER,
-                value=100,
-                default=100,
-                minimum=0,
-                maximum=200,
-                step=1,
-            ),
-            CameraControl(
-                id="awb-mode",
-                name=_("Auto White Balance"),
-                category=ControlCategory.WHITE_BALANCE,
-                control_type=ControlType.MENU,
-                value="auto",
-                default="auto",
-                choices=[
-                    "auto",
-                    "incandescent",
-                    "tungsten",
-                    "fluorescent",
-                    "indoor",
-                    "daylight",
-                    "cloudy",
-                    "custom",
-                ],
-            ),
-            CameraControl(
-                id="exposure-mode",
-                name=_("Exposure Mode"),
-                category=ControlCategory.EXPOSURE,
-                control_type=ControlType.MENU,
-                value="normal",
-                default="normal",
-                choices=["normal", "short", "long", "custom"],
-            ),
-        ]
+        # cam does not provide a stable per-camera read/write control API here.
+        # Do not display fabricated hardware controls that never reach the device.
+        # The independent Effects page remains available for software adjustments.
+        return []
 
     def set_control(self, camera: CameraInfo, control_id: str, value: Any) -> bool:
-        # Stored in extra for pipeline rebuild
-        camera.extra[f"ctrl_{control_id}"] = value
-        return True
+        return False
 
     # -- gstreamer -----------------------------------------------------------
 
     def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None) -> str:
         cam_name = camera.device_path
-        src = f"libcamerasrc camera-name={cam_name}"
+        src = f"libcamerasrc camera-name={gst_quote(cam_name)}"
         if fmt:
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:
-                best = int(max(fmt.fps))
-                caps += f",framerate={best}/1"
+                caps += ",framerate=" + frame_rate(max(fmt.fps))
             return f"{src} ! {caps}"
         return src
 
@@ -161,14 +91,11 @@ class LibcameraBackend(CameraBackend):
 
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
         try:
-            subprocess.run(
-                ["libcamera-still", "-o", output_path, "--nopreview", "-t", "1"],
-                capture_output=True,
-                check=True,
-                timeout=15,
-            )
+            subprocess.run(["gst-launch-1.0", "-e", "libcamerasrc",
+                            f"camera-name={gst_quote(camera.device_path)}", "!", "videoconvert",
+                            "!", "jpegenc", "snapshot=true", "!", "filesink",
+                            f"location={gst_quote(output_path)}"], capture_output=True, check=True, timeout=15)
             import os
-
-            return os.path.isfile(output_path)
-        except Exception:
+            return os.path.isfile(output_path) and os.path.getsize(output_path) > 0
+        except (OSError, ValueError, subprocess.SubprocessError):
             return False

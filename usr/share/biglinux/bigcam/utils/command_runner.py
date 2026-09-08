@@ -1,71 +1,33 @@
-"""Secure subprocess command runner with standardized timeouts and typing."""
+"""Subprocess boundaries with finite timeouts and credential-free diagnostics."""
+from __future__ import annotations
 
-import subprocess
 import logging
-from typing import List, Optional, Tuple, IO, Any
+import subprocess
+from typing import Any
 
 log = logging.getLogger(__name__)
 
+
+def _arguments(args) -> list[str]:
+    if not isinstance(args, (list, tuple)) or not args or any(not isinstance(a, str) or "\0" in a for a in args):
+        raise ValueError("Expected a nonempty argument vector of NUL-free strings")
+    return list(args)
+
+
 class SecureCommandRunner:
-    """Wrapper around subprocess to ensure safety, logging, and strict typing."""
-
     @staticmethod
-    def run_safe(
-        args: List[str],
-        timeout: int = 5,
-        capture_output: bool = True,
-        check: bool = False,
-        **kwargs: Any
-    ) -> subprocess.CompletedProcess[bytes]:
-        """
-        Executes a subprocess securely.
-        
-        Args:
-            args: Command and arguments as a strict list of strings.
-            timeout: Maximum execution time in seconds.
-            capture_output: Whether to capture stdout/stderr.
-            check: Whether to raise CalledProcessError on non-zero exit status.
-            **kwargs: Extra arguments passed to subprocess.run.
-            
-        Returns:
-            subprocess.CompletedProcess
-            
-        Raises:
-            subprocess.TimeoutExpired: If the command times out.
-            FileNotFoundError: If the binary is not found.
-            subprocess.CalledProcessError: If check=True and exit status is non-zero.
-        """
-        # Enforce shell=False for security against injection attacks
+    def run_safe(args: list[str], timeout: float = 5, capture_output: bool = True,
+                 check: bool = False, **kwargs: Any) -> subprocess.CompletedProcess:
+        args = _arguments(args)
         kwargs["shell"] = False
-
         if capture_output:
             kwargs["capture_output"] = True
-
-        log.debug(f"Running secure command: {' '.join(args)}")
-        
+        log.debug("Running %s (%d arguments)", args[0], len(args) - 1)
         return subprocess.run(args, timeout=timeout, check=check, **kwargs)
 
     @staticmethod
-    def popen_safe(
-        args: List[str],
-        stdout: Optional[int | IO[Any]] = None,
-        stderr: Optional[int | IO[Any]] = None,
-        **kwargs: Any
-    ) -> subprocess.Popen[bytes]:
-        """
-        Starts a background subprocess securely.
-        
-        Args:
-            args: Command and arguments as a strict list of strings.
-            stdout: Output stream destination.
-            stderr: Error stream destination.
-            **kwargs: Extra arguments passed to subprocess.Popen.
-            
-        Returns:
-            subprocess.Popen
-        """
+    def popen_safe(args: list[str], stdout=None, stderr=None, **kwargs: Any) -> subprocess.Popen:
+        args = _arguments(args)
         kwargs["shell"] = False
-        
-        log.debug(f"Starting secure background process: {' '.join(args)}")
-        
+        log.debug("Starting %s (%d arguments)", args[0], len(args) - 1)
         return subprocess.Popen(args, stdout=stdout, stderr=stderr, **kwargs)

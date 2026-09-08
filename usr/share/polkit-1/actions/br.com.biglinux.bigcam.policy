@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>BigLinux</vendor>
+  <vendor_url>https://www.biglinux.com.br</vendor_url>
+  <action id="br.com.biglinux.bigcam.manage-v4l2loopback">
+    <description>Manage BigCam-owned virtual cameras</description>
+    <description xml:lang="pt_BR">Gerenciar câmeras virtuais pertencentes ao BigCam</description>
+    <message>Authentication is required to manage a BigCam virtual camera</message>
+    <message xml:lang="pt_BR">É necessário autenticar para gerenciar uma câmera virtual do BigCam</message>
+    <icon_name>camera-video-symbolic</icon_name>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/lib/bigcam/virtual-camera-helper</annotate>
+  </action>
+</policyconfig>

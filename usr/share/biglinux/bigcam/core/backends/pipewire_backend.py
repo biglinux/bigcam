@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import re
+import json
+import shutil
+from utils.urls import gst_quote
 import subprocess
 from typing import Any
 
@@ -17,73 +20,29 @@ class PipeWireBackend(CameraBackend):
         return BackendType.PIPEWIRE
 
     def is_available(self) -> bool:
-        try:
-            subprocess.run(["pw-cli", "info", "0"], capture_output=True, timeout=5)
-            return True
-        except (
-            FileNotFoundError,
-            subprocess.CalledProcessError,
-            subprocess.TimeoutExpired,
-        ):
-            return False
+        return shutil.which("pw-dump") is not None
 
     # -- detection -----------------------------------------------------------
 
     def detect_cameras(self) -> list[CameraInfo]:
-        cameras: list[CameraInfo] = []
         try:
-            result = subprocess.run(
-                ["pw-cli", "list-objects"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            if result.returncode != 0:
-                return cameras
-
-            # Parse pw-cli output for Video/Source nodes
-            cameras = self._parse_pw_objects(result.stdout)
-        except Exception:
-            pass
-        return cameras
+            result = subprocess.run(["pw-dump"], capture_output=True, text=True, timeout=10, check=True)
+            return self._parse_pw_objects(result.stdout)
+        except (OSError, ValueError, subprocess.SubprocessError):
+            return []
 
     def _parse_pw_objects(self, output: str) -> list[CameraInfo]:
-        cameras: list[CameraInfo] = []
-        current_id = ""
-        current_props: dict[str, str] = {}
-
-        for line in output.splitlines():
-            # New object: "id 42, type PipeWire:Interface:Node/3"
-            obj_match = re.match(
-                r"\s*id\s+(\d+),\s+type\s+PipeWire:Interface:Node", line
-            )
-            if obj_match:
-                # Flush previous
-                if current_id and self._is_video_source(current_props):
-                    cam = self._make_camera(current_id, current_props)
-                    if (
-                        "v4l2loopback" not in cam.name.lower()
-                        and "(v4l2)" not in cam.name.lower()
-                    ):
-                        cameras.append(cam)
-                current_id = obj_match.group(1)
-                current_props = {}
+        objects = json.loads(output)
+        if not isinstance(objects, list):
+            raise ValueError("Invalid PipeWire object list")
+        cameras = []
+        for item in objects:
+            if not isinstance(item, dict) or item.get("type") != "PipeWire:Interface:Node":
                 continue
-
-            # Property: "    media.class = \"Video/Source\""
-            prop_match = re.match(r'\s+([\w.]+)\s*=\s*"?([^"]*)"?', line)
-            if prop_match and current_id:
-                current_props[prop_match.group(1)] = prop_match.group(2).strip()
-
-        # Flush last
-        if current_id and self._is_video_source(current_props):
-            cam = self._make_camera(current_id, current_props)
-            if (
-                "v4l2loopback" not in cam.name.lower()
-                and "(v4l2)" not in cam.name.lower()
-            ):
-                cameras.append(cam)
-
+            props = (item.get("info") or {}).get("props") or {}
+            node_id = item.get("id")
+            if isinstance(node_id, int) and node_id >= 0 and self._is_video_source(props):
+                cameras.append(self._make_camera(str(node_id), props))
         return cameras
 
     @staticmethod

@@ -41,7 +41,10 @@ from core.resource_monitor import ResourceMonitor, FeatureDescriptor
 from ui.resource_warning_dialog import show_resource_warning, MONITOR_ENABLED_KEY
 from utils.settings_manager import SettingsManager
 from utils.async_worker import run_async
-from utils.i18n import _
+from utils.i18n import _, ngettext
+from utils.media_paths import reserve_media_path
+from utils import xdg
+import time
 
 log = logging.getLogger(__name__)
 
@@ -55,6 +58,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self.set_size_request(700, 500)
         self.add_css_class("bigcam")
 
+        self._closing = False
+        self._selection_generation = 0
+        self._capture_pending = False
+        self._recording_hold = False
+        self._close_hold = False
         self._settings = SettingsManager()
         self._camera_manager = CameraManager()
         self._stream_engine = StreamEngine(self._camera_manager)
@@ -69,6 +77,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             video_bitrate=self._settings.get("recording-video-bitrate"),
         )
         self._stream_engine._video_recorder = self._video_recorder
+        self._video_recorder.connect("state-changed", self._on_recording_state)
+        self._video_recorder.connect("finalized", self._on_recording_finalized)
 
         self._audio_monitor = AudioMonitor()
         self._tooltip_widgets: list[tuple[Gtk.Widget, str]] = []
@@ -101,6 +111,9 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._setup_resource_monitor()
 
         # Initial camera detection
+        ip_cameras = self._settings.get("ip_cameras")
+        if ip_cameras:
+            GLib.idle_add(self._camera_manager.add_ip_cameras, ip_cameras)
         GLib.idle_add(self._camera_manager.detect_cameras_async)
         GLib.idle_add(self._update_last_photo_thumbnail)
 
@@ -111,9 +124,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _register_tooltip(self, widget: Gtk.Widget, text: str) -> None:
         widget.set_tooltip_text(text)
+        widget.update_property([Gtk.AccessibleProperty.LABEL], [text])
         self._tooltip_widgets.append((widget, text))
 
     def _update_tooltip(self, widget: Gtk.Widget, text: str) -> None:
+        widget.update_property([Gtk.AccessibleProperty.LABEL], [text])
         for i, (w, _) in enumerate(self._tooltip_widgets):
             if w is widget:
                 self._tooltip_widgets[i] = (widget, text)
@@ -260,6 +275,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         pin_btn.add_css_class("pin-btn")
         pin_btn.connect("toggled", self._on_always_on_top_toggled)
         self._pin_btn = pin_btn
+        pin_btn.set_visible(False)  # No portable GTK4/Wayland keep-above protocol.
         top_bar.append(pin_btn)
 
         # Phone button (left of camera selector)
@@ -650,6 +666,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "settings": (self._settings_page, _("Settings"), "configure"),
         }
         self._sidebar_ctrl = SidebarController(self._split_view, stack_pages)
+        self._view_stack = self._sidebar_ctrl.stack
 
         # React to sidebar visibility for immersion
         self._split_view.connect("notify::show-sidebar", self._on_sidebar_toggled)
@@ -695,73 +712,42 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._zoom_btn.set_label(label)
         self._stream_engine.set_zoom(level)
 
-    def _on_last_photo_clicked(self, _btn: Gtk.Button) -> None:
-        """Open the last captured photo or video with the default viewer."""
-        if self._current_mode == "video":
-            path = self._get_last_video_path()
-        else:
-            path = self._get_last_photo_path()
+    def _on_last_photo_clicked(self, _button):
+        path = getattr(self, "_last_media_path", None)
         if path:
             Gtk.FileLauncher.new(Gio.File.new_for_path(path)).launch(self, None, None, None)
 
-    def _update_last_media_thumbnail(self, specific_path: str | None = None) -> bool:
-        """Refresh the circular thumbnail based on current mode.
-        Returns False so it can be used with GLib.timeout_add.
-        If specific_path is given, show that file directly instead of scanning."""
-        if specific_path:
-            path = specific_path
-            if self._current_mode == "video":
-                tooltip = _("Last video")
+    def _update_last_media_thumbnail(self, specific_path=None):
+        if self._closing:
+            return GLib.SOURCE_REMOVE
+        from core.media_library import scan, thumbnail, MediaEntry, PHOTO_EXTS, VIDEO_EXTS
+        mode = self._current_mode
+        self._thumbnail_generation = getattr(self, "_thumbnail_generation", 0) + 1
+        generation = self._thumbnail_generation
+        def prepare():
+            if specific_path:
+                st = os.stat(specific_path, follow_symlinks=False)
+                entry = MediaEntry(specific_path, st.st_size, st.st_mtime, st.st_mtime_ns, mode == "video")
             else:
-                tooltip = _("Last photo")
-        elif self._current_mode == "video":
-            path = self._get_last_video_path()
-            tooltip = _("Last video")
-        else:
-            path = self._get_last_photo_path()
-            tooltip = _("Last photo")
-        self._update_tooltip(self._last_photo_btn, tooltip)
-        if path and os.path.isfile(path):
-            is_video = path.lower().endswith((".mp4", ".mkv", ".webm", ".avi"))
-            if is_video:
-                thumb_path = path + ".thumb.png"
-                if os.path.exists(thumb_path):
-                    self._set_video_thumbnail(thumb_path)
-                else:
-                    # Show placeholder immediately, generate thumbnail in background
-                    icon = Gtk.Image.new_from_icon_name("video-x-generic-symbolic")
-                    icon.set_pixel_size(24)
-                    self._last_photo_btn.set_child(icon)
-                    self._last_photo_btn.set_visible(True)
-
-                    def _gen_thumb() -> str | None:
-                        subprocess.run(
-                            ["ffmpeg", "-y", "-i", path, "-ss", "00:00:00",
-                             "-vframes", "1", "-vf", "scale=40:40:force_original_aspect_ratio=increase,crop=40:40",
-                             thumb_path],
-                            capture_output=True, timeout=5,
-                        )
-                        return thumb_path if os.path.exists(thumb_path) else None
-
-                    def _on_thumb_done(result: str | None) -> None:
-                        if result:
-                            self._set_video_thumbnail(result)
-
-                    run_async(_gen_thumb, on_success=_on_thumb_done)
-            else:
-                try:
-                    from gi.repository import GdkPixbuf
-                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 40, 40, True)
-                    texture = Gdk.Texture.new_for_pixbuf(pixbuf)
-                    image = Gtk.Image.new_from_paintable(texture)
-                    image.set_pixel_size(40)
-                    self._last_photo_btn.set_child(image)
-                    self._last_photo_btn.set_visible(True)
-                except Exception:
-                    self._last_photo_btn.set_visible(False)
-        else:
-            self._last_photo_btn.set_visible(False)
-        return False
+                entries = scan(xdg.videos_dir() if mode == "video" else xdg.photos_dir(),
+                               VIDEO_EXTS if mode == "video" else PHOTO_EXTS)
+                if not entries:
+                    return None
+                entry = entries[0]
+            return entry.path, thumbnail(entry)
+        def done(result):
+            if self._closing or generation != self._thumbnail_generation or mode != self._current_mode:
+                return
+            self._last_media_path = result[0] if result else None
+            self._last_photo_btn.set_visible(bool(result))
+            self._update_tooltip(self._last_photo_btn, _("Last video") if mode == "video" else _("Last photo"))
+            if result:
+                picture = Gtk.Picture.new_for_filename(result[1])
+                picture.set_content_fit(Gtk.ContentFit.COVER)
+                picture.set_size_request(40, 40)
+                self._last_photo_btn.set_child(picture)
+        run_async(prepare, on_success=done, on_error=lambda exc: done(None))
+        return GLib.SOURCE_REMOVE
 
     def _set_video_thumbnail(self, thumb_path: str) -> None:
         try:
@@ -838,6 +824,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         visible = btn.get_active()
         self._preview.set_grid_visible(visible)
         self._settings.set("grid_overlay", visible)
+        if self._settings_page._grid_row.get_active() != visible:
+            self._settings_page._grid_row.set_active(visible)
 
     def _on_mirror_btn_toggled(self, btn: Gtk.ToggleButton) -> None:
         new_val = btn.get_active()
@@ -872,19 +860,12 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._vcam_quick_btn.handler_unblock(self._vcam_btn_handler_id)
         self._update_vcam_badge()
 
-    def _update_vcam_badge(self) -> None:
-        if not self._settings.get("virtual-camera-enabled"):
-            self._vcam_badge.set_visible(False)
-            return
-            
-        disabled_list = self._settings.get("vcam-disabled-cameras", [])
-        active_count = sum(1 for c in self._camera_manager.cameras if c.id not in disabled_list)
-                
-        if active_count > 0:
-            self._vcam_badge.set_label(str(active_count))
-            self._vcam_badge.set_visible(True)
-        else:
-            self._vcam_badge.set_visible(False)
+    def _update_vcam_badge(self):
+        count = len(VirtualCamera._allocations) if VirtualCamera.is_enabled() else 0
+        self._vcam_badge.set_label(str(count))
+        self._vcam_badge.set_visible(count > 0)
+        self._vcam_badge.update_property([Gtk.AccessibleProperty.LABEL],
+            [ngettext("%d virtual camera allocated", "%d virtual cameras allocated", count) % count])
 
     def _on_help_tooltips_changed(self, _page: object, enabled: bool) -> None:
         self._set_tooltips_enabled(enabled)
@@ -928,49 +909,17 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         else:
             self.fullscreen()
 
-    def _on_escape_action(self, *_args) -> None:
-        if self._split_view.get_show_sidebar():
+    def _on_escape_action(self, *_args):
+        if self._preview.is_countdown_active():
+            self._preview.cancel_countdown()
+            self._show_notification(_("Capture cancelled."))
+        elif self._split_view.get_show_sidebar():
             self._split_view.set_show_sidebar(False)
         elif self.is_fullscreen():
             self.unfullscreen()
 
-    def _on_always_on_top_toggled(self, btn: Gtk.ToggleButton) -> None:
-        on_top = btn.get_active()
-
-        def _apply_always_on_top() -> None:
-            script = f'workspace.activeWindow.keepAbove = {"true" if on_top else "false"};'
-            runtime_dir = os.environ.get('XDG_RUNTIME_DIR', '/tmp')
-            script_path = os.path.join(runtime_dir, 'kwin_bigcam_above.js')
-            plugin_name = 'bigcam_above'
-            try:
-                with open(script_path, 'w') as f:
-                    f.write(script)
-                result = subprocess.run(
-                    ['qdbus', 'org.kde.KWin', '/Scripting',
-                     'org.kde.kwin.Scripting.loadScript', script_path, plugin_name],
-                    capture_output=True, text=True, timeout=5,
-                )
-                script_id = result.stdout.strip()
-                if script_id.isdigit():
-                    subprocess.run(
-                        ['qdbus', 'org.kde.KWin', f'/Scripting/Script{script_id}',
-                         'org.kde.kwin.Script.run'],
-                        capture_output=True, timeout=5,
-                    )
-                subprocess.run(
-                    ['qdbus', 'org.kde.KWin', '/Scripting',
-                     'org.kde.kwin.Scripting.unloadScript', plugin_name],
-                    capture_output=True, timeout=5,
-                )
-            except (FileNotFoundError, OSError):
-                pass
-            finally:
-                try:
-                    os.unlink(script_path)
-                except OSError:
-                    pass
-
-        run_async(_apply_always_on_top)
+    def _on_always_on_top_toggled(self, btn):
+        self._show_notification(_("Use your window manager to keep this window above others."))
 
     def _on_show_welcome_action(self, *_args) -> None:
         from ui.welcome_dialog import WelcomeDialog
@@ -979,10 +928,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         dialog._dialog.connect("closed", lambda *_: self._immersion.uninhibit())
         dialog.present()
 
-    def _is_editing_text(self) -> bool:
-        """Return True when focus is on a text input (skip global shortcuts)."""
+    def _is_editing_text(self):
         focus = self.get_focus()
-        return isinstance(focus, Gtk.Text)
+        while focus is not None:
+            if isinstance(focus, (Gtk.Editable, Gtk.TextView)):
+                return True
+            focus = focus.get_parent()
+        return False
 
     def _set_zoom_level(self, index: int) -> None:
         if self._is_editing_text():
@@ -1029,6 +981,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _trigger_flash(self) -> None:
         """Show a brief white flash overlay on photo capture."""
+        if self._settings.get("reduce-motion") or not Gtk.Settings.get_default().get_property("gtk-enable-animations"):
+            return
         self._flash_overlay.set_opacity(0.8)
         GLib.timeout_add(100, self._flash_fade_out)
 
@@ -1038,6 +992,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             GLib.source_remove(self._window_banner_timeout)
             self._window_banner_timeout = None
         self._window_banner.set_title(message)
+        if hasattr(self._window_banner, "announce"):
+            self._window_banner.announce(message, Gtk.AccessibleAnnouncementPriority.MEDIUM)
         self._window_banner.set_revealed(True)
         if timeout_ms > 0:
             self._window_banner_timeout = GLib.timeout_add(
@@ -1055,6 +1011,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
 
     def _start_rec_timer(self) -> None:
         """Start the recording duration timer in the top bar."""
+        self._rec_started_at = time.monotonic()
         self._rec_timer_seconds = 0
         self._rec_timer_label.set_label("00:00")
         self._rec_timer_box.set_visible(True)
@@ -1069,7 +1026,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._rec_timer_seconds = 0
 
     def _update_rec_timer(self) -> bool:
-        self._rec_timer_seconds += 1
+        self._rec_timer_seconds = int(time.monotonic() - self._rec_started_at)
         mins, secs = divmod(self._rec_timer_seconds, 60)
         self._rec_timer_label.set_label(f"{mins:02d}:{secs:02d}")
         return GLib.SOURCE_CONTINUE
@@ -1149,10 +1106,10 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             "win.toggle-grid": ["<Primary>g"],
             "win.cycle-timer": ["<Primary>t"],
             "win.toggle-fullscreen": ["F11"],
-            "win.toggle-sidebar": ["Tab"],
-            "win.zoom-1x": ["1"],
-            "win.zoom-1.5x": ["2"],
-            "win.zoom-2x": ["3"],
+            "win.toggle-sidebar": ["F9"],
+            "win.zoom-1x": ["<Alt>1"],
+            "win.zoom-1.5x": ["<Alt>2"],
+            "win.zoom-2x": ["<Alt>3"],
             "win.escape": ["Escape"],
             "win.switch-tab-1": ["<Primary>1"],
             "win.switch-tab-2": ["<Primary>2"],
@@ -1251,7 +1208,21 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _on_camera_selected(
         self, _selector: CameraSelector, camera: CameraInfo
     ) -> None:
-        log.info(">>> _on_camera_selected: %s (%s)", camera.name, camera.id)
+        if self._closing:
+            return
+        if self._video_recorder.is_recording or self._video_recorder.is_finalizing or self._capture_pending:
+            self._show_notification(_("Finish the current capture before changing cameras."), "warning")
+            if self._active_camera:
+                cameras = self._camera_manager.cameras
+                for index, candidate in enumerate(cameras):
+                    if candidate.id == self._active_camera.id:
+                        self._camera_selector.set_selected_silent(index)
+                        break
+            return
+        self._preview.cancel_countdown()
+        self._selection_generation += 1
+        generation = self._selection_generation
+        log.info("Camera selection started")
         # Skip if same camera is already active — period.
         if self._active_camera and self._active_camera.id == camera.id:
             log.info("Camera %s already active, skipping", camera.name)
@@ -1375,6 +1346,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                     self._streaming_lock.release()
 
             def on_done(result: tuple[bool, list]) -> None:
+                if self._closing or generation != self._selection_generation:
+                    return
                 success, controls = result
                 log.debug(f"on_done: success={success}, controls={len(controls)}")
                 self._dismiss_notification()
@@ -1422,7 +1395,13 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 # Unblock dropdown signals after async setup completes
                 self._camera_selector.unblock_signals()
 
-            run_async(do_controls_then_stream, on_success=on_done)
+            def on_setup_error(exc):
+                if not self._closing and generation == self._selection_generation:
+                    self._camera_selector.unblock_signals()
+                    self._preview._on_error(self._stream_engine, _("Failed to start camera streaming."))
+                    if self._settings.get("hotplug_enabled"):
+                        self._camera_manager.start_hotplug()
+            run_async(do_controls_then_stream, on_success=on_done, on_error=on_setup_error)
         else:
             # V4L2, libcamera, PipeWire: load controls async + start stream
             self._preview.show_status(
@@ -1529,18 +1508,26 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._stream_engine.prefer_v4l2 = prefer
 
     def _on_resolution_changed(self, _page, value: str) -> None:
+        if self._video_recorder.is_recording or self._video_recorder.is_finalizing:
+            self._show_notification(_("Camera preferences will apply after recording stops."))
+            return
         if self._active_camera:
             log.info("Resolution changed to '%s', restarting stream", value)
             preferred_fmt = self._pick_preferred_format(self._active_camera)
             self._stream_engine.play(self._active_camera, fmt=preferred_fmt)
 
     def _on_fps_limit_changed(self, _page, value: int) -> None:
+        if self._video_recorder.is_recording or self._video_recorder.is_finalizing:
+            self._show_notification(_("Camera preferences will apply after recording stops."))
+            return
         if self._active_camera:
             preferred_fmt = self._pick_preferred_format(self._active_camera)
             self._stream_engine.play(self._active_camera, fmt=preferred_fmt)
 
-    def _on_grid_overlay_changed(self, _page, visible: bool) -> None:
+    def _on_grid_overlay_changed(self, _page, visible):
         self._preview.set_grid_visible(visible)
+        if self._grid_btn.get_active() != visible:
+            self._grid_btn.set_active(visible)
 
     def _on_overlay_opacity_changed(self, _page, value: int) -> None:
         self._apply_overlay_opacity(value)
@@ -1680,6 +1667,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     # -- Capture -------------------------------------------------------------
 
     def _on_capture(self, _preview: PreviewArea) -> None:
+        if self._closing or self._capture_pending:
+            return
         if not self._active_camera:
             self._show_notification(_("No camera selected."), "warning")
             return
@@ -1699,7 +1688,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             dialog.add_response("native", _("Camera photo (full resolution)"))
             dialog.set_response_appearance("native", Adw.ResponseAppearance.SUGGESTED)
             dialog.set_default_response("native")
-            dialog.set_close_response("webcam")
+            dialog.add_response("cancel", _("Cancel"))
+            dialog.set_close_response("cancel")
             dialog.connect("response", self._on_capture_mode_response)
             self._immersion.present_dialog(dialog, self)
             return
@@ -1714,6 +1704,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
     def _on_capture_mode_response(
         self, _dialog: Adw.AlertDialog, response: str
     ) -> None:
+        if response not in {"native", "webcam"} or self._closing:
+            return
         capture_fn = self._do_native_capture if response == "native" else self._do_webcam_capture
         timer = self._settings.get("capture-timer")
         if timer and timer > 0:
@@ -1737,7 +1729,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         dialog.add_response("retry", _("Try again"))
         dialog.set_response_appearance("retry", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_default_response("retry")
-        dialog.set_close_response("frame")
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.set_close_response("cancel")
 
         def _on_response(_dlg: Adw.AlertDialog, resp: str) -> None:
             # Always resume streaming first
@@ -1752,114 +1745,69 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         dialog.connect("response", _on_response)
         self._immersion.present_dialog(dialog, self)
 
-    def _do_webcam_capture(self) -> None:
-        self._trigger_flash()
-        self._show_notification(_("Capturing photo…"), "info", 1500)
-
-        import time as _time
-        from utils import xdg
-
-        timestamp = _time.strftime("%Y%m%d_%H%M%S")
-        output_dir = xdg.photos_dir()
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, f"bigcam_{timestamp}.png")
-
-        ok = self._stream_engine.capture_snapshot(output_path)
-        if ok:
+    def _do_webcam_capture(self):
+        if self._closing or self._capture_pending or not self._active_camera:
+            return
+        self._capture_pending = True
+        generation = self._selection_generation
+        self._show_notification(_("Capturing photo…"), timeout_ms=0)
+        def capture():
+            path = reserve_media_path(xdg.photos_dir(), ".png")
+            if not self._stream_engine.capture_snapshot(path):
+                os.unlink(path)
+                raise RuntimeError("No fresh frame could be saved")
+            return path
+        def saved(path):
+            self._capture_pending = False
+            if self._closing or generation != self._selection_generation:
+                return
+            self._trigger_flash()
             self._show_notification(_("Photo saved!"), "success")
             self._gallery.refresh()
-            self._update_last_media_thumbnail(output_path)
-        else:
-            self._show_notification(
-                _("Failed to capture photo."), "error"
-            )
+            self._update_last_media_thumbnail(path)
+        def failed(exc):
+            self._capture_pending = False
+            if not self._closing:
+                self._show_notification(_("Failed to capture photo."), "error", 0)
+        run_async(capture, on_success=saved, on_error=failed)
 
-    def _do_native_capture(self) -> None:
-        self._trigger_flash()
+    def _do_native_capture(self):
         camera = self._active_camera
-        if not camera:
+        if not camera or self._closing or self._capture_pending:
             return
-
-        # Show waiting state in preview
-        self._stream_engine.stop()
-        self._preview.show_status(
-            _("Please wait…"),
-            _("Switching to photography mode."),
-            "camera-photo-symbolic",
-            loading=True,
-        )
-
-        def _capture_in_thread() -> str | None:
-            import time as _time
-            from utils import xdg
-
-            # Kill ALL gphoto2/ffmpeg processes to guarantee a clean USB bus
-            self._camera_manager.get_backend(camera.backend).stop_streaming()
-
-            # Give the USB device time to be fully released after killing
-            # the streaming process — Canon DSLRs need this.
-            _time.sleep(2)
-
-            # Check if camera is stuck in Movie mode (some models can't
-            # capture stills in this mode).  Return a sentinel so the
-            # main thread can show a dialog instead of waiting for a
-            # futile 60-second timeout.
-            try:
-                port = camera.extra.get("port", camera.device_path)
-                res = subprocess.run(
-                    ["gphoto2", "--port", port,
-                     "--get-config", "autoexposuremode"],
-                    capture_output=True, text=True, timeout=8,
-                )
-                for line in res.stdout.splitlines():
-                    if line.startswith("Current:") and "Movie" in line:
-                        return "__movie_mode__"
-            except Exception:
-                pass
-
-            timestamp = _time.strftime("%Y%m%d_%H%M%S")
-            output_dir = xdg.photos_dir()
-            os.makedirs(output_dir, exist_ok=True)
-            output_path = os.path.join(output_dir, f"bigcam_{timestamp}.jpg")
-
-            ok = self._camera_manager.capture_photo(camera, output_path)
-            if ok and self._stream_engine.mirror:
-                try:
-                    import cv2
-                    img = cv2.imread(output_path)
-                    if img is not None:
-                        img = cv2.flip(img, 1)
-                        cv2.imwrite(output_path, img)
-                except Exception as exc:
-                    log.warning("Failed to mirror native photo: %s", exc)
-            return output_path if ok else None
-
-        def _on_done(result: str | None) -> None:
-            if result == "__movie_mode__":
-                self._show_movie_mode_dialog(camera)
+        self._capture_pending = True
+        generation = self._selection_generation
+        self._camera_manager.stop_hotplug()
+        self._stream_engine.stop(stop_backend=False)
+        self._preview.show_status(_("Please wait…"), _("Switching to photography mode."), loading=True)
+        def capture():
+            path = reserve_media_path(xdg.photos_dir(), ".jpg")
+            if not self._camera_manager.capture_photo(camera, path):
+                if os.path.getsize(path) == 0:
+                    os.unlink(path)
+                raise RuntimeError("Native capture failed")
+            # Preserve the original JPEG and its EXIF/ICC metadata byte-for-byte.
+            return path
+        def resume(path=None, error=None):
+            self._capture_pending = False
+            if self._closing or generation != self._selection_generation:
                 return
-            if result:
-                self._show_notification(_("Photo saved!"), "success")
+            if path:
+                self._trigger_flash()
                 self._gallery.refresh()
-                self._update_last_media_thumbnail(result)
+                self._update_last_media_thumbnail(path)
+                self._show_notification(_("Photo saved!"), "success")
             else:
-                self._show_notification(
-                    _("Failed to capture photo."), "error"
-                )
-            # Resume streaming — clear active camera so the guard doesn't skip
+                self._show_notification(_("Failed to capture photo. Check the camera mode and connection."), "error", 0)
             self._active_camera = None
-            self._preview.show_status(
-                _("Please wait…"),
-                _("Resuming camera streaming…"),
-                "camera-web-symbolic",
-                loading=True,
-            )
             self._on_camera_selected(self._camera_selector, camera)
+        run_async(capture, on_success=lambda path: resume(path), on_error=lambda exc: resume(error=exc))
 
-        run_async(_capture_in_thread, on_success=_on_done)
-
-    def _on_refresh(self, *_args) -> None:
-        """Full camera reload: stop current stream, clear state, re-detect."""
+    def _on_refresh(self, *_args):
+        if self._closing or self._video_recorder.is_recording or self._video_recorder.is_finalizing or self._capture_pending:
+            return
+        self._selection_generation += 1
+        self._preview.cancel_countdown()
         self._stream_engine.stop()
         self._active_camera = None
         self._camera_manager.detect_cameras_async(force_emit=True)
@@ -1992,19 +1940,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         busy_camera = self._active_camera
         camera_name = busy_camera.name if busy_camera else ""
 
-        # For phone cameras, the producer process (scrcpy, uxplay) is expected
-        # on the v4l2loopback device — it's the video source, not a blocker.
-        if busy_camera and busy_camera.id.startswith("phone:"):
-            expected = {"scrcpy", "uxplay"}
-            real_blockers = [a for a in blocking_apps if a not in expected]
-            if not real_blockers:
-                log.info(
-                    "device-busy on %s: only expected producers %s — auto-retrying",
-                    device_path, blocking_apps,
-                )
-                GLib.timeout_add(1500, lambda: self._retry_camera(busy_camera) or False)
-                return
-            blocking_apps = real_blockers
+        if busy_camera and busy_camera.backend in (BackendType.PHONE, BackendType.SCRCPY, BackendType.AIRPLAY):
+            blocking_apps = [name for name in blocking_apps if name not in {"scrcpy", "uxplay"}]
 
         # Clear active camera so 'Refresh cameras' can re-select it
         self._active_camera = None
@@ -2153,59 +2090,80 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             return
         self._on_capture(self._preview)
 
-    def _on_record_toggle(self, *_args) -> None:
-        if self._video_recorder.is_recording:
-            path = self._video_recorder.stop()
-            self._preview.set_recording_state(False)
-            self._immersion.uninhibit()
-            self._stop_rec_timer()
-            # Update capture button state in video mode
-            if self._current_mode == "video":
-                self._bottom_capture_btn.remove_css_class("recording")
-                self._bottom_capture_btn.set_icon_name("media-record-symbolic")
-                self._update_tooltip(self._bottom_capture_btn, _("Start recording"))
-            if path:
-                self._show_notification(
-                    _("Video saved: %s") % os.path.basename(path), "success"
-                )
-                self._video_gallery.refresh()
-                # Slight delay so the file is fully flushed before thumbnail generation
-                GLib.timeout_add(500, self._update_last_media_thumbnail)
-        else:
-            if not self._active_camera:
-                self._show_notification(
-                    _("No camera selected."), "warning"
-                )
-                return
-            # Build per-source volume dict from AudioMonitor
-            source_volumes = {}
-            for src_name in self._audio_monitor.all_source_names:
-                source_volumes[src_name] = self._audio_monitor.get_source_volume(src_name)
-            path = self._video_recorder.start(
+    def _on_record_toggle(self, *_args):
+        if self._closing:
+            return
+        recorder = self._video_recorder
+        if recorder.is_finalizing:
+            self._show_notification(_("Finalizing video…"), timeout_ms=0)
+            return
+        if recorder.is_recording:
+            recorder.stop()
+            return
+        if not self._active_camera or not self._stream_engine.is_playing():
+            self._show_notification(_("No active camera stream."), "warning")
+            return
+        try:
+            sources = self._audio_monitor.capture_source_names
+            path = recorder.start(
                 self._active_camera,
-                self._stream_engine.pipeline,
-                mirror=self._stream_engine.mirror,
-                audio_sources=self._audio_monitor.all_source_names,
-                active_audio_sources=self._audio_monitor.active_source_names,
-                source_volumes=source_volumes,
+                audio_sources=sources,
+                active_audio_sources=[name for name in self._audio_monitor.active_source_names if name in sources],
+                source_volumes={name: self._audio_monitor.get_source_volume(name) for name in sources},
                 muted=self._audio_monitor.muted,
+                fps=self._stream_engine.fps,
             )
-            if path:
-                self._preview.set_recording_state(True)
-                self._immersion.inhibit()
-                self._start_rec_timer()
-                # Update capture button state in video mode
-                if self._current_mode == "video":
-                    self._bottom_capture_btn.add_css_class("recording")
-                    self._bottom_capture_btn.set_icon_name("media-playback-stop-symbolic")
-                    self._update_tooltip(self._bottom_capture_btn, _("Stop recording"))
-                self._show_notification(
-                    _("Recording…"), "info", 0, progress=True
-                )
+        except (OSError, ValueError):
+            log.exception("Cannot reserve recording output")
+            self._show_notification(_("Failed to start recording."), "error", 0)
+            return
+        if path:
+            if not self._recording_hold:
+                self.get_application().hold()
+                self._recording_hold = True
+            self._immersion.inhibit()
+            self._show_notification(_("Starting recording…"), timeout_ms=0)
+
+
+    def _on_recording_state(self, recorder, state):
+        if self._closing:
+            return
+        recording = state in {"starting", "recording"}
+        finalizing = state == "finalizing"
+        self._preview.set_recording_state(recording)
+        self._mode_photo_btn.set_sensitive(not (recording or finalizing))
+        self._mode_video_btn.set_sensitive(not (recording or finalizing))
+        self._bottom_capture_btn.set_sensitive(not finalizing)
+        if state == "recording":
+            self._start_rec_timer()
+            self._show_notification(_("Recording…"), timeout_ms=0)
+        elif finalizing:
+            self._stop_rec_timer()
+            self._show_notification(_("Finalizing video…"), timeout_ms=0)
+        if self._current_mode == "video":
+            self._bottom_capture_btn.set_icon_name("media-playback-stop-symbolic" if recording else "media-record-symbolic")
+            self._update_tooltip(self._bottom_capture_btn, _("Stop recording") if recording else _("Start recording"))
+            if recording:
+                self._bottom_capture_btn.add_css_class("recording")
             else:
-                self._show_notification(
-                    _("Failed to start recording."), "error"
-                )
+                self._bottom_capture_btn.remove_css_class("recording")
+
+
+    def _on_recording_finalized(self, recorder, path, success, error):
+        if self._recording_hold:
+            self._recording_hold = False
+            self.get_application().release()
+        if self._closing:
+            return
+        self._stop_rec_timer()
+        self._immersion.uninhibit()
+        if success:
+            self._show_notification(_("Video saved: %s") % os.path.basename(path), "success")
+            self._video_gallery.refresh()
+            self._update_last_media_thumbnail(path)
+        else:
+            self._show_notification(_("Recording failed. Any partial file has been preserved: %s") % os.path.basename(path), "error", 0)
+            log.error("Recording finalization failed: %s", error)
 
     def _on_audio_source_toggled(
         self, _monitor: AudioMonitor, source_name: str, active: bool
@@ -2388,6 +2346,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._camera_manager.start_hotplug()
 
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
+        if self._closing:
+            return True
         # Gather ALL active camera sources
         active_names: list[str] = []
 
@@ -2416,7 +2376,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             if label not in active_names:
                 active_names.append(label)
 
-        has_active = bool(active_names) or self._stream_engine.has_active_bg_vcams()
+        has_active = bool(active_names) or self._stream_engine.has_active_bg_vcams() or self._video_recorder.is_recording or self._video_recorder.is_finalizing
 
         if has_active:
             parts = []
@@ -2448,7 +2408,7 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         # No active pipeline — hide immediately and clean up
         self.set_visible(False)
         self._cleanup_and_close()
-        return False
+        return True
 
     def _on_close_response(self, _dialog: Adw.AlertDialog, response: str) -> None:
         if response == "cancel":
@@ -2457,7 +2417,6 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             # Hide window immediately so the user sees it close instantly
             self.set_visible(False)
             self._cleanup_and_close()
-            self.destroy()
         else:  # keep — hide window, keep pipeline alive
             self._camera_manager.stop_hotplug()
             self._background_mode = True
@@ -2466,43 +2425,69 @@ class BigDigicamWindow(Adw.ApplicationWindow):
                 app.hold()
             self.set_visible(False)
 
-    def _cleanup_and_close(self) -> None:
+    def _cleanup_and_close(self):
+        if self._closing:
+            return
+        self._closing = True
+        self._selection_generation += 1
+        app = self.get_application()
+        app.hold()
+        self._close_hold = True
+        self._preview.cancel_countdown()
+        self._preview.cleanup()
+        self._controls_page.cleanup()
+        self._settings_page.cleanup()
+        self._effects_page.cleanup()
+        self._gallery.cleanup()
+        self._video_gallery.cleanup()
         self._immersion.cleanup()
+        self._resource_monitor.stop()
         self._video_recorder.stop()
         self._audio_monitor.stop_all()
-        self._audio_monitor.remove_external_source("airplay")
-        self._stream_engine.stop()
+        self._camera_manager.close()
+        self._stream_engine.stop(stop_backend=False)
         self._stream_engine.stop_all_bg_vcams()
-        self._camera_manager.stop_hotplug()
-
-        # Stop phone/scrcpy/airplay SYNCHRONOUSLY before the app exits,
-        # otherwise the processes become orphans.
-        ctrl = self._mobile_device_ctrl
-        if ctrl.scrcpy_usb:
-            ctrl.scrcpy_usb.stop()
-        if ctrl.scrcpy_wifi:
-            ctrl.scrcpy_wifi.stop()
-        if ctrl.airplay_receiver:
-            ctrl.airplay_receiver.stop()
-        if ctrl.phone_server and ctrl.phone_server.running:
-            ctrl.phone_server.stop()
-
-        # Run slow blocking cleanup in background (VirtualCamera, gphoto2).
-        def _heavy_cleanup() -> None:
+        self._mobile_device_ctrl.disconnect_signals()
+        def cleanup():
+            # Recording owns a non-daemon finite worker. Native still capture is also
+            # allowed to finish before its camera session is torn down.
+            if not self._video_recorder.wait_finalize(25):
+                raise RuntimeError("Recording is still finalizing")
+            deadline = time.monotonic() + 70
+            while self._capture_pending and time.monotonic() < deadline:
+                time.sleep(0.1)
+            ctrl = self._mobile_device_ctrl
+            for service in (ctrl.scrcpy_usb, ctrl.scrcpy_wifi, ctrl.airplay_receiver, ctrl.phone_server):
+                service.stop()
+            gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
+            if gp_backend:
+                gp_backend.stop_streaming()
             VirtualCamera.stop()
             VirtualCamera.cleanup_dynamic_devices()
-            gp_backend = self._camera_manager.get_backend(BackendType.GPHOTO2)
-            if gp_backend and hasattr(gp_backend, "stop_streaming"):
-                gp_backend.stop_streaming()
-
-        def _on_cleanup_done(_result=None) -> None:
+        def done(_result=None):
+            if self._recording_hold:
+                self._recording_hold = False
+                app.release()
             if getattr(self, "_background_mode", False):
                 self._background_mode = False
-                app = self.get_application()
-                if app is not None:
-                    app.release()
-
-        run_async(_heavy_cleanup, on_success=_on_cleanup_done)
+                app.release()
+            if self._close_hold:
+                self._close_hold = False
+                app.release()
+            self.destroy()
+        def failed(exc):
+            # Never discard a still-finalizing recording just to close quickly.
+            log.error("Cleanup failed: %s", exc)
+            if not self._video_recorder.wait_finalize(0):
+                GLib.timeout_add_seconds(1, check_finalized)
+            else:
+                done()
+        def check_finalized():
+            if not self._video_recorder.wait_finalize(0):
+                return GLib.SOURCE_CONTINUE
+            run_async(cleanup, on_success=done, on_error=lambda exc: done())
+            return GLib.SOURCE_REMOVE
+        run_async(cleanup, on_success=done, on_error=failed)
 
     # -- theme ---------------------------------------------------------------
 

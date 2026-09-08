@@ -90,6 +90,14 @@ class BigDigicamApp(Adw.Application):
             self._welcome_dialog.present()
         return False
 
+    def _request_quit(self):
+        windows = self.get_windows()
+        if not windows:
+            self.quit()
+            return
+        for window in windows:
+            window.close()
+
     def do_startup(self) -> None:
         Adw.Application.do_startup(self)
 
@@ -134,7 +142,7 @@ class BigDigicamApp(Adw.Application):
 
         # Quit action
         quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda *_: self.quit())
+        quit_action.connect("activate", lambda *_: self._request_quit())
         self.add_action(quit_action)
         self.set_accels_for_action("app.quit", ["<Primary>q"])
 

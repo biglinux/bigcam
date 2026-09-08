@@ -8,7 +8,7 @@ gi.require_version("Adw", "1")
 from gi.repository import Gtk, Gdk, Adw
 
 from constants import APP_NAME, APP_ICON
-from core.event_bus import event_bus
+from utils.i18n import _
 
 class SidebarController:
     """Manages the Sidebar ViewStack and Header."""
@@ -33,6 +33,7 @@ class SidebarController:
         drag_handle.set_cursor(Gdk.Cursor.new_from_name("col-resize"))
         drag_handle.add_css_class("sidebar-drag-handle")
         drag_gesture = Gtk.GestureDrag()
+        drag_gesture.connect("drag-begin", self._on_drag_begin)
         drag_gesture.connect("drag-update", self._on_sidebar_drag)
         drag_handle.add_controller(drag_gesture)
 
@@ -59,6 +60,7 @@ class SidebarController:
 
         close_sidebar_btn = Gtk.Button.new_from_icon_name("window-close-symbolic")
         close_sidebar_btn.add_css_class("flat")
+        close_sidebar_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Close sidebar")])
         close_sidebar_btn.connect("clicked", lambda _b: self._split_view.set_show_sidebar(False))
         sidebar_header.pack_end(close_sidebar_btn)
 
@@ -79,6 +81,7 @@ class SidebarController:
             box.append(icon)
             label = Gtk.Label(label=title)
             label.add_css_class("caption")
+            label.set_wrap(True)
             box.append(label)
             btn.set_child(box)
             btn.add_css_class("flat")
@@ -102,11 +105,21 @@ class SidebarController:
         if btn.get_active():
             self._view_stack.set_visible_child_name(page_name)
 
-    def _on_sidebar_drag(self, gesture: Gtk.GestureDrag, offset_x: float, _offset_y: float) -> None:
-        # Simplistic drag-to-resize logic (ported from window.py)
-        start_x, _ = gesture.get_start_point()
-        current_width = self._split_view.get_sidebar_width_fraction()
-        # Roughly convert pixel delta to fraction delta
-        delta = -(offset_x / 1000.0) 
-        new_width = max(0.2, min(0.5, current_width + delta))
-        self._split_view.set_sidebar_width_fraction(new_width)
+    @property
+    def stack(self):
+        return self._view_stack
+
+
+    def _on_drag_begin(self, gesture, start_x, start_y):
+        self._drag_start_width = self._split_view.get_max_sidebar_width()
+
+
+    def _on_sidebar_drag(self, gesture, offset_x, offset_y):
+        width = self._split_view.get_width()
+        delta = offset_x if self._split_view.get_sidebar_position() == Gtk.PackType.START else -offset_x
+        if self._split_view.get_direction() == Gtk.TextDirection.RTL:
+            delta = -delta
+        target = max(280, min(max(280, width - 160), self._drag_start_width + delta))
+        self._split_view.set_max_sidebar_width(target)
+        self._split_view.set_min_sidebar_width(min(target, 280))
+        self._split_view.set_sidebar_width_fraction(min(1.0, target / max(width, 1)))

@@ -29,24 +29,25 @@ class MobileDeviceController:
         self.scrcpy_wifi = ScrcpyCamera()
         self.airplay_receiver = AirPlayReceiver()
 
+        self._signal_ids = []
         self._setup_signals()
 
     def _setup_signals(self):
-        self.phone_server.connect("connected", self._on_phone_connected)
-        self.phone_server.connect("disconnected", self._on_phone_disconnected)
-        self.phone_server.connect("status-changed", lambda s, st: event_bus.emit("mobile-status-changed", "phone", st))
+        self._connect(self.phone_server, "connected", self._on_phone_connected)
+        self._connect(self.phone_server, "disconnected", self._on_phone_disconnected)
+        self._connect(self.phone_server, "status-changed", lambda s, st: event_bus.emit("mobile-status-changed", "phone", st))
 
-        self.scrcpy_usb.connect("status-changed", lambda c, st: event_bus.emit("mobile-status-changed", "scrcpy_usb", st))
-        self.scrcpy_usb.connect("connected", self._on_scrcpy_receiver_connected)
-        self.scrcpy_usb.connect("disconnected", self._on_scrcpy_receiver_disconnected)
+        self._connect(self.scrcpy_usb, "status-changed", lambda c, st: event_bus.emit("mobile-status-changed", "scrcpy_usb", st))
+        self._connect(self.scrcpy_usb, "connected", self._on_scrcpy_receiver_connected)
+        self._connect(self.scrcpy_usb, "disconnected", self._on_scrcpy_receiver_disconnected)
 
-        self.scrcpy_wifi.connect("status-changed", lambda c, st: event_bus.emit("mobile-status-changed", "scrcpy_wifi", st))
-        self.scrcpy_wifi.connect("connected", self._on_scrcpy_receiver_connected)
-        self.scrcpy_wifi.connect("disconnected", self._on_scrcpy_receiver_disconnected)
+        self._connect(self.scrcpy_wifi, "status-changed", lambda c, st: event_bus.emit("mobile-status-changed", "scrcpy_wifi", st))
+        self._connect(self.scrcpy_wifi, "connected", self._on_scrcpy_receiver_connected)
+        self._connect(self.scrcpy_wifi, "disconnected", self._on_scrcpy_receiver_disconnected)
 
-        self.airplay_receiver.connect("status-changed", lambda r, st: event_bus.emit("mobile-status-changed", "airplay", st))
-        self.airplay_receiver.connect("connected", self._on_airplay_receiver_connected)
-        self.airplay_receiver.connect("disconnected", self._on_airplay_receiver_disconnected)
+        self._connect(self.airplay_receiver, "status-changed", lambda r, st: event_bus.emit("mobile-status-changed", "airplay", st))
+        self._connect(self.airplay_receiver, "connected", self._on_airplay_receiver_connected)
+        self._connect(self.airplay_receiver, "disconnected", self._on_airplay_receiver_disconnected)
 
     def show_dialog(self, parent_window):
         """Shows the mobile connection dialog."""
@@ -138,3 +139,14 @@ class MobileDeviceController:
         self._camera_manager.remove_airplay_cameras()
         event_bus.emit("camera-changed", None)
 
+
+    def _connect(self, obj, signal, callback):
+        self._signal_ids.append((obj, obj.connect(signal, callback)))
+
+    def disconnect_signals(self):
+        if self._phone_disconnect_timer:
+            GLib.source_remove(self._phone_disconnect_timer)
+            self._phone_disconnect_timer = None
+        for obj, ident in self._signal_ids:
+            obj.disconnect(ident)
+        self._signal_ids.clear()

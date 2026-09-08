@@ -42,7 +42,6 @@ PACMAN_PACKAGES=(
     "python-gobject"    # Python GObject bindings (PyGObject)
     "gtk4"              # GTK4 toolkit
     "libadwaita"        # Adwaita library for modern GNOME apps
-    "linux-headers"     # Kernel headers for DKMS module compilation
 )
 OPTIONAL_PACKAGES=(
     "v4l-utils"         # Video4Linux utilities (v4l2-ctl)
@@ -131,7 +130,8 @@ else
     TMPFILE=$(mktemp /tmp/90-libgphoto2.rules.XXXXXX)
     sudo /usr/lib/libgphoto2/print-camera-list udev-rules version 201 > "$TMPFILE" 2>/dev/null || true
     if [ -s "$TMPFILE" ]; then
-        sudo mv "$TMPFILE" "$UDEV_RULE"
+        sudo install -o root -g root -m 0644 -- "$TMPFILE" "$UDEV_RULE"
+        rm -f -- "$TMPFILE"
         sudo udevadm control --reload-rules
         echo -e "  ${GREEN}✓${NC} Regra udev criada"
     else
