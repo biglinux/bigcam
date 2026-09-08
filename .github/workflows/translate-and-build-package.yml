@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
-      - name: Dispatch fixed revision; never execute repository code with this credential
+      - name: Dispatch tested main; never execute repository code with this credential
         env:
           WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
           REVISION: ${{ github.event.workflow_run.head_sha || github.sha }}
@@ -52,7 +52,12 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$WEBHOOK_TOKEN"
-          body=$(python3 -c 'import json,os; print(json.dumps({"event_type":"biglinux/bigcam","client_payload":{"branch":os.environ["REVISION"],"url":"https://github.com/biglinux/bigcam"}}))')
+          current=$(git ls-remote https://github.com/biglinux/bigcam.git refs/heads/main | cut -f1)
+          if [ "$current" != "$REVISION" ]; then
+            echo 'main advanced; its own successful integration run will dispatch the build.'
+            exit 0
+          fi
+          body='{"event_type":"biglinux/bigcam","client_payload":{"branch":"main","url":"https://github.com/biglinux/bigcam"}}'
           for repository in build-package build-package-ARM; do
             curl --fail-with-body --silent --show-error --max-time 30 -X POST \
               -H 'Accept: application/vnd.github+json' -H "Authorization: Bearer $WEBHOOK_TOKEN" \
