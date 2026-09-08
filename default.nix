@@ -105,6 +105,8 @@ stdenv.mkDerivation rec {
       --replace-fail '#!/usr/bin/python3 -I' '#!${python3}/bin/python3 -I' \
       --replace-fail 'SAFE_PATH = "/usr/sbin:/usr/bin:/sbin:/bin"' \
         'SAFE_PATH = "${lib.makeBinPath [ kmod linuxPackages.v4l2loopback.bin ]}"'
+    substituteInPlace $out/share/biglinux/bigcam/core/phone_tls.py \
+      --replace-fail '"PATH": "/usr/bin:/bin"' '"PATH": "${lib.makeBinPath [ openssl ]}"'
 
     # Launcher script
     mkdir -p $out/bin
