@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: bigcam 1.0\n"
+"Project-Id-Version: bigcam\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-26 14:24-0300\n"
+"POT-Creation-Date: 2026-09-07 23:36-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,154 +16,2179 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:232
-msgid "Generic Camera"
+#: usr/share/biglinux/bigcam/ui/preview_area.py:377
+#, python-format
+msgid "%(source)s — audio %(index)d"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:76
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:20
-#: usr/share/biglinux/bigcam/core/effects.py:251
-msgid "Brightness"
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:271
+#, python-format
+msgid "%d file could not be moved to Trash."
+msgid_plural "%d files could not be moved to Trash."
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:227
+#, python-format
+msgid "%d item selected"
+msgid_plural "%d items selected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:735
+#, python-format
+msgid "%d second remaining"
+msgid_plural "%d seconds remaining"
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:870
+#, python-format
+msgid "%d virtual camera allocated"
+msgid_plural "%d virtual cameras allocated"
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:408
+#, python-format
+msgid "%s — volume"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:87
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:21
-#: usr/share/biglinux/bigcam/core/effects.py:252
-msgid "Contrast"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:608
+msgid "180°"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:98
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:22
-msgid "Saturation"
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:49
+msgid "3A Lock"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:109
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:425
+msgid "6-digit code (shown on phone screen)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:607
+msgid "90° Left"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:606
+msgid "90° Right"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1053
+msgid "About"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1004
+msgid "Accept the USB Debugging prompt on the phone screen"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:927
+msgid "Accept the security warning in the browser"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:416
+msgid "Account"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:362
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:80
+msgid "Actions"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:980
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:146
+msgid "Active"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2388
+msgid "Active cameras:"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:87
+msgid "Active features that may be causing this:"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2611
+msgid "Active video recording with encoding"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
+msgid "Add Camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
+msgid "Add IP Camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1049
+msgid "Add IP Camera…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
+msgid "Add IP camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:397
+msgid "Address"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:180
+msgid ""
+"Adjust resolution, quality, and FPS directly on the phone's browser page. "
+"Use the Effects tab for brightness, contrast, and other adjustments."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/effects_page.py:22
+msgid "Adjustments"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:30
+#: usr/share/biglinux/bigcam/ui/effects_page.py:25
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:280
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:470
+msgid "Advanced"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
+msgid "Advanced Controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:972
+msgid "After pairing, tap 'Scan' to find the device"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:138
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1041
+msgid "AirPlay"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1027
+msgid "AirPlay (iPhone / iPad)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1214
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1983
+msgid "AirPlay connected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:568
+msgid ""
+"AirPlay mirrors the iPhone screen. Open the Camera app on your iPhone after "
+"connecting to use it as a webcam."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2643
+msgid "AirPlay receiver"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1997
+msgid "AirPlay stopped unexpectedly"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:689
+msgid "All Files"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:276
+msgid "Always on Top"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2634
+msgid "Android camera via USB/Wi-Fi ADB"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:276
+msgid "App Store"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2644
+msgid "Apple AirPlay screen mirroring via UxPlay"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:154
+msgid "Application theme"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:85
+msgid ""
+"Apply brightness, contrast, blur,\n"
+"sepia, vignette and more effects live"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/effects_page.py:24
+msgid "Artistic"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:451
+msgid "Audio Codec"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/camera_manager.py:230
+msgid "Audio Volume"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:263
+msgid "Authentication (TOTP)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:11
+#: usr/share/biglinux/bigcam/ui/settings_page.py:357
+#: usr/share/biglinux/bigcam/ui/settings_page.py:380
+msgid "Auto"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
+msgid "Auto Exposure"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
+msgid "Auto Focus"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
+msgid "Auto ISO"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:30
 #: usr/share/biglinux/bigcam/core/effects.py:285
 msgid "Auto White Balance"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/backends/libcamera_backend.py:127
-msgid "Exposure Mode"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:448
+msgid "Auto-fill IP:Port"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:23
-msgid "Hue"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:204
+#: usr/share/biglinux/bigcam/ui/settings_page.py:212
+msgid "Auto-optimize resources"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:161
+msgid "Automatically detect cameras when plugged or unplugged."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:205
+msgid "Automatically disable heavy background features when usage is high."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:237
+msgid "Automatically hide camera controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:109
+msgid "Automatically take a photo when a smile is detected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:236
+msgid "Avoid capture flashes and decorative animations."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:284
+#: usr/share/biglinux/bigcam/ui/settings_page.py:295
+msgid "Background transparency"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2601
+msgid "Background virtual cameras"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:292
+msgid "Barcode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:291
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:494
+msgid "Bitrate"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:24
-msgid "Sharpness"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
-#: usr/share/biglinux/bigcam/core/effects.py:264
-msgid "Gamma"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
-msgid "White Balance Temperature"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
-msgid "Gain"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
-msgid "Auto Exposure"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:30
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
-msgid "Exposure Time"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
-msgid "Exposure Auto Priority"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:33
-msgid "Auto Focus"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
-msgid "Focus Distance"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
-msgid "Zoom"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
-msgid "Pan"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:37
-msgid "Tilt"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
-msgid "Power Line Frequency"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
-msgid "Exposure Bias"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
-msgid "WB Preset"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
-msgid "Image Stabilization"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
-msgid "ISO Sensitivity"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
-msgid "Auto ISO"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
-msgid "Scene Mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
-msgid "3A Lock"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
-msgid "LED Mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:47
-msgid "LED Frequency"
+#: usr/share/biglinux/bigcam/core/effects.py:251
+msgid "Brightness"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/core/effects.py:247
 msgid "Brightness / Contrast"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/effects.py:260
-msgid "Gamma Correction"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:114
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:934
+msgid "Browser"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:919
+msgid "Browser (Android / iPhone)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:338
+msgid ""
+"Bypass PipeWire and access the camera directly. May fix flickering on some "
+"webcams."
 msgstr ""
 
 #: usr/share/biglinux/bigcam/core/effects.py:272
 msgid "CLAHE (Adaptive Contrast)"
 msgstr ""
 
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:179
+msgid "Calendar Event"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:10
+#: usr/share/biglinux/bigcam/ui/settings_page.py:348
+msgid "Camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
+msgid "Camera Details"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1387
+msgid "Camera PTP streaming failed."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
+msgid "Camera URL (RTSP or HTTP)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:651
+#: usr/share/biglinux/bigcam/ui/preview_area.py:654
+msgid "Camera busy"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/camera_manager.py:144
+msgid "Camera detection failed. Try refreshing the camera list."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1372
+msgid "Camera does not support USB streaming."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1964
+msgid "Camera in use"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:650
+msgid "Camera in use by:"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1721
+msgid "Camera in video mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2399
+msgid "Camera is active"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:653
+msgid "Camera is being used"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
+msgid "Camera name"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1690
+msgid "Camera photo (full resolution)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1514
+#: usr/share/biglinux/bigcam/ui/window.py:1523
+msgid "Camera preferences will apply after recording stops."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:13
+msgid "Camera preview"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_selector.py:66
+msgid "Camera selector"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1341
+msgid "Camera streaming started!"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:421
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:251
+#: usr/share/biglinux/bigcam/ui/window.py:1693
+#: usr/share/biglinux/bigcam/ui/window.py:1734
+#: usr/share/biglinux/bigcam/ui/window.py:2402
+msgid "Cancel"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:28
+msgid "Capture"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1039
+msgid "Capture Photo"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:917
+msgid "Capture cancelled."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:399
+msgid "Capture failed."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1363
+msgid "Capture not supported"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:108
+msgid "Capture on Smile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:223
+#: usr/share/biglinux/bigcam/ui/preview_area.py:225
+#: usr/share/biglinux/bigcam/ui/window.py:491
+#: usr/share/biglinux/bigcam/ui/window.py:493
+#: usr/share/biglinux/bigcam/ui/window.py:705
+msgid "Capture photo"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1730
+msgid "Capture preview frame"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:395
+#: usr/share/biglinux/bigcam/ui/window.py:579
+msgid "Capture timer"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:883
+#: usr/share/biglinux/bigcam/ui/window.py:977
+#, python-format
+msgid "Capture timer: %ds"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:879
+#: usr/share/biglinux/bigcam/ui/window.py:973
+msgid "Capture timer: Off"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:33
+msgid "Captured Photos"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1755
+msgid "Capturing photo…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:541
+msgid "Change zoom level"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:153
+msgid "Check the connection and try again."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1683
+msgid "Choose capture mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1033
+msgid "Click 'Start' on the AirPlay tab"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:925
+msgid "Click 'Start' on the Browser tab"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1005
+msgid "Click 'Start' on the USB tab"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:973
+msgid "Click 'Start' on the Wi-Fi tab"
+msgstr ""
+
 #: usr/share/biglinux/bigcam/core/effects.py:276
 msgid "Clip Limit"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1981
+msgid "Close"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/controllers/sidebar_ctrl.py:63
+msgid "Close sidebar"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:421
+msgid "Code"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:360
+msgid "Color Map"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:82
+#: usr/share/biglinux/bigcam/ui/window.py:1900
+#: usr/share/biglinux/bigcam/ui/window.py:2262
+#: usr/share/biglinux/bigcam/ui/window.py:2314
+msgid "Connect a camera or select one from the list above."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:924
+msgid "Connect both devices to the same Wi-Fi network"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1003
+msgid "Connect the USB cable to the computer"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:8
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1202
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1208
+msgid "Connected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1582
+#, python-format
+msgid "Connected to %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1689
+#, python-format
+msgid "Connected to %s — starting camera…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1861
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1893
+msgid "Connected via USB"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1863
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1895
+msgid "Connected via Wi-Fi"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1191
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1316
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1338
+msgid "Connected via browser"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1557
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1666
+#, python-format
+msgid "Connecting to %s…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:8
+msgid "Connecting…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1587
+#: usr/share/biglinux/bigcam/ui/preview_area.py:657
+msgid "Connection failed"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1699
+msgid "Connection failed after pairing"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:15
+msgid ""
+"Connection failed. Check permissions, the address and whether another device "
+"is connected."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:211
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:231
+msgid "Contact Card"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:478
+msgid "Container"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:25
+#: usr/share/biglinux/bigcam/core/effects.py:252
+msgid "Contrast"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:266
+#: usr/share/biglinux/bigcam/ui/window.py:664
+msgid "Controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:303
+msgid "Controls bar background darkness."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:320
+#: usr/share/biglinux/bigcam/ui/settings_page.py:331
+msgid "Controls opacity"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:237
+msgid "Controls remain visible while using keyboard focus."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:285
+msgid "Controls the window background transparency."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:409
+msgid "Coordinates"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:607
+msgid "Copied!"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:432
+msgid "Copy"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:539
+msgid "Copy Address"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:563
+msgid "Copy Code"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:468
+msgid "Copy Message"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:453
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:461
+msgid "Copy Number"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:530
+msgid "Copy PIX"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:487
+msgid "Copy Password"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:571
+msgid "Copy Raw"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:495
+msgid "Copy SSID"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:548
+msgid "Copy Secret"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:555
+msgid "Copy URI"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:695
+msgid "Copy URL"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:701
+msgid "Copy URL to clipboard"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:660
+msgid "Could not connect to the camera. Check the connection and try again."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:152
+msgid "Could not load camera controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:272
+msgid "Could not move files to Trash."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:240
+msgid "Could not open the file or folder."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:114
+msgid "Could not read the media folder."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:594
+msgid "Could not reset camera controls."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:444
+msgid "Could not save the profile. Check its name and folder permissions."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:166
+#, python-format
+msgid "Could not start the camera server: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:396
+msgid "Countdown before taking a photo."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:88
+msgid ""
+"Create a virtual camera device\n"
+"for use in video calls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:84
+msgid "Create a virtual camera output for video calls and streaming."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:415
+msgid "Currency"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:146
+msgid "Dark"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:360
+msgid "Delete profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:357
+msgid "Delete selected profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:307
+msgid "Denoise"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:545
+#: usr/share/biglinux/bigcam/ui/tools_page.py:98
+msgid "Detect QR codes in the camera feed"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:392
+msgid "Detect paired devices on your network"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:450
+msgid ""
+"Detects the address automatically. Requires 'Pair with code' (not QR) open "
+"on the phone."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:236
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:360
+#: usr/share/biglinux/bigcam/ui/settings_page.py:561
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:59
+msgid "Device"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:607
+msgid "Device name"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:337
+msgid "Direct V4L2 access"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:7
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1871
+msgid "Disconnected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/notification.py:59
+msgid "Dismiss"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/notification.py:62
+msgid "Dismiss notification"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:108
+msgid "Don't show this warning again"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:106
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:135
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:400
+msgid "E-mail"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:347
+msgid "Edge Detection"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:665
+msgid "Effects"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:964
+msgid "Enable Developer Options (same steps as USB above)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:472
+msgid "Enable Virtual Camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:83
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:90
+msgid "Enable virtual camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:568
+msgid "Enable virtual camera service"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:412
+msgid "End"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1626
+msgid "Enter IP:Port and pairing code"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:418
+msgid "Enter a name for this profile:"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1901
+msgid "Error"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:709
+#, python-format
+msgid "Error: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
+msgid "Exposure"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:36
+msgid "Exposure Auto Priority"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:43
+msgid "Exposure Bias"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:34
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:35
+msgid "Exposure Time"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:287
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:490
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:595
+msgid "FPS"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:377
+msgid "FPS limit"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1773
+msgid "Failed to capture photo."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1803
+msgid "Failed to capture photo. Check the camera mode and connection."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/stream_engine.py:620
+msgid "Failed to obtain GStreamer source for this camera."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1960
+msgid "Failed to start AirPlay. Try again."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/stream_engine.py:709
+#: usr/share/biglinux/bigcam/core/stream_engine.py:966
+#: usr/share/biglinux/bigcam/core/stream_engine.py:976
+#: usr/share/biglinux/bigcam/core/stream_engine.py:1202
+msgid "Failed to start camera stream."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/stream_engine.py:605
+msgid "Failed to start camera streaming process."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1391
+#: usr/share/biglinux/bigcam/ui/window.py:1403
+msgid "Failed to start camera streaming."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2121
+msgid "Failed to start recording."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1260
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1263
+msgid "Failed to start server"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/effects_page.py:23
+msgid "Filters"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2100
+#: usr/share/biglinux/bigcam/ui/window.py:2145
+msgid "Finalizing video…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:455
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1601
+msgid "Find"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:391
+msgid "Find wireless devices"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
+msgid ""
+"Fine-tune exposure, white balance\n"
+"and save per-camera profiles"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1216
+msgid "Finish the current capture before changing cameras."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:962
+msgid "First-time pairing (without USB)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:77
+msgid ""
+"Flip the camera preview\n"
+"horizontally like a mirror"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:252
+msgid "Flip the preview horizontally like a mirror."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
+msgid "Focus"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:38
+msgid "Focus Distance"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1975
+#, python-format
+msgid "Force close %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1606
+#, python-format
+msgid "Found %s — enter the 6-digit code below"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1555
+#, python-format
+msgid "Found: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:11
+msgid "Frames per second"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:259
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:479
+msgid "Front camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:594
+msgid "Fullscreen (F11)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:32
+msgid "Gain"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:49
+msgid "Gallery status"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:29
+#: usr/share/biglinux/bigcam/core/effects.py:264
+msgid "Gamma"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:260
+msgid "Gamma Correction"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:103
+msgid "General"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:211
+msgid "Generic Camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:965
+msgid "Go to Settings → Developer Options → Wireless Debugging"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1002
+msgid "Go to Settings → Developer Options → enable 'USB Debugging'"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:320
+msgid "Grayscale"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/core/effects.py:277
 msgid "Grid Size"
 msgstr ""
 
+#: usr/share/biglinux/bigcam/ui/settings_page.py:274
+msgid "Grid overlay"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:37
+msgid "Grid view"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2624
+msgid "HTTPS/WebSocket server for phone camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:371
+msgid "Hardware defaults"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:406
+msgid "Hidden"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+msgid "High"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:81
+msgid "High resource usage detected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2523
+msgid "High resource usage detected. Optimized automatically."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:598
+msgid "How many virtual camera devices to create (one per camera)."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:838
+msgid "How to connect your phone"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:27
+msgid "Hue"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:117
+msgid "I understand, continue"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:431
+msgid "IP:Port (shown on phone screen)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:46
+msgid "ISO Sensitivity"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:183
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1280
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1326
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1341
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1898
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1973
+msgid "Idle"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:956
+msgid ""
+"If connected via USB, use the wireless icon on the device selector to switch "
+"to Wi-Fi instantly."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2393
+msgid ""
+"If you choose to keep it running, the camera will remain on after closing "
+"the application."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
+msgid "Image"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:45
+msgid "Image Stabilization"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:13
+msgid "Include microphone audio"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/effects_page.py:70
+msgid "Install python-opencv to enable video effects."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:77
+msgid "Install python-opencv to use tools."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:817
+#, python-format
+msgid "Install required: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:786
+msgid "Instructions"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:129
+msgid "Invalid server port"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:418
+msgid "Issuer"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2401
+msgid "Keep camera on"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:51
+msgid "LED Frequency"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:50
+msgid "LED Mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:418
+#: usr/share/biglinux/bigcam/ui/window.py:745
+msgid "Last photo"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:745
+msgid "Last video"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:407
+msgid "Latitude"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:257
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:477
+msgid "Lens"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:154
+msgid "Let's Start"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:146
+msgid "Light"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:38
+msgid "List view"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:523
+msgid "Live"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1045
+msgid "Load Profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:62
+msgid "Load more"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:149
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:155
+msgid "Loaded"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:139
+msgid "Loading controls…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:105
+msgid "Loading media…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:165
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:413
+msgid "Location"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:408
+msgid "Longitude"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+msgid "Low"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:336
+msgid "Main menu"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1032
+msgid "Make sure both devices are on the same Wi-Fi network"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:342
+msgid "Manage"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:343
+msgid "Manage profiles"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:569
+msgid "Master switch to allow virtual camera outputs."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:268
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:485
+msgid "Maximum"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:597
+msgid "Maximum virtual cameras"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+msgid "Medium"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:334
+msgid "Menu"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:396
+msgid "Message"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:16
+msgid ""
+"Microphone audio is unavailable. Stop and reconnect, or turn off microphone "
+"audio."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:76
+msgid "Mirror Preview"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:251
+#: usr/share/biglinux/bigcam/ui/settings_page.py:257
+#: usr/share/biglinux/bigcam/ui/window.py:431
+msgid "Mirror preview"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1028
+msgid "Mirrors the entire screen (not just the camera)."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:68
+msgid "Module"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:985
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:152
+msgid "Module loaded"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
+msgid "Module not available for current kernel"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:990
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:158
+msgid "Module not loaded"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:249
+#, python-format
+msgid "Move %d item to Trash?"
+msgid_plural "Move %d items to Trash?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:168
+#, python-format
+msgid "Move %s to Trash"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:78
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:167
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:252
+msgid "Move to Trash"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:71
+msgid "Multiple Cameras"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:295
+#: usr/share/biglinux/bigcam/ui/preview_area.py:297
+#: usr/share/biglinux/bigcam/ui/preview_area.py:461
+#: usr/share/biglinux/bigcam/ui/preview_area.py:463
+msgid "Mute"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:44
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:398
+msgid "Name"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:612
+msgid ""
+"Name template for virtual cameras. Devices will be named '<name> 1', '<name> "
+"2', etc.\n"
+"Press Enter or click ✓ to apply."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:338
+msgid "Negative"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:403
+msgid "Network (SSID)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1411
+msgid "No USB device connected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2106
+msgid "No active camera stream."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:187
+msgid "No adjustable controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:951
+msgid "No cable needed after the first setup."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:81
+#: usr/share/biglinux/bigcam/ui/window.py:1899
+#: usr/share/biglinux/bigcam/ui/window.py:2261
+#: usr/share/biglinux/bigcam/ui/window.py:2313
+msgid "No camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:97
+msgid "No camera selected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1675
+msgid "No camera selected."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:1009
+msgid "No cameras connected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1716
+msgid "No device available to start"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1415
+msgid ""
+"No device found. Connect via USB cable and enable USB Debugging, then tap "
+"'Refresh'."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1784
+msgid "No device found. Pair a device first, then tap 'Scan'."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1547
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1768
+msgid "No devices found"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1662
+msgid "No devices found after pairing"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1549
+msgid "No devices found. Try 'Pair new device'."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:100
+msgid ""
+"No features can be disabled (active camera sources cannot be stopped from "
+"here)."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:232
+msgid "No media yet"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2215
+msgid "No profiles found."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1454
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1823
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1915
+msgid "No v4l2loopback device"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:605
+msgid "None"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1612
+msgid ""
+"Not found. Make sure you tapped 'Pair with pairing code' (not QR Code) and "
+"that the code screen is still open. You can also type the IP:Port manually."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:137
+msgid "Not installed"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:562
+#: usr/share/biglinux/bigcam/ui/settings_page.py:992
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:60
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:160
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:161
+msgid "Not loaded"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:968
+msgid "Note the IP:Port and 6-digit code shown on the phone"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:395
+msgid "Number"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1837
+msgid "OK"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:400
+#: usr/share/biglinux/bigcam/ui/window.py:572
+#: usr/share/biglinux/bigcam/ui/window.py:877
+#: usr/share/biglinux/bigcam/ui/window.py:971
+msgid "Off"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:969
+msgid "On the Wi-Fi tab, expand 'Pair new device'"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1000
+msgid "On your Android phone, go to Settings → About Phone"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1034
+msgid "On your iPhone, open Control Center (swipe down from top-right)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:14
+msgid ""
+"Only connect on a trusted network. Anyone with this address can connect to "
+"the camera service."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:416
+msgid "Only needed once per device"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:156
+#, python-format
+msgid "Open %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:477
+msgid "Open E-mail Client"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:69
+msgid "Open folder"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:444
+msgid "Open in Browser"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:503
+msgid "Open in Maps"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:420
+msgid "Open last photo"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:70
+msgid "Open media folder"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:116
+msgid "Open photos folder"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:663
+msgid "Open this URL in any phone browser to stream the camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:133
+msgid "Open videos folder"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/effects_page.py:69
+#: usr/share/biglinux/bigcam/ui/tools_page.py:76
+msgid "OpenCV not available"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:119
+msgid "Optimize (disable heavy features)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:971
+msgid "Or tap 'Find' to auto-fill the IP:Port"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:401
+msgid "Organization"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:302
+#: usr/share/biglinux/bigcam/ui/settings_page.py:313
+msgid "Overlay opacity"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:437
+msgid "Pair"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:415
+msgid "Pair new device"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1631
+msgid "Pairing…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:40
+msgid "Pan"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:404
+msgid "Password"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:414
+msgid "Payload"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:236
+msgid "Payment (PIX)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:84
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:399
+#: usr/share/biglinux/bigcam/ui/window.py:159
+msgid "Phone"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2378
+msgid "Phone (AirPlay)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2370
+msgid "Phone (Browser Wi-Fi)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2374
+msgid "Phone (USB/Wi-Fi scrcpy)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/controllers/mobile_device_ctrl.py:82
+msgid "Phone Mic (Browser)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:7
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:58
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:92
+#: usr/share/biglinux/bigcam/ui/window.py:168
+msgid "Phone as Webcam"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1050
+msgid "Phone as Webcam…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:178
+msgid "Phone camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2623
+msgid "Phone camera server"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/stream_engine.py:1485
+msgid "Phone camera server not available."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:185
+msgid "Phone camera status"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:68
+msgid "Photo & Video Capture"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:110
+msgid "Photo directory"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:380
+#: usr/share/biglinux/bigcam/ui/window.py:382
+msgid "Photo mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:396
+#: usr/share/biglinux/bigcam/ui/window.py:1767
+#: usr/share/biglinux/bigcam/ui/window.py:1801
+msgid "Photo saved!"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:666
+msgid "Photos"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:582
+#: usr/share/biglinux/bigcam/ui/window.py:1303
+#: usr/share/biglinux/bigcam/ui/window.py:1410
+#: usr/share/biglinux/bigcam/ui/window.py:1784
+msgid "Please wait…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:712
+msgid "Port"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:42
+msgid "Power Line Frequency"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:245
+msgid "Preview"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1689
+msgid "Preview screenshot"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:331
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:332
+msgid "Profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2227
+#, python-format
+msgid "Profile loaded: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:427
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:430
+msgid "Profile name"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2205
+msgid "Profile saved."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:328
+#: usr/share/biglinux/bigcam/ui/window.py:1046
+msgid "Profiles"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:327
+msgid "QR Code Detected"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:542
+#: usr/share/biglinux/bigcam/ui/tools_page.py:93
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:79
+msgid "QR Code Scanner"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1667
+msgid "QR Code detected!"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:676
+msgid "QR Code — scan with your phone"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:10
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:266
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:483
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:585
+msgid "Quality"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:954
+msgid "Quick method"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1057
+msgid "Quit"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:220
+msgid "Re-enable all dismissed resource usage warnings."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1583
+msgid "Ready to start camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:84
+msgid "Real-Time Effects"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2583
+msgid "Real-time filters, background blur, artistic effects"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:11
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:259
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:479
+msgid "Rear camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:973
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:133
+msgid "Reboot required (kernel updated)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1040
+msgid "Record Video"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:249
+#: usr/share/biglinux/bigcam/ui/preview_area.py:677
+#: usr/share/biglinux/bigcam/ui/window.py:520
+msgid "Record video"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:247
+#: usr/share/biglinux/bigcam/ui/preview_area.py:688
+#: usr/share/biglinux/bigcam/ui/window.py:518
+msgid "Record video (Ctrl+R)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:33
+msgid "Recorded Videos"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:416
+msgid "Recording"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2168
+#, python-format
+msgid "Recording failed. Any partial file has been preserved: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2142
+msgid "Recording…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:236
+msgid "Reduce motion and flashes"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:65
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:245
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:380
+#: usr/share/biglinux/bigcam/ui/window.py:1051
+msgid "Refresh"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:324
+msgid "Refresh camera list"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:322
+msgid "Refresh cameras"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:66
+msgid "Refresh gallery"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:225
+msgid "Reset"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:573
+#, python-format
+msgid "Reset %s controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/effects_page.py:111
+#, python-format
+msgid "Reset %s effects"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:367
+msgid "Reset all controls to hardware defaults"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:350
+msgid "Reset camera settings"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:228
+msgid "Reset dismissed resource warnings"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:105
+msgid "Reset general settings"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:247
+msgid "Reset preview settings"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:418
+msgid "Reset recording settings"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:219
+msgid "Reset resource warnings"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:570
+#: usr/share/biglinux/bigcam/ui/effects_page.py:107
+#: usr/share/biglinux/bigcam/ui/settings_page.py:771
+msgid "Reset to defaults"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:10
+#: usr/share/biglinux/bigcam/ui/settings_page.py:354
+msgid "Resolution"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:188
+#: usr/share/biglinux/bigcam/ui/settings_page.py:196
+msgid "Resource usage monitor"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:602
+msgid "Rotation"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:93
+msgid "SMS"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:26
+msgid "Saturation"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:422
+msgid "Save"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:512
+msgid "Save .ics File"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:521
+msgid "Save Contact"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:417
+#: usr/share/biglinux/bigcam/ui/window.py:1044
+msgid "Save Profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:348
+msgid "Save current settings as new profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:351
+msgid "Save profile"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:574
+msgid "Save to File"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:705
+#, python-format
+msgid "Saved: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:400
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1545
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1579
+msgid "Scan"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:544
+#: usr/share/biglinux/bigcam/ui/tools_page.py:97
+#: usr/share/biglinux/bigcam/ui/window.py:446
+msgid "Scan QR Codes"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:80
+msgid ""
+"Scan QR codes and barcodes\n"
+"directly from the camera feed"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:926
+msgid "Scan the QR code with your phone or type the URL"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1653
+msgid "Scanning for paired device…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1535
+msgid "Scanning network…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1533
+msgid "Scanning…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:48
+msgid "Scene Mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2633
+msgid "Scrcpy (Android camera)"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:237
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:361
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1593
+msgid "Searching…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:417
+msgid "Secret"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:405
+msgid "Security"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:162
+msgid "Select"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:163
+#, python-format
+msgid "Select %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:98
+msgid "Select a camera to see its controls."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_selector.py:64
+msgid "Select camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:75
+msgid "Select displayed items"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:43
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:44
+msgid "Select items"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:579
+msgid "Select which cameras should output to a virtual device."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1424
+msgid "Selected device is no longer available. Tap 'Refresh' to update."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1793
+msgid "Selected device is no longer available. Tap 'Scan' to refresh."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:115
+msgid "Sensitivity"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:329
+msgid "Sepia"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:144
+msgid "Server did not start in time"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1242
+#, python-format
+msgid "Server listening on port %d"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:668
+msgid "Settings"
+msgstr ""
+
 #: usr/share/biglinux/bigcam/core/effects.py:295
 msgid "Sharpen"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:28
+msgid "Sharpness"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1910
+#: usr/share/biglinux/bigcam/ui/window.py:2276
+msgid "Show"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:263
+#: usr/share/biglinux/bigcam/ui/settings_page.py:268
+msgid "Show FPS counter"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:275
+msgid "Show a rule-of-thirds grid over the preview."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:143
+msgid "Show dialog on startup"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:173
+#: usr/share/biglinux/bigcam/ui/settings_page.py:181
+msgid "Show help on hover"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:174
+msgid "Show tooltip hints when hovering over buttons."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:311
+msgid "Show volume controls"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:229
+#, python-format
+msgid "Showing %(shown)d of %(total)d items"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:104
+msgid "Smile Capture"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/tools_page.py:384
+msgid "Smile detected! Capturing..."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:283
+msgid "Social Network"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:411
+msgid "Some profile controls could not be applied."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:9
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:313
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:517
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:621
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:733
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:411
+msgid "Start"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:699
+#: usr/share/biglinux/bigcam/ui/window.py:2148
+msgid "Start recording"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:688
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1282
+msgid "Start to see the address"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1944
+msgid "Starting AirPlay…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1304
+#: usr/share/biglinux/bigcam/ui/window.py:1411
+msgid "Starting camera stream…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2128
+msgid "Starting recording…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1227
+msgid "Starting server…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1461
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1830
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1889
+msgid "Starting…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:29
+#: usr/share/biglinux/bigcam/ui/settings_page.py:555
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:43
+msgid "Status"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:9
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:314
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:518
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:622
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:734
+msgid "Stop"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2400
+msgid "Stop camera and close"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:677
+#: usr/share/biglinux/bigcam/ui/preview_area.py:682
+#: usr/share/biglinux/bigcam/ui/window.py:2148
+msgid "Stop recording"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1376
+msgid "Streaming failed"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/core/effects.py:299
@@ -172,80 +2197,127 @@ msgstr ""
 msgid "Strength"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/effects.py:307
-msgid "Denoise"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:320
-msgid "Grayscale"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:329
-msgid "Sepia"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:338
-msgid "Negative"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:347
-msgid "Edge Detection"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:351
-msgid "Threshold 1"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:352
-msgid "Threshold 2"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/core/effects.py:360
-msgid "Color Map"
-msgstr ""
-
 #: usr/share/biglinux/bigcam/core/effects.py:364
 msgid "Style"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/effects.py:372
-msgid "Vignette"
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:420
+msgid "Subject"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/phone_camera.py:560
-msgid "python-aiohttp is not installed"
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:410
+msgid "Summary"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/phone_camera.py:579
-msgid "Server did not start in time"
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:112
+msgid "Suppress resource usage warnings permanently"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/phone_camera.py:638
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:72
+msgid ""
+"Switch between USB, IP, and\n"
+"virtual cameras with hotplug support"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:9
+msgid "Switch camera"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:370
+msgid "Switch device to Wi-Fi mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1734
+msgid "Switching to Wi-Fi…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1784
+msgid "Switching to photography mode."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:146
+msgid "System"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:69
+msgid ""
+"Take photos and record videos\n"
+"with timer and countdown support"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1001
+msgid "Tap 'Build Number' 7 times to unlock Developer Options"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:966
+msgid "Tap 'Pair device with pairing code'"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1035
+msgid "Tap 'Screen Mirroring' and select 'BigCam'"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:928
+msgid "Tap 'Start' on the phone's browser page"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:295
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:394
+msgid "Text"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:674
+msgid "Text Files"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:85
 #, python-format
-msgid "Port %d is already in use"
+msgid "The application is using %s and %s."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/stream_engine.py:718
-msgid "Failed to start camera streaming process."
+#: usr/share/biglinux/bigcam/ui/window.py:1955
+#, python-format
+msgid ""
+"The camera \"%(camera)s\" is being used by: %(apps)s.\n"
+"\n"
+"Close the other application or force-close it to free the camera."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/stream_engine.py:732
-msgid "Failed to obtain GStreamer source for this camera."
+#: usr/share/biglinux/bigcam/ui/window.py:1960
+#, python-format
+msgid ""
+"The camera \"%s\" is being used by another application.\n"
+"\n"
+"Close the other application to free the camera."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/stream_engine.py:815
-#: usr/share/biglinux/bigcam/core/stream_engine.py:1143
-#: usr/share/biglinux/bigcam/core/stream_engine.py:1154
-#: usr/share/biglinux/bigcam/core/stream_engine.py:1379
-msgid "Failed to start camera stream."
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:549
+msgid "The camera could not apply this setting."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/stream_engine.py:1742
-msgid "Phone camera server not available."
+#: usr/share/biglinux/bigcam/ui/window.py:1378
+msgid ""
+"The camera returned PTP errors during video capture. It may lack PC Remote "
+"mode or its USB connection mode needs to be changed. Check the camera menu "
+"for USB settings and select 'PC Remote' if available.\n"
+"\n"
+"Alternatively, use an HDMI capture card."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/core/stream_engine.py:1925
-msgid "Unknown GStreamer error"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:996
+msgid "The easiest and fastest method."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:1835
+#, python-brace-format
+msgid ""
+"The maximum limit of {} virtual cameras has been reached. Please disconnect "
+"some cameras or disable background virtual cameras in settings to connect a "
+"new one."
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:134
+msgid "The previous server session is still stopping."
 msgstr ""
 
 #: usr/share/biglinux/bigcam/ui/about_dialog.py:39
@@ -261,1560 +2333,221 @@ msgid ""
 "photo and video capture, and 29 languages."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
-msgid "Image"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:143
+msgid "Theme"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:23
-msgid "Exposure"
+#: usr/share/biglinux/bigcam/core/phone_strings.py:17
+msgid "This address is no longer valid. Scan the current QR code in BigCam."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:24
-msgid "Focus"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:25
-msgid "White Balance"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:26
-msgid "Capture"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:27
-#: usr/share/biglinux/bigcam/ui/settings_page.py:507
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:43
-msgid "Status"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:28
-#: usr/share/biglinux/bigcam/ui/effects_page.py:25
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:292
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:481
-msgid "Advanced"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:91
-msgid "No camera selected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:92
-msgid "Select a camera to see its controls."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:125
-msgid "Loading controls…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:164
-msgid "Phone camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:166
-msgid ""
-"Adjust resolution, quality, and FPS directly on the phone's browser page. "
-"Use the Effects tab for brightness, contrast, and other adjustments."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:173
-msgid "No adjustable controls"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:174
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:188
 msgid "This camera does not expose any controls."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:326
-#: usr/share/biglinux/bigcam/ui/window.py:1164
-msgid "Profiles"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:329
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:330
-msgid "Profile"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:340
-msgid "Manage"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:341
-msgid "Manage profiles"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:346
-msgid "Save current settings as new profile"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:349
-msgid "Save profile"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:355
-msgid "Delete selected profile"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:358
-msgid "Delete profile"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:365
-msgid "Reset all controls to hardware defaults"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:369
-msgid "Hardware defaults"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:427
-#: usr/share/biglinux/bigcam/ui/window.py:1162
-msgid "Save Profile"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:428
-msgid "Enter a name for this profile:"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:431
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:386
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:422
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:428
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:523
-#: usr/share/biglinux/bigcam/ui/window.py:2640
-msgid "Cancel"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:432
-msgid "Save"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:437
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:440
-msgid "Profile name"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:618
-#: usr/share/biglinux/bigcam/ui/effects_page.py:106
-#: usr/share/biglinux/bigcam/ui/settings_page.py:669
-msgid "Reset to defaults"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:621
-#, python-format
-msgid "Reset %s controls"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_selector.py:64
-msgid "Select camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/camera_selector.py:66
-msgid "Camera selector"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/effects_page.py:22
-msgid "Adjustments"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/effects_page.py:23
-msgid "Filters"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/effects_page.py:24
-msgid "Artistic"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/effects_page.py:68
-#: usr/share/biglinux/bigcam/ui/tools_page.py:76
-msgid "OpenCV not available"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/effects_page.py:69
-msgid "Install python-opencv to enable video effects."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/effects_page.py:110
-#, python-format
-msgid "Reset %s effects"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:24
-msgid "Add IP Camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:42
-msgid "Camera Details"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:44
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:398
-msgid "Name"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:46
-msgid "Camera name"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:696
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:287
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:393
-msgid "URL"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:53
-msgid "Camera URL (RTSP or HTTP)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:60
-msgid "Add Camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:64
-msgid "Add IP camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/notification.py:59
-msgid "Dismiss"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/notification.py:62
-msgid "Dismiss notification"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:57
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:87
-#: usr/share/biglinux/bigcam/ui/window.py:155
-msgid "Phone as Webcam"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:109
-msgid "About connection methods"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:112
-msgid "Information about connection methods"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:126
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:931
-msgid "Browser"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:134
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:976
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:155
-msgid "Wi-Fi"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:142
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1008
-msgid "USB"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:150
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1038
-msgid "AirPlay"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:195
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1311
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1357
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1372
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1518
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1891
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1946
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2020
-msgid "Idle"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:248
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:371
-#: usr/share/biglinux/bigcam/ui/settings_page.py:513
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:59
-msgid "Device"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:249
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:372
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1629
-msgid "Searching…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:257
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:391
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:84
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:103
-#: usr/share/biglinux/bigcam/ui/window.py:1169
-msgid "Refresh"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:269
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:488
-msgid "Lens"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:271
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:490
-msgid "Rear camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:271
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:490
-msgid "Front camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:278
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:494
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:595
-msgid "Quality"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:280
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:496
-msgid "Maximum"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:299
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:501
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:605
-msgid "FPS"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:303
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:505
-msgid "Bitrate"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:325
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:528
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:631
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:742
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:411
-msgid "Start"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:326
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:529
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:632
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:743
-msgid "Stop"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:381
-msgid "Switch device to Wi-Fi mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:402
-msgid "Find wireless devices"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:403
-msgid "Detect paired devices on your network"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:411
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1581
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1615
-msgid "Scan"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:426
-msgid "Pair new device"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:427
-msgid "Only needed once per device"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:436
-msgid "6-digit code (shown on phone screen)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:442
-msgid "IP:Port (shown on phone screen)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:448
-msgid "Pair"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:459
-msgid "Auto-fill IP:Port"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:461
+#: usr/share/biglinux/bigcam/ui/window.py:1365
 msgid ""
-"Detects the address automatically. Requires 'Pair with code' (not QR) open "
-"on the phone."
+"This camera does not support live streaming via USB. Its PTP driver only "
+"allows file transfer. Use an HDMI capture card to stream from this camera."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:466
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1637
-msgid "Find"
+#: usr/share/biglinux/bigcam/core/effects.py:351
+msgid "Threshold 1"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:578
-msgid ""
-"AirPlay mirrors the iPhone screen. Open the Camera app on your iPhone after "
-"connecting to use it as a webcam."
+#: usr/share/biglinux/bigcam/core/effects.py:352
+msgid "Threshold 2"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:584
-msgid "Visible name"
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:41
+msgid "Tilt"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:612
-msgid "Rotation"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:615
-msgid "None"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:616
-msgid "90° Right"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:617
-msgid "90° Left"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:618
-msgid "180°"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:672
-msgid "Open this URL in any phone browser to stream the camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:685
-msgid "QR Code — scan with your phone"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:697
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1313
-msgid "Start to see the address"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:704
-msgid "Copy URL"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:710
-msgid "Copy URL to clipboard"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:721
-msgid "Port"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:814
-#, python-format
-msgid "Install required: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:835
-msgid "How to connect your phone"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:916
-msgid "Browser (Android / iPhone)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:917
-msgid "Works with any phone, no app required."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:921
-msgid "Connect both devices to the same Wi-Fi network"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:922
-msgid "Click 'Start' on the Browser tab"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:923
-msgid "Scan the QR code with your phone or type the URL"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:924
-msgid "Accept the security warning in the browser"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:925
-msgid "Tap 'Start' on the phone's browser page"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:947
-msgid "Wi-Fi (Android 11+)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:948
-msgid "No cable needed after the first setup."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:951
-msgid "Quick method"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:953
-msgid ""
-"If connected via USB, use the wireless icon on the device selector to switch "
-"to Wi-Fi instantly."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:959
-msgid "First-time pairing (without USB)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:961
-msgid "Enable Developer Options (same steps as USB above)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:962
-msgid "Go to Settings → Developer Options → Wireless Debugging"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:963
-msgid "Tap 'Pair device with pairing code'"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:964
-msgid "Use 'pairing CODE', NOT 'QR Code'"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:965
-msgid "Note the IP:Port and 6-digit code shown on the phone"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:966
-msgid "On the Wi-Fi tab, expand 'Pair new device'"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:967
-msgid "Type the IP:Port and code, then tap 'Pair'"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:968
-msgid "Or tap 'Find' to auto-fill the IP:Port"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:969
-msgid "After pairing, tap 'Scan' to find the device"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:970
-msgid "Click 'Start' on the Wi-Fi tab"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:992
-msgid "USB (Android)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:993
-msgid "The easiest and fastest method."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:997
-msgid "On your Android phone, go to Settings → About Phone"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:998
-msgid "Tap 'Build Number' 7 times to unlock Developer Options"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:999
-msgid "Go to Settings → Developer Options → enable 'USB Debugging'"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1000
-msgid "Connect the USB cable to the computer"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1001
-msgid "Accept the USB Debugging prompt on the phone screen"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1002
-msgid "Click 'Start' on the USB tab"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1024
-msgid "AirPlay (iPhone / iPad)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1025
-msgid "Mirrors the entire screen (not just the camera)."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1029
-msgid "Make sure both devices are on the same Wi-Fi network"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1030
-msgid "Click 'Start' on the AirPlay tab"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1031
-msgid "On your iPhone, open Control Center (swipe down from top-right)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1032
-msgid "Tap 'Screen Mirroring' and select 'BigCam'"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1209
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1347
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1369
-msgid "Connected via browser"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1214
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1276
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1354
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1366
-msgid "Waiting for connection…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1241
-msgid "Connected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1246
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2030
-msgid "AirPlay connected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1258
-msgid "Starting server…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1273
-#, python-format
-msgid "Server listening on port %d"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1291
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1294
-msgid "Failed to start server"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1442
-msgid "No USB device connected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1446
-msgid ""
-"No device found. Connect via USB cable and enable USB Debugging, then tap "
-"'Refresh'."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1455
-msgid "Selected device is no longer available. Tap 'Refresh' to update."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1485
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1859
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1962
-msgid "No v4l2loopback device"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1492
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1866
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1937
-msgid "Starting…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1569
-msgid "Scanning…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1571
-msgid "Scanning network…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1583
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1804
-msgid "No devices found"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1585
-msgid "No devices found. Try 'Pair new device'."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1591
-#, python-format
-msgid "Found: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1593
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1702
-#, python-format
-msgid "Connecting to %s…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1618
-#, python-format
-msgid "Connected to %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1619
-msgid "Ready to start camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1623
-#: usr/share/biglinux/bigcam/ui/preview_area.py:654
-msgid "Connection failed"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1642
-#, python-format
-msgid "Found %s — enter the 6-digit code below"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1648
-msgid ""
-"Not found. Make sure you tapped 'Pair with pairing code' (not QR Code) and "
-"that the code screen is still open. You can also type the IP:Port manually."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1662
-msgid "Enter IP:Port and pairing code"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1667
-msgid "Pairing…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1689
-msgid "Scanning for paired device…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1698
-msgid "No devices found after pairing"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1725
-#, python-format
-msgid "Connected to %s — starting camera…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1735
-msgid "Connection failed after pairing"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1752
-msgid "No device available to start"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1770
-msgid "Switching to Wi-Fi…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1781
-#, python-format
-msgid "Wi-Fi: %s (unplug USB)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1786
-msgid "Wi-Fi switch failed"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1820
-msgid "No device found. Pair a device first, then tap 'Scan'."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1829
-msgid "Selected device is no longer available. Tap 'Scan' to refresh."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1902
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1941
-msgid "Connected via USB"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1904
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1943
-msgid "Connected via Wi-Fi"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1911
-msgid "Disconnected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1949
-msgid "Error"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1991
-msgid "Starting AirPlay…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2007
-msgid "Failed to start AirPlay. Try again."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2044
-msgid "AirPlay stopped unexpectedly"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2052
-msgid "Waiting for AirPlay connection…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:56
-msgid "Captured Photos"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:63
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:82
-msgid "Grid view"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:66
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:85
-msgid "List view"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:78
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:97
-msgid "Select items"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:90
-#: usr/share/biglinux/bigcam/ui/settings_page.py:111
-msgid "Open photos folder"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:136
-msgid "No photos yet"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:137
-msgid "Captured photos will appear here."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:146
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:180
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:165
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:199
-msgid "0 selected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:149
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:168
-msgid "Select All"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:153
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:292
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:354
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:387
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:423
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:172
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:346
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:395
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:429
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:524
-msgid "Delete"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:180
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:199
-#, python-format
-msgid "%d selected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:383
-#, python-format
-msgid "Delete %d photos?"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:384
-msgid "These photos will be permanently deleted."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:419
-msgid "Delete photo?"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/photo_gallery.py:420
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:521
-#, python-format
-msgid "\"%s\" will be permanently deleted."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:81
-#: usr/share/biglinux/bigcam/ui/window.py:2015
-#: usr/share/biglinux/bigcam/ui/window.py:2575
-msgid "No camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:82
-#: usr/share/biglinux/bigcam/ui/window.py:2016
-#: usr/share/biglinux/bigcam/ui/window.py:2576
-msgid "Connect a camera or select one from the list above."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:89
-#: usr/share/biglinux/bigcam/ui/preview_area.py:95
-#: usr/share/biglinux/bigcam/ui/window.py:1743
-#: usr/share/biglinux/bigcam/ui/window.py:2267
-msgid "Try again"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:223
-#: usr/share/biglinux/bigcam/ui/preview_area.py:225
-#: usr/share/biglinux/bigcam/ui/window.py:467
-#: usr/share/biglinux/bigcam/ui/window.py:469
-#: usr/share/biglinux/bigcam/ui/window.py:787
-msgid "Capture photo"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:247
-#: usr/share/biglinux/bigcam/ui/preview_area.py:682
-#: usr/share/biglinux/bigcam/ui/window.py:494
-msgid "Record video (Ctrl+R)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:249
-#: usr/share/biglinux/bigcam/ui/window.py:496
-msgid "Record video"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:295
-#: usr/share/biglinux/bigcam/ui/preview_area.py:297
-#: usr/share/biglinux/bigcam/ui/preview_area.py:459
-msgid "Mute"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:456
-msgid "Unmute"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:579
-#: usr/share/biglinux/bigcam/ui/window.py:1403
-#: usr/share/biglinux/bigcam/ui/window.py:1474
-#: usr/share/biglinux/bigcam/ui/window.py:1792
-#: usr/share/biglinux/bigcam/ui/window.py:1858
-msgid "Please wait…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:647
-msgid "Camera in use by:"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:648
-#: usr/share/biglinux/bigcam/ui/preview_area.py:651
-msgid "Camera busy"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:650
-msgid "Camera is being used"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:657
-msgid "Could not connect to the camera. Check the connection and try again."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:676
-#: usr/share/biglinux/bigcam/ui/window.py:2439
-msgid "Stop recording"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/preview_area.py:725
-#: usr/share/biglinux/bigcam/ui/preview_area.py:736
-#, python-brace-format
-msgid "{n} seconds remaining"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:84
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:399
-#: usr/share/biglinux/bigcam/ui/window.py:146
-msgid "Phone"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:93
-msgid "SMS"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:106
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:135
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:400
-msgid "E-mail"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:165
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:413
-msgid "Location"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:179
-msgid "Calendar Event"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:211
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:231
-msgid "Contact Card"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:236
-msgid "Payment (PIX)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:263
-msgid "Authentication (TOTP)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:276
-msgid "App Store"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:283
-msgid "Social Network"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:292
-msgid "Barcode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:295
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:394
-msgid "Text"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:327
-msgid "QR Code Detected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:362
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:80
-msgid "Actions"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:395
-msgid "Number"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:396
-msgid "Message"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:397
-msgid "Address"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:401
-msgid "Organization"
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:122
+msgid "Tip: Press Ctrl+P to capture, Ctrl+R to record, Tab to toggle sidebar"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/ui/qr_dialog.py:402
 msgid "Title"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:403
-msgid "Network (SSID)"
+#: usr/share/biglinux/bigcam/ui/window.py:554
+msgid "Toggle grid overlay"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:404
-msgid "Password"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:321
+msgid "Transparency of the buttons over the preview."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:405
-msgid "Security"
+#: usr/share/biglinux/bigcam/ui/preview_area.py:89
+#: usr/share/biglinux/bigcam/ui/preview_area.py:95
+#: usr/share/biglinux/bigcam/ui/window.py:1731
+#: usr/share/biglinux/bigcam/ui/window.py:1966
+msgid "Try again"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:406
-msgid "Hidden"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:407
-msgid "Latitude"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:408
-msgid "Longitude"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:409
-msgid "Coordinates"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:410
-msgid "Summary"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:412
-msgid "End"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:414
-msgid "Payload"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:415
-msgid "Currency"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:416
-msgid "Account"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:417
-msgid "Secret"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:418
-msgid "Issuer"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:970
+msgid "Type the IP:Port and code, then tap 'Pair'"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/ui/qr_dialog.py:419
 msgid "URI"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:420
-msgid "Subject"
+#: usr/share/biglinux/bigcam/ui/ip_camera_dialog.py:50
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:687
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:287
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:393
+msgid "URL"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:421
-msgid "Code"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:130
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1011
+msgid "USB"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:432
-msgid "Copy"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:995
+msgid "USB (Android)"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:444
-msgid "Open in Browser"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:453
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:461
-msgid "Copy Number"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:468
-msgid "Copy Message"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:472
-msgid "WhatsApp"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:477
-msgid "Open E-mail Client"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:487
-msgid "Copy Password"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:495
-msgid "Copy SSID"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:503
-msgid "Open in Maps"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:512
-msgid "Save .ics File"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:521
-msgid "Save Contact"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:530
-msgid "Copy PIX"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:539
-msgid "Copy Address"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:548
-msgid "Copy Secret"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:555
-msgid "Copy URI"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:563
-msgid "Copy Code"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:571
-msgid "Copy Raw"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:574
-msgid "Save to File"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:607
-msgid "Copied!"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:643
-msgid "iCalendar Files"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:669
-msgid "vCard Files"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:674
-msgid "Text Files"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:689
-msgid "All Files"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:705
-#, python-format
-msgid "Saved: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/qr_dialog.py:709
-#, python-format
-msgid "Error: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:76
-msgid "High resource usage detected"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:80
-#, python-format
-msgid "The application is using %s and %s."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:82
-msgid "Active features that may be causing this:"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:85
-msgid "active source"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:90
-msgid ""
-"You can optimize by disabling the heaviest features, or continue if you "
-"understand the impact."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:95
-msgid ""
-"No features can be disabled (active camera sources cannot be stopped from "
-"here)."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:103
-msgid "Don't show this warning again"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:107
-msgid "Suppress resource usage warnings permanently"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:112
-msgid "I understand, continue"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:114
-msgid "Optimize (disable heavy features)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:98
-msgid "General"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:100
-msgid "Reset general settings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:105
-msgid "Photo directory"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:122
-msgid "Video directory"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:128
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:109
-msgid "Open videos folder"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:138
-msgid "Theme"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:141
-msgid "Light"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:141
-msgid "Dark"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:149
-msgid "Application theme"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:155
-#: usr/share/biglinux/bigcam/ui/settings_page.py:161
+#: usr/share/biglinux/bigcam/ui/settings_page.py:160
+#: usr/share/biglinux/bigcam/ui/settings_page.py:166
 msgid "USB hotplug detection"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:156
-msgid "Automatically detect cameras when plugged or unplugged."
+#: usr/share/biglinux/bigcam/core/stream_engine.py:1656
+msgid "Unknown GStreamer error"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:168
-#: usr/share/biglinux/bigcam/ui/settings_page.py:176
-msgid "Show help on hover"
+#: usr/share/biglinux/bigcam/ui/preview_area.py:458
+#: usr/share/biglinux/bigcam/ui/preview_area.py:463
+msgid "Unmute"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:169
-msgid "Show tooltip hints when hovering over buttons."
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
+msgid "Usage"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:183
-#: usr/share/biglinux/bigcam/ui/settings_page.py:191
-msgid "Resource usage monitor"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:967
+msgid "Use 'pairing CODE', NOT 'QR Code'"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:184
-msgid "Warn when CPU or memory usage is high."
+#: usr/share/biglinux/bigcam/ui/window.py:166
+msgid "Use your phone as a webcam"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:199
-msgid "Reset resource warnings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:200
-msgid "Re-enable all dismissed resource usage warnings."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:205
-msgid "Reset"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:208
-msgid "Reset dismissed resource warnings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:218
-msgid "Preview"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:220
-msgid "Reset preview settings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:224
-#: usr/share/biglinux/bigcam/ui/settings_page.py:230
-#: usr/share/biglinux/bigcam/ui/window.py:419
-msgid "Mirror preview"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:225
-msgid "Flip the preview horizontally like a mirror."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:236
-#: usr/share/biglinux/bigcam/ui/settings_page.py:241
-msgid "Show FPS counter"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:247
-msgid "Grid overlay"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:248
-msgid "Show a rule-of-thirds grid over the preview."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:257
-msgid "Background transparency"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:258
-msgid "Controls the window background transparency."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:274
-msgid "Overlay opacity"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:275
-msgid "Controls bar background darkness."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:291
-msgid "Controls opacity"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:292
-msgid "Transparency of the buttons over the preview."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:307
-msgid "Direct V4L2 access"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:308
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:93
 msgid ""
-"Bypass PipeWire and access the camera directly. May fix flickering on some "
-"webcams."
+"Use your smartphone camera\n"
+"wirelessly as a webcam"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:318
-msgid "Camera"
+#: usr/share/biglinux/bigcam/ui/window.py:924
+msgid "Use your window manager to keep this window above others."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:320
-msgid "Reset camera settings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:324
-msgid "Resolution"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:327
-#: usr/share/biglinux/bigcam/ui/settings_page.py:350
-msgid "Auto"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:347
-msgid "FPS limit"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:365
-#: usr/share/biglinux/bigcam/ui/window.py:555
-msgid "Capture timer"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:366
-msgid "Countdown before taking a photo."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:370
-#: usr/share/biglinux/bigcam/ui/window.py:548
-#: usr/share/biglinux/bigcam/ui/window.py:980
-#: usr/share/biglinux/bigcam/ui/window.py:1094
-msgid "Off"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:386
-msgid "Recording"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:388
-msgid "Reset recording settings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:394
-msgid "Video Codec"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:413
-msgid "Audio Codec"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:432
-msgid "Container"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/settings_page.py:470
+#: usr/share/biglinux/bigcam/ui/settings_page.py:518
 msgid "Video Bitrate (kbps)"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:494
-#: usr/share/biglinux/bigcam/ui/tools_page.py:93
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:100
-msgid "QR Code Scanner"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:424
+msgid "Video Codec"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:496
-#: usr/share/biglinux/bigcam/ui/tools_page.py:97
-#: usr/share/biglinux/bigcam/ui/window.py:434
-msgid "Scan QR Codes"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:127
+msgid "Video directory"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:497
-#: usr/share/biglinux/bigcam/ui/tools_page.py:98
-msgid "Detect QR codes in the camera feed"
+#: usr/share/biglinux/bigcam/ui/window.py:2582
+msgid "Video effects"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:505
+#: usr/share/biglinux/bigcam/ui/window.py:389
+#: usr/share/biglinux/bigcam/ui/window.py:391
+msgid "Video mode"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2610
+msgid "Video recording"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:2164
+#, python-format
+msgid "Video saved: %s"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/window.py:667
+msgid "Videos"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/core/effects.py:372
+msgid "Vignette"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:553
 #: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:40
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:105
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:87
 msgid "Virtual Camera"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:514
-#: usr/share/biglinux/bigcam/ui/settings_page.py:879
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:60
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:154
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:155
-msgid "Not loaded"
+#: usr/share/biglinux/bigcam/ui/window.py:1834
+msgid "Virtual Camera Limit Reached"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:520
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:83
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:90
-msgid "Enable virtual camera"
+#: usr/share/biglinux/bigcam/ui/window.py:2078
+msgid "Virtual Camera enabled. Other applications can use /dev/video10."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:521
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:84
-msgid "Create a virtual camera output for video calls and streaming."
+#: usr/share/biglinux/bigcam/ui/window.py:2390
+msgid "Virtual Camera is enabled (other apps may depend on it)."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:862
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:129
-msgid "v4l2loopback not available"
+#: usr/share/biglinux/bigcam/ui/window.py:1440
+#, python-brace-format
+msgid "Virtual Camera: {vcam_device} Created!"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:867
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:140
-msgid "Active"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:578
+msgid "Virtual Cameras"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:872
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:146
-msgid "Module loaded"
+#: usr/share/biglinux/bigcam/ui/window.py:2591
+msgid "Virtual camera"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/settings_page.py:877
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:152
-msgid "Module not loaded"
+#: usr/share/biglinux/bigcam/ui/window.py:2602
+msgid "Virtual camera feeds for inactive cameras"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:77
-msgid "Install python-opencv to use tools."
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:53
+msgid "Virtual camera status"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:104
-msgid "Smile Capture"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:574
+msgid "Visible name"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:108
-msgid "Capture on Smile"
+#: usr/share/biglinux/bigcam/ui/preview_area.py:310
+msgid "Volume"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:109
-msgid "Automatically take a photo when a smile is detected"
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:44
+msgid "WB Preset"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:115
-msgid "Sensitivity"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:2005
+msgid "Waiting for AirPlay connection…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1196
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1245
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1323
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1335
+msgid "Waiting for connection…"
+msgstr ""
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:189
+msgid "Warn when CPU or memory usage is high."
 msgstr ""
 
 #: usr/share/biglinux/bigcam/ui/tools_page.py:324
@@ -1822,59 +2555,16 @@ msgstr ""
 msgid "Watching for smiles..."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:384
-msgid "Smile detected! Capturing..."
+#: usr/share/biglinux/bigcam/ui/window.py:1052
+msgid "Welcome Screen"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:396
-#: usr/share/biglinux/bigcam/ui/window.py:1775
-#: usr/share/biglinux/bigcam/ui/window.py:1848
-msgid "Photo saved!"
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:47
+msgid "Welcome to BigCam"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/tools_page.py:399
-msgid "Capture failed."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:75
-msgid "Recorded Videos"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:155
-msgid "No videos yet"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:156
-msgid "Recorded videos will appear here."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:425
-#, python-format
-msgid "Delete %d videos?"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:426
-msgid "These videos will be permanently deleted."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/video_gallery.py:520
-msgid "Delete video?"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:53
-msgid "Virtual camera status"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:68
-msgid "Module"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:69
-msgid "v4l2loopback"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:99
-msgid "Usage"
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:472
+msgid "WhatsApp"
 msgstr ""
 
 #: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:101
@@ -1883,299 +2573,56 @@ msgid ""
 "that applications like OBS Studio, Google Meet, and Zoom can use."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
-msgid "Not installed"
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:27
+msgid "White Balance"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:132
-msgid "—"
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:31
+msgid "White Balance Temperature"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:143
-#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:149
-msgid "Loaded"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:122
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:979
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:155
+msgid "Wi-Fi"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:47
-msgid "Welcome to BigCam"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:950
+msgid "Wi-Fi (Android 11+)"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:55
-msgid "Your universal webcam control center for Linux"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1750
+msgid "Wi-Fi switch failed"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:72
-msgid "Photo & Video Capture"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:73
-msgid ""
-"Take photos and record videos\n"
-"with timer and countdown support"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:77
-msgid "Mirror Preview"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:78
-msgid ""
-"Flip the camera preview\n"
-"horizontally like a mirror"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:82
-msgid "Real-Time Effects"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:83
-msgid ""
-"Apply brightness, contrast, blur,\n"
-"sepia, vignette and more effects live"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:88
-msgid ""
-"Use your smartphone camera\n"
-"wirelessly as a webcam"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
-msgid "Multiple Cameras"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
-msgid ""
-"Switch between USB, IP, and\n"
-"virtual cameras with hotplug support"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:101
-msgid ""
-"Scan QR codes and barcodes\n"
-"directly from the camera feed"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:106
-msgid ""
-"Create a virtual camera device\n"
-"for use in video calls"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:128
-msgid "Tip: Press Space to capture, Ctrl+R to record, Tab to toggle sidebar"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:149
-msgid "Show dialog on startup"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:160
-msgid "Let's Start"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:153
-msgid "Use your phone as a webcam"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:172
-#: usr/share/biglinux/bigcam/ui/window.py:1901
-msgid "Phone camera status"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:255
-#: usr/share/biglinux/bigcam/ui/window.py:619
-#: usr/share/biglinux/bigcam/ui/window.py:718
-msgid "Controls"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:265
-msgid "Always on Top"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:310
-msgid "Refresh cameras"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:312
-msgid "Refresh camera list"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:322
-msgid "Menu"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:324
-msgid "Main menu"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:368
-#: usr/share/biglinux/bigcam/ui/window.py:370
-msgid "Photo mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:377
-#: usr/share/biglinux/bigcam/ui/window.py:379
-msgid "Video mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:406
-#: usr/share/biglinux/bigcam/ui/window.py:817
-#: usr/share/biglinux/bigcam/ui/window.py:823
-msgid "Last photo"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:408
-msgid "Open last photo"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:448
-msgid "Enable Virtual Camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:515
-msgid "Zoom level"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:517
-msgid "Change zoom level"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:530
-msgid "Toggle grid overlay"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:570
-msgid "Fullscreen (F11)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:628
-#: usr/share/biglinux/bigcam/ui/window.py:719
-msgid "Effects"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:637
-#: usr/share/biglinux/bigcam/ui/window.py:720
-msgid "Photos"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:646
-#: usr/share/biglinux/bigcam/ui/window.py:721
-msgid "Videos"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:678
-#: usr/share/biglinux/bigcam/ui/window.py:722
-msgid "Settings"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:701
-msgid "Close sidebar"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:781
-#: usr/share/biglinux/bigcam/ui/window.py:2404
-msgid "Start recording"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:815
-#: usr/share/biglinux/bigcam/ui/window.py:820
-msgid "Last video"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:982
-#: usr/share/biglinux/bigcam/ui/window.py:1096
-msgid "Capture timer: Off"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:986
-#: usr/share/biglinux/bigcam/ui/window.py:1100
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1745
 #, python-format
-msgid "Capture timer: %ds"
+msgid "Wi-Fi: %s (unplug USB)"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1157
-msgid "Capture Photo"
+#: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:920
+msgid "Works with any phone, no app required."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1158
-msgid "Record Video"
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:95
+msgid ""
+"You can optimize by disabling the heaviest features, or continue if you "
+"understand the impact."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1163
-msgid "Load Profile"
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:250
+msgid ""
+"You can restore these files from the system Trash. Files that cannot be "
+"trashed will be kept."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1167
-msgid "Add IP Camera…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1168
-msgid "Phone as Webcam…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1170
-msgid "Welcome Screen"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1171
-msgid "About"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1175
-msgid "Quit"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1404
-#: usr/share/biglinux/bigcam/ui/window.py:1475
-msgid "Starting camera stream…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1441
-msgid "Camera streaming started!"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1461
-msgid "Failed to start camera streaming."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1504
-#, python-brace-format
-msgid "Virtual Camera: {vcam_device} Created!"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1684
-msgid "QR Code detected!"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1690
-#: usr/share/biglinux/bigcam/ui/window.py:2415
-msgid "No camera selected."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1698
-msgid "Choose capture mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1700
+#: usr/share/biglinux/bigcam/ui/window.py:1685
 msgid ""
 "You can take a screenshot from the current preview or capture a full-"
 "resolution photo directly from the camera."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1704
-msgid "Preview screenshot"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1705
-msgid "Camera photo (full resolution)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1733
-msgid "Camera in video mode"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:1735
+#: usr/share/biglinux/bigcam/ui/window.py:1723
 msgid ""
 "Your camera is set to Video/Movie mode. Some cameras cannot take photos in "
 "this mode.\n"
@@ -2184,204 +2631,55 @@ msgid ""
 "and try again, or capture a frame from the current preview."
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1742
-msgid "Capture preview frame"
+#: usr/share/biglinux/bigcam/ui/welcome_dialog.py:55
+msgid "Your universal webcam control center for Linux"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1763
-msgid "Capturing photo…"
+#: usr/share/biglinux/bigcam/core/backends/v4l2_backend.py:39
+msgid "Zoom"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1780
-#: usr/share/biglinux/bigcam/ui/window.py:1853
-msgid "Failed to capture photo."
+#: usr/share/biglinux/bigcam/ui/window.py:539
+msgid "Zoom level"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1793
-msgid "Switching to photography mode."
+#: usr/share/biglinux/bigcam/ui/resource_warning_dialog.py:90
+msgid "active source"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1859
-msgid "Resuming camera streaming…"
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:643
+msgid "iCalendar Files"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1895
-msgid "Phone camera: waiting"
+#: usr/share/biglinux/bigcam/core/phone_camera.py:127
+msgid "python-aiohttp is not installed"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1896
-msgid "Phone camera: connected"
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:69
+msgid "v4l2loopback"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:1897
-msgid "Phone camera: stopped"
+#: usr/share/biglinux/bigcam/ui/settings_page.py:975
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:135
+msgid "v4l2loopback not available"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:2045
-msgid "Phone Mic (Browser)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2052
-#: usr/share/biglinux/bigcam/ui/window.py:2119
-#: usr/share/biglinux/bigcam/ui/window.py:2181
-#: usr/share/biglinux/bigcam/ui/window.py:2539
-msgid "Show"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2103
-msgid "BigCam Phone (AirPlay)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2114
-msgid "AirPlay Audio"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2165
-msgid "BigCam Phone (scrcpy)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2176
-msgid "Phone Mic (scrcpy)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2256
-#, python-format
-msgid ""
-"The camera \"%(camera)s\" is being used by: %(apps)s.\n"
-"\n"
-"Close the other application or force-close it to free the camera."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2261
-#, python-format
-msgid ""
-"The camera \"%s\" is being used by another application.\n"
-"\n"
-"Close the other application to free the camera."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2265
-msgid "Camera in use"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2276
-#, python-format
-msgid "Force close %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2282
-msgid "Close"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2379
-msgid "Virtual Camera enabled. Other applications can use /dev/video10."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2407
-#, python-format
-msgid "Video saved: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2441
-msgid "Recording…"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2445
-msgid "Failed to start recording."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2482
-msgid "Profile saved."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2492
-msgid "No profiles found."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2504
-#, python-format
-msgid "Profile loaded: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2626
-#, python-format
-msgid "Active camera: %s"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2628
-msgid "Virtual Camera is enabled (other apps may depend on it)."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2631
-msgid ""
-"If you choose to keep it running, the camera will remain on after closing "
-"the application."
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2637
-msgid "Camera is active"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2638
-msgid "Stop camera and close"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2639
-msgid "Keep camera on"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2774
-msgid "Video effects"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2775
-msgid "Real-time filters, background blur, artistic effects"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2783
-msgid "Virtual camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2784
+#: usr/share/biglinux/bigcam/ui/window.py:2592
 msgid "v4l2loopback output for video conferencing"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:2792
-msgid "Background virtual cameras"
+#: usr/share/biglinux/bigcam/ui/qr_dialog.py:669
+msgid "vCard Files"
 msgstr ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:2793
-msgid "Virtual camera feeds for inactive cameras"
-msgstr ""
+#: usr/share/biglinux/bigcam/ui/preview_area.py:731
+#: usr/share/biglinux/bigcam/ui/preview_area.py:745
+#, python-brace-format
+msgid "{n} second remaining"
+msgid_plural "{n} seconds remaining"
+msgstr[0] ""
+msgstr[1] ""
 
-#: usr/share/biglinux/bigcam/ui/window.py:2801
-msgid "Video recording"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2802
-msgid "Active video recording with encoding"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2813
-msgid "Phone camera server"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2814
-msgid "HTTPS/WebSocket server for phone camera"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2823
-msgid "Scrcpy (Android camera)"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2824
-msgid "Android camera via USB/Wi-Fi ADB"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2833
-msgid "AirPlay receiver"
-msgstr ""
-
-#: usr/share/biglinux/bigcam/ui/window.py:2834
-msgid "Apple AirPlay screen mirroring via UxPlay"
+#: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:138
+msgid "—"
 msgstr ""

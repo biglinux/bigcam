@@ -2,7 +2,6 @@ from contextlib import contextmanager
 from importlib.machinery import SourceFileLoader
 from importlib.util import spec_from_loader, module_from_spec
 from pathlib import Path
-import subprocess
 
 import pytest
 from utils.urls import camera_url, camera_url_id, public_camera_name, gst_quote
@@ -85,16 +84,39 @@ def test_property_quoting_handles_backslashes_and_quotes():
         gst_quote("a\n!")
 
 
-def test_snapshot_has_one_frame_eos(monkeypatch, tmp_path):
-    path = tmp_path / "photo.jpg"
-    path.write_bytes(b"fake jpeg")
-    calls = []
-    monkeypatch.setattr(subprocess, "run", lambda *a, **kw: calls.append(a))
-    cam = IPBackend().cameras_from_urls([{"url": "https://example.invalid/"}])[0]
-    assert IPBackend().capture_photo(cam, str(path))
-    assert "snapshot=true" in calls[0][0]
-
-
 def test_subprocess_rejects_shell_command_strings():
     with pytest.raises(ValueError):
         SecureCommandRunner.run_safe("echo unexpected")
+
+
+@pytest.mark.parametrize("alive,inode,owner,expected", [
+    (False, 41, 1000, True),
+    (True, 41, 1000, False),
+    (False, 99, 1000, False),
+    (False, 41, 1001, False),
+])
+def test_reclaim_only_dead_owned_device(monkeypatch, alive, inode, owner, expected):
+    records = {"/dev/video20": {"uid": owner, "session": "a" * 32, "label": "BigCam",
+                                "pid": 123, "started": "old", "inode": 41}}
+    @contextmanager
+    def ledger():
+        yield records
+    calls = []
+    monkeypatch.setattr(helper, "ledger", ledger)
+    monkeypatch.setattr(helper.Path, "exists", lambda p: str(p) == "/dev/video20")
+    monkeypatch.setattr(helper, "current_label", lambda device: "BigCam")
+    monkeypatch.setattr(helper, "device_identity", lambda device: inode)
+    monkeypatch.setattr(helper.os, "getppid", lambda: 456)
+    monkeypatch.setattr(helper, "process_identity", lambda pid, uid: "new" if pid == 456 else ("old" if alive else None))
+    monkeypatch.setattr(helper, "run", lambda *args: calls.append(args))
+    monkeypatch.setattr(helper, "load", lambda: None)
+    helper.perform("create", "b" * 32, "BigCam", 1000)
+    assert (("v4l2loopback-ctl", "delete", "/dev/video20") in calls) is expected
+    assert records["/dev/video21"]["pid"] == 456
+
+
+def test_helper_process_identity_detects_pid_reuse():
+    import os
+    assert helper.process_identity(os.getpid(), os.getuid())
+    assert helper.process_identity(os.getpid(), os.getuid() + 1) is None
+    assert helper.process_identity(2147483647, os.getuid()) is None

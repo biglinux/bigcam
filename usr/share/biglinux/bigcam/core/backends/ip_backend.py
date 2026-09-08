@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import logging
 import os
-import subprocess
-from urllib.parse import urlsplit
-from utils.urls import camera_url, camera_url_id, public_camera_name, gst_quote
 from typing import Any
+from urllib.parse import urlsplit
+
+import gi
+
+gi.require_version("Gst", "1.0")
 
 from constants import BackendType
+from gi.repository import GLib, Gst
+from utils.urls import camera_url, camera_url_id, gst_quote, public_camera_name
+
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
 
 log = logging.getLogger(__name__)
@@ -68,16 +73,32 @@ class IPBackend(CameraBackend):
     def can_capture_photo(self) -> bool:
         return True
 
+    @staticmethod
+    def prepare_pipeline(pipeline: Gst.Pipeline) -> None:
+        def element_added(_pipeline, _subbin, element):
+            factory = element.get_factory()
+            if factory and factory.get_name() == "multipartdemux":
+                # MJPEG cameras keep a single image stream open indefinitely.
+                # Let decodebin expose that pad without waiting for another MIME type.
+                element.set_property("single-stream", True)
+        pipeline.connect("deep-element-added", element_added)
+
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
-        """jpegenc snapshot sends EOS after the first frame; never timeout to finish."""
+        pipeline = None
         try:
-            url = camera_url(camera.extra.get("url", camera.device_path))
-            source = "rtspsrc" if urlsplit(url).scheme in {"rtsp", "rtsps"} else "souphttpsrc"
-            subprocess.run(["gst-launch-1.0", "-e", source, f"location={gst_quote(url)}",
-                            "!", "decodebin", "!", "videoconvert", "!", "jpegenc", "snapshot=true",
-                            "!", "filesink", f"location={gst_quote(output_path)}"],
-                           capture_output=True, check=True, timeout=15)
-            return os.path.isfile(output_path) and os.path.getsize(output_path) > 0
-        except (OSError, ValueError, subprocess.SubprocessError):
-            log.warning("Network snapshot failed")
+            pipeline = Gst.parse_launch(
+                f"{self.get_gst_source(camera)} ! jpegenc snapshot=true ! "
+                f"filesink location={gst_quote(output_path)}")
+            self.prepare_pipeline(pipeline)
+            if pipeline.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
+                return False
+            message = pipeline.get_bus().timed_pop_filtered(
+                15 * Gst.SECOND, Gst.MessageType.EOS | Gst.MessageType.ERROR)
+            return bool(message and message.type == Gst.MessageType.EOS
+                        and os.path.isfile(output_path) and os.path.getsize(output_path) > 0)
+        except (OSError, ValueError, GLib.Error):
+            log.warning("Network snapshot failed", exc_info=True)
             return False
+        finally:
+            if pipeline is not None:
+                pipeline.set_state(Gst.State.NULL)

@@ -72,7 +72,7 @@ class SidebarController:
         tab_bar.add_css_class("sidebar-tab-bar")
 
         group_btn = None
-        for page_name, (_, title, icon_name) in stack_pages.items():
+        for page_name, (_widget, title, icon_name) in stack_pages.items():
             btn = Gtk.ToggleButton()
             box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
             box.set_halign(Gtk.Align.CENTER)

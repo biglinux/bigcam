@@ -92,6 +92,22 @@ def current_label(device: str) -> str:
     return (Path("/sys/class/video4linux") / Path(device).name / "name").read_text().strip()
 
 
+def process_identity(pid: int, uid: int) -> str | None:
+    try:
+        path = Path(f"/proc/{pid}")
+        if path.stat().st_uid != uid:
+            return None
+        # The command field may contain spaces or parentheses; starttime is
+        # field 22, counted after its final closing parenthesis.
+        return (path / "stat").read_text().rsplit(")", 1)[1].split()[19]
+    except FileNotFoundError:
+        return None
+
+
+def device_identity(device: str) -> int:
+    return (Path("/sys/class/video4linux") / Path(device).name).stat().st_ino
+
+
 def perform(action: str, session: str, value: str, uid: int) -> str:
     with ledger() as records:
         if action == "load":
@@ -106,11 +122,28 @@ def perform(action: str, session: str, value: str, uid: int) -> str:
             record = records.get(value)
             if record is None or record.get("uid") != uid or record.get("session") != session:
                 raise PermissionError("Device is not owned by this caller/session")
-            if current_label(value) != record["label"]:
+            if (current_label(value) != record["label"]
+                    or ("inode" in record and device_identity(value) != record["inode"])):
                 raise PermissionError("Device identity changed; refusing deletion")
             run("v4l2loopback-ctl", "delete", value)
             del records[value]
             return ""
+        # Reclaim only our recorded devices from dead owners. A reused PID or
+        # video number must never confer ownership of a replacement resource.
+        for device, record in list(records.items()):
+            if record.get("uid") != uid or "pid" not in record:
+                continue
+            if process_identity(record["pid"], uid) == record["started"]:
+                continue
+            if (device_identity(device) != record["inode"]
+                    or current_label(device) != record["label"]):
+                continue
+            run("v4l2loopback-ctl", "delete", device)
+            del records[device]
+        pid = os.getppid()
+        started = process_identity(pid, uid)
+        if started is None:
+            raise PermissionError("The requesting process is no longer owned by the caller")
         if sum(record.get("uid") == uid for record in records.values()) >= MAX_PER_USER:
             raise RuntimeError("Per-user loopback quota reached; administrator cleanup may be required")
         load()
@@ -120,7 +153,8 @@ def perform(action: str, session: str, value: str, uid: int) -> str:
                 continue
             run("v4l2loopback-ctl", "add", "-n", value, "-x", "1", "-b", "8", device)
             # Persist only the specific device successfully created by this call.
-            records[device] = {"uid": uid, "session": session, "label": value}
+            records[device] = {"uid": uid, "session": session, "label": value,
+                               "pid": pid, "started": started, "inode": device_identity(device)}
             return device
         raise RuntimeError("No free loopback device number")
 

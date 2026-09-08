@@ -6,10 +6,12 @@ capture timestamps, rather than speeding up the movie when the consumer is slow.
 """
 from __future__ import annotations
 
+import json
 import logging
 import math
 import os
 import queue
+import subprocess
 import threading
 import time
 from typing import Any
@@ -19,13 +21,13 @@ import gi
 
 gi.require_version("Gst", "1.0")
 from gi.repository import GLib, GObject, Gst
-
-from core.recording_config import RecordingConfig
 from utils import xdg
+from utils.gst_buffers import bgr_buffer
 from utils.media_paths import reserve_media_path, reserve_named_path
 from utils.urls import gst_quote
-from utils.gst_buffers import bgr_buffer
 from utils.video_formats import frame_rate
+
+from core.recording_config import RecordingConfig
 
 log = logging.getLogger(__name__)
 
@@ -60,6 +62,9 @@ class VideoRecorder(GObject.Object):
         self._volumes = {}
         self._active = set()
         self._audio_devices = []
+        self._external_audio = {}
+        self._pcm_sources = {}
+        self._audio_processes = []
         self.dropped_frames = 0
         self.frames_written = 0
 
@@ -96,7 +101,7 @@ class VideoRecorder(GObject.Object):
 
     def start(self, camera, pipeline=None, filename=None, mirror=False,
               record_audio=True, audio_sources=None, active_audio_sources=None,
-              source_volumes=None, muted=False, fps=30.0):
+              source_volumes=None, muted=False, fps=30.0, external_audio: dict[str, int | None] | None = None):
         del camera, pipeline, mirror  # The preview mirror never changes saved pixels.
         with self._lock:
             if not self._done.is_set():
@@ -105,9 +110,10 @@ class VideoRecorder(GObject.Object):
             self._fps = frame_rate(fps if fps and fps > 0 else 30)
             self._output_path = (reserve_named_path(xdg.videos_dir(), filename)
                                  if filename else reserve_media_path(xdg.videos_dir(), config.extension))
-            # Only explicit PulseAudio source names. External playback stream IDs
-            # are not source device names and are never invented or substituted.
             self._audio_devices = list(dict.fromkeys(audio_sources or [])) if record_audio else []
+            self._external_audio = dict(external_audio or {})
+            self._pcm_sources = {}
+            self._audio_processes = []
             self._active = set(active_audio_sources or [])
             self._volumes = dict(source_volumes or {})
             self._muted = bool(muted)
@@ -138,6 +144,36 @@ class VideoRecorder(GObject.Object):
                 self._frames.put_nowait(item)
             except queue.Full:
                 self.dropped_frames += 1
+
+    def write_audio(self, name: str, pcm: bytes) -> None:
+        with self._lock:
+            source = self._pcm_sources.get(name)
+            if source is not None and not self._stop_event.is_set():
+                source.emit("push-buffer", Gst.Buffer.new_wrapped(pcm))
+
+    def _capture_playback(self, name, pid):
+        from core.audio_monitor import AudioMonitor
+        index = AudioMonitor._find_sink_input_by_pid(pid)
+        if index is None:
+            raise RuntimeError(f"No playback audio is available for {name}")
+        inputs = json.loads(subprocess.check_output(
+            ["pactl", "-f", "json", "list", "sink-inputs"], text=True, timeout=5))
+        sink = next(item["sink"] for item in inputs if item["index"] == index)
+        sinks = json.loads(subprocess.check_output(
+            ["pactl", "-f", "json", "list", "sinks"], text=True, timeout=5))
+        monitor = next(item["monitor_source"] for item in sinks if item["index"] == sink)
+        # PulseAudio filters this monitor to one sink-input. Never record the
+        # whole desktop monitor or substitute the user's default microphone.
+        process = subprocess.Popen(
+            ["parec", f"--monitor-stream={index}", f"--device={monitor}", "--raw",
+             "--format=s16le", "--rate=48000", "--channels=2", "--latency-msec=40"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        def read():
+            while pcm := process.stdout.read(3840):
+                self.write_audio(name, pcm)
+        thread = threading.Thread(target=read, name="bigcam-record-audio", daemon=True)
+        self._audio_processes.append((process, thread))
+        thread.start()
 
     def stop(self):
         """Request asynchronous EOS; the return value is NOT a saved-file result."""
@@ -172,6 +208,8 @@ class VideoRecorder(GObject.Object):
         with self._lock:
             if self._muted or device not in self._active:
                 return 0.0
+            if self._external_audio.get(device):
+                return 1.0  # Playback gain has already been applied by PulseAudio.
             value = float(self._volumes.get(device, 1.0))
             return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
 
@@ -218,13 +256,22 @@ class VideoRecorder(GObject.Object):
                 f"queue max-size-buffers=4 max-size-bytes=0 max-size-time=0 ! videoconvert ! {encoder} ! "
                 f"{self._session_config.muxer} name=mux ! filesink location={gst_quote(self._output_path)} ")
         if self._audio_devices:
-            desc += (f"audiomixer name=amix latency=100000000 ! audioconvert ! "
-                     f"audioresample ! {self._audio_encoder()} ! queue ! mux. ")
+            desc += (f"audiomixer name=amix ignore-inactive-pads=true latency=100000000 ! audioconvert ! "
+                     f"audioresample ! {self._audio_encoder()} ! queue ! mux. "
+                     "audiotestsrc name=asilence is-live=true wave=silence ! "
+                     "audio/x-raw,rate=48000,channels=2 ! amix. ")
             for i, device in enumerate(self._audio_devices):
-                desc += (f"pulsesrc device={gst_quote(device)} name=asrc_{i} "
-                         f"do-timestamp=true provide-clock=false buffer-time=200000 latency-time=50000 ! "
+                if device in self._external_audio:
+                    rate, channels = (48000, 2) if self._external_audio[device] else (16000, 1)
+                    desc += (f"appsrc name=asrc_{i} format=time is-live=true do-timestamp=true "
+                             f"block=false max-buffers=8 leaky-type=downstream "
+                             f"caps=audio/x-raw,format=S16LE,rate={rate},channels={channels},layout=interleaved ! ")
+                else:
+                    desc += (f"pulsesrc device={gst_quote(device)} name=asrc_{i} "
+                             f"do-timestamp=true provide-clock=false buffer-time=200000 latency-time=50000 ! ")
+                desc += (
                          f"queue max-size-time=500000000 max-size-buffers=0 max-size-bytes=0 leaky=downstream ! "
-                         f"audioconvert ! audioresample ! volume name=avol_{i} volume={self._volume(device)} ! amix. ")
+                         f"audioconvert ! audioresample ! audio/x-raw,rate=48000,channels=2 ! volume name=avol_{i} volume={self._volume(device)} ! amix. ")
         pipeline = Gst.parse_launch(desc)
         if pipeline.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
             pipeline.set_state(Gst.State.NULL)
@@ -257,6 +304,13 @@ class VideoRecorder(GObject.Object):
             h, w = image.shape[:2]
             w, h = max(2, w // 2 * 2), max(2, h // 2 * 2)
             pipeline = self._build(w, h)
+            with self._lock:
+                self._pcm_sources = {device: pipeline.get_by_name(f"asrc_{i}")
+                                     for i, device in enumerate(self._audio_devices)
+                                     if device in self._external_audio}
+            for device, pid in self._external_audio.items():
+                if pid and device in self._audio_devices:
+                    self._capture_playback(device, pid)
             bus = pipeline.get_bus()
             vsrc = pipeline.get_by_name("vsrc")
             volumes = [(device, pipeline.get_by_name(f"avol_{i}"))
@@ -264,10 +318,20 @@ class VideoRecorder(GObject.Object):
             origin = time.monotonic_ns()
             last_pts = -1
             self._set_state("recording")
-            pending = first
+            # Encoding probes can take seconds. Do not squeeze queued startup
+            # frames into identical mux timestamps at the start of the movie.
+            pending = (origin, first[1])
+            while not self._frames.empty():
+                try:
+                    self._frames.get_nowait()
+                    self.dropped_frames += 1
+                except queue.Empty:
+                    break
             last_frame_at = time.monotonic()
             while not self._stop_event.is_set() or not self._frames.empty() or pending is not None:
                 self._check_bus(bus)
+                if any(process.poll() is not None for process, _thread in self._audio_processes):
+                    raise RuntimeError("External audio capture stopped unexpectedly")
                 for device, volume in volumes:
                     volume.set_property("volume", self._volume(device))
                 if pending is None:
@@ -294,7 +358,12 @@ class VideoRecorder(GObject.Object):
             # EOS each source downstream without a competing bus signal watch.
             for i in range(len(self._audio_devices)):
                 source = pipeline.get_by_name(f"asrc_{i}")
-                source.send_event(Gst.Event.new_eos())
+                if self._audio_devices[i] in self._external_audio:
+                    source.emit("end-of-stream")
+                else:
+                    source.send_event(Gst.Event.new_eos())
+            if self._audio_devices:
+                pipeline.get_by_name("asilence").send_event(Gst.Event.new_eos())
             message = bus.timed_pop_filtered(10 * Gst.SECOND, Gst.MessageType.EOS | Gst.MessageType.ERROR)
             if message is None:
                 raise RuntimeError("Recording finalization timed out; the partial file was preserved")
@@ -302,15 +371,27 @@ class VideoRecorder(GObject.Object):
                 err, _debug = message.parse_error()
                 raise RuntimeError(err.message)
             pipeline.set_state(Gst.State.NULL)
-            success = self.frames_written > 0 and os.path.getsize(path) > 0
-            if not success:
+            if not self.frames_written or os.path.getsize(path) == 0:
                 raise RuntimeError("The encoder produced no media")
             with open(path, "rb") as media:
                 os.fsync(media.fileno())
+            success = True
         except Exception as exc:
             error = str(exc)
             log.exception("Recording failed")
         finally:
+            with self._lock:
+                self._pcm_sources.clear()
+            for process, thread in self._audio_processes:
+                if process.poll() is None:
+                    process.terminate()
+                try:
+                    process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=2)
+                thread.join(timeout=2)
+                process.stdout.close()
             if pipeline is not None:
                 pipeline.set_state(Gst.State.NULL)
             self._set_state("idle" if success else "error")

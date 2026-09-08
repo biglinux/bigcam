@@ -29,6 +29,7 @@ except ImportError:
 
 from constants import BackendType
 from core.camera_backend import CameraInfo, VideoFormat
+from core.backends.ip_backend import IPBackend
 from core.camera_manager import CameraManager
 from core.effects import EffectPipeline
 from core.virtual_camera import VirtualCamera
@@ -939,6 +940,8 @@ class StreamEngine(GObject.Object):
                 "videoconvert ! video/x-raw,format=BGRA ! "
                 "queue max-size-buffers=2 leaky=downstream ! "
                 "appsink name=sink emit-signals=true drop=true max-buffers=2 sync=false")
+            if self._current_camera.backend == BackendType.IP:
+                IPBackend.prepare_pipeline(pipeline)
             sink = pipeline.get_by_name("sink")
             sink.connect("new-sample", self._on_appsink_sample, generation)
             bus = pipeline.get_bus()

@@ -27,7 +27,7 @@ jobs:
       - name: Install distro Python and matching GI runtime
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends git ca-certificates python3 python3-pytest python3-hypothesis python3-cryptography python3-gi python3-gi-cairo python3-numpy python3-opencv python3-pil python3-aiohttp python3-qrcode python3-pyatspi python3-dogtail python3-polib gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav ffmpeg openssl dbus-x11 xvfb xauth openbox at-spi2-core xdotool scrot pulseaudio pulseaudio-utils adwaita-icon-theme fonts-dejavu-core xdg-user-dirs xdg-utils procps psmisc util-linux gettext libgl1-mesa-dri
+          apt-get install -y --no-install-recommends git ca-certificates python3 python3-pytest python3-hypothesis python3-cryptography python3-gi python3-gi-cairo python3-numpy python3-opencv python3-pil python3-aiohttp python3-qrcode python3-pyatspi python3-dogtail python3-polib gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav ffmpeg openssl dbus-x11 xvfb xauth openbox at-spi2-core xdotool scrot pulseaudio pulseaudio-utils adwaita-icon-theme librsvg2-common fonts-dejavu-core xdg-user-dirs xdg-utils procps psmisc util-linux gettext libgl1-mesa-dri
           if apt-cache show gstreamer1.0-gtk4 >/dev/null 2>&1; then apt-get install -y --no-install-recommends gstreamer1.0-gtk4; fi
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

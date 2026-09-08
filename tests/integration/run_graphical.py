@@ -4,8 +4,6 @@
 Calls the actual action handlers (not pixel coordinates), verifies saved media,
 and requires a separate AT-SPI client. This is not a physical camera test.
 """
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 import io
 import json
 import os
@@ -14,24 +12,35 @@ import sys
 import threading
 import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/"usr/share/biglinux/bigcam"))
 RESULTS=Path(os.environ["BIGCAM_TEST_RESULTS"]);RESULTS.mkdir(parents=True,exist_ok=True)
-from PIL import Image, ImageDraw
-import numpy as np
 import gi
+import numpy as np
+from PIL import Image, ImageDraw
+
 gi.require_version("Gtk","4.0");gi.require_version("Adw","1");gi.require_version("Gst","1.0")
-from gi.repository import Gtk,Adw,GLib,Gst
+from gi.repository import Adw, GLib, Gst, Gtk
+
 Gst.init(None)
-from utils.settings_manager import SettingsManager
+from constants import APP_ID, APP_NAME
+
+GLib.set_prgname(APP_ID)
+GLib.set_application_name(APP_NAME)
 from utils import xdg
+from utils.settings_manager import SettingsManager
+
 SettingsManager().update({"show-welcome":False,"virtual-camera-enabled":False,"hotplug_enabled":False,
                            "resource-monitor-enabled":False,"auto-hide-controls":False,"theme":"dark"})
 
 stop=threading.Event()
 class Camera(BaseHTTPRequestHandler):
     def do_GET(self):
+        self.server.requests = getattr(self.server, "requests", 0) + 1
         self.send_response(200);self.send_header("Content-Type","multipart/x-mixed-replace; boundary=frame");self.end_headers()
         number=0
         try:
@@ -94,6 +103,15 @@ try:
         assert image.size==(642,360)
         assert np.asarray(image).std()>20
     summary["checks"]["photo_saved_and_decoded"]=True
+    from core.backends.ip_backend import IPBackend
+    with ThreadPoolExecutor() as executor:
+        snapshot = RESULTS / "backend-photo.jpg"
+        future = executor.submit(IPBackend().capture_photo, win._active_camera, str(snapshot))
+        pump_until(future.done, 20, "network snapshot EOS")
+        assert future.result()
+        with Image.open(snapshot) as image:
+            assert image.size == (642, 360)
+    summary["checks"]["network_snapshot_eos"] = True
     win._on_record_toggle()
     pump_until(lambda:win._video_recorder.state=="recording",20,"verified recording encoder")
     pump(2.5);win._on_record_toggle()
@@ -107,6 +125,38 @@ try:
     subprocess.run(["ffmpeg","-v","error","-i",path,"-f","null","-"],check=True,timeout=20)
     (RESULTS/"recording-probe.json").write_text(probe)
     summary["checks"]["recording_finalized_and_decoded"]=True
+    win._sidebar_ctrl._sidebar_tab_btns[3].set_active(True)
+    assert win._sidebar_ctrl.stack.get_visible_child_name() == "videos"
+    win._split_view.set_show_sidebar(True)
+    gallery = win._video_gallery
+    gallery.refresh()
+    pump_until(lambda: bool(gallery._entries) and gallery._scope["active"] == 0,
+               20, "video gallery metadata")
+    def descendants(widget):
+        yield widget
+        child = widget.get_first_child()
+        while child:
+            yield from descendants(child)
+            child = child.get_next_sibling()
+    assert any(isinstance(widget, Gtk.Label) and widget.get_label().startswith("0:")
+               for widget in descendants(gallery))
+    assert any(isinstance(widget, Gtk.Image) and widget.get_icon_name() == "media-playback-start-symbolic"
+               for widget in descendants(gallery))
+    def sidebar_fully_visible():
+        valid, bounds = win._split_view.get_sidebar().compute_bounds(win)
+        return valid and bounds.get_x() >= 0 and bounds.get_x() + bounds.get_width() <= win.get_width()
+    pump_until(sidebar_fully_visible, 5, "completed sidebar animation")
+    pump(.1)
+    capture("03-video-gallery.png")
+    gallery._set_view("list")
+    pump_until(lambda: gallery._scope["active"] == 0, 20, "list duration")
+    row = gallery._list.get_first_child()
+    row.grab_focus()
+    focused = win.get_focus()
+    subprocess.run(["xdotool", "key", "Tab"], check=True, timeout=5)
+    pump(.2)
+    assert win.get_focus() is not None and win.get_focus() != focused
+    summary["checks"]["gallery_duration_play_icon_and_keyboard"] = True
     # An actual invalid audio source must fail, not remain visually recording.
     recorder=win._video_recorder
     recorder.start(None,audio_sources=["bigcam-does-not-exist"],active_audio_sources=["bigcam-does-not-exist"])
@@ -122,6 +172,9 @@ try:
                          "adwaita":[Adw.get_major_version(),Adw.get_minor_version()],"gst":Gst.version_string()}
     summary["success"]=True
 except Exception:
+    summary["http_requests"] = getattr(server, "requests", 0)
+    if win and win._stream_engine._pipeline:
+        summary["pipeline_state"] = str(win._stream_engine._pipeline.get_state(0))
     summary["success"]=False;summary["exception"]=traceback.format_exc();traceback.print_exc()
     try:capture("failure.png")
     except Exception:pass

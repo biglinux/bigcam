@@ -1,11 +1,12 @@
-name: Catalog validation and explicit build dispatch
+name: Catalog validation and verified build dispatch
 on:
   pull_request:
     branches: [main]
     paths: ['locale/**', 'usr/share/biglinux/bigcam/**', '.github/workflows/translate-and-build-package.yml']
-  push:
+  workflow_run:
+    workflows: ['GTK and media integration']
+    types: [completed]
     branches: [main]
-    paths: ['locale/**']
   workflow_dispatch:
     inputs:
       dispatch_build:
@@ -23,6 +24,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gettext
       - name: Validate catalogs without translation-service secrets or repository writes
         shell: bash
@@ -34,15 +36,18 @@ jobs:
           done
   dispatch:
     needs: catalogs
-    if: github.event_name == 'workflow_dispatch' && inputs.dispatch_build && github.ref == 'refs/heads/main' && github.repository == 'biglinux/bigcam'
+    if: >-
+      github.repository == 'biglinux/bigcam' &&
+      ((github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository) ||
+       (github.event_name == 'workflow_dispatch' && inputs.dispatch_build && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-24.04
     timeout-minutes: 3
-    environment: package-release
     steps:
       - name: Dispatch fixed revision; never execute repository code with this credential
         env:
           WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
-          REVISION: ${{ github.sha }}
+          REVISION: ${{ github.event.workflow_run.head_sha || github.sha }}
         shell: bash
         run: |
           set -euo pipefail

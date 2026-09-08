@@ -116,7 +116,14 @@ class MobileDeviceController:
         self._camera_manager.add_phone_camera(cam_info)
         event_bus.emit("camera-changed", cam_info)
 
+        if self._audio_monitor:
+            self._audio_monitor.add_external_source(
+                "scrcpy_usb" if camera is self.scrcpy_usb else "scrcpy_wifi", cam_info.name, pid=camera.pid)
+
     def _on_scrcpy_receiver_disconnected(self, camera: ScrcpyCamera) -> None:
+        if self._audio_monitor:
+            self._audio_monitor.remove_external_source(
+                "scrcpy_usb" if camera is self.scrcpy_usb else "scrcpy_wifi")
         device_id = camera.device_serial
         if device_id:
             self._camera_manager.remove_scrcpy_camera(device_id)
@@ -135,7 +142,12 @@ class MobileDeviceController:
         self._camera_manager.add_phone_camera(cam_info)
         event_bus.emit("camera-changed", cam_info)
 
+        if self._audio_monitor:
+            self._audio_monitor.add_external_source("airplay", cam_info.name, pid=receiver.pid)
+
     def _on_airplay_receiver_disconnected(self, receiver: AirPlayReceiver) -> None:
+        if self._audio_monitor:
+            self._audio_monitor.remove_external_source("airplay")
         self._camera_manager.remove_airplay_cameras()
         event_bus.emit("camera-changed", None)
 

@@ -334,6 +334,10 @@ class PhoneCameraServer(GObject.Object):
             if sequence <= self._last_audio_sequence:
                 return False
             self._last_audio_sequence = sequence
+            with self._lock:
+                callback = self._audio_callback
+            if callback:
+                callback(packet[5:])
             try:
                 self._audio_queue.put_nowait((self._session_generation, packet[5:]))
             except queue.Full:
@@ -396,10 +400,6 @@ class PhoneCameraServer(GObject.Object):
                     continue
                 if generation != self._session_generation:
                     continue
-                with self._lock:
-                    callback = self._audio_callback
-                if callback:
-                    callback(pcm)
                 volume.set_property("volume", self._desired_volume)
                 volume.set_property("mute", self._desired_muted)
                 if pipeline.get_bus().pop_filtered(Gst.MessageType.ERROR):

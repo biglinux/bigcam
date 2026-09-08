@@ -4,12 +4,14 @@ msgstr ""
 "Project-Id-Version: bigcam\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-26 14:24-0300\n"
+"PO-Revision-Date: 2026-09-07 23:50-0300\n"
 "Last-Translator: Translation Automator <auto@translator.ai>\n"
 "Language-Team: Portuguese (Brazil) <pt-BR@li.org>\n"
 "Language: pt-BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: usr/share/biglinux/bigcam/core/backends/gphoto2_backend.py:232
 msgid "Generic Camera"
@@ -246,24 +248,11 @@ msgstr "Erro desconhecido do GStreamer"
 msgid ""
 "The universal webcam control center for Linux.\n"
 "\n"
-"BigCam was born as a small shell script so that Rafael Ruscher could use his "
-"Canon Rebel T3 as a webcam during live streams about BigLinux. That humble "
-"hack, written by Rafael and Barnabé di Kartola, evolved from a Bash bridge "
-"between gPhoto2 and FFmpeg into a full GTK4/Adwaita application with live "
-"preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, "
-"IP cameras, smartphones), real-time OpenCV effects, virtual camera output, "
-"photo and video capture, and 29 languages."
+"BigCam was born as a small shell script so that Rafael Ruscher could use his Canon Rebel T3 as a webcam during live streams about BigLinux. That humble hack, written by Rafael and Barnabé di Kartola, evolved from a Bash bridge between gPhoto2 and FFmpeg into a full GTK4/Adwaita application with live preview, multi-backend camera support (V4L2, gPhoto2, libcamera, PipeWire, IP cameras, smartphones), real-time OpenCV effects, virtual camera output, photo and video capture, and 29 languages."
 msgstr ""
 "O centro universal de controle de webcam para Linux.\n"
 "\n"
-"BigCam nasceu como um pequeno script shell para que Rafael Ruscher pudesse "
-"usar sua Canon Rebel T3 como webcam durante transmissões ao vivo sobre o "
-"BigLinux. Esse hack humilde, escrito por Rafael e Barnabé di Kartola, "
-"evoluiu de uma ponte Bash entre gPhoto2 e FFmpeg para um aplicativo completo "
-"GTK4/Adwaita com visualização ao vivo, suporte a múltiplos backends de "
-"câmera (V4L2, gPhoto2, libcamera, PipeWire, câmeras IP, smartphones), "
-"efeitos OpenCV em tempo real, saída de câmera virtual, captura de fotos e "
-"vídeos, e 29 idiomas."
+"BigCam nasceu como um pequeno script shell para que Rafael Ruscher pudesse usar sua Canon Rebel T3 como webcam durante transmissões ao vivo sobre o BigLinux. Esse hack humilde, escrito por Rafael e Barnabé di Kartola, evoluiu de uma ponte Bash entre gPhoto2 e FFmpeg para um aplicativo completo GTK4/Adwaita com visualização ao vivo, suporte a múltiplos backends de câmera (V4L2, gPhoto2, libcamera, PipeWire, câmeras IP, smartphones), efeitos OpenCV em tempo real, saída de câmera virtual, captura de fotos e vídeos, e 29 idiomas."
 
 #: usr/share/biglinux/bigcam/ui/camera_controls_page.py:22
 msgid "Image"
@@ -771,8 +760,8 @@ msgstr "Método rápido"
 
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:953
 msgid ""
-"If connected via USB, use the wireless icon on the device selector to switch "
-"to Wi-Fi instantly."
+"If connected via USB, use the wireless icon on the device selector to switch"
+" to Wi-Fi instantly."
 msgstr ""
 "Se conectado via USB, use o ícone sem fio no seletor de dispositivos para "
 "mudar para Wi-Fi instantaneamente."
@@ -874,7 +863,8 @@ msgstr "Clique em 'Iniciar' na aba AirPlay"
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1031
 msgid "On your iPhone, open Control Center (swipe down from top-right)"
 msgstr ""
-"No seu iPhone, abra a Central de Controle (deslize do canto superior direito)"
+"No seu iPhone, abra a Central de Controle (deslize do canto superior "
+"direito)"
 
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1032
 msgid "Tap 'Screen Mirroring' and select 'BigCam'"
@@ -925,8 +915,8 @@ msgid ""
 "No device found. Connect via USB cable and enable USB Debugging, then tap "
 "'Refresh'."
 msgstr ""
-"Nenhum dispositivo encontrado. Conecte via cabo USB e ative a Depuração USB, "
-"depois toque em 'Atualizar'."
+"Nenhum dispositivo encontrado. Conecte via cabo USB e ative a Depuração USB,"
+" depois toque em 'Atualizar'."
 
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1455
 msgid "Selected device is no longer available. Tap 'Refresh' to update."
@@ -998,8 +988,8 @@ msgid ""
 "Not found. Make sure you tapped 'Pair with pairing code' (not QR Code) and "
 "that the code screen is still open. You can also type the IP:Port manually."
 msgstr ""
-"Não encontrado. Certifique-se de que você tocou em 'Emparelhar com código de "
-"pareamento' (não QR Code) e que a tela do código ainda está aberta. Você "
+"Não encontrado. Certifique-se de que você tocou em 'Emparelhar com código de"
+" pareamento' (não QR Code) e que a tela do código ainda está aberta. Você "
 "também pode digitar o IP:Port manualmente."
 
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1662
@@ -1053,8 +1043,8 @@ msgstr ""
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1829
 msgid "Selected device is no longer available. Tap 'Scan' to refresh."
 msgstr ""
-"O dispositivo selecionado não está mais disponível. Toque em 'Escanear' para "
-"atualizar."
+"O dispositivo selecionado não está mais disponível. Toque em 'Escanear' para"
+" atualizar."
 
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1902
 #: usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:1941
@@ -1705,8 +1695,8 @@ msgid ""
 "Bypass PipeWire and access the camera directly. May fix flickering on some "
 "webcams."
 msgstr ""
-"Ignorar PipeWire e acessar a câmera diretamente. Pode corrigir cintilação em "
-"algumas webcams."
+"Ignorar PipeWire e acessar a câmera diretamente. Pode corrigir cintilação em"
+" algumas webcams."
 
 #: usr/share/biglinux/bigcam/ui/settings_page.py:318
 msgid "Camera"
@@ -1917,8 +1907,8 @@ msgid ""
 "that applications like OBS Studio, Google Meet, and Zoom can use."
 msgstr ""
 "Quando ativado, a pré-visualização da câmera ativa é enviada para um "
-"dispositivo de câmera virtual que aplicativos como OBS Studio, Google Meet e "
-"Zoom podem usar."
+"dispositivo de câmera virtual que aplicativos como OBS Studio, Google Meet e"
+" Zoom podem usar."
 
 #: usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
 msgid "Not installed"
@@ -2232,17 +2222,13 @@ msgstr "Câmera no modo vídeo"
 
 #: usr/share/biglinux/bigcam/ui/window.py:1735
 msgid ""
-"Your camera is set to Video/Movie mode. Some cameras cannot take photos in "
-"this mode.\n"
+"Your camera is set to Video/Movie mode. Some cameras cannot take photos in this mode.\n"
 "\n"
-"Switch the mode dial on your camera to a photo mode (P, Av, Tv, M or Auto) "
-"and try again, or capture a frame from the current preview."
+"Switch the mode dial on your camera to a photo mode (P, Av, Tv, M or Auto) and try again, or capture a frame from the current preview."
 msgstr ""
-"Sua câmera está configurada para o modo Vídeo/Filme. Algumas câmeras não "
-"conseguem tirar fotos nesse modo.\n"
+"Sua câmera está configurada para o modo Vídeo/Filme. Algumas câmeras não conseguem tirar fotos nesse modo.\n"
 "\n"
-"Altere o seletor de modo da sua câmera para um modo de foto (P, Av, Tv, M ou "
-"Auto) e tente novamente, ou capture um quadro da visualização atual."
+"Altere o seletor de modo da sua câmera para um modo de foto (P, Av, Tv, M ou Auto) e tente novamente, ou capture um quadro da visualização atual."
 
 #: usr/share/biglinux/bigcam/ui/window.py:1742
 msgid "Capture preview frame"
@@ -2455,9 +2441,478 @@ msgstr "Receptor AirPlay"
 msgid "Apple AirPlay screen mirroring via UxPlay"
 msgstr "Espelhamento de tela Apple AirPlay via UxPlay"
 
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:95
+msgid "Advanced Controls"
+msgstr "Controles Avançados"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:96
+msgid ""
+"Fine-tune exposure, white balance\n"
+"and save per-camera profiles"
+msgstr ""
+"Ajuste fino da exposição, balanço de branco\n"
+"e salve perfis por câmera"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/welcome_dialog.py:122
+msgid "Tip: Press Ctrl+P to capture, Ctrl+R to record, Tab to toggle sidebar"
+msgstr ""
+"Dica: Pressione Ctrl+P para capturar, Ctrl+R para gravar, Tab para alternar "
+"a barra lateral"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:533
+msgid "Maximum virtual cameras"
+msgstr "Máximo de câmeras virtuais"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:534
+msgid "How many virtual camera devices to create (one per camera)."
+msgstr "Quantos dispositivos de câmera virtual criar (um por câmera)."
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:543
+msgid "Device name"
+msgstr "Nome do dispositivo"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:548
+msgid ""
+"Name template for virtual cameras. Devices will be named '<name> 1', '<name> 2', etc.\n"
+"Press Enter or click ✓ to apply."
+msgstr ""
+"Modelo de nome para câmeras virtuais. Os dispositivos serão nomeados como '<name> 1', '<name> 2', etc.\n"
+"Pressione Enter ou clique em ✓ para aplicar."
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/phone_camera_dialog.py:787
+msgid "Instructions"
+msgstr "Instruções"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1477
+msgid "Capture not supported"
+msgstr "Captura não suportada"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1479
+msgid ""
+"This camera does not support live streaming via USB. Its PTP driver only "
+"allows file transfer. Use an HDMI capture card to stream from this camera."
+msgstr ""
+"Esta câmera não suporta transmissão ao vivo via USB. Seu driver PTP permite "
+"apenas transferência de arquivos. Use uma placa de captura HDMI para "
+"transmitir desta câmera."
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1486
+msgid "Camera does not support USB streaming."
+msgstr "A câmera não suporta transmissão via USB."
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1490
+msgid "Streaming failed"
+msgstr "Falha na transmissão"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1492
+msgid ""
+"The camera returned PTP errors during video capture. It may lack PC Remote mode or its USB connection mode needs to be changed. Check the camera menu for USB settings and select 'PC Remote' if available.\n"
+"\n"
+"Alternatively, use an HDMI capture card."
+msgstr ""
+"A câmera retornou erros PTP durante a captura de vídeo. Pode não ter modo PC Remote ou o modo de conexão USB precisa ser alterado. Verifique o menu da câmera para configurações USB e selecione 'PC Remote' se disponível.\n"
+"\n"
+"Alternativamente, use uma placa de captura HDMI."
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/window.py:1501
+msgid "Camera PTP streaming failed."
+msgstr "Falha na transmissão PTP da câmera."
+
+#. yellow/warning
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/settings_page.py:891
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:133
+msgid "Reboot required (kernel updated)"
+msgstr "Reinicialização necessária (kernel atualizado)"
+
+#: /home/ruscher/Documentos/Git/_REFIZ/bigcam/usr/share/biglinux/bigcam/ui/virtual_camera_page.py:131
+msgid "Module not available for current kernel"
+msgstr "Módulo não disponível para o kernel atual"
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:377
+#, python-format
+msgid "%(source)s — audio %(index)d"
+msgstr "%(source)s — áudio %(index)d"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:271
+#, python-format
+msgid "%d file could not be moved to Trash."
+msgid_plural "%d files could not be moved to Trash."
+msgstr[0] "Não foi possível mover %d arquivo para a lixeira."
+msgstr[1] "Não foi possível mover %d arquivos para a lixeira."
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:227
+#, python-format
+msgid "%d item selected"
+msgid_plural "%d items selected"
+msgstr[0] "%d item selecionado"
+msgstr[1] "%d itens selecionados"
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:735
+#, python-format
+msgid "%d second remaining"
+msgid_plural "%d seconds remaining"
+msgstr[0] "%d segundo restante"
+msgstr[1] "%d segundos restantes"
+
+#: usr/share/biglinux/bigcam/ui/window.py:870
+#, python-format
+msgid "%d virtual camera allocated"
+msgid_plural "%d virtual cameras allocated"
+msgstr[0] "%d câmera virtual alocada"
+msgstr[1] "%d câmeras virtuais alocadas"
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:408
+#, python-format
+msgid "%s — volume"
+msgstr "%s — volume"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2388
+msgid "Active cameras:"
+msgstr "Câmeras ativas:"
+
+#: usr/share/biglinux/bigcam/core/camera_manager.py:230
+msgid "Audio Volume"
+msgstr "Volume do áudio"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:204
+#: usr/share/biglinux/bigcam/ui/settings_page.py:212
+msgid "Auto-optimize resources"
+msgstr "Otimizar recursos automaticamente"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:205
+msgid "Automatically disable heavy background features when usage is high."
+msgstr ""
+"Desativar automaticamente recursos pesados em segundo plano quando o uso "
+"estiver alto."
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:237
+msgid "Automatically hide camera controls"
+msgstr "Ocultar os controles da câmera automaticamente"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:236
+msgid "Avoid capture flashes and decorative animations."
+msgstr "Evitar flashes de captura e animações decorativas."
+
+#: usr/share/biglinux/bigcam/core/camera_manager.py:144
+msgid "Camera detection failed. Try refreshing the camera list."
+msgstr "Falha ao detectar câmeras. Tente atualizar a lista de câmeras."
+
+#: usr/share/biglinux/bigcam/ui/window.py:1514
+#: usr/share/biglinux/bigcam/ui/window.py:1523
+msgid "Camera preferences will apply after recording stops."
+msgstr "As preferências da câmera serão aplicadas após o fim da gravação."
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:13
+msgid "Camera preview"
+msgstr "Prévia da câmera"
+
+#: usr/share/biglinux/bigcam/ui/window.py:917
+msgid "Capture cancelled."
+msgstr "Captura cancelada."
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:153
+msgid "Check the connection and try again."
+msgstr "Verifique a conexão e tente novamente."
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:8
+msgid "Connecting…"
+msgstr "Conectando…"
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:15
+msgid ""
+"Connection failed. Check permissions, the address and whether another device"
+" is connected."
+msgstr ""
+"Falha na conexão. Verifique as permissões, o endereço e se outro dispositivo"
+" está conectado."
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:237
+msgid "Controls remain visible while using keyboard focus."
+msgstr "Os controles permanecem visíveis durante a navegação pelo teclado."
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:152
+msgid "Could not load camera controls"
+msgstr "Não foi possível carregar os controles da câmera"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:272
+msgid "Could not move files to Trash."
+msgstr "Não foi possível mover os arquivos para a lixeira."
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:240
+msgid "Could not open the file or folder."
+msgstr "Não foi possível abrir o arquivo ou a pasta."
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:114
+msgid "Could not read the media folder."
+msgstr "Não foi possível ler a pasta de mídia."
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:594
+msgid "Could not reset camera controls."
+msgstr "Não foi possível restaurar os controles da câmera."
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:444
+msgid "Could not save the profile. Check its name and folder permissions."
+msgstr ""
+"Não foi possível salvar o perfil. Verifique o nome e as permissões da pasta."
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:166
+#, python-format
+msgid "Could not start the camera server: %s"
+msgstr "Não foi possível iniciar o servidor da câmera: %s"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:568
+msgid "Enable virtual camera service"
+msgstr "Ativar o serviço de câmera virtual"
+
+#: usr/share/biglinux/bigcam/ui/window.py:1803
+msgid "Failed to capture photo. Check the camera mode and connection."
+msgstr "Falha ao capturar a foto. Verifique o modo da câmera e a conexão."
+
+#: usr/share/biglinux/bigcam/ui/window.py:2100
+#: usr/share/biglinux/bigcam/ui/window.py:2145
+msgid "Finalizing video…"
+msgstr "Finalizando vídeo…"
+
+#: usr/share/biglinux/bigcam/ui/window.py:1216
+msgid "Finish the current capture before changing cameras."
+msgstr "Conclua a captura atual antes de trocar de câmera."
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:11
+msgid "Frames per second"
+msgstr "Quadros por segundo"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:49
+msgid "Gallery status"
+msgstr "Estado da galeria"
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+msgid "High"
+msgstr "Alta"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2523
+msgid "High resource usage detected. Optimized automatically."
+msgstr "Detectado alto uso de recursos. Otimização automática aplicada."
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:13
+msgid "Include microphone audio"
+msgstr "Incluir áudio do microfone"
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:129
+msgid "Invalid server port"
+msgstr "Porta do servidor inválida"
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:523
+msgid "Live"
+msgstr "Ao vivo"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:62
+msgid "Load more"
+msgstr "Carregar mais"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:105
+msgid "Loading media…"
+msgstr "Carregando mídia…"
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+msgid "Low"
+msgstr "Baixa"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:569
+msgid "Master switch to allow virtual camera outputs."
+msgstr "Controle geral para permitir saídas de câmera virtual."
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:12
+msgid "Medium"
+msgstr "Média"
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:16
+msgid ""
+"Microphone audio is unavailable. Stop and reconnect, or turn off microphone "
+"audio."
+msgstr ""
+"O áudio do microfone não está disponível. Pare e reconecte ou desative o "
+"áudio do microfone."
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:249
+#, python-format
+msgid "Move %d item to Trash?"
+msgid_plural "Move %d items to Trash?"
+msgstr[0] "Mover %d item para a lixeira?"
+msgstr[1] "Mover %d itens para a lixeira?"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:168
+#, python-format
+msgid "Move %s to Trash"
+msgstr "Mover %s para a lixeira"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:78
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:167
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:252
+msgid "Move to Trash"
+msgstr "Mover para a lixeira"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2106
+msgid "No active camera stream."
+msgstr "Nenhuma transmissão de câmera ativa."
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:1009
+msgid "No cameras connected"
+msgstr "Nenhuma câmera conectada"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:232
+msgid "No media yet"
+msgstr "Ainda não há mídia"
+
+#: usr/share/biglinux/bigcam/ui/window.py:1837
+msgid "OK"
+msgstr "OK"
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:14
+msgid ""
+"Only connect on a trusted network. Anyone with this address can connect to "
+"the camera service."
+msgstr ""
+"Conecte apenas em uma rede confiável. Qualquer pessoa com este endereço pode"
+" acessar o serviço da câmera."
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:156
+#, python-format
+msgid "Open %s"
+msgstr "Abrir %s"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:69
+msgid "Open folder"
+msgstr "Abrir pasta"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:70
+msgid "Open media folder"
+msgstr "Abrir pasta de mídia"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2378
+msgid "Phone (AirPlay)"
+msgstr "Celular (AirPlay)"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2370
+msgid "Phone (Browser Wi-Fi)"
+msgstr "Celular (navegador por Wi-Fi)"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2374
+msgid "Phone (USB/Wi-Fi scrcpy)"
+msgstr "Celular (scrcpy por USB/Wi-Fi)"
+
+#: usr/share/biglinux/bigcam/ui/window.py:2168
+#, python-format
+msgid "Recording failed. Any partial file has been preserved: %s"
+msgstr "Falha na gravação. O arquivo parcial, se houver, foi preservado: %s"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:236
+msgid "Reduce motion and flashes"
+msgstr "Reduzir movimento e flashes"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:66
+msgid "Refresh gallery"
+msgstr "Atualizar galeria"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:162
+msgid "Select"
+msgstr "Selecionar"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:163
+#, python-format
+msgid "Select %s"
+msgstr "Selecionar %s"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:75
+msgid "Select displayed items"
+msgstr "Selecionar itens exibidos"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:579
+msgid "Select which cameras should output to a virtual device."
+msgstr "Selecione quais câmeras devem transmitir para um dispositivo virtual."
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:311
+msgid "Show volume controls"
+msgstr "Mostrar controles de volume"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:229
+#, python-format
+msgid "Showing %(shown)d of %(total)d items"
+msgstr "Exibindo %(shown)d de %(total)d itens"
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:411
+msgid "Some profile controls could not be applied."
+msgstr "Não foi possível aplicar alguns controles do perfil."
+
+#: usr/share/biglinux/bigcam/ui/window.py:2128
+msgid "Starting recording…"
+msgstr "Iniciando gravação…"
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:9
+msgid "Switch camera"
+msgstr "Trocar câmera"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:146
+msgid "System"
+msgstr "Sistema"
+
+#: usr/share/biglinux/bigcam/ui/camera_controls_page.py:549
+msgid "The camera could not apply this setting."
+msgstr "A câmera não conseguiu aplicar esta configuração."
+
+#: usr/share/biglinux/bigcam/ui/window.py:1835
+#, python-brace-format
+msgid ""
+"The maximum limit of {} virtual cameras has been reached. Please disconnect "
+"some cameras or disable background virtual cameras in settings to connect a "
+"new one."
+msgstr ""
+"O limite de {} câmeras virtuais foi atingido. Desconecte câmeras ou desative"
+" as câmeras virtuais em segundo plano nas configurações para conectar uma "
+"nova."
+
+#: usr/share/biglinux/bigcam/core/phone_camera.py:134
+msgid "The previous server session is still stopping."
+msgstr "A sessão anterior do servidor ainda está sendo encerrada."
+
+#: usr/share/biglinux/bigcam/core/phone_strings.py:17
+msgid "This address is no longer valid. Scan the current QR code in BigCam."
+msgstr "Este endereço não é mais válido. Leia o QR code atual no BigCam."
+
+#: usr/share/biglinux/bigcam/ui/window.py:924
+msgid "Use your window manager to keep this window above others."
+msgstr ""
+"Use o gerenciador de janelas para manter esta janela acima das outras."
+
+#: usr/share/biglinux/bigcam/ui/window.py:1834
+msgid "Virtual Camera Limit Reached"
+msgstr "Limite de câmeras virtuais atingido"
+
+#: usr/share/biglinux/bigcam/ui/settings_page.py:578
+msgid "Virtual Cameras"
+msgstr "Câmeras virtuais"
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:310
+msgid "Volume"
+msgstr "Volume"
+
+#: usr/share/biglinux/bigcam/ui/media_gallery.py:250
+msgid ""
+"You can restore these files from the system Trash. Files that cannot be "
+"trashed will be kept."
+msgstr ""
+"Você pode restaurar estes arquivos pela lixeira do sistema. Arquivos que não"
+" puderem ser movidos para a lixeira serão mantidos."
+
+#: usr/share/biglinux/bigcam/ui/preview_area.py:731
+#: usr/share/biglinux/bigcam/ui/preview_area.py:745
+#, python-brace-format
+msgid "{n} second remaining"
+msgid_plural "{n} seconds remaining"
+msgstr[0] "{n} segundo restante"
+msgstr[1] "{n} segundos restantes"
+
 #~ msgid "1. On your Android phone, go to Settings → About Phone"
-#~ msgstr ""
-#~ "1. No seu telefone Android, vá para Configurações → Sobre o telefone"
+#~ msgstr "1. No seu telefone Android, vá para Configurações → Sobre o telefone"
 
 #~ msgid "2. Tap 'Build Number' 7 times to unlock Developer Options"
 #~ msgstr ""
@@ -2481,8 +2936,7 @@ msgstr "Espelhamento de tela Apple AirPlay via UxPlay"
 #~ msgstr "MAIS FÁCIL: Se conectado via USB, use o ícone sem fio"
 
 #~ msgid "on the device selector to switch to Wi-Fi instantly."
-#~ msgstr ""
-#~ "no seletor de dispositivo para alternar para Wi-Fi instantaneamente."
+#~ msgstr "no seletor de dispositivo para alternar para Wi-Fi instantaneamente."
 
 #~ msgid "FIRST-TIME PAIRING (without USB):"
 #~ msgstr "EMPARELHAMENTO PELA PRIMEIRA VEZ (sem USB):"
@@ -2528,8 +2982,8 @@ msgstr "Espelhamento de tela Apple AirPlay via UxPlay"
 
 #~ msgid "3. On your iPhone, open Control Center (swipe down from top-right)"
 #~ msgstr ""
-#~ "3. No seu iPhone, abra a Central de Controle (deslize para baixo a partir "
-#~ "do canto superior direito)"
+#~ "3. No seu iPhone, abra a Central de Controle (deslize para baixo a partir do"
+#~ " canto superior direito)"
 
 #~ msgid "4. Tap 'Screen Mirroring' and select 'BigCam'"
 #~ msgstr "4. Toque em 'Screen Mirroring' e selecione 'BigCam'"
@@ -2551,10 +3005,6 @@ msgstr "Espelhamento de tela Apple AirPlay via UxPlay"
 
 #~ msgid "Refresh photo gallery"
 #~ msgstr "Atualizar galeria de fotos"
-
-#, python-format
-#~ msgid "Open %s"
-#~ msgstr "Abrir %s"
 
 #, python-format
 #~ msgid "Delete %s"
@@ -2633,57 +3083,41 @@ msgstr "Espelhamento de tela Apple AirPlay via UxPlay"
 #~ "\n"
 #~ "Instale com: sudo pacman -S python-aiohttp"
 
-#~ msgid "OK"
-#~ msgstr "OK"
-
-#~ msgid "System"
-#~ msgstr "Sistema"
-
 #, python-format
 #~ msgid ""
 #~ "The camera \"%(camera)s\" is being used by: %(apps)s.\n"
 #~ "\n"
-#~ "The video preview cannot be displayed while another application has "
-#~ "exclusive access to this device.\n"
+#~ "The video preview cannot be displayed while another application has exclusive access to this device.\n"
 #~ "\n"
 #~ "Camera settings and controls will continue to work normally.\n"
 #~ "\n"
-#~ "Tip: Enable the Virtual Camera to share the camera feed with multiple "
-#~ "applications simultaneously."
+#~ "Tip: Enable the Virtual Camera to share the camera feed with multiple applications simultaneously."
 #~ msgstr ""
 #~ "A câmera \"%(camera)s\" está sendo usada por: %(apps)s.\n"
 #~ "\n"
-#~ "A pré-visualização do vídeo não pode ser exibida enquanto outro "
-#~ "aplicativo tem acesso exclusivo a este dispositivo.\n"
+#~ "A pré-visualização do vídeo não pode ser exibida enquanto outro aplicativo tem acesso exclusivo a este dispositivo.\n"
 #~ "\n"
-#~ "As configurações e controles da câmera continuarão funcionando "
-#~ "normalmente.\n"
+#~ "As configurações e controles da câmera continuarão funcionando normalmente.\n"
 #~ "\n"
-#~ "Dica: Ative a Câmera Virtual para compartilhar o feed da câmera com "
-#~ "vários aplicativos simultaneamente."
+#~ "Dica: Ative a Câmera Virtual para compartilhar o feed da câmera com vários aplicativos simultaneamente."
 
 #, python-format
 #~ msgid ""
 #~ "The camera \"%s\" is being used by another application.\n"
 #~ "\n"
-#~ "The video preview cannot be displayed while another application has "
-#~ "exclusive access to this device.\n"
+#~ "The video preview cannot be displayed while another application has exclusive access to this device.\n"
 #~ "\n"
 #~ "Camera settings and controls will continue to work normally.\n"
 #~ "\n"
-#~ "Tip: Enable the Virtual Camera to share the camera feed with multiple "
-#~ "applications simultaneously."
+#~ "Tip: Enable the Virtual Camera to share the camera feed with multiple applications simultaneously."
 #~ msgstr ""
 #~ "A câmera \"%s\" está sendo usada por outro aplicativo.\n"
 #~ "\n"
-#~ "A pré-visualização do vídeo não pode ser exibida enquanto outro "
-#~ "aplicativo tem acesso exclusivo a este dispositivo.\n"
+#~ "A pré-visualização do vídeo não pode ser exibida enquanto outro aplicativo tem acesso exclusivo a este dispositivo.\n"
 #~ "\n"
-#~ "As configurações e controles da câmera continuarão funcionando "
-#~ "normalmente.\n"
+#~ "As configurações e controles da câmera continuarão funcionando normalmente.\n"
 #~ "\n"
-#~ "Dica: Ative a Câmera Virtual para compartilhar o feed da câmera com "
-#~ "vários aplicativos simultaneamente."
+#~ "Dica: Ative a Câmera Virtual para compartilhar o feed da câmera com vários aplicativos simultaneamente."
 
 #~ msgid "Backlight Compensation"
 #~ msgstr "Compensação de Contraluz"

@@ -28,7 +28,7 @@ def _safe_filename(name: str) -> str:
 
 def _directory(camera: CameraInfo) -> Path:
     root = Path(xdg.profiles_dir()).resolve()
-    identity = camera.id or f"{camera.backend.value}:{camera.device_path}"
+    identity = camera.extra.get("profile_id") or camera.id or f"{camera.backend.value}:{camera.device_path}"
     directory = root / ("camera-" + hashlib.sha256(identity.encode("utf-8")).hexdigest())
     if directory.is_symlink():
         raise ValueError("Profile directory must not be a symbolic link")

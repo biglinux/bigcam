@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
 import subprocess
-from utils.command_runner import SecureCommandRunner
 import threading
 from typing import Callable
 
 import gi
+from utils.command_runner import SecureCommandRunner
 
 gi.require_version("Gst", "1.0")
 
-from gi.repository import Gst, GLib, GObject
+from gi.repository import GLib, GObject, Gst
 
 log = logging.getLogger(__name__)
 
@@ -166,7 +167,8 @@ class AudioMonitor(GObject.Object):
         result = list(self._sources)
         with self._ext_lock:
             for name, info in self._external.items():
-                result.append((name, info["label"]))
+                if not info["pid"] or info["index"] is not None:
+                    result.append((name, info["label"]))
         return result
 
     @property
@@ -198,9 +200,7 @@ class AudioMonitor(GObject.Object):
     @property
     def all_source_names(self) -> list[str]:
         """Return PulseAudio device names of all detected sources."""
-        result = [s[0] for s in self._sources]
-        result.extend(self._external.keys())
-        return result
+        return [name for name, _label in self.sources]
 
     def toggle_source(self, source_name: str) -> None:
         """Start or stop playback of a given source."""
@@ -338,6 +338,7 @@ class AudioMonitor(GObject.Object):
                 self._pactl_volume_external(name, vol)
                 if self._muted or not src_active:
                     self._pactl_mute_external(name, True)
+                GLib.idle_add(self.emit, "sources-changed")
                 log.info("Resolved sink-input #%d for external source %s (pid %d)", idx, name, pid)
                 return
             import time
@@ -369,87 +370,21 @@ class AudioMonitor(GObject.Object):
         except (FileNotFoundError, subprocess.TimeoutExpired):
             pass
 
-        # --- Phase 1: check application.process.id in sink-inputs ----------
+        process_ids = {str(pid) for pid in pids_to_check}
         try:
-            result = SecureCommandRunner.run_safe(
-                ["pactl", "list", "sink-inputs"],
-                capture_output=True, text=True, timeout=5,
-            )
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            return None
-        if result.returncode != 0:
-            return None
-
-        # Parse sink-inputs: collect (index, client_id) pairs
-        cur_index: int | None = None
-        cur_client: int | None = None
-        sink_inputs: list[tuple[int, int | None]] = []
-
-        for line in result.stdout.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("Sink Input #"):
-                if cur_index is not None:
-                    sink_inputs.append((cur_index, cur_client))
-                try:
-                    cur_index = int(stripped.split("#", 1)[1])
-                except ValueError:
-                    cur_index = None
-                cur_client = None
-            elif stripped.startswith("Client:") and cur_index is not None:
-                try:
-                    cur_client = int(stripped.split(":", 1)[1].strip())
-                except ValueError:
-                    pass
-            elif "application.process.id" in stripped and cur_index is not None:
-                val = stripped.split("=", 1)[1].strip().strip('"')
-                try:
-                    if int(val) in pids_to_check:
-                        return cur_index
-                except ValueError:
-                    pass
-        if cur_index is not None:
-            sink_inputs.append((cur_index, cur_client))
-
-        # --- Phase 2: check pipewire.sec.pid in clients --------------------
-        client_ids = {c for _, c in sink_inputs if c is not None}
-        if not client_ids:
-            return None
-
-        try:
-            cl_result = SecureCommandRunner.run_safe(
-                ["pactl", "list", "clients"],
-                capture_output=True, text=True, timeout=5,
-            )
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            return None
-        if cl_result.returncode != 0:
-            return None
-
-        # Map client_id → PID (from pipewire.sec.pid or application.process.id)
-        cl_id: int | None = None
-        matching_clients: set[int] = set()
-        for line in cl_result.stdout.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("Client #"):
-                try:
-                    cl_id = int(stripped.split("#", 1)[1])
-                except ValueError:
-                    cl_id = None
-            elif cl_id is not None and cl_id in client_ids:
-                for key in ("pipewire.sec.pid", "application.process.id"):
-                    if key in stripped:
-                        val = stripped.split("=", 1)[1].strip().strip('"')
-                        try:
-                            if int(val) in pids_to_check:
-                                matching_clients.add(cl_id)
-                        except ValueError:
-                            pass
-
-        # Return the first sink-input whose client matches
-        for si_index, si_client in sink_inputs:
-            if si_client in matching_clients:
-                return si_index
-
+            inputs = json.loads(subprocess.check_output(
+                ["pactl", "-f", "json", "list", "sink-inputs"], text=True, timeout=5))
+            clients = json.loads(subprocess.check_output(
+                ["pactl", "-f", "json", "list", "clients"], text=True, timeout=5))
+            matching = {client["index"] for client in clients
+                        if any(str(client.get("properties", {}).get(key)) in process_ids
+                               for key in ("pipewire.sec.pid", "application.process.id"))}
+            for item in inputs:
+                if (str(item.get("properties", {}).get("application.process.id")) in process_ids
+                        or item.get("client") in matching):
+                    return item["index"]
+        except (OSError, ValueError, subprocess.SubprocessError):
+            log.warning("Could not query external playback streams")
         return None
 
     def _pactl_volume_external(self, name: str, value: float) -> None:
@@ -644,5 +579,7 @@ class AudioMonitor(GObject.Object):
         return GLib.SOURCE_REMOVE
 
     @property
-    def capture_source_names(self):
-        return [name for name, _label in self._sources]
+    def external_recording_sources(self) -> dict[str, int | None]:
+        with self._ext_lock:
+            return {name: info["pid"] for name, info in self._external.items()
+                    if not info["pid"] or info["index"] is not None}

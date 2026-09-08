@@ -99,6 +99,8 @@ class BigDigicamWindow(Adw.ApplicationWindow):
         self._setup_immersion()
 
         self._mobile_device_ctrl = MobileDeviceController(self._camera_manager, self._immersion, self._audio_monitor)
+        self._mobile_device_ctrl.phone_server.set_audio_callback(
+            lambda pcm: self._video_recorder.write_audio("phone_browser", pcm))
         event_bus.connect("mobile-status-changed", self._on_mobile_status_changed)
         event_bus.connect("camera-changed", self._on_eventbus_camera_changed)
         event_bus.connect("vcam-limit-reached", self._on_vcam_limit_reached)
@@ -2104,10 +2106,11 @@ class BigDigicamWindow(Adw.ApplicationWindow):
             self._show_notification(_("No active camera stream."), "warning")
             return
         try:
-            sources = self._audio_monitor.capture_source_names
+            sources = self._audio_monitor.all_source_names
             path = recorder.start(
                 self._active_camera,
                 audio_sources=sources,
+                external_audio=self._audio_monitor.external_recording_sources,
                 active_audio_sources=[name for name in self._audio_monitor.active_source_names if name in sources],
                 source_volumes={name: self._audio_monitor.get_source_volume(name) for name in sources},
                 muted=self._audio_monitor.muted,

@@ -1,15 +1,18 @@
 """Shared, paginated gallery with bounded asynchronous metadata and reversible trash."""
-from collections import deque
 import os
+import subprocess
 import time
+from collections import deque
+
 import gi
+
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
+from core.media_library import PHOTO_EXTS, VIDEO_EXTS, duration, scan, thumbnail
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
-from core.media_library import scan, thumbnail, duration, PHOTO_EXTS, VIDEO_EXTS
 from utils.async_worker import run_async
-from utils.settings_manager import SettingsManager
 from utils.i18n import _, ngettext
+from utils.settings_manager import SettingsManager
 
 
 class MediaGallery(Gtk.Box):
@@ -128,6 +131,7 @@ class MediaGallery(Gtk.Box):
             picture = Gtk.Picture(content_fit=Gtk.ContentFit.CONTAIN)
             picture.set_size_request(48 if self._view == "list" else 160, 48 if self._view == "list" else 160)
             picture.set_alternative_text(entry.name)
+            length = Gtk.Label() if entry.is_video else None
             if self._view == "list":
                 row = Adw.ActionRow(title=entry.name, subtitle=f"{GLib.format_size(entry.size)} · {time.strftime('%x %X', time.localtime(entry.modified))}")
                 row.add_prefix(picture)
@@ -135,9 +139,23 @@ class MediaGallery(Gtk.Box):
                 row.connect("activated", lambda _row, path=entry.path: self._activate(path))
                 self._list.append(row)
                 suffix = row.add_suffix
+                if length:
+                    suffix(length)
             else:
                 row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-                button = Gtk.Button(child=picture, tooltip_text=entry.name)
+                preview = Gtk.Overlay(child=picture)
+                if length:
+                    play = Gtk.Image(icon_name="media-playback-start-symbolic", pixel_size=32,
+                                     halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, can_target=False)
+                    play.add_css_class("osd")
+                    preview.add_overlay(play)
+                    length.set_halign(Gtk.Align.END)
+                    length.set_valign(Gtk.Align.END)
+                    length.set_margin_end(4)
+                    length.set_margin_bottom(4)
+                    length.add_css_class("osd")
+                    preview.add_overlay(length)
+                button = Gtk.Button(child=preview, tooltip_text=entry.name)
                 button.update_property([Gtk.AccessibleProperty.LABEL], [_("Open %s") % entry.name])
                 button.connect("clicked", lambda _button, path=entry.path: self._activate(path))
                 row.append(button)
@@ -153,26 +171,36 @@ class MediaGallery(Gtk.Box):
                 trash.update_property([Gtk.AccessibleProperty.LABEL], [_("Move %s to Trash") % entry.name])
                 trash.connect("clicked", lambda _button, path=entry.path: self._confirm_trash([path]))
                 suffix(trash)
-            scope["pending"].append((entry, picture))
+            scope["pending"].append((entry, picture, length))
         self._more.set_visible(len(self._entries) > self._limit)
         self._update_count()
         self._pump(scope)
 
     def _pump(self, scope):
         while scope["alive"] and scope["pending"] and scope["active"] < 2:
-            entry, picture = scope["pending"].popleft()
+            entry, picture, length = scope["pending"].popleft()
             scope["active"] += 1
-            def loaded(path, image=picture, current=scope):
+            def loaded(result, image=picture, label=length, current=scope):
                 current["active"] -= 1
                 if current["alive"] and not self._closed:
+                    path, seconds = result
                     if path:
                         try:
                             image.set_filename(path)
                         except GLib.Error:
                             pass
+                    if label:
+                        label.set_label(seconds)
                     self._pump(current)
-            run_async(lambda item=entry: thumbnail(item), on_success=loaded,
-                      on_error=lambda exc, callback=loaded: callback(None))
+            def metadata(item=entry):
+                path = thumbnail(item)
+                try:
+                    seconds = duration(item)
+                except (OSError, ValueError, subprocess.SubprocessError):
+                    seconds = ""
+                return path, seconds
+            run_async(metadata, on_success=loaded,
+                      on_error=lambda exc, callback=loaded: callback((None, "")))
 
     def _activate(self, path):
         if self._selection_mode:

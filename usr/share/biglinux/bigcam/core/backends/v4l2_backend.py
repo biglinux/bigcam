@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
 import re
 from utils.video_formats import frame_rate, source_caps
-from utils.urls import gst_quote, source_caps
 from utils.urls import gst_quote
 import subprocess
 from typing import Any
@@ -165,6 +165,14 @@ class V4L2Backend(CameraBackend):
             )
             # Check if photo capture is achievable (always yes for v4l2 via gstreamer snapshot)
             cam.capabilities.append("photo")
+            # udev links survive /dev/videoN renumbering. Without a serial,
+            # profiles follow the physical port and model, not the enumeration.
+            links = [*sorted(Path("/dev/v4l/by-id").glob("*")),
+                     *sorted(Path("/dev/v4l/by-path").glob("*"))]
+            stable = next((str(link) for link in links if os.path.realpath(link) == device), "")
+            if not stable:
+                stable = str(Path(f"/sys/class/video4linux/{Path(device).name}/device").resolve())
+            cam.extra["profile_id"] = f"v4l2:{stable}:{cam.name}"
             cameras.append(cam)
         return cameras
 

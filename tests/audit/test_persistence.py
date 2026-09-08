@@ -116,6 +116,18 @@ def test_identical_camera_names_do_not_share_new_profiles():
     assert profiles.load_profile(camera("Same", "B"), "test") == {}
 
 
+def test_profile_follows_physical_camera_after_video_node_renumbering():
+    original = camera("Same", "v4l2:/dev/video0")
+    original.extra["profile_id"] = "serial-A"
+    moved = camera("Same", "v4l2:/dev/video2")
+    moved.extra["profile_id"] = "serial-A"
+    replacement = camera("Same", "v4l2:/dev/video0")
+    replacement.extra["profile_id"] = "serial-B"
+    profiles.save_profile(original, "portrait", [SimpleNamespace(id="brightness", value=7, flags="")])
+    assert profiles.load_profile(moved, "portrait") == {"brightness": 7}
+    assert profiles.load_profile(replacement, "portrait") == {}
+
+
 @pytest.mark.parametrize("name", ["", ".", "..", "x" * 181])
 def test_invalid_profile_names_fail(name):
     with pytest.raises(ValueError):

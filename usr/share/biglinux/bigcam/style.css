@@ -205,10 +205,8 @@ window.bigcam {
     
     @keyframes rec-pulse {
     
-        0%,
-        100% {
-            opacity: 1.0;
-        }
+        0% { opacity: 1.0; }
+        100% { opacity: 1.0; }
     
         50% {
             opacity: 0.3;
@@ -359,10 +357,8 @@ button.zoom-btn:hover {
 
 @keyframes rec-blink {
 
-    0%,
-    100% {
-        opacity: 1;
-    }
+    0% { opacity: 1; }
+    100% { opacity: 1; }
 
     50% {
         opacity: 0;

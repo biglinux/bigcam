@@ -30,6 +30,7 @@ depends=(
     # Camera backends & virtual camera
     'v4l-utils'
     'v4l2loopback-dkms'
+    'v4l2loopback-utils'
     'gphoto2'
     'libcamera'
     'libcamera-tools'
@@ -59,6 +60,7 @@ depends=(
     'psmisc'
     'usbutils'
 )
+epoch=1
 pkgver=4.5.0
 pkgrel=2
 arch=('any')
