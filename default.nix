@@ -15,6 +15,10 @@
   libcamera,
   zbar,
   polkit,
+  kmod,
+  linuxPackages,
+  openssl,
+  pulseaudio,
 }:
 
 let
@@ -26,10 +30,11 @@ let
       opencv4
       qrcode
       aiohttp
+      pillow
     ]
   );
 in
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = "bigcam";
   version = "4.5.0";
 
@@ -84,11 +89,24 @@ stdenv.mkDerivation {
       cp -r usr/share/locale/* $out/share/locale/
     fi
 
-    # System config (polkit, modprobe, sudoers)
+    # Module configuration
     if [ -d etc ]; then
       mkdir -p $out/etc
       cp -r etc/* $out/etc/
     fi
+
+    install -Dm755 usr/lib/bigcam/virtual-camera-helper $out/lib/bigcam/virtual-camera-helper
+    install -Dm644 usr/share/polkit-1/actions/br.com.biglinux.bigcam.policy \
+      $out/share/polkit-1/actions/br.com.biglinux.bigcam.policy
+    substituteInPlace $out/share/biglinux/bigcam/core/virtual_camera.py \
+      $out/share/polkit-1/actions/br.com.biglinux.bigcam.policy \
+      --replace-fail /usr/lib/bigcam/virtual-camera-helper $out/lib/bigcam/virtual-camera-helper
+    substituteInPlace $out/lib/bigcam/virtual-camera-helper \
+      --replace-fail '#!/usr/bin/python3 -I' '#!${python3}/bin/python3 -I' \
+      --replace-fail 'SAFE_PATH = "/usr/sbin:/usr/bin:/sbin:/bin"' \
+        'SAFE_PATH = "${lib.makeBinPath [ kmod linuxPackages.v4l2loopback.bin ]}"'
+    substituteInPlace $out/share/biglinux/bigcam/core/phone_tls.py \
+      --replace-fail '"PATH": "/usr/bin:/bin"' '"PATH": "${lib.makeBinPath [ openssl ]}"'
 
     # Launcher script
     mkdir -p $out/bin
@@ -110,7 +128,7 @@ stdenv.mkDerivation {
   postFixup = ''
     wrapProgram $out/bin/bigcam \
       "''${gappsWrapperArgs[@]}" \
-      --prefix PATH : "${lib.makeBinPath [ pythonEnv ffmpeg v4l-utils gphoto2 ]}" \
+      --prefix PATH : "${lib.makeBinPath [ pythonEnv ffmpeg v4l-utils gphoto2 pipewire polkit openssl pulseaudio linuxPackages.v4l2loopback.bin ]}" \
       --prefix PYTHONPATH : "$out/share/biglinux/bigcam" \
       --prefix PYTHONPATH : "${pythonEnv}/${pythonEnv.sitePackages}" \
       --prefix GI_TYPELIB_PATH : "${lib.makeSearchPath "lib/girepository-1.0" buildInputs}" \

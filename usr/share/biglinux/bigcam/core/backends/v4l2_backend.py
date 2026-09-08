@@ -5,7 +5,10 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
 import re
+from utils.video_formats import frame_rate, source_caps
+from utils.urls import gst_quote
 import subprocess
 from typing import Any
 import time
@@ -162,6 +165,14 @@ class V4L2Backend(CameraBackend):
             )
             # Check if photo capture is achievable (always yes for v4l2 via gstreamer snapshot)
             cam.capabilities.append("photo")
+            # udev links survive /dev/videoN renumbering. Without a serial,
+            # profiles follow the physical port and model, not the enumeration.
+            links = [*sorted(Path("/dev/v4l/by-id").glob("*")),
+                     *sorted(Path("/dev/v4l/by-path").glob("*"))]
+            stable = next((str(link) for link in links if os.path.realpath(link) == device), "")
+            if not stable:
+                stable = str(Path(f"/sys/class/video4linux/{Path(device).name}/device").resolve())
+            cam.extra["profile_id"] = f"v4l2:{stable}:{cam.name}"
             cameras.append(cam)
         return cameras
 
@@ -338,7 +349,7 @@ class V4L2Backend(CameraBackend):
         params: dict[str, Any] = {}
         for token in re.findall(r"(\w+)=(-?\d+)", params_str):
             params[token[0]] = int(token[1])
-        flags_match = re.search(r"flags=(\w+)", params_str)
+        flags_match = re.search(r"flags=(.+)$", params_str)
         if flags_match:
             params["flags"] = flags_match.group(1)
         return params
@@ -443,39 +454,23 @@ class V4L2Backend(CameraBackend):
             if fmt.pixel_format == "MJPG":
                 caps = f"image/jpeg,width={fmt.width},height={fmt.height}"
                 if fmt.fps:
-                    best_fps = int(max(fmt.fps))
-                    caps += f",framerate={best_fps}/1"
+                    best_fps = frame_rate(max(fmt.fps))
+                    caps += f",framerate={best_fps}"
                 return f"{src} ! {caps} ! jpegdec max-errors=-1"
             caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
             if fmt.fps:
-                best_fps = int(max(fmt.fps))
-                caps += f",framerate={best_fps}/1"
+                best_fps = frame_rate(max(fmt.fps))
+                caps += f",framerate={best_fps}"
             return f"{src} ! {caps}"
         return src
 
-    def _v4l2_gst_source(
-        self, device: str, camera: CameraInfo, fmt: VideoFormat | None
-    ) -> str:
-        """Build v4l2src element — exclusive device access (like guvcview)."""
-        plf = self._detect_power_line_freq()
-        src = (
-            f"v4l2src device={device} io-mode=mmap do-timestamp=true"
-        )
-        if fmt is None:
-            fmt = self._pick_best_format(camera)
+    def _v4l2_gst_source(self, device, camera, fmt):
+        source = f"v4l2src device={gst_quote(device)} io-mode=mmap do-timestamp=true"
+        fmt = fmt or self._pick_best_format(camera)
         if fmt:
-            if fmt.pixel_format == "MJPG":
-                caps = f"image/jpeg,width={fmt.width},height={fmt.height}"
-                if fmt.fps:
-                    best_fps = int(max(fmt.fps))
-                    caps += f",framerate={best_fps}/1"
-                return f"{src} ! {caps} ! jpegdec max-errors=-1"
-            caps = f"video/x-raw,width={fmt.width},height={fmt.height}"
-            if fmt.fps:
-                best_fps = int(max(fmt.fps))
-                caps += f",framerate={best_fps}/1"
-            return f"{src} ! {caps}"
-        return src
+            caps, decoder = source_caps(fmt)
+            return f"{source} ! {caps}" + (f" ! {decoder}" if decoder else "")
+        return source
 
     @staticmethod
     def _find_pw_node_id(device_path: str) -> int | None:

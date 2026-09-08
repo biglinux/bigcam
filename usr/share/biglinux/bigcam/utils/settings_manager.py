@@ -1,12 +1,16 @@
-"""JSON-based settings persistence for BigCam."""
+"""Atomic, process-safe settings with independent-instance merge semantics."""
+from __future__ import annotations
 
-import json
+from copy import deepcopy
 import logging
+import math
 import os
-import tempfile
+from pathlib import Path
 import threading
+import uuid
 
 from utils import xdg
+from utils.atomic_json import locked, read_object, write_object
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +44,7 @@ _DEFAULTS: dict[str, object] = {
     "hotplug_enabled": True,
     "last-camera-id": "",
     # Virtual camera
-    "virtual-camera-enabled": True,
+    "virtual-camera-enabled": False,
     "vcam-max-devices": 5,
     "vcam-name-template": "BigCam Virtual",
     "vcam-disabled-cameras": [],  # List of camera IDs where vcam is explicitly disabled
@@ -53,84 +57,128 @@ _DEFAULTS: dict[str, object] = {
     "recording-video-bitrate": 8000,
     # IP Cameras (list serialised as JSON array)
     "ip_cameras": [],
+    "reduce-motion": False,
+    "auto-hide-controls": True,
+    "resource-monitor-auto-optimize": False,
     # Resource monitor
     "resource-monitor-enabled": False,
     "resource-warnings-dismissed": [],
 }
 
-_BOOL_TRUE = {"true", "1", "yes"}
-_BOOL_FALSE = {"false", "0", "no", ""}
+
+# Clamp persisted settings as well as values arriving through the UI.
+_RANGES = {
+    "window-width": (320, 16384), "window-height": (240, 16384),
+    "sidebar-position": (200, 1200), "fps-limit": (0, 240),
+    "capture-timer": (0, 60), "overlay-opacity": (0, 100),
+    "controls-opacity": (20, 100), "window-opacity": (0, 100),
+    "vcam-max-devices": (1, 8), "recording-video-bitrate": (500, 50000),
+}
+
+
+def _coerce(key: str, value: object, fallback: object) -> object:
+    if isinstance(fallback, bool):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            word = value.strip().lower()
+            if word in {"true", "1", "yes"}:
+                return True
+            if word in {"false", "0", "no", ""}:
+                return False
+        if isinstance(value, (int, float)) and value in (0, 1):
+            return bool(value)
+        return fallback
+    if isinstance(fallback, (int, float)):
+        try:
+            number = float(value)
+            if not math.isfinite(number):
+                return fallback
+            result = int(number) if isinstance(fallback, int) else number
+        except (ValueError, TypeError, OverflowError):
+            return fallback
+        if key in _RANGES:
+            low, high = _RANGES[key]
+            result = max(low, min(high, result))
+        return result
+    if isinstance(fallback, (list, dict)):
+        return deepcopy(value if isinstance(value, type(fallback)) else fallback)
+    choices = {
+        "theme": {"system", "light", "dark"},
+        "recording-video-codec": {"h264", "h265", "vp9", "mjpeg"},
+        "recording-audio-codec": {"opus", "aac", "mp3", "vorbis"},
+        "recording-container": {"mkv", "mp4", "webm"},
+        "preferred-resolution": {"", "480", "720", "1080", "2160"},
+    }
+    if key in choices and (not isinstance(value, str) or value not in choices[key]):
+        return deepcopy(fallback)
+    return value if isinstance(value, str) else deepcopy(fallback)
 
 
 class SettingsManager:
-    """Thread-safe JSON settings backed by ~/.config/bigcam/settings.json."""
+    """Merge each write against the latest file under an advisory file lock.
+
+    Readers invalidate their cache when the file inode/mtime/size changes. Lists
+    and dictionaries returned to callers are copies, never shared mutable state.
+    I/O failure is logged and returned by set(); the last good file is retained.
+    """
 
     def __init__(self) -> None:
         self._path = os.path.join(xdg.config_dir(), "settings.json")
         self._data: dict[str, object] = {}
-        self._lock = threading.Lock()
+        self._signature = None
+        self._lock = threading.RLock()
         self._load()
 
-    # -- public API ----------------------------------------------------------
-
-    def get(self, key: str, default: object = None) -> object:
-        with self._lock:
-            fallback = default if default is not None else _DEFAULTS.get(key, "")
-            value = self._data.get(key, fallback)
-            # coerce to the same type as the fallback
-            if isinstance(fallback, bool):
-                if isinstance(value, bool):
-                    return value
-                if isinstance(value, str):
-                    low = value.lower()
-                    if low in _BOOL_TRUE:
-                        return True
-                    if low in _BOOL_FALSE:
-                        return False
-                return bool(value)
-            if isinstance(fallback, int):
-                try:
-                    return int(value)
-                except (ValueError, TypeError):
-                    return fallback
-            if isinstance(fallback, float):
-                try:
-                    return float(value)
-                except (ValueError, TypeError):
-                    return fallback
-            if isinstance(fallback, list):
-                return value if isinstance(value, list) else fallback
-            return str(value) if value is not None else ""
-
-    def set(self, key: str, value: object) -> None:
-        with self._lock:
-            self._data[key] = value
-            self._save()
-
-    # -- persistence ---------------------------------------------------------
+    def _stat_signature(self):
+        try:
+            st = os.stat(self._path, follow_symlinks=False)
+            return st.st_ino, st.st_size, st.st_mtime_ns
+        except OSError:
+            return None
 
     def _load(self) -> None:
         with self._lock:
-            if not os.path.isfile(self._path):
-                self._data = {}
-                return
+            signature = self._stat_signature()
             try:
-                with open(self._path, "r", encoding="utf-8") as fh:
-                    self._data = json.load(fh)
-            except Exception:
-                log.warning("Failed to load settings from %s", self._path, exc_info=True)
+                self._data = read_object(self._path)
+            except (OSError, ValueError, UnicodeError):
+                log.warning("Invalid settings; using defaults", exc_info=True)
                 self._data = {}
+            self._signature = signature
 
-    def _save(self) -> None:
-        try:
-            dir_path = os.path.dirname(self._path)
-            fd, tmp = tempfile.mkstemp(dir=dir_path, suffix=".tmp")
+    def get(self, key: str, default: object = None) -> object:
+        with self._lock:
+            if self._stat_signature() != self._signature:
+                self._load()
+            fallback = default if default is not None else _DEFAULTS.get(key, "")
+            return _coerce(key, self._data.get(key, fallback), fallback)
+
+    def set(self, key: str, value: object) -> bool:
+        return self.update({key: value})
+
+    def update(self, changes: dict[str, object]) -> bool:
+        """Apply multiple values in one transaction, without losing other keys."""
+        if any(not isinstance(key, str) for key in changes):
+            raise TypeError("Setting names must be strings")
+        changes = deepcopy(changes)
+        with self._lock:
             try:
-                with os.fdopen(fd, "w", encoding="utf-8") as fh:
-                    json.dump(self._data, fh, indent=2, ensure_ascii=False)
-                os.replace(tmp, self._path)
-            except BaseException:
-                os.unlink(tmp)
-                raise
-        except Exception as exc:
-            log.error("Settings save error: %s", exc)
+                with locked(self._path):
+                    try:
+                        latest = read_object(self._path)
+                    except (ValueError, UnicodeError):
+                        # Preserve invalid user data for diagnosis before recovery.
+                        path = Path(self._path)
+                        if path.exists() and not path.is_symlink():
+                            os.replace(path, path.with_name(f"settings.invalid-{uuid.uuid4().hex}.json"))
+                        latest = {}
+                    for key, value in changes.items():
+                        latest[key] = _coerce(key, value, _DEFAULTS[key]) if key in _DEFAULTS else value
+                    write_object(self._path, latest)
+                    self._data = latest
+                    self._signature = self._stat_signature()
+                return True
+            except (OSError, ValueError, TypeError):
+                log.exception("Failed to save settings")
+                return False

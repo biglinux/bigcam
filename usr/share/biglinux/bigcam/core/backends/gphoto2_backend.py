@@ -15,6 +15,7 @@ from typing import Any
 from constants import BackendType, ControlCategory, ControlType, BASE_DIR
 from core.camera_backend import CameraBackend, CameraControl, CameraInfo, VideoFormat
 from utils.i18n import _
+from core.gphoto_session import GPhotoSession
 
 log = logging.getLogger(__name__)
 
@@ -36,78 +37,9 @@ class GPhoto2Backend(CameraBackend):
     def get_backend_type(self) -> BackendType:
         return BackendType.GPHOTO2
 
-    @staticmethod
-    def _kill_gvfs() -> None:
-        """Kill GVFS processes that interfere with gphoto2 USB access."""
-        SecureCommandRunner.run_safe(
-            ["systemctl", "--user", "stop", "gvfs-gphoto2-volume-monitor.service"],
-            capture_output=True,
-            timeout=5,
-        )
-        SecureCommandRunner.run_safe(
-            ["systemctl", "--user", "mask", "gvfs-gphoto2-volume-monitor.service"],
-            capture_output=True,
-            timeout=5,
-        )
-        SecureCommandRunner.run_safe(
-            ["pkill", "-9", "-f", "gvfs-gphoto2-volume-monitor"],
-            capture_output=True,
-            timeout=5,
-        )
-        SecureCommandRunner.run_safe(
-            ["pkill", "-9", "-f", "gvfsd-gphoto2"],
-            capture_output=True,
-            timeout=5,
-        )
-        SecureCommandRunner.run_safe(
-            ["gio", "mount", "-u", "gphoto2://"],
-            capture_output=True,
-            timeout=5,
-        )
 
-    @staticmethod
-    def _release_usb_device(port: str) -> None:
-        """Kill GVFS processes holding the USB device so gphoto2 can open it."""
-        _GVFS_PATTERNS = ("gvfs", "gphoto")
-        try:
-            bus, dev = port.replace("usb:", "").split(",")
-            usb_path = f"/dev/bus/usb/{bus}/{dev}"
-            if not os.path.exists(usb_path):
-                return
-            result = SecureCommandRunner.run_safe(
-                ["fuser", usb_path],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            pids = result.stdout.strip().split()
-            killed = False
-            for pid_str in pids:
-                pid_str = pid_str.strip().rstrip(":")
-                if not pid_str.isdigit():
-                    continue
-                pid = int(pid_str)
-                # Skip our own process
-                if pid == os.getpid():
-                    continue
-                try:
-                    cmdline_path = f"/proc/{pid}/cmdline"
-                    with open(cmdline_path) as f:
-                        cmdline = f.read().lower()
-                    log.debug("PID %d holding %s: %s", pid, usb_path, cmdline[:120])
-                    # Only kill GVFS-related processes, not arbitrary ones
-                    if any(p in cmdline for p in _GVFS_PATTERNS):
-                        os.kill(pid, signal.SIGKILL)
-                        log.debug("Killed GVFS PID %d", pid)
-                        killed = True
-                    else:
-                        log.info("PID %d on %s is not GVFS — skipping", pid, usb_path)
-                except (ProcessLookupError, FileNotFoundError, PermissionError):
-                    pass
-            if killed:
-                time.sleep(0.5)
-        except Exception:
-            pass
+
+
 
     @staticmethod
     def _diagnose_usb(port: str) -> None:
@@ -257,16 +189,6 @@ class GPhoto2Backend(CameraBackend):
     def detect_cameras(self) -> list[CameraInfo]:
         cameras: list[CameraInfo] = []
         try:
-            # Kill GVFS to release the camera (skip if already streaming
-            # to avoid disrupting an active session)
-            if not self._streaming_active:
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-f", "gvfs-gphoto2-volume-monitor"],
-                    capture_output=True,
-                    timeout=5,
-                )
-                time.sleep(0.3)
-
             # Retry up to 2 times in case GVFS hasn't released the device yet
             max_attempts = 1 if self._streaming_active else 2
             for attempt in range(max_attempts):
@@ -330,44 +252,9 @@ class GPhoto2Backend(CameraBackend):
 
     @classmethod
     def _refresh_port(cls, camera: CameraInfo) -> str:
-        """Re-detect the current USB port for a camera (device number may change)."""
-        old_port = camera.extra.get("port", camera.device_path)
-        try:
-            result = SecureCommandRunner.run_safe(
-                ["gphoto2", "--auto-detect"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            if result.returncode != 0:
-                return old_port
-
-            for line in result.stdout.strip().splitlines()[2:]:
-                line = line.strip()
-                if not line or "usb:" not in line:
-                    continue
-                parts = line.split("usb:")
-                if len(parts) < 2:
-                    continue
-                name = parts[0].strip()
-                port = "usb:" + parts[1].strip()
-                # Match by camera model name
-                if name and name in camera.name:
-                    if port != old_port:
-                        log.debug(f"Port changed: {old_port} -> {port}")
-                        # Update _active_streams key if camera was streaming
-                        with cls._streams_lock:
-                            if old_port in cls._active_streams:
-                                stream_info = cls._active_streams.pop(old_port)
-                                cls._active_streams[port] = stream_info
-                                log.debug(f"Updated _active_streams: {old_port} -> {port}")
-                        camera.extra["port"] = port
-                        camera.device_path = port
-                        camera.id = f"gphoto2:{port}"
-                    return port
-        except Exception:
-            pass
-        return old_port
+        # A model label is not a device identifier. A disconnected camera must be
+        # rediscovered, not silently replaced by a second camera with the same name.
+        return camera.extra.get("port", camera.device_path)
 
     # Keyword-to-category mapping for individual config names
     _CONTROL_CATEGORY: dict[str, ControlCategory] = {
@@ -491,9 +378,8 @@ class GPhoto2Backend(CameraBackend):
             pass
 
         # Ensure GVFS is dead and USB device is free
-        self._kill_gvfs()
-        self._release_usb_device(port)
-
+        # Other applications retain ownership of their USB sessions.
+        # Other applications retain ownership of their USB sessions.
         # Diagnostic: check USB device accessibility
         self._diagnose_usb(port)
 
@@ -503,8 +389,8 @@ class GPhoto2Backend(CameraBackend):
                 if delay:
                     log.debug(f"get_controls: waiting {delay}s before retry...")
                     time.sleep(delay)
-                    self._kill_gvfs()
-                    self._release_usb_device(port)
+                    # Other applications retain ownership of their USB sessions.
+                    # Other applications retain ownership of their USB sessions.
                     # Re-diagnose after wait
                     self._diagnose_usb(port)
 
@@ -529,7 +415,7 @@ class GPhoto2Backend(CameraBackend):
                 # Last resort: re-detect port and try once more
                 port = self._refresh_port(camera)
                 log.debug(f"get_controls fallback port={port}")
-                self._release_usb_device(port)
+                # Other applications retain ownership of their USB sessions.
                 self._diagnose_usb(port)
                 result = SecureCommandRunner.run_safe(
                     ["gphoto2", "--port", port, "--list-all-config"],
@@ -726,227 +612,61 @@ class GPhoto2Backend(CameraBackend):
         )
 
     def start_streaming(self, camera: CameraInfo) -> bool:
-        """Launch the gphoto2 streaming script (persistent session per camera)."""
-        # Refresh USB port (device number may change after GVFS kill)
         port = self._refresh_port(camera)
-
-        # Release GVFS early so the abilities check can access the device
-        self._kill_gvfs()
-
-        # Fast check: does this camera actually support capture?
+        with self._streams_lock:
+            previous = self._active_streams.get(port)
+            if previous and previous["session"].running:
+                return True
+        self.stop_streaming(camera)
         if not self._check_capture_support(port):
-            log.warning(
-                "Camera %s does not support capture (PTP driver limitation)",
-                camera.name,
-            )
             camera.extra["capture_unsupported"] = True
             return False
-
-        # Quick check: does the camera expose remote-control PTP settings?
-        # Cameras in MTP/basic-PTP mode lack capturesettings/imgsettings.
         if not self._has_remote_control(port):
-            log.warning(
-                "Camera %s has no remote-control settings — likely in MTP "
-                "mode (needs PC Remote or HDMI capture).",
-                camera.name,
-            )
             camera.extra["ptp_streaming_error"] = True
             return False
-
-        self._streaming_active = True
-        udp_port = str(camera.extra.get("udp_port", 5000))
-
-        # If this camera is already streaming, just return success
-        with self._streams_lock:
-            if port in self._active_streams:
-                log.debug(f"Camera {camera.name} already streaming on port {port}")
-                return True
-
-        # Release USB device before streaming (GVFS already killed above)
-        self._release_usb_device(port)
-
-        script = os.path.join(BASE_DIR, "script", "run_webcam_gphoto2.sh")
-        if not os.path.isfile(script):
-            script = os.path.join(BASE_DIR, "script", "run_webcam.sh")
-        if not os.path.isfile(script):
-            log.error("GPhoto2 streaming script not found: %s", script)
-            return False
-
-        if not os.access(script, os.X_OK):
-            try:
-                os.chmod(script, 0o755)
-            except OSError:
-                pass
-
-        port_arg = port if port else ""
-        # Do NOT let ffmpeg write directly to v4l2loopback — BigCam's
-        # appsrc pipeline handles v4l2loopback output so that OpenCV
-        # effects are applied to the virtual camera.  Passing "none"
-        # tells the script to stream only via UDP.
-        v4l2_dev = "none"
-        log.info(
-            "Starting gphoto2 streaming: port=%s, udp=%s, v4l2_dev=%s",
-            port_arg, udp_port, v4l2_dev,
-        )
         try:
-            import tempfile
-
-            with tempfile.TemporaryFile() as f:
-                res = SecureCommandRunner.run_safe(
-                    [script, port_arg, udp_port, camera.name, v4l2_dev],
-                    stdout=f,
-                    stderr=subprocess.STDOUT,
-                    timeout=60,
-                    capture_output=False,
-                )
-                f.seek(0)
-                raw = f.read()
-                output = raw.decode("utf-8", errors="replace").strip()
-            log.info("gphoto2 script output:\n%s", output)
-
-            if res.returncode == 0:
-                for line in output.split("\n"):
-                    if line.startswith("SUCCESS:"):
-                        dev = line.split("SUCCESS:")[1].strip()
-                        log.info("GPhoto2 streaming started on %s", dev)
-                        with self._streams_lock:
-                            self._active_streams[port] = {
-                                "udp_port": udp_port,
-                                "launch_port": port,
-                                "vcam_device": v4l2_dev,
-                            }
-                        return True
-                log.info("GPhoto2 script exited 0 (no explicit SUCCESS)")
-                with self._streams_lock:
-                    self._active_streams[port] = {
-                        "udp_port": udp_port,
-                        "launch_port": port,
-                        "vcam_device": v4l2_dev,
-                    }
-                return True
-
-            log.error("GPhoto2 script failed (code %d): %s", res.returncode, output)
-            # Detect PTP-level failures (camera doesn't really support streaming)
-            out_lower = output.lower()
-            if any(kw in out_lower for kw in (
-                "ptp general error", "ptp error", "ptp timeout",
-                "0 quadros", "0 frames",
-                "not valid", "não é válido",
-            )):
-                log.warning(
-                    "Camera %s failed with PTP errors — likely lacks "
-                    "PC Remote mode for live streaming",
-                    camera.name,
-                )
-                camera.extra["ptp_streaming_error"] = True
-            self._streaming_active = False
-            return False
-        except Exception as exc:
-            log.error("Failed to start gphoto2 streaming: %s", exc)
-            self._streaming_active = False
+            session = GPhotoSession(port, int(camera.extra.get("udp_port", 5000)))
+            with self._streams_lock:
+                # Serialize producer startup for this backend; no detached shell.
+                previous = self._active_streams.get(port)
+                if previous and previous["session"].running:
+                    return True
+                if not session.start():
+                    session.stop()
+                    return False
+                self._active_streams[port] = {"session": session, "launch_port": port,
+                                             "udp_port": str(session.udp_port), "vcam_device": "none"}
+                self._streaming_active = True
+            return True
+        except (OSError, ValueError, subprocess.SubprocessError):
+            log.exception("Could not start the selected DSLR producer")
             return False
 
     def stop_streaming(self, camera: CameraInfo | None = None) -> None:
-        """Stop gphoto2/ffmpeg processes for a specific camera, or all if None."""
-        self._streaming_active = False
-        try:
-            if camera:
-                port = camera.extra.get("port", camera.device_path)
-                udp_port = str(camera.extra.get("udp_port", 5000))
-                with self._streams_lock:
-                    stream_info = self._active_streams.pop(port, None)
-                launch_port = stream_info["launch_port"] if stream_info else port
-
-                safe_lp = re.escape(launch_port)
-                safe_port = re.escape(port)
-                safe_udp = re.escape(udp_port)
-
-                # Graceful SIGTERM first
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-f", f"gphoto2.*--port {safe_lp}"],
-                    capture_output=True,
-                    timeout=5,
-                )
-                if launch_port != port:
-                    SecureCommandRunner.run_safe(
-                        ["pkill", "-f", f"gphoto2.*--port {safe_port}"],
-                        capture_output=True,
-                        timeout=5,
-                    )
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
-                    capture_output=True,
-                    timeout=5,
-                )
-                time.sleep(2)
-                # Force-kill survivors
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-9", "-f", f"gphoto2.*--port {safe_lp}"],
-                    capture_output=True,
-                    timeout=5,
-                )
-                if launch_port != port:
-                    SecureCommandRunner.run_safe(
-                        ["pkill", "-9", "-f", f"gphoto2.*--port {safe_port}"],
-                        capture_output=True,
-                        timeout=5,
-                    )
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-9", "-f", f"ffmpeg.*udp://127\\.0\\.0\\.1:{safe_udp}"],
-                    capture_output=True,
-                    timeout=5,
-                )
+        """Stop only Popen objects created by this backend instance/session."""
+        with self._streams_lock:
+            if camera is None:
+                sessions = list(self._active_streams.values())
+                self._active_streams.clear()
             else:
-                with self._streams_lock:
-                    self._active_streams.clear()
-                SecureCommandRunner.run_safe(["pkill", "-f", "gphoto2 --"], capture_output=True, timeout=5)
-                time.sleep(1)
-                SecureCommandRunner.run_safe(["pkill", "-9", "-f", "gphoto2 --"], capture_output=True, timeout=5)
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-9", "-f", "ffmpeg.*mpegts"], capture_output=True, timeout=5
-                )
-                SecureCommandRunner.run_safe(
-                    ["pkill", "-9", "-f", "ffmpeg.*v4l2"], capture_output=True, timeout=5
-                )
-        except Exception:
-            log.warning("stop_streaming cleanup error", exc_info=True)
-        self._streaming_process = None
-
-        # Kill GVFS immediately after stopping — prevents it from re-grabbing cameras
-        self._kill_gvfs()
-        time.sleep(1)
+                entry = self._active_streams.pop(camera.extra.get("port", camera.device_path), None)
+                sessions = [entry] if entry else []
+            self._streaming_active = bool(self._active_streams)
+        for entry in sessions:
+            try:
+                entry["session"].stop()
+            except (OSError, subprocess.SubprocessError):
+                log.exception("Could not stop an owned DSLR producer")
 
     def needs_streaming_setup(self) -> bool:
         """GPhoto2 requires an external streaming process."""
         return True
 
     def is_camera_streaming(self, camera: CameraInfo) -> bool:
-        """Check if a specific camera already has an active streaming session."""
         port = camera.extra.get("port", camera.device_path)
         with self._streams_lock:
-            if port not in self._active_streams:
-                return False
-            stream_info = self._active_streams[port].copy()
-        # Verify the process is actually alive using the launch port
-        launch_port = stream_info.get("launch_port", port)
-        result = SecureCommandRunner.run_safe(
-            ["pgrep", "-f", f"gphoto2.*--port {launch_port}"],
-            capture_output=True,
-        )
-        if result.returncode != 0:
-            # Also try current port (in case it matches)
-            if launch_port != port:
-                result = SecureCommandRunner.run_safe(
-                    ["pgrep", "-f", f"gphoto2.*--port {port}"],
-                    capture_output=True,
-                )
-                if result.returncode == 0:
-                    return True
-            # Process died — clean up
-            with self._streams_lock:
-                self._active_streams.pop(port, None)
-            return False
-        return True
+            entry = self._active_streams.get(port)
+            return bool(entry and entry["session"].running)
 
     # -- photo ---------------------------------------------------------------
 
@@ -955,63 +675,16 @@ class GPhoto2Backend(CameraBackend):
 
     def capture_photo(self, camera: CameraInfo, output_path: str) -> bool:
         port = camera.extra.get("port", camera.device_path)
-        camera_arg = ["--port", port] if port else []
-        debug_log = "/tmp/gphoto2_capture_debug.log"
-
-        for attempt in range(2):
-            try:
-                self._kill_gvfs()
-                if attempt > 0:
-                    self._release_usb_device(port)
-                    time.sleep(2)
-
-                log.info(
-                    "capture_photo attempt %d: starting gphoto2 on port %s",
-                    attempt + 1, port,
-                )
-                result = SecureCommandRunner.run_safe(
-                    [
-                        "gphoto2",
-                        *camera_arg,
-                        "--debug-logfile", debug_log,
-                        "--capture-image-and-download",
-                        "--filename",
-                        output_path,
-                        "--force-overwrite",
-                        "--keep",
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                )
-                log.info(
-                    "capture_photo attempt %d: rc=%d stdout=%s stderr=%s",
-                    attempt + 1, result.returncode,
-                    result.stdout[:200] if result.stdout else "",
-                    result.stderr[:200] if result.stderr else "",
-                )
-                if result.returncode == 0 and os.path.isfile(output_path):
-                    return True
-            except subprocess.TimeoutExpired as exc:
-                log.warning("capture_photo attempt %d timed out", attempt + 1)
-                # Log debug output from gphoto2 to understand where it hung
-                try:
-                    with open(debug_log) as f:
-                        lines = f.readlines()
-                    tail = "".join(lines[-20:]) if lines else "(empty)"
-                    log.warning("gphoto2 debug log tail:\n%s", tail)
-                except Exception:
-                    pass
-                # Kill the timed-out process
-                if port:
-                    safe_port = re.escape(port)
-                    SecureCommandRunner.run_safe(
-                        ["pkill", "-9", "-f", f"gphoto2.*{safe_port}"],
-                        capture_output=True,
-                    )
-                time.sleep(2)
-            except Exception as exc:
-                log.warning("capture_photo attempt %d failed: %s", attempt + 1, exc)
-                if attempt == 0:
-                    time.sleep(1)
-        return False
+        if not re.fullmatch(r"usb:[0-9]{1,3},[0-9]{1,3}", port):
+            return False
+        self.stop_streaming(camera)
+        try:
+            result = SecureCommandRunner.run_safe(
+                ["gphoto2", "--port", port, "--capture-image-and-download", "--filename", output_path,
+                 "--force-overwrite", "--keep"], capture_output=True, text=True, timeout=60)
+            # The caller reserves a unique path. Preserve native bytes and metadata.
+            return result.returncode == 0 and os.path.isfile(output_path) and os.path.getsize(output_path) > 0
+        except (OSError, subprocess.SubprocessError):
+            # subprocess.run kills/reaps its own child on timeout; never pkill a name.
+            log.warning("Native photo capture failed for the selected camera")
+            return False

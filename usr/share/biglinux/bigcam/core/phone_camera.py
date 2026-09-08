@@ -1,1075 +1,423 @@
-"""Phone camera – HTTPS + WebSocket server that receives JPEG frames from a smartphone."""
-
+"""Authenticated, bounded HTTPS/WebSocket and optional WebTransport camera server."""
 from __future__ import annotations
 
 import asyncio
-import collections
+from concurrent.futures import ThreadPoolExecutor
+import html
+import io
+import json
 import logging
 import os
+from pathlib import Path
+import queue
 import secrets
 import socket
 import ssl
-import subprocess
+import struct
 import threading
 import time
-from typing import Any, Callable, Optional
+from urllib.parse import quote
 
+import cv2
+import numpy as np
 import gi
-
-gi.require_version("GLib", "2.0")
 gi.require_version("Gst", "1.0")
-
 from gi.repository import GLib, GObject, Gst
-
 from utils.i18n import _
-
-log = logging.getLogger(__name__)
+from utils import xdg
+from core.phone_protocol import MAX_FRAME_BYTES, jpeg_size, valid_token
+from core.phone_tls import ensure_certificate
 
 try:
     from aiohttp import web
-
-    _HAS_AIOHTTP = True
 except ImportError:
-    _HAS_AIOHTTP = False
+    web = None
 
-try:
-    from aioquic.asyncio import serve as quic_serve
-    from aioquic.asyncio.protocol import QuicConnectionProtocol
-    from aioquic.h3.connection import H3_ALPN, H3Connection
-    from aioquic.h3.events import (
-        DatagramReceived,
-        H3Event,
-        HeadersReceived,
-        WebTransportStreamDataReceived,
-    )
-    from aioquic.quic.configuration import QuicConfiguration
-    from aioquic.quic.events import ProtocolNegotiated, QuicEvent
-
-    _HAS_QUIC = True
-except ImportError:
-    _HAS_QUIC = False
-
-_CERT_DIR = os.path.join(GLib.get_user_cache_dir(), "bigcam")
-_CERT_FILE = os.path.join(_CERT_DIR, "cert.pem")
-_KEY_FILE = os.path.join(_CERT_DIR, "key.pem")
-
+log = logging.getLogger(__name__)
 DEFAULT_PORT = 8443
-
-
-# ---------------------------------------------------------------------------
-# HTML page served to the smartphone browser
-# ---------------------------------------------------------------------------
-
-_PHONE_HTML = """\
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>BigCam</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#121215;--surface:#1e1e24;--surface2:#2a2a32;--accent:#c9a00c;
-  --accent2:#e6b800;--text:#f0f0f0;--dim:#888;--ok:#2ecc71;--warn:#f39c12;--err:#e74c3c;
-  --radius:14px;
-  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
-  --safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px)}
-html{height:100%}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);
-  display:flex;flex-direction:column;align-items:center;
-  height:100dvh;height:100vh;
-  padding:calc(10px + var(--safe-t)) calc(10px + var(--safe-r)) calc(10px + var(--safe-b)) calc(10px + var(--safe-l));
-  gap:8px;overflow:hidden}
-
-/* Header */
-.header{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.logo{width:40px;height:40px;flex-shrink:0}
-.brand{display:flex;flex-direction:column}
-.brand h1{font-size:1.2em;font-weight:700;letter-spacing:.5px}
-.brand span{font-size:.65em;color:var(--dim);font-weight:400}
-
-/* Status badge */
-.badge{padding:4px 16px;border-radius:20px;font-size:.75em;font-weight:600;text-align:center;
-  transition:all .3s ease;flex-shrink:0}
-.disconnected{background:var(--err);color:#fff}
-.connecting{background:var(--warn);color:#111}
-.connected{background:var(--ok);color:#fff}
-
-/* Video */
-.video-wrap{flex:1 1 0;display:flex;align-items:center;justify-content:center;width:100%;
-  min-height:0;max-height:50vh;overflow:hidden;border-radius:var(--radius)}
-video{width:100%;height:100%;object-fit:contain;background:#000;border-radius:var(--radius)}
-canvas{display:none}
-
-/* Stats */
-.stats{font-size:.65em;color:var(--dim);text-align:center;flex-shrink:0;min-height:1em}
-
-/* Controls */
-.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:400px;
-  flex-shrink:0;align-self:center}
-select,button{padding:10px 6px;border:none;border-radius:10px;font-size:.82em;
-  cursor:pointer;transition:all .15s ease;text-align:center;-webkit-appearance:none;
-  min-height:44px;touch-action:manipulation}
-select{background:var(--surface2);color:var(--text);outline:none}
-select:focus{box-shadow:0 0 0 2px var(--accent)}
-button{color:#fff;font-weight:600}
-.btn-start{background:var(--accent);color:#111;grid-column:span 2}
-.btn-stop{background:var(--err);grid-column:span 2}
-.btn-switch{background:var(--surface2);grid-column:span 2}
-button:active{transform:scale(.95);opacity:.85}
-.tip{font-size:.6em;color:var(--dim);text-align:center;flex-shrink:0}
-
-/* ── Landscape: side-by-side layout ── */
-@media (orientation:landscape) and (max-height:500px){
-  body{
-    display:grid;
-    grid-template-columns:1fr clamp(180px,40%,320px);
-    grid-template-rows:auto auto 1fr auto;
-    padding:calc(4px + var(--safe-t)) calc(6px + var(--safe-r)) calc(4px + var(--safe-b)) calc(6px + var(--safe-l));
-    gap:4px 10px;align-items:stretch}
-
-  /* Video fills entire left column */
-  .video-wrap{grid-column:1;grid-row:1/-1;height:100%;max-height:none;border-radius:10px}
-
-  /* Right column panel */
-  .header{grid-column:2;grid-row:1;gap:8px;justify-content:center}
-  .logo{width:48px;height:48px}
-  .brand h1{font-size:1.2em}
-  .brand span{font-size:.65em}
-
-  #status{grid-column:2;grid-row:2;padding:3px 12px;font-size:.7em;justify-self:center}
-
-  .controls{
-    grid-column:2;grid-row:3;
-    grid-template-columns:1fr 1fr;
-    max-width:none;gap:6px;
-    align-content:start;align-self:start}
-  select,button{padding:12px 6px;font-size:.85em;border-radius:8px;min-height:40px}
-  .btn-start,.btn-stop,.btn-switch{grid-column:span 2}
-
-  .stats{grid-column:2;grid-row:4;font-size:.6em;min-height:auto}
-  .tip{display:none}
-}
-
-/* ── Tall portrait phones ── */
-@media (orientation:portrait) and (min-height:700px){
-  .video-wrap{max-height:55vh}
-  .controls{gap:8px}
-  select,button{padding:12px 8px;font-size:.9em}}
-
-/* ── Very short landscape (foldables, small screens) ── */
-@media (orientation:landscape) and (max-height:360px){
-  body{grid-template-rows:auto auto 1fr auto;gap:2px 6px}
-  .header{gap:2px}
-  .logo{width:16px;height:16px}
-  .brand h1{font-size:.6em}
-  .brand span{display:none}
-  #status{padding:1px 6px;font-size:.5em}
-  select,button{padding:4px 2px;font-size:.6em;min-height:24px}
-}
-</style>
-</head>
-<body>
-
-<div class="header">
-  <svg class="logo" viewBox="0 0 52.351 52.351" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs><linearGradient id="bg" x1=".05" x2="1" y2="1" gradientTransform="translate(-2.38 -2.38)scale(52.35)" gradientUnits="userSpaceOnUse">
-      <stop offset=".2" stop-color="#595500" stop-opacity=".9"/><stop offset=".205" stop-color="#ffeb35"/>
-      <stop offset="1" stop-color="#bf8c05"/></linearGradient></defs>
-    <rect width="52.351" height="52.351" fill="url(#bg)" rx="15.705" opacity=".9"/>
-    <path d="M31.768 7.438q-.296 0-.623.054c-3.527.59-3.38 4.696-3.38 4.696s0 1.817 1.696 2.736c1.411.814 2.223-.063 2.361-.201s3.009-3.73 2.547 3.088c0 0 1.01-1.1 1.074-3.717.062-2.618-1.623-2.78-1.623-2.78s-.743-.188-2.22 1.409c-1.245 1.344-1.518 1.506-1.573 1.523h-.004s-.418.295-.468-.445-.21-2.978 2.047-4.192c2.25-1.213 3.35 1.756 3.35 1.756s-.248-3.923-3.184-3.927M25.404 9.14a1.197 1.597 77.92 0 0-.414.046 1.197 1.597 77.92 0 0-1.308 1.504 1.197 1.597 77.92 0 0 1.808.838 1.197 1.597 77.92 0 0 1.313-1.506 1.197 1.597 77.92 0 0-1.399-.882m-7.431.505c-.015.017-1.011 1.115-1.073 3.713-.061 2.618 1.618 2.774 1.618 2.774s.743.184 2.22-1.41c1.2-1.297 1.5-1.495 1.567-1.524h.013s.416-.29.463.447c.048.738.211 2.987-2.045 4.194-2.253 1.206-3.35-1.756-3.35-1.756s.287 4.459 3.811 3.871c3.527-.588 3.38-4.695 3.38-4.695s.003-1.81-1.698-2.73c-1.411-.815-2.225.062-2.365.202s-3 3.729-2.541-3.086m7.941 2.176a1 1 0 0 0-.16.002 1.223 1.223 0 0 0-1.125 1.317 1.2 1.2 0 0 0 .055.283s.708 2.825 4.535 2.916c0 0-2.206-1.577-2.157-3.393a1.22 1.22 0 0 0-1.148-1.125m-2.418 8.041c-.553 0-.553.003-1.078.56L20.92 22.63h-3.508c-1.217 0-2.213.909-2.213 2.092v12.353c0 1.183.996 2.15 2.213 2.15h8.06v1.133l-8.02 8.02a.83.83 0 0 0 0 1.178.833.833 0 0 0 1.179.002l6.842-6.844v7.924a.83.83 0 0 0 .834.832.83.83 0 0 0 .832-.832V42.8l6.756 6.756a.83.83 0 0 0 1.177-.002.83.83 0 0 0 0-1.178l-7.933-7.932v-1.22h7.974c1.217 0 2.211-.968 2.211-2.15V24.72c0-1.183-.994-2.092-2.21-2.092h-3.51l-1.518-2.227c-.505-.536-.506-.539-1.059-.539zm11.738 4.149h.016a.69.69 0 0 1 .691.691.69.69 0 0 1-.691.692.69.69 0 0 1-.691-.692.69.69 0 0 1 .675-.691m-9.056 1.383h.084a5.53 5.53 0 0 1 5.531 5.533 5.53 5.53 0 0 1-5.531 5.531 5.53 5.53 0 0 1-5.532-5.531 5.53 5.53 0 0 1 5.448-5.533m.017 2.765a2.766 2.766 0 0 0-2.699 2.768 2.766 2.766 0 0 0 2.766 2.765 2.766 2.766 0 0 0 2.765-2.765 2.766 2.766 0 0 0-2.765-2.768z" fill="#444"/>
-  </svg>
-  <div class="brand">
-    <h1>BigCam</h1>
-    <span>Phone as Webcam</span>
-  </div>
-</div>
-
-<div id="status" class="badge disconnected">Disconnected</div>
-
-<div class="video-wrap">
-  <video id="video" autoplay playsinline muted></video>
-</div>
-<canvas id="canvas"></canvas>
-<div id="stats" class="stats"></div>
-
-<div class="controls">
-  <select id="resolution" aria-label="Resolution">
-    <option value="auto">Auto</option>
-    <option value="480">480p</option>
-    <option value="720" selected>720p</option>
-    <option value="1080">1080p</option>
-  </select>
-  <select id="facing" aria-label="Camera" onchange="if(stream){stop();start()}">
-    <option value="environment">&#x1F4F7; Back</option>
-    <option value="user">&#x1F933; Front</option>
-  </select>
-  <select id="quality" aria-label="Quality">
-    <option value="0.6">Low</option>
-    <option value="0.75" selected>Medium</option>
-    <option value="0.9">High</option>
-  </select>
-  <select id="fps" aria-label="FPS">
-    <option value="15">15 fps</option>
-    <option value="24">24 fps</option>
-    <option value="30" selected>30 fps</option>
-  </select>
-  <button id="btnStart" class="btn-start" onclick="start()">&#x25B6; Start</button>
-  <button id="btnStop" class="btn-stop" onclick="stop()" hidden>&#x25A0; Stop</button>
-  <button id="btnSwitch" class="btn-switch" onclick="switchCam()" hidden>&#x21C4; Switch</button>
-</div>
-
-<div class="tip">Accept the security warning to allow camera access.</div>
-
-<script>
-/*CERT_HASH*/
-/*HAS_QUIC*/
-let stream=null,ws=null,wt=null,timer=null,frameCount=0,lastStatTime=0,sending=false,adaptiveQ=0.75,baseQ=0.75;
-let useHttp=false,useWT=false;
-let audioCtx=null,audioProcessor=null,audioSource=null;
-const video=document.getElementById('video'),
-      canvas=document.getElementById('canvas'),
-      ctx=canvas.getContext('2d');
-
-function setStatus(t,c){const e=document.getElementById('status');e.textContent=t;e.className='badge '+c}
-
-function getConstraints(){
-  const r=document.getElementById('resolution').value,
-        f=document.getElementById('facing').value,
-        c={video:{facingMode:{ideal:f}},audio:true};
-  if(r!=='auto'){const h=parseInt(r);c.video.height={ideal:h};c.video.width={ideal:Math.round(h*16/9)}}
-  return c;
-}
-
-async function start(){
-  setStatus('Connecting...','connecting');
-  try{
-    stream=await navigator.mediaDevices.getUserMedia(getConstraints());
-    video.srcObject=stream;
-    await video.play();
-
-    useHttp=false;useWT=false;wt=null;ws=null;
-    const search = location.search;
-
-    // Try WebTransport (QUIC/UDP) first for lower latency
-    if(typeof HAS_QUIC!=='undefined'&&HAS_QUIC&&typeof WebTransport!=='undefined'){
-      try{
-        const opts={};
-        if(typeof CERT_HASH!=='undefined'&&CERT_HASH){
-          const raw=atob(CERT_HASH);
-          const hash=new Uint8Array(raw.length);
-          for(let i=0;i<raw.length;i++)hash[i]=raw.charCodeAt(i);
-          opts.serverCertificateHashes=[{algorithm:'sha-256',value:hash.buffer}];
-        }
-        wt=new WebTransport('https://'+location.host+'/camera'+search,opts);
-        await wt.ready;
-        useWT=true;
-        console.log('Using WebTransport (QUIC/UDP)');
-      }catch(e){
-        console.warn('WebTransport unavailable:',e);
-        wt=null;useWT=false;
-      }
-    }
-
-    // Fall back to WebSocket (TCP)
-    if(!useWT){
-      const proto=location.protocol==='https:'?'wss:':'ws:';
-      const wsUrl=proto+'//'+location.host+'/ws'+search;
-      try{
-        ws=await connectWS(wsUrl);
-      }catch(e){
-        console.warn('WebSocket failed, falling back to HTTP POST:',e);
-        ws=null;useHttp=true;
-      }
-    }
-
-    setStatus(useWT?'Connected (QUIC)':'Connected','connected');
-    startCapture();
-    startAudioCapture();
-    document.getElementById('btnStart').hidden=true;
-    document.getElementById('btnStop').hidden=false;
-    document.getElementById('btnSwitch').hidden=false;
-  }catch(e){setStatus('Error: '+e.message,'disconnected')}
-}
-
-function connectWS(url){
-  return new Promise((resolve,reject)=>{
-    const s=new WebSocket(url);
-    s.binaryType='arraybuffer';
-    const t=setTimeout(()=>{s.close();reject(new Error('timeout'))},5000);
-    s.onopen=()=>{clearTimeout(t);resolve(s)};
-    s.onerror=(e)=>{clearTimeout(t);reject(e)};
-  });
-}
-
-function startCapture(){
-  const fps=parseInt(document.getElementById('fps').value)||30;
-  const interval=Math.round(1000/fps);
-  frameCount=0;lastStatTime=performance.now();sending=false;
-  // Adaptive quality: reduce when network is congested
-  adaptiveQ=parseFloat(document.getElementById('quality').value)||0.75;
-  baseQ=adaptiveQ;
-  timer=setInterval(captureFrame,interval);
-}
-
-function captureFrame(){
-  if(video.videoWidth===0)return;
-  if(sending)return;
-  // Adaptive frame dropping: skip if WebSocket buffer is backed up
-  if(!useWT&&ws&&ws.bufferedAmount>131072){return}
-  sending=true;
-  canvas.width=video.videoWidth;
-  canvas.height=video.videoHeight;
-  ctx.drawImage(video,0,0);
-  // Adaptive quality: reduce when buffer grows, restore when clear
-  if(!useWT&&ws){
-    if(ws.bufferedAmount>65536){adaptiveQ=Math.max(0.3,baseQ-0.2)}
-    else if(ws.bufferedAmount<16384){adaptiveQ=Math.min(baseQ,adaptiveQ+0.05)}
-  }
-  canvas.toBlob(blob=>{
-    if(!blob){sending=false;return}
-    if(useWT&&wt){
-      // QUIC: each frame as an independent unidirectional stream (no HOL blocking)
-      blob.arrayBuffer().then(buf=>{
-        wt.createUnidirectionalStream().then(stream=>{
-          const w=stream.getWriter();
-          w.write(new Uint8Array(buf));
-          w.close();
-          sending=false;
-        }).catch(()=>{sending=false});
-      });
-    }else if(useHttp){
-      fetch('/frame'+location.search,{method:'POST',body:blob}).then(()=>{sending=false}).catch(()=>{sending=false});
-    }else if(ws&&ws.readyState===1){
-      blob.arrayBuffer().then(buf=>{ws.send(buf);sending=false});
-    }else{sending=false}
-    frameCount++;
-    const now=performance.now();
-    if(now-lastStatTime>=1000){
-      const fps=Math.round(frameCount*1000/(now-lastStatTime));
-      const mode=useWT?'QUIC':'WS';
-      document.getElementById('stats').textContent=
-        canvas.width+'\\u00d7'+canvas.height+' @ '+fps+' fps | '+Math.round(blob.size/1024)+' KB | q'+Math.round(adaptiveQ*100)+' | '+mode;
-      frameCount=0;lastStatTime=now;
-    }
-  },'image/jpeg',adaptiveQ);
-}
-
-function stopCapture(){
-  if(timer){clearInterval(timer);timer=null}
-  stopAudioCapture();
-  if(wt){try{wt.close()}catch(e){}wt=null;useWT=false}
-  if(ws){ws.close();ws=null}
-  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
-  video.srcObject=null;
-  document.getElementById('btnStart').hidden=false;
-  document.getElementById('btnStop').hidden=true;
-  document.getElementById('btnSwitch').hidden=true;
-  document.getElementById('stats').textContent='';
-}
-
-function startAudioCapture(){
-  if(!stream||(!ws&&!useHttp&&!useWT))return;
-  const audioTracks=stream.getAudioTracks();
-  if(!audioTracks.length){console.warn('No audio tracks available');return}
-  try{
-    audioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-    audioSource=audioCtx.createMediaStreamSource(stream);
-    audioProcessor=audioCtx.createScriptProcessor(2048,1,1);
-    audioSource.connect(audioProcessor);
-    audioProcessor.connect(audioCtx.destination);
-    audioProcessor.onaudioprocess=function(e){
-      const pcm=e.inputBuffer.getChannelData(0);
-      const buf=new ArrayBuffer(1+pcm.length*2);
-      const view=new DataView(buf);
-      view.setUint8(0,0x01);
-      for(let i=0;i<pcm.length;i++){
-        view.setInt16(1+i*2,Math.max(-32768,Math.min(32767,pcm[i]*32768)),true);
-      }
-      if(useWT&&wt){
-        // Audio via QUIC datagram (unreliable, low latency — ideal for audio)
-        try{const w=wt.datagrams.writable.getWriter();w.write(new Uint8Array(buf));w.releaseLock()}catch(e){}
-      }else if(ws&&ws.readyState===1&&ws.bufferedAmount<65536){
-        ws.send(buf);
-      }
-    };
-    console.log('Audio capture started at '+audioCtx.sampleRate+'Hz');
-  }catch(e){console.warn('Audio capture failed:',e)}
-}
-
-function stopAudioCapture(){
-  if(audioProcessor){audioProcessor.disconnect();audioProcessor=null}
-  if(audioSource){audioSource.disconnect();audioSource=null}
-  if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null}
-}
-
-function stop(){stopCapture();setStatus('Disconnected','disconnected')}
-
-async function switchCam(){
-  const sel=document.getElementById('facing');
-  sel.value=sel.value==='user'?'environment':'user';
-  stop();await start();
-}
-
-if(screen.orientation){
-  screen.orientation.addEventListener('change',()=>{
-    if(stream){
-      if(timer){clearInterval(timer);timer=null}
-      stream.getTracks().forEach(t=>t.stop());
-      navigator.mediaDevices.getUserMedia(getConstraints()).then(s=>{
-        stream=s;video.srcObject=s;
-        video.play().then(()=>startCapture());
-      }).catch(e=>console.warn('Re-acquire failed:',e));
-    }
-  });
-}
-</script>
-</body>
-</html>
-"""
-
-
-def _cert_sha256_b64() -> str:
-    """Return the base64-encoded SHA-256 hash of the DER-encoded certificate.
-
-    Needed for WebTransport with self-signed certificates (serverCertificateHashes).
-    """
-    import base64
-    import hashlib
-
-    try:
-        with open(_CERT_FILE, "rb") as f:
-            pem = f.read()
-        # Extract DER from PEM (between BEGIN/END CERTIFICATE markers)
-        import re
-
-        m = re.search(
-            b"-----BEGIN CERTIFICATE-----\n(.+?)\n-----END CERTIFICATE-----",
-            pem,
-            re.DOTALL,
-        )
-        if not m:
-            return ""
-        der = base64.b64decode(m.group(1))
-        return base64.b64encode(hashlib.sha256(der).digest()).decode("ascii")
-    except Exception:
-        return ""
-
-
-# ---------------------------------------------------------------------------
-# QUIC / WebTransport protocol handler (optional — requires aioquic)
-# ---------------------------------------------------------------------------
-
-if _HAS_QUIC:
-
-    class _PhoneWTProtocol(QuicConnectionProtocol):
-        """HTTP/3 WebTransport server protocol for phone camera streaming.
-
-        Each video frame arrives as a complete unidirectional stream.
-        Audio packets arrive as QUIC datagrams (unreliable, low latency).
-        """
-
-        def __init__(self, *args: Any, phone_server: Any = None, **kwargs: Any) -> None:
-            super().__init__(*args, **kwargs)
-            self._phone = phone_server
-            self._h3: Optional[H3Connection] = None
-            self._session_ids: set[int] = set()
-            self._stream_bufs: dict[int, bytearray] = {}
-
-        def quic_event_received(self, event: QuicEvent) -> None:
-            if isinstance(event, ProtocolNegotiated):
-                self._h3 = H3Connection(self._quic, enable_webtransport=True)
-            if self._h3 is not None:
-                for h3_event in self._h3.handle_event(event):
-                    self._h3_event_received(h3_event)
-
-        def _h3_event_received(self, event: H3Event) -> None:
-            if isinstance(event, HeadersReceived):
-                headers = dict(event.headers)
-                if (
-                    headers.get(b":method") == b"CONNECT"
-                    and headers.get(b":protocol") == b"webtransport"
-                ):
-                    import urllib.parse
-                    path = headers.get(b":path", b"").decode("utf-8", errors="ignore")
-                    parsed = urllib.parse.urlparse(path)
-                    qs = urllib.parse.parse_qs(parsed.query)
-                    token = qs.get("token", [""])[0]
-                    
-                    if not token or not secrets.compare_digest(token, self._phone._token):
-                        self._h3.send_headers(
-                            stream_id=event.stream_id,
-                            headers=[(b":status", b"401")],
-                        )
-                        self.transmit()
-                        log.warning("WebTransport session rejected: Unauthorized")
-                        return
-
-                    self._session_ids.add(event.stream_id)
-                    self._h3.send_headers(
-                        stream_id=event.stream_id,
-                        headers=[(b":status", b"200")],
-                    )
-                    self.transmit()
-                    log.info("WebTransport session established")
-
-            elif isinstance(event, WebTransportStreamDataReceived):
-                sid = event.stream_id
-                if sid not in self._stream_bufs:
-                    self._stream_bufs[sid] = bytearray()
-                self._stream_bufs[sid].extend(event.data)
-                if event.stream_ended:
-                    data = bytes(self._stream_bufs.pop(sid))
-                    if data:
-                        asyncio.ensure_future(
-                            self._phone._decode_and_emit_frame(data)
-                        )
-
-            elif isinstance(event, DatagramReceived):
-                # Audio packets: first byte 0x01, rest is PCM S16LE
-                raw = event.data
-                if raw and raw[0] == 0x01:
-                    self._phone._push_audio_data(bytes(raw[1:]))
+ASSETS = Path(__file__).resolve().parents[1] / "web"
+HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff",
+           "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss:; media-src 'self' blob:; frame-ancestors 'none'"}
 
 
 class PhoneCameraServer(GObject.Object):
-    """HTTPS + WebSocket server that receives JPEG frames from a smartphone.
-
-    The phone browser captures camera frames on a canvas, encodes them as
-    JPEG, and sends the binary data over a WebSocket connection.  The server
-    decodes each frame with OpenCV and makes it available via a callback.
-    """
-
     __gsignals__ = {
         "status-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
         "connected": (GObject.SignalFlags.RUN_LAST, None, (int, int)),
         "disconnected": (GObject.SignalFlags.RUN_LAST, None, ()),
     }
 
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._thread: Optional[threading.Thread] = None
-        self._runner: Optional[Any] = None
+        self._lock = threading.RLock()
         self._running = False
+        self._thread = self._loop = None
+        self._stop_request = threading.Event()
+        self._start_event = threading.Event()
+        self._start_error = ""
+        self._token = secrets.token_urlsafe(32)
         self._port = DEFAULT_PORT
-        self._width = 0
-        self._height = 0
-        self._ws_clients: set[Any] = set()
-        self._token = secrets.token_urlsafe(16)
-
-        # fn(numpy_bgr_frame) — called from the asyncio thread
-        self._frame_callback: Optional[Callable] = None
-        self._last_frame_time: float = 0.0
-
-        # Audio playback — runs as separate process for isolation
-        self._audio_proc: Optional[subprocess.Popen] = None
-        self._audio_started = False
-        self._desired_volume: float = 1.0
-        self._desired_muted: bool = False
-        self._audio_queue: collections.deque[bytes] = collections.deque(maxlen=5)
-        self._audio_drain_thread: Optional[threading.Thread] = None
-        self._audio_drain_stop = threading.Event()
-
-    # -- public API ----------------------------------------------------------
+        self._frame_callback = None
+        self._audio_callback = None
+        self._width = self._height = 0
+        self._last_frame_time = 0
+        self._owner = None
+        self._session_generation = 0
+        self._pending_frame = None
+        self._decoder_task = None
+        self._audio_queue = queue.Queue(maxsize=8)
+        self._desired_volume = 1.0
+        self._desired_muted = False
+        self._audio_pipeline = None
+        self._audio_thread = None
+        self._audio_stop = threading.Event()
+        self._last_audio_sequence = -1
 
     @staticmethod
-    def available() -> bool:
-        """Return True if aiohttp is installed."""
-        return _HAS_AIOHTTP
+    def available():
+        return web is not None
 
     @property
-    def running(self) -> bool:
+    def running(self):
         return self._running
 
     @property
-    def port(self) -> int:
+    def port(self):
         return self._port
 
     @property
-    def resolution(self) -> tuple[int, int]:
+    def resolution(self):
         return self._width, self._height
 
     @property
-    def is_connected(self) -> bool:
-        """Return True if a phone is actively sending frames."""
-        if self._ws_clients:
-            return True
-        # HTTP POST fallback: check if frames arrived recently
-        return (time.monotonic() - self._last_frame_time) < 3.0
-
-    def get_url(self) -> str:
-        return f"https://{_get_local_ip()}:{self._port}/?token={self._token}"
-
-    def set_frame_callback(self, callback: Optional[Callable]) -> None:
-        self._frame_callback = callback
-
-    def _start_audio_pipeline(self) -> None:
-        """Start a separate gst-launch-1.0 subprocess for audio playback.
-
-        Using a subprocess completely isolates audio playback from the
-        main application's CPU/thread contention when multiple cameras
-        are active.  Data flows through a kernel pipe, providing natural
-        jitter absorption independent of Python's GIL.
-        """
-        if self._audio_started:
-            return
-        try:
-            self._audio_proc = subprocess.Popen(
-                [
-                    "gst-launch-1.0", "-q",
-                    "fdsrc", "fd=0", "blocksize=4096",
-                    "!", "audio/x-raw,format=S16LE,rate=16000,channels=1,layout=interleaved",
-                    "!", "queue", "max-size-time=50000000", "leaky=downstream",
-                    "!", "audioconvert",
-                    "!", "audioresample",
-                    "!", "autoaudiosink", "sync=false",
-                ],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except FileNotFoundError:
-            log.error("gst-launch-1.0 not found, audio disabled")
-            return
-        self._audio_started = True
-        log.info("Phone audio subprocess started (pid=%d)", self._audio_proc.pid)
-        # Start dedicated drain thread
-        self._audio_drain_stop.clear()
-        self._audio_drain_thread = threading.Thread(
-            target=self._audio_drain_loop, name="phone-audio-drain", daemon=True
-        )
-        self._audio_drain_thread.start()
-
-    def _stop_audio_pipeline(self) -> None:
-        """Stop the audio playback subprocess."""
-        self._audio_drain_stop.set()
-        if self._audio_drain_thread:
-            self._audio_drain_thread.join(timeout=2.0)
-            self._audio_drain_thread = None
-        proc = self._audio_proc
-        if proc:
-            try:
-                if proc.stdin:
-                    proc.stdin.close()
-                proc.terminate()
-                proc.wait(timeout=3)
-            except Exception:
-                proc.kill()
-            self._audio_proc = None
-        self._audio_started = False
-        self._audio_queue.clear()
+    def is_connected(self):
+        return self._running and self._owner is not None and time.monotonic() - self._last_frame_time < 5
 
     @property
-    def audio_pid(self) -> Optional[int]:
-        """PID of the audio subprocess (for pactl volume control)."""
-        proc = self._audio_proc
-        return proc.pid if proc and proc.poll() is None else None
+    def audio_pid(self):
+        return None  # No gst-launch subprocess: playback has an owned pipeline.
 
-    def set_audio_volume(self, value: float) -> None:
-        """Set audio volume (0.0 – 1.0)."""
-        self._desired_volume = max(0.0, min(value, 1.0))
+    def get_url(self):
+        return f"https://{_get_local_ip()}:{self._port}/?token={quote(self._token)}"
 
-    def set_audio_muted(self, muted: bool) -> None:
-        """Mute or unmute audio."""
-        self._desired_muted = muted
+    def set_frame_callback(self, callback):
+        with self._lock:
+            self._frame_callback = callback
 
-    def _push_audio_data(self, pcm_data: bytes) -> None:
-        """Enqueue PCM data for the drain thread.
+    def set_audio_callback(self, callback):
+        with self._lock:
+            self._audio_callback = callback
 
-        Called from the asyncio thread.  Never touches GStreamer directly.
-        """
-        self._audio_queue.append(pcm_data)
-        if not self._audio_started:
-            log.info("First audio packet (%d bytes), starting audio subprocess", len(pcm_data))
-            GLib.idle_add(self._start_audio_pipeline)
+    def set_audio_volume(self, value):
+        self._desired_volume = max(0.0, min(float(value), 1.0))
 
-    def _audio_drain_loop(self) -> None:
-        """Dedicated thread that drains the audio queue into the subprocess stdin.
+    def set_audio_muted(self, muted):
+        self._desired_muted = bool(muted)
 
-        The kernel pipe buffer (~64KB = ~2s at 16kHz S16LE) provides natural
-        jitter absorption.  Volume/mute are applied in software to avoid
-        the complexity of pactl PID lookup during playback.
-        """
-        try:
-            import numpy as np
-            _has_np = True
-        except ImportError:
-            _has_np = False
+    def _notify(self, name, *args):
+        generation = self._session_generation
+        def notify():
+            if generation == self._session_generation:
+                self.emit(name, *args)
+            return GLib.SOURCE_REMOVE
+        GLib.idle_add(notify)
 
-        while not self._audio_drain_stop.is_set():
-            try:
-                chunk = self._audio_queue.popleft()
-            except IndexError:
-                self._audio_drain_stop.wait(0.008)
-                continue
-
-            proc = self._audio_proc
-            if proc is None or proc.stdin is None or proc.poll() is not None:
-                continue
-
-            # Apply volume/mute in software
-            if self._desired_muted:
-                chunk = b"\x00" * len(chunk)
-            elif abs(self._desired_volume - 1.0) > 0.01 and _has_np:
-                samples = np.frombuffer(chunk, dtype=np.int16).astype(np.float32)
-                samples *= self._desired_volume
-                np.clip(samples, -32768, 32767, out=samples)
-                chunk = samples.astype(np.int16).tobytes()
-
-            try:
-                proc.stdin.write(chunk)
-                proc.stdin.flush()
-            except (BrokenPipeError, OSError):
-                log.warning("Audio subprocess pipe broken, stopping")
-                break
-
-    def start(self, port: int = DEFAULT_PORT) -> tuple[bool, str]:
-        """Start the HTTPS server. Returns (success, message)."""
-        if not _HAS_AIOHTTP:
-            log.error("python-aiohttp not installed")
+    def start(self, port=DEFAULT_PORT):
+        if not self.available():
             return False, _("python-aiohttp is not installed")
-        if self._running:
-            return True, ""
-
-        self._port = port
-        self._start_error: str = ""
-        self._start_event = threading.Event()
-
-        self._loop = asyncio.new_event_loop()
-        self._thread = threading.Thread(
-            target=self._run_loop, name="phone-cam", daemon=True
-        )
-        self._thread.start()
-
-        # Wait up to 5s for the server to confirm it's listening
-        if not self._start_event.wait(timeout=5):
-            log.error("Phone camera server failed to start within timeout")
-            self._loop = None
-            self._thread = None
+        if not isinstance(port, int) or not 1024 <= port <= 65535:
+            return False, _("Invalid server port")
+        with self._lock:
+            if self._running:
+                return True, ""
+            if self._thread and self._thread.is_alive():
+                return False, _("The previous server session is still stopping.")
+            self._port = port
+            self._token = secrets.token_urlsafe(32)
+            self._stop_request = threading.Event()
+            self._start_event = threading.Event()
+            self._start_error = ""
+            self._thread = threading.Thread(target=self._run_loop, name="bigcam-phone-server", daemon=True)
+            self._thread.start()
+        if not self._start_event.wait(12):
+            self._stop_request.set()
             return False, _("Server did not start in time")
-
         if self._start_error:
-            msg = self._start_error
-            self._loop = None
-            self._thread = None
-            return False, msg
+            return False, self._start_error
+        return self._running, ""
 
-        self._running = True
-        GLib.idle_add(self.emit, "status-changed", "listening")
-        return True, ""
+    def stop(self):
+        self._stop_request.set()
+        thread = self._thread
+        if thread and thread is not threading.current_thread():
+            thread.join(timeout=8)
+        # Keep the reference if it is still alive: a new server must not race it.
+        if thread and thread.is_alive():
+            log.warning("Phone server shutdown is still in progress")
 
-    def stop(self) -> None:
-        if not self._running:
-            return
-        self._running = False
-
-        had_clients = bool(self._ws_clients) or self._width > 0
-
-        if self._loop and self._loop.is_running():
-
-            async def _shutdown() -> None:
-                for ws in list(self._ws_clients):
-                    await ws.close()
-                self._ws_clients.clear()
-                if getattr(self, "_quic_server", None) is not None:
-                    self._quic_server.close()
-                    self._quic_server = None
-                if self._runner:
-                    await self._runner.cleanup()
-
-            fut = asyncio.run_coroutine_threadsafe(_shutdown(), self._loop)
-            try:
-                fut.result(timeout=5)
-            except Exception:
-                log.debug("Phone camera shutdown timed out", exc_info=True)
-            self._loop.call_soon_threadsafe(self._loop.stop)
-
-        if self._thread:
-            self._thread.join(timeout=5)
-        self._thread = None
-        self._loop = None
-        self._width = self._height = 0
-        self._stop_audio_pipeline()
-        # Emit "disconnected" so the window cleans up the phone camera entry
-        # even if the WebSocket handler's finally block didn't get a chance.
-        if had_clients:
-            GLib.idle_add(self.emit, "disconnected")
-        GLib.idle_add(self.emit, "status-changed", "stopped")
-
-    # -- asyncio server ------------------------------------------------------
-
-    def _run_loop(self) -> None:
+    def _run_loop(self):
+        loop = asyncio.new_event_loop()
+        self._loop = loop
+        asyncio.set_event_loop(loop)
+        self._decoder = ThreadPoolExecutor(max_workers=1, thread_name_prefix="bigcam-jpeg")
         try:
-            _ensure_cert()
-            asyncio.set_event_loop(self._loop)
-            self._loop.run_until_complete(self._start_server())
-            self._start_event.set()
-            self._loop.run_forever()
-        except OSError as exc:
-            log.error("Phone camera server failed: %s", exc)
-            if "address already in use" in str(exc).lower() or getattr(exc, 'errno', 0) == 98:
-                self._start_error = _("Port %d is already in use") % self._port
-            else:
-                self._start_error = str(exc)
-            self._start_event.set()
+            loop.run_until_complete(self._serve())
         except Exception as exc:
-            log.error("Phone camera server failed: %s", exc, exc_info=True)
-            self._start_error = str(exc)
+            self._start_error = _("Could not start the camera server: %s") % str(exc)
+            log.exception("Phone server stopped with an error")
+        finally:
+            self._running = False
             self._start_event.set()
+            tasks = asyncio.all_tasks(loop)
+            for task in tasks:
+                task.cancel()
+            if tasks:
+                loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            self._decoder.shutdown(wait=True, cancel_futures=True)
+            self._audio_stop.set()
+            if self._audio_thread:
+                self._audio_thread.join(timeout=2)
+            loop.close()
+            self._notify("status-changed", "stopped")
 
-    async def _start_server(self) -> None:
-        app = web.Application(client_max_size=10 * 1024 * 1024)
-        app.router.add_get("/", self._handle_index)
-        app.router.add_get("/ws", self._handle_ws)
-        app.router.add_post("/frame", self._handle_frame_post)
-
-        ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ssl_ctx.load_cert_chain(_CERT_FILE, _KEY_FILE)
-
-        self._runner = web.AppRunner(app)
-        await self._runner.setup()
-        site = web.TCPSite(self._runner, "0.0.0.0", self._port, ssl_context=ssl_ctx)
-        await site.start()
-        log.info("Phone camera server listening on port %d (HTTPS/TCP)", self._port)
-
-        # Start QUIC/WebTransport alongside HTTPS (same port, UDP vs TCP)
-        self._quic_server = None
-        if _HAS_QUIC:
+    async def _serve(self):
+        cert, key, self._cert_hash = ensure_certificate(Path(xdg.cache_dir()) / "phone-tls")
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        context.load_cert_chain(cert, key)
+        app = web.Application(client_max_size=MAX_FRAME_BYTES)
+        app.router.add_get("/", self._index)
+        app.router.add_get("/status", self._status)
+        app.router.add_get("/phone.js", self._asset)
+        app.router.add_get("/audio-worklet.js", self._asset)
+        app.router.add_get("/ws", self._websocket)
+        app.router.add_post("/frame", self._post)
+        app.router.add_post("/disconnect", self._disconnect_http)
+        runner = web.AppRunner(app, access_log=None, shutdown_timeout=2)
+        quic = None
+        try:
+            await runner.setup()
+            await web.TCPSite(runner, "0.0.0.0", self._port, ssl_context=context).start()
             try:
-                quic_config = QuicConfiguration(
-                    alpn_protocols=H3_ALPN,
-                    is_client=False,
-                    max_datagram_frame_size=65536,
-                )
-                quic_config.load_cert_chain(_CERT_FILE, _KEY_FILE)
-                phone_ref = self
+                from aioquic.asyncio import serve
+                from aioquic.h3.connection import H3_ALPN
+                from aioquic.quic.configuration import QuicConfiguration
+                from core.phone_transport import PhoneTransport
+                configuration = QuicConfiguration(is_client=False, alpn_protocols=H3_ALPN,
+                    max_data=2 * MAX_FRAME_BYTES, max_stream_data=MAX_FRAME_BYTES,
+                    max_datagram_frame_size=1200)
+                configuration.load_cert_chain(cert, key)
+                quic = await serve("0.0.0.0", self._port, configuration=configuration,
+                    create_protocol=lambda *a, **kw: PhoneTransport(*a, phone_server=self, **kw))
+            except ImportError:
+                log.info("Optional QUIC support is not installed; WebSocket remains available")
+            except Exception:
+                log.warning("QUIC is unavailable; WebSocket remains available", exc_info=True)
+            self._has_quic = quic is not None
+            self._running = not self._stop_request.is_set()
+            self._last_frame_time = time.monotonic()
+            self._notify("status-changed", "listening")
+            self._start_event.set()
+            while not self._stop_request.is_set():
+                await asyncio.sleep(0.1)
+                if self._owner is not None and time.monotonic() - self._last_frame_time > 10:
+                    owner = self._owner
+                    self.release(owner)
+                    if not isinstance(owner, str):
+                        result = owner.close()
+                        if asyncio.iscoroutine(result):
+                            await result
+        finally:
+            owner = self._owner
+            self.release(owner)
+            if owner is not None and not isinstance(owner, str):
+                result = owner.close()
+                if asyncio.iscoroutine(result):
+                    await result
+            if quic:
+                quic.close()
+            await runner.cleanup()
 
-                self._quic_server = await quic_serve(
-                    "0.0.0.0",
-                    self._port,
-                    configuration=quic_config,
-                    create_protocol=lambda *a, **kw: _PhoneWTProtocol(
-                        *a, phone_server=phone_ref, **kw
-                    ),
-                )
-                log.info("QUIC/WebTransport server listening on port %d (UDP)", self._port)
-            except Exception as exc:
-                log.warning("QUIC server failed to start: %s", exc)
+    def _authorized(self, request):
+        if not valid_token(request.query.get("token"), self._token):
+            raise web.HTTPUnauthorized(text="Unauthorized", headers=HEADERS)
 
-        # Pre-compute cert hash for WebTransport self-signed cert support
-        self._cert_hash_b64 = _cert_sha256_b64()
+    async def _status(self, request):
+        self._authorized(request)
+        return web.json_response({"ready": self._running, "busy": self._owner is not None}, headers=HEADERS)
 
-    def _verify_token(self, request: web.Request) -> bool:
-        """Verify the authentication token in the request query parameters."""
-        token = request.query.get("token")
-        if not token or not secrets.compare_digest(token, self._token):
+    async def _index(self, request):
+        self._authorized(request)
+        from core.phone_strings import phone_strings
+        config = {"quic": self._has_quic, "certHash": self._cert_hash, "strings": phone_strings()}
+        encoded = json.dumps(config, ensure_ascii=True).replace("<", "\u003c")
+        page = (ASSETS / "phone.html").read_text(encoding="utf-8")
+        page = page.replace("__CONFIG__", encoded).replace("__TOKEN__", quote(self._token))
+        return web.Response(text=page, content_type="text/html", headers=HEADERS)
+
+    async def _asset(self, request):
+        self._authorized(request)
+        # Fixed registered routes, never a client-supplied filesystem path.
+        name = "audio-worklet.js" if request.path == "/audio-worklet.js" else "phone.js"
+        return web.Response(text=(ASSETS / name).read_text(), content_type="application/javascript", headers=HEADERS)
+
+    def claim(self, owner):
+        if self._owner is not None and self._owner != owner:
             return False
+        if self._owner is None:
+            self._session_generation += 1
+            self._last_audio_sequence = -1
+            self._owner = owner
+            self._last_frame_time = time.monotonic()
         return True
 
-    async def _handle_index(self, request: web.Request) -> web.Response:
-        if not self._verify_token(request):
-            return web.Response(status=401, text="Unauthorized")
-            
-        # Inject cert hash and QUIC availability into the HTML page
-        html = _PHONE_HTML.replace(
-            "/*CERT_HASH*/",
-            f"const CERT_HASH='{self._cert_hash_b64}';" if self._cert_hash_b64 else "const CERT_HASH='';",
-        ).replace(
-            "/*HAS_QUIC*/",
-            "const HAS_QUIC=true;" if self._quic_server else "const HAS_QUIC=false;",
-        )
-        return web.Response(text=html, content_type="text/html")
-
-    async def _handle_frame_post(self, request: web.Request) -> web.Response:
-        """HTTP POST fallback for browsers that reject WSS with self-signed certs (Safari/iOS)."""
-        if not self._verify_token(request):
-            return web.Response(status=401, text="Unauthorized")
-            
-        try:
-            import cv2
-            import numpy as np
-        except ImportError:
-            return web.Response(status=500, text="opencv not available")
-
-        data = await request.read()
-        if not data:
-            return web.Response(status=400)
-
-        jpg_array = np.frombuffer(data, dtype=np.uint8)
-        bgr = cv2.imdecode(jpg_array, cv2.IMREAD_COLOR)
-        if bgr is None:
-            return web.Response(status=400)
-
-        h, w = bgr.shape[:2]
-        if w != self._width or h != self._height:
-            self._width, self._height = w, h
-            GLib.idle_add(self.emit, "connected", w, h)
-            GLib.idle_add(self.emit, "status-changed", "connected")
-
-        cb = self._frame_callback
-        if cb:
-            cb(bgr)
-
-        self._last_frame_time = time.monotonic()
-
-        return web.Response(status=204)
-
-    async def _decode_and_emit_frame(self, data: bytes) -> None:
-        """Decode JPEG data and emit to the frame callback (shared by WS and QUIC)."""
-        try:
-            import cv2
-            import numpy as np
-        except ImportError:
+    def release(self, owner):
+        if owner is None or self._owner != owner:
             return
+        self._owner = None
+        self._session_generation += 1
+        self._pending_frame = None
+        self._width = self._height = 0
+        self._notify("disconnected")
+        self._notify("status-changed", "listening" if self._running else "stopped")
 
-        loop = asyncio.get_event_loop()
-        arr = np.frombuffer(data, dtype=np.uint8)
-        bgr = await loop.run_in_executor(None, cv2.imdecode, arr, cv2.IMREAD_COLOR)
-        if bgr is None:
-            return
-
-        h, w = bgr.shape[:2]
-        if w != self._width or h != self._height:
-            self._width, self._height = w, h
-            GLib.idle_add(self.emit, "connected", w, h)
-            GLib.idle_add(self.emit, "status-changed", "connected")
-
-        cb = self._frame_callback
-        if cb:
-            cb(bgr)
-        self._last_frame_time = time.monotonic()
-
-    async def _handle_ws(self, request: web.Request) -> web.WebSocketResponse:
-        if not self._verify_token(request):
-            raise web.HTTPUnauthorized(text="Unauthorized")
-        
-        ws = web.WebSocketResponse(max_msg_size=10 * 1024 * 1024)
-        await ws.prepare(request)
-        self._ws_clients.add(ws)
-
-        log.info("Phone camera WebSocket connected from %s", request.remote)
-
+    async def _websocket(self, request):
+        self._authorized(request)
+        if self._owner is not None:
+            raise web.HTTPConflict(text="A camera is already connected", headers=HEADERS)
+        ws = web.WebSocketResponse(max_msg_size=MAX_FRAME_BYTES, heartbeat=15, compress=False)
+        if not self.claim(ws):
+            raise web.HTTPConflict()
         try:
-            import cv2
-            import numpy as np
-        except ImportError:
-            log.error("OpenCV (cv2) required for phone camera")
-            await ws.close()
-            return ws
-
-        first_frame = True
-        loop = asyncio.get_event_loop()
-
-        def _decode_jpeg(data: bytes):
-            arr = np.frombuffer(data, dtype=np.uint8)
-            return cv2.imdecode(arr, cv2.IMREAD_COLOR)
-
-        try:
-            async for msg in ws:
-                if msg.type == web.WSMsgType.BINARY:
-                    data = msg.data
-                    if not data:
-                        continue
-
-                    # Audio packet: first byte is 0x01, rest is PCM S16LE
-                    if data[0] == 0x01:
-                        self._push_audio_data(bytes(data[1:]))
-                        continue
-
-                    # Video frame: decode JPEG in thread pool
-                    bgr = await loop.run_in_executor(None, _decode_jpeg, bytes(data))
-                    if bgr is None:
-                        continue
-
-                    h, w = bgr.shape[:2]
-
-                    if first_frame or (w != self._width or h != self._height):
-                        self._width, self._height = w, h
-                        GLib.idle_add(self.emit, "connected", w, h)
-                        GLib.idle_add(self.emit, "status-changed", "connected")
-                        first_frame = False
-
-                    cb = self._frame_callback
-                    if cb:
-                        cb(bgr)
-                    self._last_frame_time = time.monotonic()
-
-                elif msg.type in (
-                    web.WSMsgType.ERROR,
-                    web.WSMsgType.CLOSE,
-                ):
+            await ws.prepare(request)
+            async for message in ws:
+                if message.type == web.WSMsgType.BINARY:
+                    self.receive(bytes(message.data), ws)
+                elif message.type == web.WSMsgType.ERROR:
                     break
         finally:
-            self._ws_clients.discard(ws)
-            self._width = self._height = 0
-            self._stop_audio_pipeline()
-            GLib.idle_add(self.emit, "disconnected")
-            GLib.idle_add(self.emit, "status-changed", "disconnected")
-            log.info("Phone camera WebSocket disconnected")
-
+            self.release(ws)
         return ws
 
+    def _http_owner(self, request):
+        client = request.query.get("client", "")
+        if not client.isascii() or not 16 <= len(client) <= 80 or not all(c.isalnum() or c == "-" for c in client):
+            raise web.HTTPBadRequest(text="Invalid session")
+        return "http:" + client
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+    async def _post(self, request):
+        self._authorized(request)
+        owner = self._http_owner(request)
+        if not self.claim(owner):
+            raise web.HTTPConflict(text="A camera is already connected", headers=HEADERS)
+        packet = await request.read()
+        if not self.receive(packet, owner):
+            raise web.HTTPBadRequest(text="Invalid media packet", headers=HEADERS)
+        return web.Response(status=204, headers=HEADERS)
+
+    async def _disconnect_http(self, request):
+        self._authorized(request)
+        self.release(self._http_owner(request))
+        return web.Response(status=204, headers=HEADERS)
+
+    def receive(self, packet, owner):
+        if self._owner != owner or not packet or len(packet) > MAX_FRAME_BYTES:
+            return False
+        if packet[0] == 1:
+            # Each PCM packet is 20 ms @ 16 kHz mono, with a big-endian sequence.
+            # Reliable streams can complete out of order; stale packets are dropped
+            # rather than replayed backwards. No UDP-size assumptions are made.
+            if len(packet) != 645:
+                return False
+            sequence = struct.unpack_from(">I", packet, 1)[0]
+            if sequence <= self._last_audio_sequence:
+                return False
+            self._last_audio_sequence = sequence
+            with self._lock:
+                callback = self._audio_callback
+            if callback:
+                callback(packet[5:])
+            try:
+                self._audio_queue.put_nowait((self._session_generation, packet[5:]))
+            except queue.Full:
+                return False
+            if self._audio_thread is None or not self._audio_thread.is_alive():
+                self._audio_stop = threading.Event()
+                self._audio_thread = threading.Thread(target=self._audio, name="bigcam-phone-audio", daemon=True)
+                self._audio_thread.start()
+            return True
+        if not packet.startswith(b"\xff\xd8"):
+            return False
+        self._pending_frame = (self._session_generation, packet)
+        if self._decoder_task is None or self._decoder_task.done():
+            self._decoder_task = asyncio.create_task(self._decode_pending())
+        return True
+
+    async def _decode_pending(self):
+        while self._pending_frame is not None:
+            generation, packet = self._pending_frame
+            self._pending_frame = None
+            def decode():
+                jpeg_size(packet)  # Refuse large dimensions before allocating pixels.
+                image = cv2.imdecode(np.frombuffer(packet, dtype=np.uint8), cv2.IMREAD_COLOR)
+                if image is None:
+                    raise ValueError("Invalid JPEG")
+                if generation == self._session_generation:
+                    with self._lock:
+                        callback = self._frame_callback
+                    if callback:
+                        callback(image)
+                return image.shape[:2]
+            try:
+                h, w = await asyncio.get_running_loop().run_in_executor(self._decoder, decode)
+            except Exception:
+                log.debug("Rejected phone frame", exc_info=True)
+                continue
+            if generation != self._session_generation or self._owner is None:
+                continue
+            first = (w, h) != (self._width, self._height)
+            self._width, self._height = w, h
+            self._last_frame_time = time.monotonic()
+            if first:
+                self._notify("connected", w, h)
+                self._notify("status-changed", "connected")
+
+    def _audio(self):
+        pipeline = None
+        try:
+            pipeline = Gst.parse_launch(
+                "appsrc name=pcm format=time is-live=true do-timestamp=true block=false max-buffers=8 leaky-type=downstream "
+                "caps=audio/x-raw,format=S16LE,rate=16000,channels=1,layout=interleaved ! "
+                "audioconvert ! audioresample ! volume name=volume ! autoaudiosink sync=false")
+            pipeline.set_state(Gst.State.PLAYING)
+            source = pipeline.get_by_name("pcm")
+            volume = pipeline.get_by_name("volume")
+            while not self._audio_stop.is_set():
+                try:
+                    generation, pcm = self._audio_queue.get(timeout=0.1)
+                except queue.Empty:
+                    continue
+                if generation != self._session_generation:
+                    continue
+                volume.set_property("volume", self._desired_volume)
+                volume.set_property("mute", self._desired_muted)
+                if pipeline.get_bus().pop_filtered(Gst.MessageType.ERROR):
+                    break
+                if source.emit("push-buffer", Gst.Buffer.new_wrapped(pcm)) != Gst.FlowReturn.OK:
+                    break
+        except Exception:
+            log.exception("Phone audio playback failed")
+        finally:
+            if pipeline is not None:
+                pipeline.set_state(Gst.State.NULL)
 
 
-def _get_local_ip() -> str:
-    """Best-effort local LAN IP address."""
+def _get_local_ip():
+    # UDP connect only determines routing; it sends no packet.
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(0.5)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except Exception:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(("192.0.2.1", 9))
+            return sock.getsockname()[0]
+    except OSError:
         return "127.0.0.1"
-
-
-def _ensure_cert() -> None:
-    """Generate a self-signed TLS certificate if missing."""
-    if os.path.isfile(_CERT_FILE) and os.path.isfile(_KEY_FILE):
-        return
-    os.makedirs(_CERT_DIR, exist_ok=True)
-    # Write to temp files first to avoid partial cert on crash/race
-    import tempfile
-    tmp_key = tmp_cert = ""
-    try:
-        fd_key, tmp_key = tempfile.mkstemp(dir=_CERT_DIR, suffix=".key.tmp")
-        os.close(fd_key)
-        fd_cert, tmp_cert = tempfile.mkstemp(dir=_CERT_DIR, suffix=".cert.tmp")
-        os.close(fd_cert)
-        subprocess.run(
-            [
-                "openssl",
-                "req",
-                "-x509",
-                "-newkey",
-                "rsa:2048",
-                "-keyout",
-                tmp_key,
-                "-out",
-                tmp_cert,
-                "-days",
-                "365",
-                "-nodes",
-                "-subj",
-                "/CN=BigCam Phone Camera",
-            ],
-            check=True,
-            capture_output=True,
-            timeout=15,
-        )
-        os.chmod(tmp_key, 0o600)
-        os.rename(tmp_key, _KEY_FILE)
-        os.rename(tmp_cert, _CERT_FILE)
-        log.info("Generated self-signed certificate at %s", _CERT_FILE)
-    except Exception:
-        # Clean up temp files on failure
-        for f in (tmp_key, tmp_cert):
-            if f and os.path.exists(f):
-                os.unlink(f)
-        raise

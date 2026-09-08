@@ -1,516 +1,403 @@
-"""Video recorder – GStreamer-based video recording with audio."""
+"""Bounded video recording with a single pipeline owner and confirmed EOS.
 
+The GTK thread never builds, blocks on or finalizes a recording pipeline.
+Preview may drop frames; recording reports its own dropped-frame count and uses
+capture timestamps, rather than speeding up the movie when the consumer is slow.
+"""
 from __future__ import annotations
 
-import os
-import subprocess
-import time
+import json
 import logging
+import math
+import os
+import queue
+import subprocess
 import threading
+import time
 from typing import Any
 
-try:
-    import cv2
-    _HAS_CV2 = True
-except ImportError:
-    _HAS_CV2 = False
-
+import cv2
 import gi
 
 gi.require_version("Gst", "1.0")
-
-from gi.repository import Gst, GLib
-
-from core.camera_backend import CameraInfo
-from core.camera_manager import CameraManager
+from gi.repository import GLib, GObject, Gst
 from utils import xdg
+from utils.gst_buffers import bgr_buffer
+from utils.media_paths import reserve_media_path, reserve_named_path
+from utils.urls import gst_quote
+from utils.video_formats import frame_rate
+
+from core.recording_config import RecordingConfig
 
 log = logging.getLogger(__name__)
-class VideoRecorder:
-    """Records video+audio using a unified GStreamer pipeline fed by appsrc.
 
-    This ensures that processed frames (with effects) from StreamEngine are
-    captured correctly.
+
+class VideoRecorder(GObject.Object):
+    """State: idle -> starting -> recording -> finalizing -> idle/error.
+
+    ``finalized`` is emitted only after EOS, NULL and a nonempty file have been
+    observed (or with success=False and an actionable error). The caller must
+    retain the application until this signal arrives. No remux discards the
+    original recording, and a second start cannot overwrite a pending session.
     """
+    __gsignals__ = {
+        "state-changed": (GObject.SignalFlags.RUN_LAST, None, (str,)),
+        "finalized": (GObject.SignalFlags.RUN_LAST, None, (str, bool, str)),
+    }
 
-    def __init__(self, camera_manager: CameraManager) -> None:
+    def __init__(self, camera_manager=None):
+        super().__init__()
         self._manager = camera_manager
-        self._recording = False
+        self._lock = threading.RLock()
+        self._config = RecordingConfig()
+        self._session_config = self._config
+        self._state = "idle"
         self._output_path = ""
-        self._pipeline: Gst.Pipeline | None = None
-        self._vsrc: Gst.Element | None = None
-        self._audio_srcs: list[Gst.Element] = []
-        self._audio_vol_elements: dict[str, Gst.Element] = {}
-        self._global_muted: bool = False
-        self._w = 0
-        self._h = 0
-        self._start_time = 0
-        self._finalize_thread: threading.Thread | None = None
-        # Configurable codec/container/bitrate
-        self._video_codec = "h264"
-        self._audio_codec = "opus"
-        self._container = "mkv"
-        self._video_bitrate = 8000
-
-    def configure(
-        self,
-        video_codec: str = "h264",
-        audio_codec: str = "opus",
-        container: str = "mkv",
-        video_bitrate: int = 8000,
-    ) -> None:
-        """Set recording codec/container/bitrate preferences."""
-        self._video_codec = video_codec
-        self._audio_codec = audio_codec
-        self._container = container
-        self._video_bitrate = max(500, min(50000, video_bitrate))
+        self._frames = queue.Queue(maxsize=4)
+        self._stop_event = threading.Event()
+        self._worker = None
+        self._done = threading.Event()
+        self._done.set()
+        self._muted = False
+        self._volumes = {}
+        self._active = set()
+        self._audio_devices = []
+        self._external_audio = {}
+        self._pcm_sources = {}
+        self._audio_processes = []
+        self.dropped_frames = 0
+        self.frames_written = 0
 
     @property
-    def is_recording(self) -> bool:
-        return self._recording
+    def state(self):
+        with self._lock:
+            return self._state
 
     @property
-    def output_path(self) -> str:
+    def is_recording(self):
+        return self.state in {"starting", "recording"}
+
+    @property
+    def is_finalizing(self):
+        return self.state == "finalizing"
+
+    @property
+    def output_path(self):
         return self._output_path
 
-    def start(
-        self,
-        camera: CameraInfo,
-        pipeline: Gst.Pipeline | None = None,
-        filename: str | None = None,
-        mirror: bool = False,
-        record_audio: bool = True,
-        audio_sources: list[str] | None = None,
-        active_audio_sources: list[str] | None = None,
-        source_volumes: dict[str, float] | None = None,
-        muted: bool = False,
-    ) -> str | None:
-        """Initialize recording. The actual pipeline starts on the first frame.
+    def _set_state(self, state):
+        with self._lock:
+            self._state = state
+        GLib.idle_add(self._emit_state, state)
 
-        Args:
-            audio_sources: All PulseAudio source device names from AudioMonitor
-                           to include in the recording pipeline.
-            active_audio_sources: Subset of audio_sources that are currently
-                                   active (unmuted). Others start muted.
-            source_volumes: Per-source volume levels {source_name: 0.0–1.0}.
-            muted: Whether global mute is currently active.
-        """
-        if self._recording:
-            return None
+    def _emit_state(self, state):
+        self.emit("state-changed", state)
+        return GLib.SOURCE_REMOVE
 
-        if filename is None:
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            ext = self._container_ext()
-            filename = f"bigcam_{timestamp}{ext}"
+    def configure(self, video_codec="h264", audio_codec="opus", container="mkv", video_bitrate=8000):
+        config = RecordingConfig(video_codec, audio_codec, container, video_bitrate)
+        with self._lock:
+            self._config = config  # Applies only to the next recording.
 
-        output_dir = xdg.videos_dir()
-        os.makedirs(output_dir, exist_ok=True)
-        self._output_path = os.path.join(output_dir, filename)
-        self._record_audio = record_audio
-        self._audio_source_devices = audio_sources or []
-        self._active_audio_set = set(active_audio_sources or [])
-        self._source_volumes: dict[str, float] = dict(source_volumes or {})
-        self._global_muted = muted
-        self._recording = True
-        self._w = 0
-        self._h = 0
-        self._pipeline = None
-        self._vsrc = None
-        self._audio_srcs = []
-        self._audio_vol_elements = {}
-        self._start_time = time.time()
+    def start(self, camera, pipeline=None, filename=None, mirror=False,
+              record_audio=True, audio_sources=None, active_audio_sources=None,
+              source_volumes=None, muted=False, fps=30.0, external_audio: dict[str, int | None] | None = None):
+        del camera, pipeline, mirror  # The preview mirror never changes saved pixels.
+        with self._lock:
+            if not self._done.is_set():
+                return None
+            self._session_config = config = self._config
+            self._fps = frame_rate(fps if fps and fps > 0 else 30)
+            self._output_path = (reserve_named_path(xdg.videos_dir(), filename)
+                                 if filename else reserve_media_path(xdg.videos_dir(), config.extension))
+            self._audio_devices = list(dict.fromkeys(audio_sources or [])) if record_audio else []
+            self._external_audio = dict(external_audio or {})
+            self._pcm_sources = {}
+            self._audio_processes = []
+            self._active = set(active_audio_sources or [])
+            self._volumes = dict(source_volumes or {})
+            self._muted = bool(muted)
+            self._frames = queue.Queue(maxsize=4)
+            self._stop_event = threading.Event()
+            self._done.clear()
+            self.frames_written = self.dropped_frames = 0
+            self._set_state("starting")
+            self._worker = threading.Thread(target=self._record, name="bigcam-recording", daemon=False)
+            self._worker.start()
+            return self._output_path
 
-        log.info("Recording initialized: %s (muted=%s)", self._output_path, muted)
-        return self._output_path
+    def write_frame(self, bgr: Any):
+        if not self.is_recording or self._stop_event.is_set():
+            return
+        if bgr is None or bgr.ndim != 3 or bgr.shape[2] != 3:
+            return
+        item = (time.monotonic_ns(), bgr.copy())
+        try:
+            self._frames.put_nowait(item)
+        except queue.Full:
+            try:
+                self._frames.get_nowait()
+                self.dropped_frames += 1
+            except queue.Empty:
+                pass
+            try:
+                self._frames.put_nowait(item)
+            except queue.Full:
+                self.dropped_frames += 1
 
-    def _pick_encoder_str(self) -> str:
-        """Return the encoder element string based on configured codec.
+    def write_audio(self, name: str, pcm: bytes) -> None:
+        with self._lock:
+            source = self._pcm_sources.get(name)
+            if source is not None and not self._stop_event.is_set():
+                source.emit("push-buffer", Gst.Buffer.new_wrapped(pcm))
 
-        Encoder selection priority: NVENC → VAAPI (va) → VAAPI (legacy) → Software.
-        Settings aligned with big-video-converter defaults (profile high, CQP/CRF).
-        """
-        br = self._video_bitrate
-        codec = self._video_codec
+    def _capture_playback(self, name, pid):
+        from core.audio_monitor import AudioMonitor
+        index = AudioMonitor._find_sink_input_by_pid(pid)
+        if index is None:
+            raise RuntimeError(f"No playback audio is available for {name}")
+        inputs = json.loads(subprocess.check_output(
+            ["pactl", "-f", "json", "list", "sink-inputs"], text=True, timeout=5))
+        sink = next(item["sink"] for item in inputs if item["index"] == index)
+        sinks = json.loads(subprocess.check_output(
+            ["pactl", "-f", "json", "list", "sinks"], text=True, timeout=5))
+        monitor = next(item["monitor_source"] for item in sinks if item["index"] == sink)
+        # PulseAudio filters this monitor to one sink-input. Never record the
+        # whole desktop monitor or substitute the user's default microphone.
+        process = subprocess.Popen(
+            ["parec", f"--monitor-stream={index}", f"--device={monitor}", "--raw",
+             "--format=s16le", "--rate=48000", "--channels=2", "--latency-msec=40"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        def read():
+            while pcm := process.stdout.read(3840):
+                self.write_audio(name, pcm)
+        thread = threading.Thread(target=read, name="bigcam-record-audio", daemon=True)
+        self._audio_processes.append((process, thread))
+        thread.start()
 
-        # WebM only supports VP8/VP9
-        if self._container == "webm" and codec != "vp9":
-            log.info("Container webm requires VP9; overriding codec %s", codec)
-            codec = "vp9"
-        # MP4 doesn't support VP9 or MJPEG
-        elif self._container == "mp4" and codec in ("vp9", "mjpeg"):
-            log.info("Container mp4 incompatible with %s; falling back to h264", codec)
-            codec = "h264"
+    def stop(self):
+        """Request asynchronous EOS; the return value is NOT a saved-file result."""
+        if not self._done.is_set():
+            self._set_state("finalizing")
+            self._stop_event.set()
+        return None
 
-        if codec == "h265":
-            hw = [
-                ("nvh265enc", f"preset=hq rc-mode=vbr bitrate={br}"),
-                ("vah265enc", "rate-control=cqp qp-i=28 qp-p=28 qp-b=30"),
-                ("vaapih265enc", "rate-control=cqp init-qp=28"),
-            ]
-            for name, props in hw:
-                if Gst.ElementFactory.find(name):
-                    log.info("Using hardware H.265 encoder: %s", name)
-                    return f"{name} {props} ! h265parse"
-            log.info("Using software H.265 encoder: x265enc")
-            return "x265enc speed-preset=4 tune=0 option-string=crf=28:log-level=warning ! h265parse"
+    def wait_finalize(self, timeout=20.0):
+        """Emergency shutdown/test hook. Do not call on the interactive GTK loop."""
+        return self._done.wait(timeout)
 
-        if codec == "vp9":
-            hw = [
-                ("nvvp9enc", f"preset=hq rc-mode=vbr bitrate={br}"),
-                ("vavp9enc", "rate-control=cqp qp=28"),
-                ("vaapivp9enc", "rate-control=cqp"),
-            ]
-            for name, props in hw:
-                if Gst.ElementFactory.find(name):
-                    log.info("Using hardware VP9 encoder: %s", name)
-                    return f"{name} {props}"
-            log.info("Using VP9 encoder: vp9enc")
-            return f"vp9enc target-bitrate={br * 1000} cpu-used=4 deadline=1 threads=4 end-usage=cq cq-level=28"
+    def set_source_active(self, source_name, active):
+        with self._lock:
+            if active:
+                self._active.add(source_name)
+            else:
+                self._active.discard(source_name)
 
-        if codec == "mjpeg":
-            hw = [
-                ("vaapijpegenc", "quality=90"),
-            ]
-            for name, props in hw:
-                if Gst.ElementFactory.find(name):
-                    log.info("Using hardware MJPEG encoder: %s", name)
-                    return f"{name} {props}"
-            log.info("Using software MJPEG encoder: jpegenc")
-            return "jpegenc quality=90"
+    def set_source_volume(self, source_name, volume):
+        value = float(volume)
+        if not math.isfinite(value):
+            return
+        with self._lock:
+            self._volumes[source_name] = max(0.0, min(1.0, value))
 
-        # Default: H.264
-        # Priority: NVENC → VA-API (new) → VA-API (legacy) → x264enc
-        # Matches big-video-converter: profile high, level 4.1, CQP/CRF mode
-        hw = [
-            ("nvh264enc", f"preset=hq rc-mode=vbr bitrate={br}"),
-            ("vah264enc", "rate-control=cqp qp-i=24 qp-p=24 qp-b=26"),
-            ("vaapih264enc", "rate-control=cqp init-qp=24"),
-        ]
-        for name, props in hw:
+    def set_muted(self, muted):
+        with self._lock:
+            self._muted = bool(muted)
+
+    def _volume(self, device):
+        with self._lock:
+            if self._muted or device not in self._active:
+                return 0.0
+            if self._external_audio.get(device):
+                return 1.0  # Playback gain has already been applied by PulseAudio.
+            value = float(self._volumes.get(device, 1.0))
+            return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
+
+    def _select_encoder(self, w, h):
+        config = self._session_config
+        for name, encoder in config.encoders():
+            if self._stop_event.is_set():
+                raise RuntimeError("Recording cancelled before the encoder was ready")
+            if not Gst.ElementFactory.find(name):
+                continue
+            probe = None
+            try:
+                probe = Gst.parse_launch(
+                    f"videotestsrc num-buffers=2 ! video/x-raw,width={w},height={h},framerate=30/1 ! "
+                    f"videoconvert ! {encoder} ! fakesink sync=false")
+                if probe.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
+                    continue
+                message = probe.get_bus().timed_pop_filtered(
+                    3 * Gst.SECOND, Gst.MessageType.EOS | Gst.MessageType.ERROR)
+                if message and message.type == Gst.MessageType.EOS:
+                    log.info("Recording encoder verified: %s", name)
+                    return encoder
+                log.warning("Encoder %s did not complete a test encode; trying fallback", name)
+            except GLib.Error:
+                log.warning("Encoder %s could not be configured", name)
+            finally:
+                if probe is not None:
+                    probe.set_state(Gst.State.NULL)
+        raise RuntimeError("No usable video encoder is installed")
+
+    def _audio_encoder(self):
+        candidates = {"aac": ["avenc_aac", "fdkaacenc", "voaacenc"],
+                      "mp3": ["lamemp3enc"], "vorbis": ["vorbisenc"], "opus": ["opusenc"]}
+        for name in candidates[self._session_config.audio_codec]:
             if Gst.ElementFactory.find(name):
-                log.info("Using hardware H.264 encoder: %s", name)
-                caps = "video/x-h264,profile=high"
-                return f"{name} {props} ! {caps} ! h264parse"
-        log.info("Using software H.264 encoder: x264enc")
-        return (
-            "x264enc speed-preset=4 pass=5 quantizer=24 "
-            "key-int-max=120 bframes=3 threads=0 "
-            "! video/x-h264,profile=high ! h264parse"
-        )
+                return name
+        raise RuntimeError("The selected audio encoder is not installed")
 
-    def _pick_audio_encoder_str(self) -> str:
-        """Return the audio encoder element string based on configured codec."""
-        codec = self._audio_codec
-
-        # WebM only supports Opus/Vorbis
-        if self._container == "webm" and codec not in ("opus", "vorbis"):
-            log.info("Container webm requires Opus/Vorbis; overriding audio %s", codec)
-            codec = "opus"
-        # MP4 doesn't support Vorbis
-        elif self._container == "mp4" and codec == "vorbis":
-            log.info("Container mp4 incompatible with vorbis; falling back to opus")
-            codec = "opus"
-
-        if codec == "aac":
-            for name in ("fdkaacenc", "avenc_aac", "voaacenc"):
-                if Gst.ElementFactory.find(name):
-                    log.info("Using AAC encoder: %s", name)
-                    return name
-            log.warning("No AAC encoder found, falling back to opusenc")
-            return "opusenc"
-        if codec == "mp3":
-            log.info("Using MP3 encoder: lamemp3enc")
-            return "lamemp3enc"
-        if codec == "vorbis":
-            log.info("Using Vorbis encoder: vorbisenc")
-            return "vorbisenc"
-        # Default: Opus
-        return "opusenc"
-
-    def _pick_muxer_str(self) -> str:
-        """Return the muxer element string based on configured container."""
-        container = self._container
-        if container == "webm":
-            return "webmmux"
-        if container == "mp4":
-            return "mp4mux"
-        return "matroskamux"
-
-    def _container_ext(self) -> str:
-        """Return file extension for the configured container."""
-        return {"webm": ".webm", "mp4": ".mp4"}.get(self._container, ".mkv")
-
-    def _ensure_pipeline(self, w: int, h: int) -> bool:
-        if self._pipeline:
-            return True
-
-        self._w = w
-        self._h = h
-        enc_str = self._pick_encoder_str()
-        audio_enc = self._pick_audio_encoder_str()
-        muxer = self._pick_muxer_str()
-        audio_str = ""
-        if self._record_audio:
-            extra_devs = self._audio_source_devices
-            # Determine initial volume for the system mic (respects global mute)
-            mic_vol = 0.0 if self._global_muted else 1.0
-
-            # Pipeline setup: always use audiomixer to combine system mic + cameras
-            # All sources use provide-clock=false to use system/global pipeline clock
-            # audiomixer latency handles sync between sources
-            audio_str = (
-                "audiomixer name=amix latency=500000000 ! "
-                "queue max-size-time=2000000000 leaky=downstream ! audioconvert ! "
-                f"audioresample ! audiorate ! {audio_enc} ! mux. "
-            )
-
-            # System Microfone (Default source)
-            # do-timestamp=true: use pipeline clock for timestamps
-            # provide-clock=false: don't compete for clock master
-            audio_str += (
-                "pulsesrc do-timestamp=true provide-clock=false "
-                "buffer-time=200000 latency-time=50000 "
-                "name=asrc_mic ! "
-                "queue max-size-time=1000000000 leaky=downstream ! "
-                "audioconvert ! audioresample ! "
-                f"volume name=avol_mic volume={mic_vol} ! amix. "
-            )
-
-            if extra_devs:
-                for i, dev in enumerate(extra_devs):
-                    safe = dev.replace('"', '\\"')
-                    if dev in self._active_audio_set and not self._global_muted:
-                        vol = self._source_volumes.get(dev, 1.0)
-                    else:
-                        vol = 0.0
-                    
-                    # USB sources follow global clock
-                    audio_str += (
-                        f'pulsesrc device="{safe}" do-timestamp=true '
-                        f'provide-clock=false '
-                        f'buffer-time=500000 latency-time=100000 '
-                        f'name=asrc_{i} ! '
-                        f'queue max-size-time=2000000000 max-size-buffers=0 max-size-bytes=0 ! '
-                        f'audioconvert ! audioresample ! '
-                        f'volume name=avol_{i} volume={vol} ! amix. '
-                    )
-
-        escaped = self._output_path.replace('"', '\\"')
-        pipeline_str = (
-            f"appsrc name=vsrc format=time is-live=true do-timestamp=true "
-            f"caps=video/x-raw,format=BGR,width={w},height={h},framerate=30/1 ! "
-            f"queue max-size-buffers=30 max-size-time=1000000000 leaky=downstream ! "
-            f"videoconvert ! {enc_str} ! "
-            f"{muxer} name=mux ! filesink location=\"{escaped}\" "
-            f"{audio_str}"
-        )
-
-        log.info("Recording pipeline: %s", pipeline_str)
-        log.info(
-            "Audio sources: all=%s active=%s volumes=%s",
-            self._audio_source_devices,
-            list(self._active_audio_set),
-            self._source_volumes,
-        )
-        try:
-            self._pipeline = Gst.parse_launch(pipeline_str)
-            self._vsrc = self._pipeline.get_by_name("vsrc")
-
-            # Collect all pulsesrc elements for EOS on stop
-            self._audio_srcs = []
-            mic = self._pipeline.get_by_name("asrc_mic")
-            if mic:
-                self._audio_srcs.append(mic)
-            for i in range(len(self._audio_source_devices)):
-                el = self._pipeline.get_by_name(f"asrc_{i}")
-                if el:
-                    self._audio_srcs.append(el)
-
-            # Collect volume elements for dynamic mute/unmute
-            self._audio_vol_elements = {}
-            mic_vol_el = self._pipeline.get_by_name("avol_mic")
-            if mic_vol_el:
-                self._audio_vol_elements["__mic__"] = mic_vol_el
-                
-            for i, dev in enumerate(self._audio_source_devices):
-                vol_el = self._pipeline.get_by_name(f"avol_{i}")
-                if vol_el:
-                    self._audio_vol_elements[dev] = vol_el
-                    log.info(
-                        "avol_%d (%s): volume=%.1f",
-                        i, dev, vol_el.get_property("volume"),
-                    )
-
-            bus = self._pipeline.get_bus()
-            bus.add_signal_watch()
-            bus.connect("message::error", self._on_error)
-
-            ret = self._pipeline.set_state(Gst.State.PLAYING)
-            if ret == Gst.StateChangeReturn.FAILURE:
-                log.error("Failed to start recording pipeline")
-                self._stop_pipeline()
-                return False
-            return True
-        except Exception as exc:
-            log.error("Failed to create recording pipeline: %s", exc)
-            return False
-
-    def set_source_active(self, source_name: str, active: bool) -> None:
-        """Mute or unmute a USB camera audio source in the recording pipeline."""
-        if active:
-            self._active_audio_set.add(source_name)
-        else:
-            self._active_audio_set.discard(source_name)
-        vol_el = self._audio_vol_elements.get(source_name)
-        if vol_el:
-            if active and not self._global_muted:
-                vol = self._source_volumes.get(source_name, 1.0)
-            else:
-                vol = 0.0
-            vol_el.set_property("volume", vol)
-            log.info("Recording audio %s: %s (vol=%.2f)", "unmuted" if active else "muted", source_name, vol)
-
-    def set_muted(self, muted: bool) -> None:
-        """Global mute/unmute all audio sources in the recording pipeline."""
-        self._global_muted = muted
-        for dev, vol_el in self._audio_vol_elements.items():
-            if muted:
-                vol_el.set_property("volume", 0.0)
-            else:
-                if dev == "__mic__":
-                    vol_el.set_property("volume", 1.0)
-                # Restore per-source volume if source is active
-                elif dev in self._active_audio_set:
-                    vol = self._source_volumes.get(dev, 1.0)
-                    vol_el.set_property("volume", vol)
-                # If not active, keep at 0.0
-        log.info("Recording global mute: %s", muted)
-
-    def set_source_volume(self, source_name: str, volume: float) -> None:
-        """Update per-source volume in the recording pipeline."""
-        volume = max(0.0, min(1.0, volume))
-        self._source_volumes[source_name] = volume
-        vol_el = self._audio_vol_elements.get(source_name)
-        if vol_el:
-            # Only apply if source is active and not globally muted
-            if source_name in self._active_audio_set and not self._global_muted:
-                vol_el.set_property("volume", volume)
-                log.info("Recording source volume: %s = %.2f", source_name, volume)
-
-    def write_frame(self, bgr: Any) -> None:
-        """Push a processed BGR frame into the recording pipeline."""
-        if not self._recording:
-            return
-
-        h, w = bgr.shape[:2]
-        if not self._ensure_pipeline(w, h):
-            return
-
-        # Resize if camera changed resolution (e.g. camera switch while recording)
-        if (w != self._w or h != self._h) and _HAS_CV2:
-            bgr = cv2.resize(bgr, (self._w, self._h), interpolation=cv2.INTER_LINEAR)
-
-        data = bgr.tobytes()
-        buf = Gst.Buffer.new_wrapped(data)
-        # We let appsrc (do-timestamp=true) handle the timestamps relative to pipeline start
-        if self._vsrc:
-            ret = self._vsrc.emit("push-buffer", buf)
-            if ret != Gst.FlowReturn.OK:
-                log.warning("Recording appsrc push error: %s", ret)
-
-    def _on_error(self, _bus, msg):
-        err, dbg = msg.parse_error()
-        log.error("Recording pipeline error: %s (%s)", err.message, dbg)
-
-    def stop(self) -> str | None:
-        """Stop recording and finalize the file."""
-        if not self._recording:
-            return None
-
-        self._recording = False
-        path = self._output_path
-
-        if self._pipeline:
-            # Capture references before clearing — finalization runs in background
-            pipeline = self._pipeline
-            vsrc = self._vsrc
-            audio_srcs = list(self._audio_srcs)
-            self._pipeline = None
-            self._vsrc = None
-            self._audio_srcs = []
-
-            def _finalize():
-                # Stop audio sources immediately and inject EOS downstream
-                for asrc in audio_srcs:
-                    src_pad = asrc.get_static_pad("src")
-                    peer = src_pad.get_peer() if src_pad else None
-                    asrc.set_state(Gst.State.NULL)
-                    if peer:
-                        peer.send_event(Gst.Event.new_eos())
-                # Stop video source
-                if vsrc:
-                    vsrc.emit("end-of-stream")
-
-                # Wait for EOS to propagate through mux → filesink
-                bus = pipeline.get_bus()
-                msg = bus.timed_pop_filtered(
-                    10 * Gst.SECOND,
-                    Gst.MessageType.EOS | Gst.MessageType.ERROR,
-                )
-                if msg and msg.type == Gst.MessageType.EOS:
-                    log.info("Recording pipeline EOS received")
-                elif msg and msg.type == Gst.MessageType.ERROR:
-                    err, dbg = msg.parse_error()
-                    log.error("Recording stop error: %s (%s)", err.message, dbg)
+    def _build(self, w, h):
+        encoder = self._select_encoder(w, h)
+        rate = self._fps
+        desc = (f"appsrc name=vsrc format=time is-live=true block=false max-buffers=4 "
+                f"leaky-type=downstream caps=video/x-raw,format=BGR,width={w},height={h},framerate={rate} ! "
+                f"queue max-size-buffers=4 max-size-bytes=0 max-size-time=0 ! videoconvert ! {encoder} ! "
+                f"{self._session_config.muxer} name=mux ! filesink location={gst_quote(self._output_path)} ")
+        if self._audio_devices:
+            desc += (f"audiomixer name=amix ignore-inactive-pads=true latency=100000000 ! audioconvert ! "
+                     f"audioresample ! {self._audio_encoder()} ! queue ! mux. "
+                     "audiotestsrc name=asilence is-live=true wave=silence ! "
+                     "audio/x-raw,rate=48000,channels=2 ! amix. ")
+            for i, device in enumerate(self._audio_devices):
+                if device in self._external_audio:
+                    rate, channels = (48000, 2) if self._external_audio[device] else (16000, 1)
+                    desc += (f"appsrc name=asrc_{i} format=time is-live=true do-timestamp=true "
+                             f"block=false max-buffers=8 leaky-type=downstream "
+                             f"caps=audio/x-raw,format=S16LE,rate={rate},channels={channels},layout=interleaved ! ")
                 else:
-                    log.warning("Recording stop: EOS timeout after 10s")
+                    desc += (f"pulsesrc device={gst_quote(device)} name=asrc_{i} "
+                             f"do-timestamp=true provide-clock=false buffer-time=200000 latency-time=50000 ! ")
+                desc += (
+                         f"queue max-size-time=500000000 max-size-buffers=0 max-size-bytes=0 leaky=downstream ! "
+                         f"audioconvert ! audioresample ! audio/x-raw,rate=48000,channels=2 ! volume name=avol_{i} volume={self._volume(device)} ! amix. ")
+        pipeline = Gst.parse_launch(desc)
+        if pipeline.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
+            pipeline.set_state(Gst.State.NULL)
+            raise RuntimeError("Failed to start the recording pipeline")
+        return pipeline
 
-                pipeline.set_state(Gst.State.NULL)
-                self._remux_container(path)
+    @staticmethod
+    def _check_bus(bus):
+        message = bus.pop_filtered(Gst.MessageType.ERROR)
+        if message:
+            err, _debug = message.parse_error()
+            raise RuntimeError(err.message)
 
-            self._finalize_thread = threading.Thread(
-                target=_finalize, daemon=True, name="rec-finalize",
-            )
-            self._finalize_thread.start()
-
-        log.info("Recording stopped: %s", path)
-        return path
-
-    def wait_finalize(self, timeout: float = 20.0) -> None:
-        """Block until the finalize thread completes (call before app exit)."""
-        t = self._finalize_thread
-        if t is not None and t.is_alive():
-            t.join(timeout=timeout)
-
-    def _remux_container(self, path: str) -> None:
-        """Remux container to fix metadata (duration, seek cues)."""
-        if not os.path.isfile(path):
-            return
-        ext = self._container_ext()
-        tmp = path + f".remux{ext}"
+    def _record(self):
+        pipeline = None
+        error = ""
+        success = False
+        path = self._output_path
         try:
-            result = subprocess.run(
-                ["ffmpeg", "-y", "-i", path, "-c", "copy", tmp],
-                capture_output=True,
-                timeout=120,
-            )
-            if result.returncode == 0 and os.path.isfile(tmp) and os.path.getsize(tmp) > 0:
-                os.replace(tmp, path)
-                log.info("Container metadata fixed: %s", os.path.basename(path))
-            else:
-                if os.path.isfile(tmp):
-                    os.remove(tmp)
-                log.warning("Remux failed: %s", result.stderr.decode(errors="replace")[:300])
-        except FileNotFoundError:
-            log.debug("ffmpeg not available for container remux")
-        except subprocess.TimeoutExpired:
-            log.warning("Remux timed out for %s", os.path.basename(path))
-            if os.path.isfile(tmp):
-                os.remove(tmp)
+            deadline = time.monotonic() + 15
+            first = None
+            while first is None:
+                if self._stop_event.is_set() or time.monotonic() >= deadline:
+                    raise RuntimeError("No video frame received before recording stopped")
+                try:
+                    first = self._frames.get(timeout=0.1)
+                except queue.Empty:
+                    pass
+            _, image = first
+            h, w = image.shape[:2]
+            w, h = max(2, w // 2 * 2), max(2, h // 2 * 2)
+            pipeline = self._build(w, h)
+            with self._lock:
+                self._pcm_sources = {device: pipeline.get_by_name(f"asrc_{i}")
+                                     for i, device in enumerate(self._audio_devices)
+                                     if device in self._external_audio}
+            for device, pid in self._external_audio.items():
+                if pid and device in self._audio_devices:
+                    self._capture_playback(device, pid)
+            bus = pipeline.get_bus()
+            vsrc = pipeline.get_by_name("vsrc")
+            volumes = [(device, pipeline.get_by_name(f"avol_{i}"))
+                       for i, device in enumerate(self._audio_devices)]
+            origin = time.monotonic_ns()
+            last_pts = -1
+            self._set_state("recording")
+            # Encoding probes can take seconds. Do not squeeze queued startup
+            # frames into identical mux timestamps at the start of the movie.
+            pending = (origin, first[1])
+            while not self._frames.empty():
+                try:
+                    self._frames.get_nowait()
+                    self.dropped_frames += 1
+                except queue.Empty:
+                    break
+            last_frame_at = time.monotonic()
+            while not self._stop_event.is_set() or not self._frames.empty() or pending is not None:
+                self._check_bus(bus)
+                if any(process.poll() is not None for process, _thread in self._audio_processes):
+                    raise RuntimeError("External audio capture stopped unexpectedly")
+                for device, volume in volumes:
+                    volume.set_property("volume", self._volume(device))
+                if pending is None:
+                    try:
+                        pending = self._frames.get(timeout=0.1)
+                    except queue.Empty:
+                        if time.monotonic() - last_frame_at > 10:
+                            raise RuntimeError("The camera stopped supplying frames")
+                        continue
+                captured, frame = pending
+                pending = None
+                last_frame_at = time.monotonic()
+                if frame.shape[:2] != (h, w):
+                    frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
+                buffer = bgr_buffer(frame)
+                buffer.pts = max(last_pts + 1, captured - origin, 0)
+                buffer.dts = Gst.CLOCK_TIME_NONE
+                last_pts = buffer.pts
+                if vsrc.emit("push-buffer", buffer) != Gst.FlowReturn.OK:
+                    raise RuntimeError("Video encoder rejected a frame")
+                self.frames_written += 1
+            self._set_state("finalizing")
+            vsrc.emit("end-of-stream")
+            # EOS each source downstream without a competing bus signal watch.
+            for i in range(len(self._audio_devices)):
+                source = pipeline.get_by_name(f"asrc_{i}")
+                if self._audio_devices[i] in self._external_audio:
+                    source.emit("end-of-stream")
+                else:
+                    source.send_event(Gst.Event.new_eos())
+            if self._audio_devices:
+                pipeline.get_by_name("asilence").send_event(Gst.Event.new_eos())
+            message = bus.timed_pop_filtered(10 * Gst.SECOND, Gst.MessageType.EOS | Gst.MessageType.ERROR)
+            if message is None:
+                raise RuntimeError("Recording finalization timed out; the partial file was preserved")
+            if message.type == Gst.MessageType.ERROR:
+                err, _debug = message.parse_error()
+                raise RuntimeError(err.message)
+            pipeline.set_state(Gst.State.NULL)
+            if not self.frames_written or os.path.getsize(path) == 0:
+                raise RuntimeError("The encoder produced no media")
+            with open(path, "rb") as media:
+                os.fsync(media.fileno())
+            success = True
+        except Exception as exc:
+            error = str(exc)
+            log.exception("Recording failed")
+        finally:
+            with self._lock:
+                self._pcm_sources.clear()
+            for process, thread in self._audio_processes:
+                if process.poll() is None:
+                    process.terminate()
+                try:
+                    process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=2)
+                thread.join(timeout=2)
+                process.stdout.close()
+            if pipeline is not None:
+                pipeline.set_state(Gst.State.NULL)
+            self._set_state("idle" if success else "error")
+            self._done.set()
+            GLib.idle_add(self._finalized, path, success, error)
 
-    def _stop_pipeline(self) -> None:
-        if self._pipeline:
-            self._pipeline.set_state(Gst.State.NULL)
-            self._pipeline = None
-        self._vsrc = None
-        self._audio_srcs = []
+    def _finalized(self, path, success, error):
+        self.emit("finalized", path, success, error)
+        return GLib.SOURCE_REMOVE

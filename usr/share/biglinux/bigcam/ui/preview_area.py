@@ -11,7 +11,7 @@ from gi.repository import Adw, Gtk, Graphene, GLib, GObject
 
 from core.audio_monitor import AudioMonitor
 from core.stream_engine import StreamEngine
-from utils.i18n import _
+from utils.i18n import _, ngettext
 
 
 class MirroredPicture(Gtk.Picture):
@@ -68,7 +68,7 @@ class PreviewArea(Gtk.Overlay):
 
         # -- video picture ---------------------------------------------------
         self._picture = MirroredPicture()
-        self._picture.set_content_fit(Gtk.ContentFit.COVER)
+        self._picture.set_content_fit(Gtk.ContentFit.CONTAIN)
         self._picture.set_hexpand(True)
         self._picture.set_vexpand(True)
         self._picture.set_halign(Gtk.Align.FILL)
@@ -307,6 +307,10 @@ class PreviewArea(Gtk.Overlay):
         )
         self._vol_sliders_box.set_visible(False)
         self._vol_sliders_box.set_halign(Gtk.Align.START)
+        self._volume_toggle = Gtk.ToggleButton(label=_("Volume"))
+        self._volume_toggle.update_property([Gtk.AccessibleProperty.LABEL], [_("Show volume controls")])
+        self._volume_toggle.connect("toggled", lambda button: self._vol_sliders_box.set_visible(button.get_active()))
+        top_row.append(self._volume_toggle)
         outer.append(self._vol_sliders_box)
 
         # Track per-source slider widgets: {source_name: Gtk.Scale}
@@ -350,7 +354,7 @@ class PreviewArea(Gtk.Overlay):
             self._vol_sliders_box.remove(child)
         self._source_scales.clear()
         self._source_scale_handlers.clear()
-        self._vol_sliders_box.set_visible(False)
+        self._vol_sliders_box.set_visible(self._volume_toggle.get_active())
 
         sources = mon.sources
         if not sources:
@@ -370,7 +374,7 @@ class PreviewArea(Gtk.Overlay):
             check.set_tooltip_text(label)
             check.update_property(
                 [Gtk.AccessibleProperty.LABEL],
-                [f"{label} – audio {idx}"],
+                [_("%(source)s — audio %(index)d") % {"source": label, "index": idx}],
             )
             check.connect("toggled", self._on_audio_check_toggled, src_name)
             item_box.append(check)
@@ -401,7 +405,7 @@ class PreviewArea(Gtk.Overlay):
             vol_scale.set_halign(Gtk.Align.CENTER)
             vol_scale.update_property(
                 [Gtk.AccessibleProperty.LABEL],
-                [f"{label} – volume"],
+                [_("%s — volume") % label],
             )
             handler_id = vol_scale.connect(
                 "value-changed", self._on_source_vol_changed, src_name
@@ -428,14 +432,12 @@ class PreviewArea(Gtk.Overlay):
         self._audio_box.set_visible(True)
         self._audio_rebuilding = False
 
-    def _on_audio_hover_enter(self, *_args) -> None:
-        """Show volume sliders when mouse enters the audio overlay."""
-        if self._source_scales:
-            self._vol_sliders_box.set_visible(True)
+    def _on_audio_hover_enter(self, *_args):
+        # Explicit toggle works with keyboard, touch and pointer alike.
+        pass
 
-    def _on_audio_hover_leave(self, *_args) -> None:
-        """Hide volume sliders when mouse leaves the audio overlay."""
-        self._vol_sliders_box.set_visible(False)
+    def _on_audio_hover_leave(self, *_args):
+        pass
 
     def _on_audio_check_toggled(
         self, check: Gtk.CheckButton, source_name: str
@@ -458,6 +460,7 @@ class PreviewArea(Gtk.Overlay):
             icon = "audio-volume-high-symbolic"
             self._mute_btn.set_tooltip_text(_("Mute"))
         self._mute_btn.set_icon_name(icon)
+        self._mute_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Unmute") if muted else _("Mute")])
 
     def _on_mute_clicked(self, _btn: Gtk.Button) -> None:
         if self._audio_monitor:
@@ -517,7 +520,7 @@ class PreviewArea(Gtk.Overlay):
             if fps > 0:
                 self._fps_label.set_text(f"{fps:.0f} FPS")
             else:
-                self._fps_label.set_text("⏵ Live")
+                self._fps_label.set_text(_("Live"))
             return True
         self._fps_label.set_visible(False)
         self._fps_timer = None
@@ -658,6 +661,8 @@ class PreviewArea(Gtk.Overlay):
                 )
             )
         self._status.set_icon_name("dialog-warning-symbolic")
+        self._status.set_child(self._retry_btn)
+        self._stop_progress_pulse()
         self._retry_btn.set_visible(True)
         self._stack.set_visible_child_name("status")
         self._last_error = ""
@@ -669,6 +674,7 @@ class PreviewArea(Gtk.Overlay):
             self._retry_timer = None
 
     def set_recording_state(self, recording: bool) -> None:
+        self._record_btn.update_property([Gtk.AccessibleProperty.LABEL], [_("Stop recording") if recording else _("Record video")])
         self._is_recording = recording
         if recording:
             self._record_btn.add_css_class("recording")
@@ -722,9 +728,12 @@ class PreviewArea(Gtk.Overlay):
         self._countdown_label.set_label(str(seconds))
         self._countdown_label.update_property(
             [Gtk.AccessibleProperty.LABEL],
-            [_("{n} seconds remaining").format(n=seconds)],
+            [ngettext("{n} second remaining", "{n} seconds remaining", seconds).format(n=seconds)],
         )
         self._countdown_label.set_visible(True)
+        if hasattr(self._countdown_label, "announce"):
+            self._countdown_label.announce(ngettext("%d second remaining", "%d seconds remaining", seconds) % seconds,
+                                           Gtk.AccessibleAnnouncementPriority.MEDIUM)
         self._countdown_timer_id = GLib.timeout_add(1000, self._tick_countdown)
 
     def _tick_countdown(self) -> bool:
@@ -733,7 +742,7 @@ class PreviewArea(Gtk.Overlay):
             self._countdown_label.set_label(str(self._countdown_remaining))
             self._countdown_label.update_property(
                 [Gtk.AccessibleProperty.LABEL],
-                [_("{n} seconds remaining").format(n=self._countdown_remaining)],
+                [ngettext("{n} second remaining", "{n} seconds remaining", self._countdown_remaining).format(n=self._countdown_remaining)],
             )
             return True
         self._countdown_label.set_visible(False)
@@ -749,3 +758,13 @@ class PreviewArea(Gtk.Overlay):
             self._countdown_timer_id = None
         self._countdown_label.set_visible(False)
         self._countdown_callback = None
+
+    def cancel_countdown(self):
+        self._cancel_countdown()
+
+    def cleanup(self):
+        self._cancel_countdown()
+        self._cancel_retry_timer()
+        self._stop_fps_timer()
+        self._stop_progress_pulse()
+        self.dismiss()

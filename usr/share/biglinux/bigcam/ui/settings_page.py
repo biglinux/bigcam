@@ -62,6 +62,9 @@ class SettingsPage(Gtk.ScrolledWindow):
             hscrollbar_policy=Gtk.PolicyType.NEVER,
             vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
         )
+        self._closed = False
+        self._debounce_sources = {}
+        self._scan_generation = 0
         self._settings = settings
         self._engine = stream_engine
         self._camera_manager = camera_manager
@@ -140,11 +143,11 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._theme_row = Adw.ComboRow(title=_("Theme"))
         self._theme_row.add_prefix(Gtk.Image.new_from_icon_name("preferences-desktop-appearance-symbolic"))
         theme_model = Gtk.StringList()
-        for t in (_("Light"), _("Dark")):
+        for t in (_("System"), _("Light"), _("Dark")):
             theme_model.append(t)
         self._theme_row.set_model(theme_model)
-        theme_idx = {"light": 0, "dark": 1}.get(
-            self._settings.get("theme"), 1
+        theme_idx = {"system": 0, "light": 1, "dark": 2}.get(
+            self._settings.get("theme"), 0
         )
         self._theme_row.set_selected(theme_idx)
         self._theme_row.update_property(
@@ -229,6 +232,13 @@ class SettingsPage(Gtk.ScrolledWindow):
         reset_warnings_row.set_activatable_widget(reset_btn)
         general.add(reset_warnings_row)
 
+        for key, title, description in [
+                ("reduce-motion", _("Reduce motion and flashes"), _("Avoid capture flashes and decorative animations.")),
+                ("auto-hide-controls", _("Automatically hide camera controls"), _("Controls remain visible while using keyboard focus."))]:
+            row = Adw.SwitchRow(title=title, subtitle=description)
+            row.set_active(self._settings.get(key))
+            row.connect("notify::active", lambda row, _spec, name=key: self._settings.set(name, row.get_active()))
+            general.add(row)
         content.append(general)
 
     def _build_preview(self, content: Gtk.Box) -> None:
@@ -281,7 +291,8 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._window_opacity_scale.set_value(self._settings.get("window-opacity"))
         self._window_opacity_scale.set_hexpand(True)
         self._window_opacity_scale.set_valign(Gtk.Align.CENTER)
-        self._window_opacity_scale.set_size_request(180, -1)
+        self._window_opacity_scale.set_size_request(120, -1)
+        self._window_opacity_scale.update_property([Gtk.AccessibleProperty.LABEL], [_("Background transparency")])
         self._window_opacity_scale.connect("value-changed", self._on_window_opacity)
         window_opacity_row.add_suffix(self._window_opacity_scale)
         preview.add(window_opacity_row)
@@ -298,7 +309,8 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._opacity_scale.set_value(self._settings.get("overlay-opacity"))
         self._opacity_scale.set_hexpand(True)
         self._opacity_scale.set_valign(Gtk.Align.CENTER)
-        self._opacity_scale.set_size_request(180, -1)
+        self._opacity_scale.set_size_request(120, -1)
+        self._opacity_scale.update_property([Gtk.AccessibleProperty.LABEL], [_("Overlay opacity")])
         self._opacity_scale.connect("value-changed", self._on_overlay_opacity)
         opacity_row.add_suffix(self._opacity_scale)
         preview.add(opacity_row)
@@ -315,7 +327,8 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._controls_opacity_scale.set_value(self._settings.get("controls-opacity"))
         self._controls_opacity_scale.set_hexpand(True)
         self._controls_opacity_scale.set_valign(Gtk.Align.CENTER)
-        self._controls_opacity_scale.set_size_request(180, -1)
+        self._controls_opacity_scale.set_size_request(120, -1)
+        self._controls_opacity_scale.update_property([Gtk.AccessibleProperty.LABEL], [_("Controls opacity")])
         self._controls_opacity_scale.connect("value-changed", self._on_controls_opacity)
         controls_opacity_row.add_suffix(self._controls_opacity_scale)
         preview.add(controls_opacity_row)
@@ -418,6 +431,14 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         def _on_vcodec(row, _pspec):
             idx = row.get_selected()
+            if idx >= len(_vcodec_keys):
+                return
+            if self._settings.get("recording-container") == "webm" and _vcodec_keys[idx] != "vp9":
+                row.set_selected(_vcodec_map["vp9"])
+                return
+            if self._settings.get("recording-container") == "mp4" and _vcodec_keys[idx] == "mjpeg":
+                row.set_selected(_vcodec_map["h264"])
+                return
             self._settings.set("recording-video-codec", _vcodec_keys[idx])
             self.emit("recording-config-changed")
 
@@ -437,6 +458,14 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         def _on_acodec(row, _pspec):
             idx = row.get_selected()
+            if idx >= len(_acodec_keys):
+                return
+            if self._settings.get("recording-container") == "webm" and _acodec_keys[idx] not in {"opus", "vorbis"}:
+                row.set_selected(_acodec_map["opus"])
+                return
+            if self._settings.get("recording-container") == "mp4" and _acodec_keys[idx] == "vorbis":
+                row.set_selected(_acodec_map["aac"])
+                return
             self._settings.set("recording-audio-codec", _acodec_keys[idx])
             self.emit("recording-config-changed")
 
@@ -456,6 +485,8 @@ class SettingsPage(Gtk.ScrolledWindow):
 
         def _on_container(row, _pspec):
             idx = row.get_selected()
+            if idx >= len(_container_keys):
+                return
             container = _container_keys[idx]
             self._settings.set("recording-container", container)
             # Auto-correct codecs incompatible with the chosen container
@@ -466,7 +497,7 @@ class SettingsPage(Gtk.ScrolledWindow):
                     self._acodec_row.set_selected(_acodec_map["opus"])
             elif container == "mp4":
                 vcodec = _vcodec_keys[self._vcodec_row.get_selected()]
-                if vcodec in ("vp9", "mjpeg"):
+                if vcodec == "mjpeg":
                     self._vcodec_row.set_selected(_vcodec_map["h264"])
                 if _acodec_keys[self._acodec_row.get_selected()] == "vorbis":
                     self._acodec_row.set_selected(_acodec_map["aac"])
@@ -541,7 +572,6 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._vc_toggle_row.connect("notify::active", self._on_vc_toggle)
         vc_group.add(self._vc_toggle_row)
 
-        content.append(vc_group)
 
         # Per-device virtual camera group
         self._vc_devices_group = Adw.PreferencesGroup(
@@ -593,10 +623,11 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _on_theme(self, row: Adw.ComboRow, _pspec) -> None:
         idx = row.get_selected()
-        value = {0: "light", 1: "dark"}.get(idx, "dark")
+        value = {0: "system", 1: "light", 2: "dark"}.get(idx, "system")
         self._settings.set("theme", value)
         style_manager = Adw.StyleManager.get_default()
         scheme_map = {
+            "system": Adw.ColorScheme.DEFAULT,
             "light": Adw.ColorScheme.FORCE_LIGHT,
             "dark": Adw.ColorScheme.FORCE_DARK,
         }
@@ -619,7 +650,13 @@ class SettingsPage(Gtk.ScrolledWindow):
 
 
     def _on_hotplug(self, row: Adw.SwitchRow, _pspec) -> None:
-        self._settings.set("hotplug_enabled", row.get_active())
+        enabled = row.get_active()
+        self._settings.set("hotplug_enabled", enabled)
+        if self._camera_manager:
+            if enabled:
+                self._camera_manager.start_hotplug()
+            else:
+                self._camera_manager.stop_hotplug()
 
     def _on_help_tooltips(self, row: Adw.SwitchRow, _pspec) -> None:
         active = row.get_active()
@@ -699,20 +736,20 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._settings.set("grid_overlay", active)
         self.emit("grid-overlay-changed", active)
 
-    def _on_overlay_opacity(self, scale: Gtk.Scale) -> None:
+    def _on_overlay_opacity(self, scale):
         value = int(scale.get_value())
-        self._settings.set("overlay-opacity", value)
         self.emit("overlay-opacity-changed", value)
+        self._save_later("overlay-opacity", value)
 
-    def _on_window_opacity(self, scale: Gtk.Scale) -> None:
+    def _on_window_opacity(self, scale):
         value = int(scale.get_value())
-        self._settings.set("window-opacity", value)
         self.emit("window-opacity-changed", value)
+        self._save_later("window-opacity", value)
 
-    def _on_controls_opacity(self, scale: Gtk.Scale) -> None:
+    def _on_controls_opacity(self, scale):
         value = int(scale.get_value())
-        self._settings.set("controls-opacity", value)
         self.emit("controls-opacity-changed", value)
+        self._save_later("controls-opacity", value)
 
     @staticmethod
     def _open_directory(path: str) -> None:
@@ -740,7 +777,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         return btn
 
     def _on_reset_general(self, _btn: Gtk.Button) -> None:
-        self._theme_row.set_selected(1)                # dark
+        self._theme_row.set_selected(0)                # system
         self._hotplug_row.set_active(True)
         self._help_tooltips_row.set_active(True)
         self._resource_row.set_active(True)
@@ -768,9 +805,11 @@ class SettingsPage(Gtk.ScrolledWindow):
     # -- QR Code handlers ----------------------------------------------------
 
     def _on_qr_toggled(self, row: Adw.SwitchRow, _pspec) -> None:
+        self._scan_generation += 1
         self._qr_active = row.get_active()
         if self._qr_active:
             self._init_qr_detector()
+            self._engine.set_qr_scanning(True)
             self._qr_timer_id = GLib.timeout_add(150, self._scan_qr)
         else:
             if self._qr_timer_id:
@@ -778,6 +817,7 @@ class SettingsPage(Gtk.ScrolledWindow):
                 self._qr_timer_id = None
             self._last_qr_text = ""
             self._engine.set_overlay_rects([])
+            self._engine.set_qr_scanning(False)
 
     def _init_qr_detector(self) -> None:
         if self._wechat_qr is not None or self._qr_detector is not None:
@@ -832,9 +872,9 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._qr_scanning = True
         import threading
 
-        threading.Thread(
-            target=self._scan_qr_worker, args=(frame.copy(),), daemon=True
-        ).start()
+        from utils.async_worker import run_async
+        self._worker_generation = (self._scan_generation, self._engine.current_camera)
+        run_async(self._scan_qr_worker, args=(frame.copy(),))
         return True
 
     def _scan_qr_worker(self, frame) -> None:
@@ -891,10 +931,13 @@ class SettingsPage(Gtk.ScrolledWindow):
 
     def _scan_qr_done(self, data: str, rects: list) -> bool:
         self._qr_scanning = False
+        if self._closed or not self._qr_active or getattr(self, "_worker_generation", None) != (self._scan_generation, self._engine.current_camera):
+            return GLib.SOURCE_REMOVE
         self._engine.set_overlay_rects(rects)
-        if data and data != self._last_qr_text:
+        if data and data != self._last_qr_text and not getattr(self, "_qr_dialog_open", False):
             self._last_qr_text = data
             self.emit("qr-detected", data)
+            self._qr_dialog_open = True
             qr_result = self._parse_qr(data)
             dialog = self._QrDialog(qr_result)
             root = self.get_root()
@@ -905,6 +948,7 @@ class SettingsPage(Gtk.ScrolledWindow):
         return False
 
     def _on_qr_dialog_closed(self, dialog) -> bool:
+        self._qr_dialog_open = False
         self._last_qr_text = ""
         dialog.destroy()
         return True
@@ -1017,3 +1061,28 @@ class SettingsPage(Gtk.ScrolledWindow):
         self._vc_toggle_row.set_active(active)
         self._vc_updating = False
         self._refresh_vc_status()
+
+    def cleanup(self):
+        self._closed = True
+        self._scan_generation += 1
+        self._settings.update(getattr(self, "_pending_settings", {}))
+        for timer in getattr(self, "_debounce_sources", {}).values():
+            GLib.source_remove(timer)
+        getattr(self, "_debounce_sources", {}).clear()
+        for name in ("_qr_timer_id",):
+            timer = getattr(self, name, None)
+            if timer:
+                GLib.source_remove(timer)
+                setattr(self, name, None)
+
+    def _save_later(self, key, value):
+        timer = self._debounce_sources.pop(key, None)
+        if timer:
+            GLib.source_remove(timer)
+        self._pending_settings = getattr(self, "_pending_settings", {})
+        self._pending_settings[key] = value
+        def save():
+            self._debounce_sources.pop(key, None)
+            self._settings.set(key, self._pending_settings.pop(key))
+            return GLib.SOURCE_REMOVE
+        self._debounce_sources[key] = GLib.timeout_add(200, save)

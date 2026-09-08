@@ -54,6 +54,7 @@ class ImmersionController:
         self._header_revealer: Gtk.Revealer | None = None
         self._extra_revealers: list[Gtk.Revealer] = []
         self._fade_widgets: list[Gtk.Widget] = []
+        self._target_defaults = {}
         self._split_view: Adw.OverlaySplitView | None = None
         self._root_box: Gtk.Widget | None = None
 
@@ -92,6 +93,7 @@ class ImmersionController:
         """Register a widget whose opacity will be animated on hide/show."""
         if widget not in self._fade_widgets:
             self._fade_widgets.append(widget)
+            self._target_defaults[widget] = widget.get_can_target()
 
     def add_revealer(self, revealer: Gtk.Revealer) -> None:
         """Register an extra revealer to hide/show alongside the header."""
@@ -190,6 +192,14 @@ class ImmersionController:
         return False
 
     def _on_inactivity_timeout(self) -> bool:
+        settings = getattr(self._window, "_settings", None)
+        if settings and not settings.get("auto-hide-controls"):
+            self._timer_id = None
+            return GLib.SOURCE_REMOVE
+        focus = self._window.get_focus()
+        if focus is not None and focus.get_visible():
+            self._timer_id = None
+            return GLib.SOURCE_REMOVE
         if self._inhibit_count == 0:
             if self._is_any_popover_mapped(self._window):
                 return True  # Keep timeout alive while popover is open
@@ -206,7 +216,9 @@ class ImmersionController:
         if self._is_immersed:
             return
         self._is_immersed = True
-        self._fade_step = 0
+        settings = getattr(self._window, "_settings", None)
+        reduced = bool(settings and settings.get("reduce-motion")) or not Gtk.Settings.get_default().get_property("gtk-enable-animations")
+        self._fade_step = _FADE_STEPS - 1 if reduced else 0
 
         # Header revealer: smooth slide-up
         if self._header_revealer:
@@ -284,7 +296,7 @@ class ImmersionController:
         # Widgets: instant full opacity + re-enable interaction
         for w in self._fade_widgets:
             w.set_opacity(1.0)
-            w.set_can_target(True)
+            w.set_can_target(self._target_defaults[w])
 
         # Restore mouse cursor
         self._window.set_cursor(None)

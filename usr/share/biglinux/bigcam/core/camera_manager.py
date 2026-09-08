@@ -22,6 +22,9 @@ from core.backends.gphoto2_backend import GPhoto2Backend
 from core.backends.libcamera_backend import LibcameraBackend
 from core.backends.pipewire_backend import PipeWireBackend
 from core.backends.ip_backend import IPBackend
+from core.camera_identity import MANUAL_BACKENDS, unique_cameras
+from utils.async_worker import run_async
+from utils.i18n import _
 
 
 class CameraManager(GObject.Object):
@@ -37,6 +40,10 @@ class CameraManager(GObject.Object):
         self._backends: list[CameraBackend] = []
         self._cameras: list[CameraInfo] = []
         self._detecting = False
+        self._detection_generation = 0
+        self._detection_task = None
+        self._pending_rescan = False
+        self._closed = False
         self._first_detection = True
         self._hotplug_timer: int | None = None
         self._last_lsusb: str = ""
@@ -90,125 +97,76 @@ class CameraManager(GObject.Object):
     # -- detection -----------------------------------------------------------
 
     def detect_cameras_async(self, force_emit: bool = False) -> None:
-        """Run detection on all backends in a background thread."""
+        """Detect in parallel, then publish one complete generation on the main loop.
+
+        Partial snapshots used to remove cameras whose slower backend had not yet
+        returned. A hotplug event during a scan now requests one coalesced rescan.
+        """
+        if self._closed:
+            return
         if self._detecting:
+            self._pending_rescan = True
             return
         self._detecting = True
         self._force_emit = force_emit
+        self._detection_generation += 1
+        generation = self._detection_generation
+        backends = [b for b in self._backends if b.get_backend_type() != BackendType.IP]
 
-        # Backend priority: lower number = higher priority for duplicate resolution
-        _BACKEND_PRIORITY = {
-            BackendType.V4L2: 0,
-            BackendType.GPHOTO2: 1,
-            BackendType.LIBCAMERA: 2,
-            BackendType.PIPEWIRE: 3,
-        }
-
-        def _normalize_name(name: str) -> str:
-            """Strip non-alphanumeric chars for duplicate detection."""
-            return re.sub(r"[^a-z0-9 ]", "", name.lower()).strip()
-
-        def _worker() -> None:
-            all_cameras: list[CameraInfo] = []
-            seen_ids: set[str] = set()
-            seen_norm: list[tuple[str, int]] = []  # (norm_name, index_in_all_cameras)
-            merge_lock = threading.Lock()
-
-            backends_to_scan = [
-                b for b in self._backends
-                if b.get_backend_type() != BackendType.IP
-            ]
-
-            def _detect_one(b: CameraBackend) -> list[CameraInfo]:
-                try:
-                    return b.detect_cameras()
-                except Exception as exc:
-                    GLib.idle_add(self.emit, "camera-error", str(exc))
-                    return []
-
-            completed = 0
-            total = len(backends_to_scan)
-
+        def detect_one(backend):
             try:
-                with ThreadPoolExecutor(max_workers=total) as pool:
-                    futures = {
-                        pool.submit(_detect_one, b): b for b in backends_to_scan
-                    }
-                    for future in as_completed(futures):
-                        found = future.result()
-                        with merge_lock:
-                            for cam in found:
-                                if cam.id in seen_ids:
-                                    continue
-                                norm = _normalize_name(cam.name)
-                                cam_prio = _BACKEND_PRIORITY.get(cam.backend, 99)
-                                dup_idx = -1
-                                for sn, idx in seen_norm:
-                                    if sn in norm or norm in sn:
-                                        dup_idx = idx
-                                        break
-                                if dup_idx >= 0:
-                                    # Duplicate found — replace if new camera has higher priority
-                                    existing = all_cameras[dup_idx]
-                                    existing_prio = _BACKEND_PRIORITY.get(existing.backend, 99)
-                                    if cam_prio < existing_prio:
-                                        seen_ids.discard(existing.id)
-                                        seen_ids.add(cam.id)
-                                        all_cameras[dup_idx] = cam
-                                        # Update norm entry
-                                        for i, (sn, sidx) in enumerate(seen_norm):
-                                            if sidx == dup_idx:
-                                                seen_norm[i] = (norm, dup_idx)
-                                                break
-                                    continue
-                                seen_ids.add(cam.id)
-                                seen_norm.append((norm, len(all_cameras)))
-                                all_cameras.append(cam)
-                            completed += 1
-                            snapshot = list(all_cameras)
-                            is_last = completed == total
-
-                        # Emit partial results so fast backends show up immediately
-                        if is_last:
-                            self._detecting = False
-                            GLib.idle_add(self._on_detection_done, snapshot)
-                        elif snapshot:
-                            # Only emit partial results when there are cameras to show
-                            GLib.idle_add(self._on_detection_done, snapshot)
+                return backend.detect_cameras()
             except Exception:
-                self._detecting = False
+                log.exception("Camera detection failed for %s", type(backend).__name__)
+                # A failed scan is not proof that the device disappeared.
+                return [c for c in previous if c.backend == backend.get_backend_type()]
 
-        threading.Thread(target=_worker, daemon=True).start()
+        previous = self.cameras
+        def worker():
+            if not backends:
+                return []
+            with ThreadPoolExecutor(max_workers=min(4, len(backends))) as pool:
+                groups = list(pool.map(detect_one, backends))
+            return unique_cameras([camera for group in groups for camera in group])
+
+        def done(cameras):
+            if self._closed or generation != self._detection_generation:
+                return
+            self._detecting = False
+            self._on_detection_done(cameras)
+            if self._pending_rescan:
+                self._pending_rescan = False
+                self.detect_cameras_async(force_emit=True)
+
+        def failed(error):
+            if generation == self._detection_generation and not self._closed:
+                self._detecting = False
+                self.emit("camera-error", _("Camera detection failed. Try refreshing the camera list."))
+        self._detection_task = run_async(worker, on_success=done, on_error=failed)
 
     def _on_detection_done(self, cameras: list[CameraInfo]) -> bool:
-        # Preserve manually-added cameras (IP, phone) across hotplug scans
-        manual_backends = {BackendType.IP, BackendType.PHONE}
-        manual_cameras = [
-            c for c in self._cameras
-            if c.backend in manual_backends or c.id.startswith("phone:")
-        ]
-        seen_ids = {c.id for c in cameras}
-        for mc in manual_cameras:
-            if mc.id not in seen_ids:
-                cameras.append(mc)
-
-        old_ids = {c.id for c in self._cameras}
-        new_ids = {c.id for c in cameras}
-        self._cameras = cameras
-        changed = self._first_detection or old_ids != new_ids or getattr(self, "_force_emit", False)
+        manual = [c for c in self._cameras if c.backend in MANUAL_BACKENDS]
+        # Keep the live objects for existing sessions; refresh metadata in place.
+        old = {c.id: c for c in self._cameras}
+        merged = unique_cameras([*cameras, *manual])
+        result = []
+        for camera in merged:
+            existing = old.get(camera.id)
+            if existing is not None:
+                existing.name = camera.name
+                existing.formats = camera.formats or existing.formats
+                existing.capabilities = camera.capabilities
+                existing.extra.update(camera.extra)
+                result.append(existing)
+            else:
+                result.append(camera)
+        changed = self._first_detection or set(old) != {c.id for c in result} or self._force_emit
+        self._cameras = result
         self._force_emit = False
-        log.info(
-            "Detection done: %d cameras, old=%s, new=%s, first=%s, emit=%s",
-            len(cameras),
-            old_ids,
-            new_ids,
-            self._first_detection,
-            changed,
-        )
         if changed:
             self._first_detection = False
             self.emit("cameras-changed")
-        return False
+        return GLib.SOURCE_REMOVE
 
     def add_ip_cameras(self, entries: list[dict[str, str]]) -> None:
         """Add manually-configured IP cameras."""
@@ -269,7 +227,7 @@ class CameraManager(GObject.Object):
             return [
                 CameraControl(
                     id="audio_volume",
-                    name="Audio Volume",
+                    name=_("Audio Volume"),
                     category=ControlCategory.ADVANCED,
                     control_type=ControlType.INTEGER,
                     value=vol,
@@ -310,21 +268,15 @@ class CameraManager(GObject.Object):
 
     # -- gstreamer proxy -----------------------------------------------------
 
-    def get_gst_source(
-        self, camera: CameraInfo, fmt: VideoFormat | None = None,
-        prefer_v4l2: bool = False,
-    ) -> str:
+    def get_gst_source(self, camera: CameraInfo, fmt: VideoFormat | None = None,
+                       prefer_v4l2: bool = False) -> str:
         backend_type = camera.backend
         if backend_type in (BackendType.AIRPLAY, BackendType.SCRCPY):
             backend_type = BackendType.V4L2
-
         backend = self.get_backend(backend_type)
-        if backend:
-            try:
-                return backend.get_gst_source(camera, fmt, prefer_v4l2=prefer_v4l2)
-            except TypeError:
-                return backend.get_gst_source(camera, fmt)
-        return ""
+        if isinstance(backend, V4L2Backend):
+            return backend.get_gst_source(camera, fmt, prefer_v4l2=prefer_v4l2)
+        return backend.get_gst_source(camera, fmt) if backend else ""
 
     # -- photo proxy ---------------------------------------------------------
 
@@ -503,3 +455,10 @@ class CameraManager(GObject.Object):
                     log.debug("Video device check failed", exc_info=True)
             if changed:
                 GLib.idle_add(self.detect_cameras_async)
+
+    def close(self) -> None:
+        self._closed = True
+        self._detection_generation += 1
+        if self._detection_task:
+            self._detection_task.cancel()
+        self.stop_hotplug()

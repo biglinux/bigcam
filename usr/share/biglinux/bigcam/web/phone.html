@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BigCam</title><style>
+*{box-sizing:border-box}body{margin:0;padding:1rem;font:1rem system-ui,sans-serif;background:#15151a;color:#fafafa;min-height:100vh;min-height:100dvh}
+main{max-width:55rem;margin:auto}h1{margin:0.25rem 0}video{display:block;width:100%;max-height:55vh;background:#000;object-fit:contain;border-radius:.5rem}
+.controls{display:flex;flex-wrap:wrap;gap:.75rem;align-items:end;margin:1rem 0}label{display:flex;flex-direction:column;gap:.3rem}select,button{font:inherit;min-height:44px;padding:.6rem;border:1px solid #9a9aaf;border-radius:.4rem;background:#30303b;color:#fafafa}button{cursor:pointer}button:disabled{opacity:.65}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #ffdc4a;outline-offset:3px}[hidden]{display:none!important}#status{padding:.5rem;border-left:4px solid #d5ac19}#stats,.tip{color:#ceced6}.microphone{flex-direction:row;align-items:center}input{width:1.3rem;height:1.3rem}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(forced-colors:active){button,select{border:1px solid ButtonText}}
+</style></head><body><main><h1>BigCam</h1><p data-i18n="title"></p>
+<p id="status" role="status" aria-live="polite" data-i18n="disconnected"></p>
+<video id="video" autoplay playsinline muted data-label="preview"></video><canvas id="canvas" hidden></canvas>
+<div class="controls">
+<label><span data-i18n="resolution"></span><select id="resolution"><option value="auto" data-i18n="auto"></option><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option></select></label>
+<label><span data-i18n="camera"></span><select id="facing"><option value="environment" data-i18n="back"></option><option value="user" data-i18n="front"></option></select></label>
+<label><span data-i18n="quality"></span><select id="quality"><option value="0.6" data-i18n="low"></option><option value="0.75" selected data-i18n="medium"></option><option value="0.9" data-i18n="high"></option></select></label>
+<label><span data-i18n="fps"></span><select id="fps"><option value="15">15</option><option value="24">24</option><option value="30" selected>30</option></select></label>
+<label class="microphone"><input id="microphone" type="checkbox"><span data-i18n="microphone"></span></label>
+<button id="start" data-i18n="start"></button><button id="stop" data-i18n="stop" hidden></button><button id="switch" data-i18n="switch" hidden></button>
+</div><p id="stats" aria-live="off"></p><p class="tip" data-i18n="tip"></p>
+<script type="application/json" id="config">__CONFIG__</script>
+<script src="/phone.js?token=__TOKEN__" defer></script></main></body></html>
