@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, 'fix/audit-hardening-20260907']
+    branches: [main]
 permissions:
   contents: read
 concurrency:
