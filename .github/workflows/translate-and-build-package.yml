@@ -1,83 +1,56 @@
-name: Translate and Build Package
-
+name: Catalog validation and explicit build dispatch
 on:
+  pull_request:
+    branches: [main]
+    paths: ['locale/**', 'usr/share/biglinux/bigcam/**', '.github/workflows/translate-and-build-package.yml']
+  push:
+    branches: [main]
+    paths: ['locale/**']
   workflow_dispatch:
     inputs:
-      debug_enabled:
+      dispatch_build:
         type: boolean
-        description: 'With TMATE'
-        required: false
+        description: Dispatch the reviewed main revision to BigLinux package builders
+        required: true
         default: false
-
-  push:
-    branches: [ "*" ]
-
+permissions:
+  contents: read
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  catalogs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - name: If Template exit
-        shell: bash
-        run: |
-          cancel () {
-            echo "Pacote de template, não precisa traduzir e compilar"
-            echo "SAINDO...."
-            curl -s -H "Authorization: token ${{ github.token }}" \
-            -X POST "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
-            sleep infinity
-          }
-          if [ -n "$(grep biglinux-package-template pkgbuild/PKGBUILD)" ];then
-            cancel
-          fi
-      
-      - name: Install Translator Dependencies
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install \
-          git \
-          gettext \
-          npm
-          # Install attranslator
-          sudo npm install --location=global attranslate
-
-      ## Tmate ##
-      - name: Setup TMATE Session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
-
-      - name: Translate Package
-        shell: bash #-O extglob {0}
-        env:
-          AZURE_KEY: ${{ secrets.AZURE_KEY }}
-          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
-        run: |
-          cd ..
-          git clone https://github.com/biglinux/big-auto-translator.git
-          mv big-auto-translator/gettext_po_generator_github.sh .
-          sudo cp -f big-auto-translator/openai-translate.js /usr/local/lib/node_modules/attranslate/dist/services/openai-translate.js
-          gitfolder=$(echo ${{ github.repository }} | rev | cut -d "/" -f1 | rev)
-          # export OriginalLang=pt-BR
-          bash gettext_po_generator_github.sh $gitfolder
-
-      - name: Update github
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add --all
-          if [ -n "$(git commit -m "translate $(date +%y-%m-%d_%H:%M)" -a | grep "nothing to commit")" ];then exit 0; fi
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
-
-      - name: Send Hooks BigLinux Build Package
+          persist-credentials: false
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gettext
+      - name: Validate catalogs without translation-service secrets or repository writes
         shell: bash
         run: |
-          if [ -z "$(grep biglinux-package-template pkgbuild/PKGBUILD)" ];then
-            curl -X POST -H "Accept: application/json" -H "Authorization: token ${{ secrets.WEBHOOK_TOKEN }}" --data '{"event_type": "${{ github.repository }}", "client_payload": { "branch": "${{ github.ref_name }}", "url": "https://github.com/${{ github.repository }}"}}' https://api.github.com/repos/BigLinux-Package-Build/build-package/dispatches
-            curl -X POST -H "Accept: application/json" -H "Authorization: token ${{ secrets.WEBHOOK_TOKEN }}" --data '{"event_type": "${{ github.repository }}", "client_payload": { "branch": "${{ github.ref_name }}", "url": "https://github.com/${{ github.repository }}"}}' https://api.github.com/repos/BigLinux-Package-Build/build-package-ARM/dispatches
-          fi
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/catalogs"
+          for po in locale/*.po; do
+            msgfmt --check --check-format -o "$RUNNER_TEMP/catalogs/$(basename "${po%.po}").mo" "$po"
+          done
+  dispatch:
+    needs: catalogs
+    if: github.event_name == 'workflow_dispatch' && inputs.dispatch_build && github.ref == 'refs/heads/main' && github.repository == 'biglinux/bigcam'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    environment: package-release
+    steps:
+      - name: Dispatch fixed revision; never execute repository code with this credential
+        env:
+          WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
+          REVISION: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$WEBHOOK_TOKEN"
+          body=$(python3 -c 'import json,os; print(json.dumps({"event_type":"biglinux/bigcam","client_payload":{"branch":os.environ["REVISION"],"url":"https://github.com/biglinux/bigcam"}}))')
+          for repository in build-package build-package-ARM; do
+            curl --fail-with-body --silent --show-error --max-time 30 -X POST \
+              -H 'Accept: application/vnd.github+json' -H "Authorization: Bearer $WEBHOOK_TOKEN" \
+              -H 'X-GitHub-Api-Version: 2022-11-28' --data "$body" \
+              "https://api.github.com/repos/BigLinux-Package-Build/$repository/dispatches"
+          done
